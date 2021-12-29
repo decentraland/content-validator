@@ -12,7 +12,7 @@ const correspondsToASnapshot = (fileName: string, hash: string, metadata: Profil
 }
 
 /** Validate that uploaded and reported hashes are corrects and files corresponds to snapshots */
-const content: Validation = {
+export const content: Validation = {
   validate: async ({ deployment, externalCalls }) => {
     const { entity, files } = deployment
     const errors: string[] = []
@@ -50,5 +50,3 @@ const content: Validation = {
     return fromErrors(...errors)
   },
 }
-
-export default content

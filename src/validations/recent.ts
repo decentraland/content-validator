@@ -4,7 +4,7 @@ import { OK, Validation, validationFailed } from "../types"
 const REQUEST_TTL_FORWARDS: number = ms("15m")
 
 /** Validate that the deployment is recent */
-const recent: Validation = {
+export const recent: Validation = {
   validate: ({ deployment, externalCalls }) => {
     // Verify that the timestamp is recent enough. We need to make sure that the definition of recent works with the synchronization mechanism
     const delta = Date.now() - deployment.entity.timestamp
@@ -16,5 +16,3 @@ const recent: Validation = {
     return OK
   },
 }
-
-export default recent

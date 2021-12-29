@@ -5,7 +5,7 @@ import { OK, Validation, validationFailed } from "../types"
  *
  * ADR X: After given TIMESTAMPT will also include previous deployments in the validation
  */
-const size: Validation = {
+export const size: Validation = {
   validate: async ({ deployment, externalCalls }) => {
     const { entity } = deployment
     const maxSizeInMB = externalCalls.getMaxUploadSizePerTypeInMB(entity.type)
@@ -33,5 +33,3 @@ const size: Validation = {
     return errors.length > 0 ? validationFailed(...errors) : OK
   },
 }
-
-export default size

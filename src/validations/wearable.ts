@@ -65,11 +65,9 @@ const thumbnail: Validation = {
   },
 }
 
-const wearable: Validation = {
+export const wearable: Validation = {
   validate: async (args) => {
     if (args.deployment.entity.type !== EntityType.WEARABLE) return OK
     return validateInRow(args, size, thumbnail)
   },
 }
-
-export default wearable

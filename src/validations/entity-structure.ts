@@ -1,7 +1,7 @@
 import { OK, Validation, validationFailed } from "../types"
 
 // Validate that entity is actually ok
-const entityStructure: Validation = {
+export const entityStructure: Validation = {
   validate: async ({ deployment }) => {
     const { entity } = deployment
     if (new Set(entity.pointers).size != entity.pointers.length) {
@@ -12,5 +12,3 @@ const entityStructure: Validation = {
     return OK
   },
 }
-
-export default entityStructure

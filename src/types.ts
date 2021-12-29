@@ -1,4 +1,4 @@
-import { AuditInfo, ContentFileHash, Entity, EntityId, EntityType } from "dcl-catalyst-commons"
+import { AuditInfo, ContentFileHash, Entity, EntityId, EntityType, Fetcher } from "dcl-catalyst-commons"
 
 export type LocalDeploymentAuditInfo = Pick<AuditInfo, "authChain" | "migrationData">
 
@@ -35,6 +35,18 @@ export type ExternalCalls = {
   isAddressOwnedByDecentraland: (address: string) => Promise<boolean>
   requestTtlBackwards: number
   wearableSizeLimitInMB: number
+  queryGraph: Fetcher["queryGraph"]
+  subgraphs: {
+    L1: {
+      landManager: string
+      blocks: string
+      collections: string
+    }
+    L2: {
+      blocks: string
+      collections: string
+    }
+  }
 }
 
 export interface Validator {

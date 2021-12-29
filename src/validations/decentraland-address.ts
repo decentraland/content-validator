@@ -1,7 +1,7 @@
 import { conditionalValidation } from "../types"
 
 /** Validate that the address used was owned by Decentraland */
-export default conditionalValidation({
+export const decentralandAddress = conditionalValidation({
   predicate: async ({ deployment, externalCalls }) => {
     const address = externalCalls.ownerAddress(deployment.auditInfo)
     return await externalCalls.isAddressOwnedByDecentraland(address)
