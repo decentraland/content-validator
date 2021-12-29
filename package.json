@@ -1,33 +1,41 @@
 {
-  "name": "@well-known-components/base-component",
+  "name": "@dcl/content-validator",
   "version": "1.0.0",
-  "description": "base component",
+  "description": "Catalyst content validations",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {},
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/well-known-components/base-component.git"
+    "url": "git+https://github.com/decentraland/content-validator.git"
   },
   "keywords": [],
   "author": "",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/well-known-components/base-component/issues"
+    "url": "https://github.com/decentraland/content-validator/issues"
   },
   "prettier": {
     "printWidth": 120,
     "semi": false
   },
-  "homepage": "https://github.com/well-known-components/base-component#readme",
+  "homepage": "https://github.com/decentraland/content-validator#readme",
   "devDependencies": {
+    "@dcl/eslint-config": "^1.0.0",
     "@microsoft/api-extractor": "^7.17.0",
-    "typescript": "^4.3.5",
     "@types/jest": "^27.0.1",
+    "@types/ms": "^0.7.31",
+    "@types/sharp": "^0.29.5",
     "jest": "^27.0.6",
-    "ts-jest": "^27.0.5"
+    "ts-jest": "^27.0.5",
+    "typescript": "^4.3.5"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@dcl/schemas": "^3.1.1",
+    "dcl-catalyst-commons": "^7.1.3",
+    "ms": "^2.1.3",
+    "sharp": "^0.29.3"
+  },
   "files": [
     "dist"
   ]
