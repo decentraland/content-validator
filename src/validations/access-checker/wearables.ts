@@ -1,16 +1,16 @@
-import { EthAddress } from "@dcl/schemas"
-import { BlockchainCollectionV1Asset, BlockchainCollectionV2Asset, OffChainAsset, parseUrn } from "@dcl/urn-resolver"
-import { Hashing, Timestamp } from "dcl-catalyst-commons"
-import ms from "ms"
-import { EntityWithEthAddress, ExternalCalls, validationFailed } from "../.."
-import { OK, Validation } from "../../types"
+import { EthAddress } from '@dcl/schemas'
+import { BlockchainCollectionV1Asset, BlockchainCollectionV2Asset, OffChainAsset, parseUrn } from '@dcl/urn-resolver'
+import { Hashing, Timestamp } from 'dcl-catalyst-commons'
+import ms from 'ms'
+import { EntityWithEthAddress, ExternalCalls, validationFailed } from '../..'
+import { OK, Validation } from '../../types'
 
-const L1_NETWORKS = ["mainnet", "ropsten", "kovan", "rinkeby", "goerli"]
-const L2_NETWORKS = ["matic", "mumbai"]
+const L1_NETWORKS = ['mainnet', 'ropsten', 'kovan', 'rinkeby', 'goerli']
+const L2_NETWORKS = ['matic', 'mumbai']
 
 // When we want to find a block for a specific timestamp, we define an access window. This means that
 // we will place will try to find the closes block to the timestamp, but only if it's within the window
-const ACCESS_WINDOW_IN_SECONDS = ms("15s") / 1000
+const ACCESS_WINDOW_IN_SECONDS = ms('15s') / 1000
 
 type SupportedAssets = BlockchainCollectionV1Asset | BlockchainCollectionV2Asset | OffChainAsset
 
@@ -49,21 +49,21 @@ const alreadySeen = (resolvedPointers: SupportedAssets[], parsed: SupportedAsset
 const resolveSameUrn = (alreadyParsed: SupportedAssets, parsed: SupportedAssets): boolean => {
   const alreadyParsedCopy = Object.assign({}, alreadyParsed)
   const parsedCopy = Object.assign({}, parsed)
-  alreadyParsedCopy.uri = new URL("urn:same")
-  parsedCopy.uri = new URL("urn:same")
+  alreadyParsedCopy.uri = new URL('urn:same')
+  parsedCopy.uri = new URL('urn:same')
   return JSON.stringify(alreadyParsedCopy) == JSON.stringify(parsedCopy)
 }
 
 const parseUrnNoFail = async (urn: string): Promise<SupportedAssets | null> => {
   try {
     const parsed = await parseUrn(urn)
-    if (parsed?.type === "blockchain-collection-v1-asset") {
+    if (parsed?.type === 'blockchain-collection-v1-asset') {
       return parsed
     }
-    if (parsed?.type === "blockchain-collection-v2-asset") {
+    if (parsed?.type === 'blockchain-collection-v2-asset') {
       return parsed
     }
-    if (parsed?.type === "off-chain") {
+    if (parsed?.type === 'off-chain') {
       return parsed
     }
   } catch {}
@@ -298,16 +298,16 @@ export const wearables: Validation = {
 
     const parsed = resolvedPointers[0]
 
-    if (!["off-chain", "blockchain-collection-v1-asset", "blockchain-collection-v2-asset"].includes(parsed.type))
+    if (!['off-chain', 'blockchain-collection-v1-asset', 'blockchain-collection-v2-asset'].includes(parsed.type))
       return validationFailed(`Could not resolve the contractAddress of the urn ${parsed}`)
 
-    if (parsed.type === "off-chain") {
+    if (parsed.type === 'off-chain') {
       // Validate Off Chain Asset
-      if (externalCalls.isAddressOwnedByDecentraland(ethAddress))
+      if (!externalCalls.isAddressOwnedByDecentraland(ethAddress))
         return validationFailed(
           `The provided Eth Address '${ethAddress}' does not have access to the following wearable: '${parsed.uri}'`
         )
-    } else if (parsed?.type === "blockchain-collection-v1-asset" || parsed?.type === "blockchain-collection-v2-asset") {
+    } else if (parsed?.type === 'blockchain-collection-v1-asset' || parsed?.type === 'blockchain-collection-v2-asset') {
       // L1 or L2 so contractAddress is present
       const collection = parsed.contractAddress!
       const network = parsed.network
@@ -336,9 +336,10 @@ export const wearables: Validation = {
           return validationFailed(
             `The provided Eth Address does not have access to the following wearable: (${parsed.contractAddress}, ${parsed.id})`
           )
+
         // Some L1 collections are deployed by Decentraland Address
         // Maybe this is not necessary as we already know that it's a 'blockchain-collection-v1-asset'
-        const isAllowlistedCollection = parsed.uri.toString().startsWith("urn:decentraland:ethereum:collections-v1")
+        const isAllowlistedCollection = parsed.uri.toString().startsWith('urn:decentraland:ethereum:collections-v1')
         if (!externalCalls.isAddressOwnedByDecentraland(ethAddress) || !isAllowlistedCollection) {
           return validationFailed(
             `The provided Eth Address '${ethAddress}' does not have access to the following wearable: '${parsed.uri}'`

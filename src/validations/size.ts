@@ -1,5 +1,5 @@
-import { ADR_X_TIMESTAMP, calculateDeploymentSize } from "."
-import { OK, Validation, validationFailed } from "../types"
+import { ADR_X_TIMESTAMP, calculateDeploymentSize } from '.'
+import { OK, Validation, validationFailed } from '../types'
 
 /** Validate that the full request size is within limits
  *
@@ -17,7 +17,7 @@ export const size: Validation = {
     let totalSize = 0
     if (entity.timestamp > ADR_X_TIMESTAMP) {
       const result = await calculateDeploymentSize(deployment, externalCalls)
-      if (typeof result === "string") return validationFailed(result)
+      if (typeof result === 'string') return validationFailed(result)
       totalSize = result
     } else {
       totalSize = Object.values(deployment.files).reduce((acc, file) => acc + file.byteLength, 0)

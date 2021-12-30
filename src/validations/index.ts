@@ -1,18 +1,18 @@
-import { DeploymentToValidate, ExternalCalls, OK, Validation, ValidationArgs, ValidationResponse } from "../types"
-import { access } from "./access-checker/access"
-import { content } from "./content"
-import { decentralandAddress } from "./decentraland-address"
-import { entityStructure } from "./entity-structure"
-import { ipfsHashing } from "./ipfs-hashing"
-import { metadata } from "./metadata-schema"
-import { mustHaveFailedBefore } from "./must-have-failed-before"
-import { noNewer } from "./no-newer"
-import { noRedeploy } from "./no-redeploy"
-import { rateLimit } from "./rate-limit"
-import { recent } from "./recent"
-import { signature } from "./signature"
-import { size } from "./size"
-import { wearable } from "./wearable"
+import { DeploymentToValidate, ExternalCalls, OK, Validation, ValidationArgs, ValidationResponse } from '../types'
+import { access } from './access-checker/access'
+import { content } from './content'
+import { decentralandAddress } from './decentraland-address'
+import { entityStructure } from './entity-structure'
+import { ipfsHashing } from './ipfs-hashing'
+import { metadata } from './metadata-schema'
+import { mustHaveFailedBefore } from './must-have-failed-before'
+import { noNewer } from './no-newer'
+import { noRedeploy } from './no-redeploy'
+import { rateLimit } from './rate-limit'
+import { recent } from './recent'
+import { signature } from './signature'
+import { size } from './size'
+import { wearable } from './wearable'
 
 export const validateInRow = async (
   validationArgs: ValidationArgs,
@@ -49,9 +49,9 @@ export const calculateDeploymentSize = async (
 export const statefulValidations = [
   noRedeploy,
   signature,
-  access,
-  noNewer,
   recent,
+  noNewer,
+  access,
   size,
   mustHaveFailedBefore,
   wearable,

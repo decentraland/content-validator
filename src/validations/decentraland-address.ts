@@ -1,4 +1,4 @@
-import { conditionalValidation } from "../types"
+import { conditionalValidation } from '../types'
 
 /** Validate that the address used was owned by Decentraland */
 export const decentralandAddress = conditionalValidation({

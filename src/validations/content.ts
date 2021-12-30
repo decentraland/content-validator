@@ -1,10 +1,10 @@
-import { Avatar, Profile } from "@dcl/schemas"
-import { EntityType } from "dcl-catalyst-commons"
-import { ADR_X_TIMESTAMP } from "."
-import { fromErrors, Validation } from "../types"
+import { Avatar, Profile } from '@dcl/schemas'
+import { EntityType } from 'dcl-catalyst-commons'
+import { ADR_X_TIMESTAMP } from '.'
+import { fromErrors, Validation } from '../types'
 
 const correspondsToASnapshot = (fileName: string, hash: string, metadata: Profile) => {
-  const fileNameWithoutExtension = fileName.replace(/.[^/.]+$/, "")
+  const fileNameWithoutExtension = fileName.replace(/.[^/.]+$/, '')
 
   return metadata.avatars.some((avatar: Avatar) =>
     Object.entries(avatar.avatar.snapshots).some((key) => key[0] === fileNameWithoutExtension && key[1] === hash)

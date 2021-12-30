@@ -1,7 +1,7 @@
-import { EthAddress } from "@dcl/schemas"
-import { retry, Timestamp } from "dcl-catalyst-commons"
-import ms from "ms"
-import { ExternalCalls, fromErrors, Validation } from "../../types"
+import { EthAddress } from '@dcl/schemas'
+import { retry, Timestamp } from 'dcl-catalyst-commons'
+import ms from 'ms'
+import { ExternalCalls, fromErrors, Validation } from '../../types'
 
 type AddressSnapshot = {
   address: string
@@ -28,7 +28,7 @@ type AuthorizationHistory = {
 }
 
 type Authorization = {
-  type: "Operator" | "ApprovalForAll" | "UpdateManager"
+  type: 'Operator' | 'ApprovalForAll' | 'UpdateManager'
   isApproved: boolean
 }
 
@@ -221,11 +221,11 @@ const hasAccessThroughAuthorizations = async (
     externalCalls
   )
 
-  const firstOperatorAuthorization = authorizations.find((authorization) => authorization.type === "Operator")
+  const firstOperatorAuthorization = authorizations.find((authorization) => authorization.type === 'Operator')
   const firstApprovalForAllAuthorization = authorizations.find(
-    (authorization) => authorization.type === "ApprovalForAll"
+    (authorization) => authorization.type === 'ApprovalForAll'
   )
-  const firstUpdateManagerAuthorization = authorizations.find((authorization) => authorization.type === "UpdateManager")
+  const firstUpdateManagerAuthorization = authorizations.find((authorization) => authorization.type === 'UpdateManager')
 
   if (
     firstOperatorAuthorization?.isApproved ||
@@ -300,54 +300,52 @@ const checkParcelAccess = async (
   externalCalls: ExternalCalls
 ): Promise<boolean> => {
   try {
-    return await retry(() => isParcelUpdateAuthorized(x, y, timestamp, ethAddress, externalCalls), 5, "0.1s")
+    return await retry(() => isParcelUpdateAuthorized(x, y, timestamp, ethAddress, externalCalls), 5, '0.1s')
   } catch (error) {
     // this.LOGGER.error(`Error checking parcel access (${x}, ${y}, ${timestamp}, ${ethAddress}).`, error)
     throw error
   }
 }
 
-const SCENE_LOOKBACK_TIME = ms("5m")
+const SCENE_LOOKBACK_TIME = ms('5m')
 
 export const scenes: Validation = {
   validate: async ({ deployment, externalCalls }) => {
-    const errors: string[] = []
     const { entity } = deployment
     const { pointers, timestamp } = entity
     const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
 
-    await Promise.all(
-      pointers
-        .map((pointer) => pointer.toLowerCase())
-        .map(async (pointer) => {
-          if (pointer.startsWith("default")) {
-            if (!externalCalls.isAddressOwnedByDecentraland(ethAddress)) {
-              errors.push(`Only Decentraland can add or modify default scenes`)
+    const errors = []
+    const lowerCasePointers = pointers.map((pointer) => pointer.toLowerCase())
+
+    for (const pointer of lowerCasePointers) {
+      if (pointer.startsWith('default')) {
+        if (!externalCalls.isAddressOwnedByDecentraland(ethAddress)) {
+          errors.push(`Only Decentraland can add or modify default scenes`)
+        }
+      } else {
+        const pointerParts: string[] = pointer.split(',')
+        if (pointerParts.length === 2) {
+          const x: number = parseInt(pointerParts[0], 10)
+          const y: number = parseInt(pointerParts[1], 10)
+          try {
+            // Check that the address has access (we check both the present and the 5 min into the past to avoid synchronization issues in the blockchain)
+            const hasAccess =
+              (await checkParcelAccess(x, y, timestamp, ethAddress, externalCalls)) ||
+              (await checkParcelAccess(x, y, timestamp - SCENE_LOOKBACK_TIME, ethAddress, externalCalls))
+            if (!hasAccess) {
+              errors.push(`The provided Eth Address does not have access to the following parcel: (${x},${y})`)
             }
-          } else {
-            const pointerParts: string[] = pointer.split(",")
-            if (pointerParts.length === 2) {
-              const x: number = parseInt(pointerParts[0], 10)
-              const y: number = parseInt(pointerParts[1], 10)
-              try {
-                // Check that the address has access (we check both the present and the 5 min into the past to avoid synchronization issues in the blockchain)
-                const hasAccess =
-                  (await checkParcelAccess(x, y, timestamp, ethAddress, externalCalls)) ||
-                  (await checkParcelAccess(x, y, timestamp - SCENE_LOOKBACK_TIME, ethAddress, externalCalls))
-                if (!hasAccess) {
-                  errors.push(`The provided Eth Address does not have access to the following parcel: (${x},${y})`)
-                }
-              } catch (e) {
-                errors.push(`The provided Eth Address does not have access to the following parcel: (${x},${y}). ${e}`)
-              }
-            } else {
-              errors.push(
-                `Scene pointers should only contain two integers separated by a comma, for example (10,10) or (120,-45). Invalid pointer: ${pointer}`
-              )
-            }
+          } catch (e) {
+            errors.push(`The provided Eth Address does not have access to the following parcel: (${x},${y}). ${e}`)
           }
-        })
-    )
+        } else {
+          errors.push(
+            `Scene pointers should only contain two integers separated by a comma, for example (10,10) or (120,-45). Invalid pointer: ${pointer}`
+          )
+        }
+      }
+    }
 
     return fromErrors(...errors)
   },

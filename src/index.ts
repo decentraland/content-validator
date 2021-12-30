@@ -1,8 +1,8 @@
-import { ExternalCalls, OK, Validator } from "./types"
-import { statefulValidations, statelessValidations } from "./validations"
+import { ExternalCalls, OK, Validator } from './types'
+import { statefulValidations, statelessValidations } from './validations'
 
-export * from "./types"
-export * from "./validations"
+export * from './types'
+export * from './validations'
 
 export const validator = (externalCalls: ExternalCalls): Validator => ({
   validate: async (deployment) => {

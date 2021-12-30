@@ -1,6 +1,6 @@
-import { Profile, Scene, Wearable } from "@dcl/schemas"
-import { EntityType } from "dcl-catalyst-commons"
-import { ConditionalValidation, conditionalValidation } from ".."
+import { Profile, Scene, Wearable } from '@dcl/schemas'
+import { EntityType } from 'dcl-catalyst-commons'
+import { conditionalValidation } from '../types'
 
 /** Validate entities metadata against its corresponding schema */
 export const metadata = conditionalValidation({

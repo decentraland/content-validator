@@ -1,4 +1,4 @@
-import { conditionalValidation } from ".."
+import { conditionalValidation } from '../types'
 
 /** Validate if the entity can be re deployed or not */
 export const noRedeploy = conditionalValidation({

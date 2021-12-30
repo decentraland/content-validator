@@ -1,5 +1,5 @@
-import { IPFSv2 } from "@dcl/schemas"
-import { fromErrors, Validation } from "../types"
+import { IPFSv2 } from '@dcl/schemas'
+import { fromErrors, Validation } from '../types'
 
 /** Validate that all hashes used by the entity were actually IPFS hashes */
 export const ipfsHashing: Validation = {

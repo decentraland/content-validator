@@ -1,8 +1,8 @@
-import { Wearable } from "@dcl/schemas"
-import { EntityType } from "dcl-catalyst-commons"
-import sharp from "sharp"
-import { calculateDeploymentSize, validateInRow } from "."
-import { OK, Validation, validationFailed } from "../types"
+import { Wearable } from '@dcl/schemas'
+import { EntityType } from 'dcl-catalyst-commons'
+import sharp from 'sharp'
+import { calculateDeploymentSize, validateInRow } from '.'
+import { OK, Validation, validationFailed } from '../types'
 
 /**
  * Validate that given wearable deployment includes the thumbnail and doesn't exceed file sizes
@@ -22,7 +22,7 @@ const size: Validation = {
     if (!thumbnailHash) return validationFailed("Couldn't find the thumbnail hash")
 
     const result = await calculateDeploymentSize(deployment, externalCalls)
-    if (typeof result === "string") return validationFailed(result)
+    if (typeof result === 'string') return validationFailed(result)
     const totalDeploymentSize = result
     const thumbnailSize = deployment.files.get(thumbnailHash)?.byteLength ?? 0
     const modelSize = totalDeploymentSize - thumbnailSize
@@ -52,7 +52,7 @@ const thumbnail: Validation = {
     if (!thumbnailBuffer) return validationFailed(`Couldn't find thumbnail file with hash: ${hash}`)
     try {
       const { width, height, format } = await sharp(thumbnailBuffer).metadata()
-      if (!format || format !== "png") errors.push(`Invalid or unknown image format. Only 'PNG' format is accepted.`)
+      if (!format || format !== 'png') errors.push(`Invalid or unknown image format. Only 'PNG' format is accepted.`)
       if (!width || !height) {
         errors.push(`Couldn't validate thumbnail size for file ${metadata.thumbnail}`)
       } else if (width !== defaultThumbnailSize || height !== defaultThumbnailSize) {

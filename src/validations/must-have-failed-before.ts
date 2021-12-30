@@ -1,4 +1,4 @@
-import { conditionalValidation } from ".."
+import { conditionalValidation } from '../types'
 
 /** Make sure that the deployment actually failed, and that it can be re-deployed */
 export const mustHaveFailedBefore = conditionalValidation({

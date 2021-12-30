@@ -1,6 +1,6 @@
-import { AuditInfo, ContentFileHash, Entity, EntityId, EntityType, Fetcher } from "dcl-catalyst-commons"
+import { AuditInfo, ContentFileHash, Entity, EntityId, EntityType, Fetcher } from 'dcl-catalyst-commons'
 
-export type LocalDeploymentAuditInfo = Pick<AuditInfo, "authChain" | "migrationData">
+export type LocalDeploymentAuditInfo = Pick<AuditInfo, 'authChain' | 'migrationData'>
 
 export type Errors = string[]
 
@@ -14,7 +14,7 @@ export type DeploymentToValidate = {
   entity: Entity
   files: Map<ContentFileHash, Uint8Array>
   auditInfo: LocalDeploymentAuditInfo
-  context: "LOCAL" | "SYNCED"
+  context: 'LOCAL' | 'SYNCED'
 }
 
 export type ExternalCalls = {
@@ -31,11 +31,10 @@ export type ExternalCalls = {
   ) => Promise<{ ok: boolean; message?: string }>
   getMaxUploadSizePerTypeInMB: (entityType: EntityType) => number
   ownerAddress: (auditInfo: LocalDeploymentAuditInfo) => string
-  hasAccess: (entityWithAddress: EntityWithEthAddress) => Promise<string[]>
   isAddressOwnedByDecentraland: (address: string) => boolean
   requestTtlBackwards: number
   wearableSizeLimitInMB: number
-  queryGraph: Fetcher["queryGraph"]
+  queryGraph: Fetcher['queryGraph']
   subgraphs: {
     L1: {
       landManager: string
@@ -89,6 +88,6 @@ export const conditionalValidation = (condition: ConditionalValidation): Validat
 })
 
 export const fromErrors = (...errors: Errors): ValidationResponse => ({
-  ok: errors.length > 0,
+  ok: errors.length === 0,
   errors: errors.length > 0 ? errors : undefined,
 })
