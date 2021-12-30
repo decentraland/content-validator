@@ -5,7 +5,6 @@ import ms from "ms"
 import { EntityWithEthAddress, ExternalCalls, validationFailed } from "../.."
 import { OK, Validation } from "../../types"
 
-const DECENTRALAND_ADDRESS: EthAddress = "0x1337e0507eb4ab47e08a179573ed4533d9e22a7b"
 const L1_NETWORKS = ["mainnet", "ropsten", "kovan", "rinkeby", "goerli"]
 const L2_NETWORKS = ["matic", "mumbai"]
 
@@ -304,7 +303,7 @@ export const wearables: Validation = {
 
     if (parsed.type === "off-chain") {
       // Validate Off Chain Asset
-      if (ethAddress.toLowerCase() !== DECENTRALAND_ADDRESS.toLowerCase())
+      if (externalCalls.isAddressOwnedByDecentraland(ethAddress))
         return validationFailed(
           `The provided Eth Address '${ethAddress}' does not have access to the following wearable: '${parsed.uri}'`
         )
@@ -331,20 +330,18 @@ export const wearables: Validation = {
         { ...deployment.entity, ethAddress },
         externalCalls
       )
+
       if (!hasAccess) {
-        if (isL1) {
-          // Some L1 collections are deployed by Decentraland Address
-          const isDecentralandAddress = ethAddress.toLowerCase() === DECENTRALAND_ADDRESS.toLowerCase()
-          // Maybe this is not necessary as we already know that it's a 'blockchain-collection-v1-asset'
-          const isAllowlistedCollection = parsed.uri.toString().startsWith("urn:decentraland:ethereum:collections-v1")
-          if (!isDecentralandAddress || !isAllowlistedCollection) {
-            return validationFailed(
-              `The provided Eth Address '${ethAddress}' does not have access to the following wearable: '${parsed.uri}'`
-            )
-          }
-        } else {
+        if (isL2)
           return validationFailed(
             `The provided Eth Address does not have access to the following wearable: (${parsed.contractAddress}, ${parsed.id})`
+          )
+        // Some L1 collections are deployed by Decentraland Address
+        // Maybe this is not necessary as we already know that it's a 'blockchain-collection-v1-asset'
+        const isAllowlistedCollection = parsed.uri.toString().startsWith("urn:decentraland:ethereum:collections-v1")
+        if (!externalCalls.isAddressOwnedByDecentraland(ethAddress) || !isAllowlistedCollection) {
+          return validationFailed(
+            `The provided Eth Address '${ethAddress}' does not have access to the following wearable: '${parsed.uri}'`
           )
         }
       }

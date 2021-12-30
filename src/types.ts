@@ -32,7 +32,7 @@ export type ExternalCalls = {
   getMaxUploadSizePerTypeInMB: (entityType: EntityType) => number
   ownerAddress: (auditInfo: LocalDeploymentAuditInfo) => string
   hasAccess: (entityWithAddress: EntityWithEthAddress) => Promise<string[]>
-  isAddressOwnedByDecentraland: (address: string) => Promise<boolean>
+  isAddressOwnedByDecentraland: (address: string) => boolean
   requestTtlBackwards: number
   wearableSizeLimitInMB: number
   queryGraph: Fetcher["queryGraph"]
