@@ -126,7 +126,7 @@ export const validationFailed = (...error: string[]): ValidationResponse => ({
  */
 export const conditionalValidation = (condition: ConditionalValidation): Validation => ({
   validate: async (args) => {
-    if (await condition.predicate(args)) {
+    if (!(await condition.predicate(args))) {
       return validationFailed(condition.message(args))
     }
     return OK
