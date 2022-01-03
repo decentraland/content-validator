@@ -12,7 +12,7 @@ import { EntityType } from 'dcl-catalyst-commons';
 import { Fetcher } from 'dcl-catalyst-commons';
 
 // @public (undocumented)
-export const ADR_X_TIMESTAMP = 0;
+export const ADR_X_TIMESTAMP = 1648954800000;
 
 // @public (undocumented)
 export const calculateDeploymentSize: (deployment: DeploymentToValidate, externalCalls: ExternalCalls) => Promise<number | string>;
