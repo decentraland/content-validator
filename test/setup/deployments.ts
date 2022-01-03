@@ -1,6 +1,6 @@
 import { Entity } from 'dcl-catalyst-commons'
 import { DeploymentToValidate, LocalDeploymentAuditInfo } from '../../src/types'
-import { buildProfileEntity, buildSceneEntity, buildWearableEntity } from './entity'
+import { buildEntity, buildProfileEntity, buildSceneEntity, buildWearableEntity } from './entity'
 
 export const buildAuditInfo = (auditInfo?: Partial<LocalDeploymentAuditInfo>): LocalDeploymentAuditInfo => ({
   authChain: [],
@@ -28,9 +28,9 @@ export const buildWearableDeployment = (pointers: string[]): DeploymentToValidat
   context: 'LOCAL',
 })
 
-export const buildDeployment = (entity: Entity, files?: Map<string, Uint8Array>): DeploymentToValidate => ({
-  entity,
+export const buildDeployment = (args?: { entity?: Entity; files?: Map<string, Uint8Array> }): DeploymentToValidate => ({
+  entity: args?.entity ?? buildEntity(),
   auditInfo: buildAuditInfo(),
-  files: files ?? new Map(),
+  files: args?.files ?? new Map(),
   context: 'LOCAL',
 })

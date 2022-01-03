@@ -20,7 +20,7 @@ describe('Content', () => {
       content: [{ file: 'name', hash: 'hash' }],
     })
 
-    const deployment = buildDeployment(entity)
+    const deployment = buildDeployment({ entity })
 
     const result = await content.validate({ deployment, externalCalls })
     expect(result.ok).toBeFalsy()
@@ -31,7 +31,7 @@ describe('Content', () => {
     const entity = buildEntity({
       content: [{ file: 'name', hash: 'hash' }],
     })
-    const deployment = buildDeployment(entity)
+    const deployment = buildDeployment({ entity })
     const externalCalls = buildExternalCalls({
       isContentStoredAlready: () => Promise.resolve(new Map([['hash', true]])),
     })
@@ -45,7 +45,7 @@ describe('Content', () => {
       content: [{ file: 'name', hash: 'hash' }],
     })
     const files = new Map([['hash', Buffer.from([])]])
-    const deployment = buildDeployment(entity, files)
+    const deployment = buildDeployment({ entity, files })
 
     const result = await content.validate({ deployment, externalCalls })
     expect(result.ok).toBeTruthy()
@@ -60,7 +60,7 @@ describe('Content', () => {
       ['hash-1', Buffer.from([])],
       ['hash-2', Buffer.from([])],
     ])
-    const deployment = buildDeployment(entity, files)
+    const deployment = buildDeployment({ entity, files })
 
     const result = await content.validate({ deployment, externalCalls })
     expect(result.ok).toBeFalsy()
@@ -80,7 +80,7 @@ describe('Content', () => {
         timestamp: ADR_X_TIMESTAMP + 1,
       })
 
-      const deployment = buildDeployment(entity, files)
+      const deployment = buildDeployment({ entity, files })
       const result = await content.validate({ deployment, externalCalls })
       expect(result.ok).toBeTruthy()
     })
@@ -97,7 +97,7 @@ describe('Content', () => {
         timestamp: ADR_X_TIMESTAMP + 1,
       })
 
-      const deployment = buildDeployment(entity, files)
+      const deployment = buildDeployment({ entity, files })
       const result = await content.validate({ deployment, externalCalls: buildExternalCalls() })
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
@@ -117,7 +117,7 @@ describe('Content', () => {
         timestamp: ADR_X_TIMESTAMP + 1,
       })
 
-      const deployment = buildDeployment(entity, files)
+      const deployment = buildDeployment({ entity, files })
       const result = await content.validate({ deployment, externalCalls })
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(

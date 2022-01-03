@@ -21,7 +21,7 @@ export const size: Validation = {
       if (typeof result === 'string') return validationFailed(result)
       totalSize = result
     } else {
-      totalSize = Object.values(deployment.files).reduce((acc, file) => acc + file.byteLength, 0)
+      totalSize = Array.from(deployment.files.values()).reduce((acc, file) => acc + file.byteLength, 0)
     }
     const sizePerPointer = totalSize / entity.pointers.length
     if (sizePerPointer > maxSizeInBytes) {
