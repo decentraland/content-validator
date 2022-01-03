@@ -5,7 +5,10 @@ import { profiles } from './profiles'
 import { scenes } from './scenes'
 import { wearables } from './wearables'
 
-/** Validate that the pointers are valid, and that the Ethereum address has write access to them */
+/**
+ * Validate that the pointers are valid, and that the Ethereum address has write access to them
+ * @public
+ */
 export const access: Validation = {
   validate: async (args) => {
     const type = args.deployment.entity.type

@@ -11,7 +11,10 @@ const correspondsToASnapshot = (fileName: string, hash: string, metadata: Profil
   )
 }
 
-/** Validate that uploaded and reported hashes are corrects and files corresponds to snapshots */
+/**
+ * Validate that uploaded and reported hashes are corrects and files corresponds to snapshots
+ * @public
+ */
 export const content: Validation = {
   validate: async ({ deployment, externalCalls }) => {
     const { entity, files } = deployment

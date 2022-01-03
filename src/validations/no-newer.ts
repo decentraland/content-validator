@@ -1,6 +1,9 @@
 import { conditionalValidation } from '../types'
 
-/** Validate that there are no newer deployments on the entity's pointers */
+/**
+ * Validate that there are no newer deployments on the entity's pointers
+ * @public
+ */
 export const noNewer = conditionalValidation({
   // Validate that pointers aren't referring to an entity with a higher timestamp
   predicate: async ({ deployment, externalCalls }) => await externalCalls.areThereNewerEntities(deployment.entity),

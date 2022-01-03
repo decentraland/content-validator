@@ -26,7 +26,7 @@ export type ConditionalValidation = {
 // @public (undocumented)
 export const conditionalValidation: (condition: ConditionalValidation) => Validation;
 
-// @public (undocumented)
+// @public
 export type DeploymentToValidate = {
     entity: Entity;
     files: Map<ContentFileHash, Uint8Array>;
@@ -42,7 +42,7 @@ export type EntityWithEthAddress = Entity & {
 // @public (undocumented)
 export type Errors = string[];
 
-// @public (undocumented)
+// @public
 export type ExternalCalls = {
     areThereNewerEntities: (entity: Entity) => Promise<boolean>;
     isFailedDeployment: (entityType: EntityType, entityId: EntityId) => Promise<boolean>;
@@ -112,7 +112,7 @@ export type ValidationResponse = {
     warnings?: Warnings;
 };
 
-// @public (undocumented)
+// @public
 export interface Validator {
     // (undocumented)
     validate(deployment: DeploymentToValidate, calls: ExternalCalls): Promise<ValidationResponse>;

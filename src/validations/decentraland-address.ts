@@ -1,6 +1,9 @@
 import { conditionalValidation } from '../types'
 
-/** Validate that the address used was owned by Decentraland */
+/**
+ * Validate that the address used was owned by Decentraland
+ * @public
+ */
 export const decentralandAddress = conditionalValidation({
   predicate: ({ deployment, externalCalls }) => {
     const address = externalCalls.ownerAddress(deployment.auditInfo)

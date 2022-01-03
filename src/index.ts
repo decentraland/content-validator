@@ -4,6 +4,9 @@ import { statefulValidations, statelessValidations } from './validations'
 export * from './types'
 export * from './validations'
 
+/**
+ * @public
+ */
 export const validator = (externalCalls: ExternalCalls): Validator => ({
   validate: async (deployment) => {
     for (const validation of [...statelessValidations, ...statefulValidations]) {

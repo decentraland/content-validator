@@ -14,6 +14,9 @@ import { signature } from './signature'
 import { size } from './size'
 import { wearable } from './wearable'
 
+/**
+ * @public
+ */
 export const validateInRow = async (
   validationArgs: ValidationArgs,
   ...validations: Validation[]
@@ -26,8 +29,14 @@ export const validateInRow = async (
 }
 
 // TODO define date for entities v4
+/**
+ * @public
+ */
 export const ADR_X_TIMESTAMP = 0
 
+/**
+ * @public
+ */
 export const calculateDeploymentSize = async (
   deployment: DeploymentToValidate,
   externalCalls: ExternalCalls
@@ -46,6 +55,9 @@ export const calculateDeploymentSize = async (
   return totalSize
 }
 
+/**
+ * @public
+ */
 export const statefulValidations = [
   noRedeploy,
   signature,
@@ -59,5 +71,7 @@ export const statefulValidations = [
   decentralandAddress,
   rateLimit,
 ]
-
+/**
+ * @public
+ */
 export const statelessValidations = [entityStructure, ipfsHashing, metadata]

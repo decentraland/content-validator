@@ -276,6 +276,11 @@ const checkCollectionAccess = async (
   }
 }
 
+/**
+ * Given the pointers (URNs), determine which layer should be used to check the access.
+ * Checks if the ethereum address has access to the collection.
+ * @public
+ */
 export const wearables: Validation = {
   validate: async ({ deployment, externalCalls }) => {
     const { pointers } = deployment.entity

@@ -309,6 +309,10 @@ const checkParcelAccess = async (
 
 const SCENE_LOOKBACK_TIME = ms('5m')
 
+/**
+ * Checks if the given address has access to the given parcel at the given timestamp.
+ * @public
+ */
 export const scenes: Validation = {
   validate: async ({ deployment, externalCalls }) => {
     const { entity } = deployment

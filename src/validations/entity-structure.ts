@@ -1,6 +1,9 @@
 import { OK, Validation, validationFailed } from '../types'
 
-// Validate that entity is actually ok
+/**
+ * Validate that entity is actually ok
+ * @public
+ */
 export const entityStructure: Validation = {
   validate: async ({ deployment }) => {
     const { entity } = deployment

@@ -4,10 +4,6 @@ import sharp from 'sharp'
 import { calculateDeploymentSize, validateInRow } from '.'
 import { OK, Validation, validationFailed } from '../types'
 
-/**
- * Validate that given wearable deployment includes the thumbnail and doesn't exceed file sizes
- */
-
 /** Validate wearable files size, excluding thumbnail, is less than expected */
 const size: Validation = {
   validate: async ({ deployment, externalCalls }) => {
@@ -65,6 +61,10 @@ const thumbnail: Validation = {
   },
 }
 
+/**
+ * Validate that given wearable deployment includes the thumbnail and doesn't exceed file sizes
+ * * @public
+ */
 export const wearable: Validation = {
   validate: async (args) => {
     if (args.deployment.entity.type !== EntityType.WEARABLE) return OK

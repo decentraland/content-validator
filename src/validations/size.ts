@@ -4,6 +4,7 @@ import { OK, Validation, validationFailed } from '../types'
 /** Validate that the full request size is within limits
  *
  * ADR X: After given TIMESTAMPT will also include previous deployments in the validation
+ * @public
  */
 export const size: Validation = {
   validate: async ({ deployment, externalCalls }) => {

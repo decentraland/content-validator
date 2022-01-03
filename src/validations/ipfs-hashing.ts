@@ -1,7 +1,10 @@
 import { IPFSv2 } from '@dcl/schemas'
 import { fromErrors, Validation } from '../types'
 
-/** Validate that all hashes used by the entity were actually IPFS hashes */
+/**
+ * Validate that all hashes used by the entity were actually IPFS hashes
+ * @public
+ */
 export const ipfsHashing: Validation = {
   validate: ({ deployment }) => {
     const { entity } = deployment

@@ -2,6 +2,10 @@ import { Pointer } from 'dcl-catalyst-commons'
 import { ethers } from 'ethers'
 import { OK, Validation, validationFailed } from '../../types'
 
+/**
+ * Validate that the pointers are valid, and that the Ethereum address has write access to them
+ * @public
+ */
 export const profiles: Validation = {
   validate: async ({ deployment, externalCalls }) => {
     const pointers = deployment.entity.pointers

@@ -2,7 +2,10 @@ import { Profile, Scene, Wearable } from '@dcl/schemas'
 import { EntityType } from 'dcl-catalyst-commons'
 import { conditionalValidation } from '../types'
 
-/** Validate entities metadata against its corresponding schema */
+/**
+ * Validate entities metadata against its corresponding schema
+ * @public
+ */
 export const metadata = conditionalValidation({
   predicate: ({ deployment }) => {
     // todo: move this map to catalyst-commons
