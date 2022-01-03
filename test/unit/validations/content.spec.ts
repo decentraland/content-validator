@@ -14,13 +14,13 @@ const notReferencedHashMessage = (hash: string) => {
 }
 
 describe('Content', () => {
+  const externalCalls = buildExternalCalls()
   it(`When a hash that was not uploaded and not present is referenced, it is reported`, async () => {
     const entity = buildEntity({
       content: [{ file: 'name', hash: 'hash' }],
     })
 
     const deployment = buildDeployment(entity)
-    const externalCalls = buildExternalCalls()
 
     const result = await content.validate({ deployment, externalCalls })
     expect(result.ok).toBeFalsy()
@@ -47,7 +47,7 @@ describe('Content', () => {
     const files = new Map([['hash', Buffer.from([])]])
     const deployment = buildDeployment(entity, files)
 
-    const result = await content.validate({ deployment, externalCalls: buildExternalCalls() })
+    const result = await content.validate({ deployment, externalCalls })
     expect(result.ok).toBeTruthy()
   })
 
@@ -62,7 +62,7 @@ describe('Content', () => {
     ])
     const deployment = buildDeployment(entity, files)
 
-    const result = await content.validate({ deployment, externalCalls: buildExternalCalls() })
+    const result = await content.validate({ deployment, externalCalls })
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain(notReferencedHashMessage('hash-2'))
   })
@@ -81,7 +81,7 @@ describe('Content', () => {
       })
 
       const deployment = buildDeployment(entity, files)
-      const result = await content.validate({ deployment, externalCalls: buildExternalCalls() })
+      const result = await content.validate({ deployment, externalCalls })
       expect(result.ok).toBeTruthy()
     })
 
@@ -118,7 +118,7 @@ describe('Content', () => {
       })
 
       const deployment = buildDeployment(entity, files)
-      const result = await content.validate({ deployment, externalCalls: buildExternalCalls() })
+      const result = await content.validate({ deployment, externalCalls })
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `This file is not expected: '${unexpectedFile}' or its hash is invalid: '${hash}'. Please, include only valid snapshot files.`
