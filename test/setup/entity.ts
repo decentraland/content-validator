@@ -26,6 +26,6 @@ export const buildEntity = (entity?: Partial<Entity>): Entity => ({
   type: EntityType.PROFILE,
   pointers: [],
   timestamp: Date.now(),
-  id: 'someId',
+  id: 'bafybeihz4c4cf4icnlh6yjtt7fooaeih3dkv2mz6umod7dybenzmsxkzvq',
   ...entity,
 })
