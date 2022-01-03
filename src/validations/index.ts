@@ -28,11 +28,11 @@ export const validateInRow = async (
   return OK
 }
 
-// TODO define date for entities v4
+// todo: review/define date for entities v4 (for the time being, it is set for test purposes)
 /**
  * @public
  */
-export const ADR_X_TIMESTAMP = 0
+export const ADR_X_TIMESTAMP = 1648954800000
 
 /**
  * @public

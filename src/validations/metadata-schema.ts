@@ -1,5 +1,6 @@
 import { Profile, Scene, Wearable } from '@dcl/schemas'
 import { EntityType } from 'dcl-catalyst-commons'
+import { ADR_X_TIMESTAMP } from '.'
 import { conditionalValidation } from '../types'
 
 /**
@@ -8,6 +9,7 @@ import { conditionalValidation } from '../types'
  */
 export const metadata = conditionalValidation({
   predicate: ({ deployment }) => {
+    if (deployment.entity.timestamp <= ADR_X_TIMESTAMP) return true
     // todo: move this map to catalyst-commons
     const validate = {
       [EntityType.PROFILE]: Profile.validate,
