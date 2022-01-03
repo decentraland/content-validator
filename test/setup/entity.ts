@@ -24,7 +24,7 @@ export const buildWearableEntity = (entity?: Partial<Entity>): Entity =>
 export const buildEntity = (entity?: Partial<Entity>): Entity => ({
   version: EntityVersion.V4,
   type: EntityType.PROFILE,
-  pointers: [],
+  pointers: ['P1'],
   timestamp: Date.now(),
   id: 'bafybeihz4c4cf4icnlh6yjtt7fooaeih3dkv2mz6umod7dybenzmsxkzvq',
   ...entity,

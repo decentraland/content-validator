@@ -5,7 +5,9 @@ import { buildEntity } from '../../setup/entity'
 import { buildExternalCalls } from '../../setup/mock'
 
 describe('Recent', () => {
-  const externalCalls = buildExternalCalls()
+  const externalCalls = buildExternalCalls({
+    requestTtlBackwards: ms('10m'),
+  })
   it(`When an entity with a timestamp too far into the past is deployed, then an error is returned`, async () => {
     const entity = buildEntity({ timestamp: Date.now() - ms('25m') })
     const deployment = buildDeployment({ entity })

@@ -5,7 +5,7 @@ import { calculateDeploymentSize, validateInRow } from '.'
 import { OK, Validation, validationFailed } from '../types'
 
 /** Validate wearable files size, excluding thumbnail, is less than expected */
-const size: Validation = {
+export const wearableSize: Validation = {
   validate: async ({ deployment, externalCalls }) => {
     const entity = deployment.entity
     const maxSizeInMB = externalCalls.getMaxUploadSizePerTypeInMB(EntityType.WEARABLE)
@@ -24,7 +24,7 @@ const size: Validation = {
     const modelSize = totalDeploymentSize - thumbnailSize
     if (modelSize > modelSizeInMB * 1024 * 1024)
       return validationFailed(
-        `The deployment is too big. The maximum allowed size for wearable model files is 2 MB. You can upload up to ${
+        `The deployment is too big. The maximum allowed size for wearable model files is ${modelSizeInMB} MB. You can upload up to ${
           modelSizeInMB * 1024 * 1024
         } bytes but you tried to upload ${modelSize}.`
       )
@@ -34,7 +34,7 @@ const size: Validation = {
 
 /** Validate that given wearable deployment includes a thumbnail with valid format and size */
 const defaultThumbnailSize = 1024
-const thumbnail: Validation = {
+export const wearableThumbnail: Validation = {
   validate: async ({ deployment }) => {
     // read thumbnail field from metadata
     const metadata = deployment.entity.metadata as Wearable
@@ -68,6 +68,6 @@ const thumbnail: Validation = {
 export const wearable: Validation = {
   validate: async (args) => {
     if (args.deployment.entity.type !== EntityType.WEARABLE) return OK
-    return validateInRow(args, size, thumbnail)
+    return validateInRow(args, wearableThumbnail, wearableSize)
   },
 }
