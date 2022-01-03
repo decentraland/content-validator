@@ -31,7 +31,7 @@ export type DeploymentToValidate = {
     entity: Entity;
     files: Map<ContentFileHash, Uint8Array>;
     auditInfo: LocalDeploymentAuditInfo;
-    context: "LOCAL" | "SYNCED";
+    context: 'LOCAL' | 'SYNCED';
 };
 
 // @public (undocumented)
@@ -56,11 +56,10 @@ export type ExternalCalls = {
     }>;
     getMaxUploadSizePerTypeInMB: (entityType: EntityType) => number;
     ownerAddress: (auditInfo: LocalDeploymentAuditInfo) => string;
-    hasAccess: (entityWithAddress: EntityWithEthAddress) => Promise<string[]>;
     isAddressOwnedByDecentraland: (address: string) => boolean;
     requestTtlBackwards: number;
     wearableSizeLimitInMB: number;
-    queryGraph: Fetcher["queryGraph"];
+    queryGraph: Fetcher['queryGraph'];
     subgraphs: {
         L1: {
             landManager: string;
@@ -78,7 +77,7 @@ export type ExternalCalls = {
 export const fromErrors: (...errors: Errors) => ValidationResponse;
 
 // @public (undocumented)
-export type LocalDeploymentAuditInfo = Pick<AuditInfo, "authChain" | "migrationData">;
+export type LocalDeploymentAuditInfo = Pick<AuditInfo, 'authChain' | 'migrationData'>;
 
 // @public (undocumented)
 export const OK: ValidationResponse;
