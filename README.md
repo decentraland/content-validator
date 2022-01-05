@@ -1,6 +1,6 @@
 # @dcl/content-validator
 
-Contains all validations to run against entity deployments (either local and sync contexts).
+Contains all validations to run against entity deployments.
 
 ## Getting Started
 
