@@ -5,11 +5,6 @@ import { decentralandAddress } from './decentraland-address'
 import { entityStructure } from './entity-structure'
 import { ipfsHashing } from './ipfs-hashing'
 import { metadata } from './metadata-schema'
-import { mustHaveFailedBefore } from './must-have-failed-before'
-import { noNewer } from './no-newer'
-import { noRedeploy } from './no-redeploy'
-import { rateLimit } from './rate-limit'
-import { recent } from './recent'
 import { signature } from './signature'
 import { size } from './size'
 import { wearable } from './wearable'
@@ -58,19 +53,8 @@ export const calculateDeploymentSize = async (
 /**
  * @public
  */
-export const statefulValidations = [
-  noRedeploy,
-  signature,
-  recent,
-  noNewer,
-  access,
-  size,
-  mustHaveFailedBefore,
-  wearable,
-  content,
-  decentralandAddress,
-  rateLimit,
-]
+export const statefulValidations = [signature, access, size, wearable, content, decentralandAddress]
+
 /**
  * @public
  */
