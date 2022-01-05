@@ -35,7 +35,7 @@
   "dependencies": {
     "@dcl/schemas": "^3.1.1",
     "@dcl/urn-resolver": "^1.3.0",
-    "dcl-catalyst-commons": "^7.1.3",
+    "dcl-catalyst-commons": "7.1.4-20220105153139.commit-79398b8",
     "ethers": "^5.5.2",
     "ms": "^2.1.3",
     "sharp": "^0.29.3"
