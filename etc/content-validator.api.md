@@ -8,7 +8,6 @@ import { AuditInfo } from 'dcl-catalyst-commons';
 import { ContentFileHash } from 'dcl-catalyst-commons';
 import { Entity } from 'dcl-catalyst-commons';
 import { EntityId } from 'dcl-catalyst-commons';
-import { EntityType } from 'dcl-catalyst-commons';
 import { Fetcher } from 'dcl-catalyst-commons';
 
 // @public (undocumented)
@@ -45,16 +44,13 @@ export type Errors = string[];
 // @public
 export type ExternalCalls = {
     isContentStoredAlready: (hashes: ContentFileHash[]) => Promise<Map<ContentFileHash, boolean>>;
-    isEntityDeployedAlready: () => Promise<boolean>;
     fetchContentFileSize: (hash: string) => Promise<number | undefined>;
     validateSignature: (entityId: EntityId, auditInfo: LocalDeploymentAuditInfo, timestamp: number) => Promise<{
         ok: boolean;
         message?: string;
     }>;
-    getMaxUploadSizePerTypeInMB: (entityType: EntityType) => number;
     ownerAddress: (auditInfo: LocalDeploymentAuditInfo) => string;
     isAddressOwnedByDecentraland: (address: string) => boolean;
-    wearableSizeLimitInMB: number;
     queryGraph: Fetcher['queryGraph'];
     subgraphs: {
         L1: {
