@@ -24,6 +24,7 @@ To make Catalysts accept deployments of new entity types, they must have defined
 
 ### In steps
 
-- Create entity schema on [@dcl/schemas](https://github.com/decentraland/common-schemas)
-- Add entity type and schema on [catalyst-commons](https://github.com/decentraland/catalyst-commons/).
-- Add entity type and access checker in [access.ts](./src/validations/access-checker/access.ts).
+1. Create entity schema on [@dcl/schemas](https://github.com/decentraland/common-schemas).
+2. Add entity type and schema on [catalyst-commons](https://github.com/decentraland/catalyst-commons/).
+3. Add entity type and access checker in [access.ts](./src/validations/access-checker/access.ts).  
+   a. Verify entity pointers can be resolved. If required add a new resolver in [@dcl/urn-resolver](https://github.com/decentraland/urn-resolver).
