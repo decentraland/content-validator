@@ -1,5 +1,5 @@
 import { EntityType } from 'dcl-catalyst-commons'
-import { ADR_X_TIMESTAMP } from '../../../src'
+import { ADR_45_TIMESTAMP } from '../../../src'
 import { metadata } from '../../../src/validations/metadata-schema'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
@@ -8,9 +8,9 @@ import { VALID_PROFILE_METADATA } from '../../setup/profiles'
 import { VALID_WEARABLE_METADATA } from '../../setup/wearable'
 
 describe('Metadata Schema', () => {
-  const POST_ADR_X_TIMESTAMP = ADR_X_TIMESTAMP + 1
-  const PRE_ADR_X_TIMESTAMP = ADR_X_TIMESTAMP - 1
-  const testType = (type: EntityType, validMetadata: any, invalidMetadata: any, timestamp = POST_ADR_X_TIMESTAMP) => {
+  const POST_ADR_45_TIMESTAMP = ADR_45_TIMESTAMP + 1
+  const PRE_ADR_45_TIMESTAMP = ADR_45_TIMESTAMP - 1
+  const testType = (type: EntityType, validMetadata: any, invalidMetadata: any, timestamp = POST_ADR_45_TIMESTAMP) => {
     it('when entity metadata is valid should not report errors', async () => {
       const entity = buildEntity({ type, metadata: validMetadata, timestamp })
       const deployment = buildDeployment({ entity })
@@ -51,8 +51,8 @@ describe('Metadata Schema', () => {
     testType(EntityType.WEARABLE, validMetadata, invalidMetadata)
   })
 
-  it('When entity timestamp is previous to ADR_X, then validation does not run', async () => {
-    const entity = buildEntity({ type: EntityType.PROFILE, metadata: {}, timestamp: PRE_ADR_X_TIMESTAMP })
+  it('When entity timestamp is previous to ADR_45, then validation does not run', async () => {
+    const entity = buildEntity({ type: EntityType.PROFILE, metadata: {}, timestamp: PRE_ADR_45_TIMESTAMP })
     const deployment = buildDeployment({ entity })
     const result = await metadata.validate({ deployment, externalCalls: buildExternalCalls() })
 

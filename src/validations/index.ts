@@ -27,7 +27,7 @@ export const validateInRow = async (
 /**
  * @public
  */
-export const ADR_X_TIMESTAMP = 1648954800000
+export const ADR_45_TIMESTAMP = 1648954800000
 
 /**
  * @public

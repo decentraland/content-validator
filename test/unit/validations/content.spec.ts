@@ -1,4 +1,4 @@
-import { ADR_X_TIMESTAMP } from '../../../src'
+import { ADR_45_TIMESTAMP } from '../../../src'
 import { content } from '../../../src/validations/content'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
@@ -67,7 +67,7 @@ describe('Content', () => {
     expect(result.errors).toContain(notReferencedHashMessage('hash-2'))
   })
 
-  describe('ADR_X: ', () => {
+  describe('ADR_45: ', () => {
     it('When profile content files correspond to any shapshot, then no error is returned', async () => {
       const expectedFile = 'face.png'
       const hash = 'bafybeiasb5vpmaounyilfuxbd3lryvosl4yefqrfahsb2esg46q6tu6y5q'
@@ -77,7 +77,7 @@ describe('Content', () => {
       const entity = buildEntity({
         metadata: VALID_PROFILE_METADATA,
         content: contentItems,
-        timestamp: ADR_X_TIMESTAMP + 1,
+        timestamp: ADR_45_TIMESTAMP + 1,
       })
 
       const deployment = buildDeployment({ entity, files })
@@ -94,7 +94,7 @@ describe('Content', () => {
       const entity = buildEntity({
         metadata: VALID_PROFILE_METADATA,
         content: contentItems,
-        timestamp: ADR_X_TIMESTAMP + 1,
+        timestamp: ADR_45_TIMESTAMP + 1,
       })
 
       const deployment = buildDeployment({ entity, files })
@@ -114,7 +114,7 @@ describe('Content', () => {
       const entity = buildEntity({
         metadata: VALID_PROFILE_METADATA,
         content: contentItems,
-        timestamp: ADR_X_TIMESTAMP + 1,
+        timestamp: ADR_45_TIMESTAMP + 1,
       })
 
       const deployment = buildDeployment({ entity, files })

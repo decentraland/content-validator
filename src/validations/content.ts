@@ -1,6 +1,6 @@
 import { Avatar, Profile } from '@dcl/schemas'
 import { EntityType } from 'dcl-catalyst-commons'
-import { ADR_X_TIMESTAMP } from '.'
+import { ADR_45_TIMESTAMP } from '.'
 import { fromErrors, Validation } from '../types'
 
 const correspondsToASnapshot = (fileName: string, hash: string, metadata: Profile) => {
@@ -38,7 +38,7 @@ export const content: Validation = {
       }
     }
 
-    if (entity.timestamp > ADR_X_TIMESTAMP) {
+    if (entity.timestamp > ADR_45_TIMESTAMP) {
       for (const { file, hash } of entity.content ?? []) {
         // Validate all content files correspond to at least one avatar snapshot
         if (entity.type === EntityType.PROFILE) {

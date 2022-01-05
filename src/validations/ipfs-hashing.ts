@@ -1,5 +1,5 @@
 import { IPFSv2 } from '@dcl/schemas'
-import { ADR_X_TIMESTAMP } from '.'
+import { ADR_45_TIMESTAMP } from '.'
 import { OK } from '..'
 import { fromErrors, Validation } from '../types'
 
@@ -11,7 +11,7 @@ export const ipfsHashing: Validation = {
   validate: ({ deployment }) => {
     const { entity } = deployment
 
-    if (entity.timestamp < ADR_X_TIMESTAMP) return OK
+    if (entity.timestamp < ADR_45_TIMESTAMP) return OK
 
     const hashesInContent = entity.content?.map(({ hash }) => hash) ?? []
     const allHashes = [entity.id, ...hashesInContent]

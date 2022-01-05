@@ -3,18 +3,11 @@ import { ExternalCalls } from '../../src/types'
 import { WearableCollection } from '../../src/validations/access-checker/wearables'
 
 export const buildExternalCalls = (externalCalls?: Partial<ExternalCalls>): ExternalCalls => ({
-  areThereNewerEntities: () => Promise.resolve(false),
-  isFailedDeployment: () => Promise.resolve(false),
   isContentStoredAlready: () => Promise.resolve(new Map()),
-  isEntityDeployedAlready: () => Promise.resolve(false),
-  isEntityRateLimited: () => Promise.resolve(false),
   fetchContentFileSize: () => Promise.resolve(undefined),
   validateSignature: () => Promise.resolve({ ok: true }),
-  getMaxUploadSizePerTypeInMB: () => 0,
   ownerAddress: () => '',
   isAddressOwnedByDecentraland: () => false,
-  requestTtlBackwards: 0,
-  wearableSizeLimitInMB: 0,
   queryGraph: jest.fn(),
   subgraphs: {
     L1: {

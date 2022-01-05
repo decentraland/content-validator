@@ -1,4 +1,5 @@
-import { ADR_X_TIMESTAMP } from '../../../src'
+import { EntityType } from 'dcl-catalyst-commons'
+import { ADR_45_TIMESTAMP } from '../../../src'
 import { size } from '../../../src/validations/size'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
@@ -9,47 +10,41 @@ const buildFiles = (...files: [hash: string, sizeInMB: number][]): Map<string, U
 
 describe('Size', () => {
   it('When an entity is too big per pointer, then it fails', async () => {
-    const files = buildFiles(['hash', 3])
+    const files = buildFiles(['hash', 1])
     const entity = buildEntity({ pointers: ['P1'] })
     const deployment = buildDeployment({ files, entity })
-    const externalCalls = buildExternalCalls({
-      getMaxUploadSizePerTypeInMB: () => 2,
-    })
+    const externalCalls = buildExternalCalls()
 
     const result = await size.validate({ deployment, externalCalls })
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain(
-      'The deployment is too big. The maximum allowed size per pointer is 2 MB for profile. You can upload up to 2097152 bytes but you tried to upload 3145728.'
+      'The deployment is too big. The maximum allowed size per pointer is 0.5 MB for profile. You can upload up to 524288 bytes but you tried to upload 1048576.'
     )
   })
   it('When an entity is big, but has enough pointers, then it is ok', async () => {
     const entity = buildEntity({ pointers: ['P1', 'P2'] })
-    const files = buildFiles(['hash', 3])
+    const files = buildFiles(['hash', 1])
     const deployment = buildDeployment({ entity, files })
-    const externalCalls = buildExternalCalls({
-      getMaxUploadSizePerTypeInMB: () => 2,
-    })
+    const externalCalls = buildExternalCalls()
 
     const result = await size.validate({ deployment, externalCalls })
     expect(result.ok).toBeTruthy()
   })
 
-  describe('ADR_X: ', () => {
-    const timestamp = ADR_X_TIMESTAMP + 1
+  describe('ADR_45: ', () => {
+    const timestamp = ADR_45_TIMESTAMP + 1
     it('When an entity is too big per pointer, then it fails', async () => {
       const content = [{ file: 'C', hash: 'C' }]
       const entity = buildEntity({ content, timestamp, pointers: ['P1'] })
-      const files = buildFiles(['C', 3])
+      const files = buildFiles(['C', 1])
 
       const deployment = buildDeployment({ entity, files })
-      const externalCalls = buildExternalCalls({
-        getMaxUploadSizePerTypeInMB: () => 2,
-      })
+      const externalCalls = buildExternalCalls()
 
       const result = await size.validate({ deployment, externalCalls })
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
-        'The deployment is too big. The maximum allowed size per pointer is 2 MB for profile. You can upload up to 2097152 bytes but you tried to upload 3145728.'
+        'The deployment is too big. The maximum allowed size per pointer is 0.5 MB for profile. You can upload up to 524288 bytes but you tried to upload 1048576.'
       )
     })
 
@@ -64,19 +59,18 @@ describe('Size', () => {
         ['A', 1024 * 1024 * 5],
         ['B', 1024 * 1024 * 5],
       ])
-      const entity = buildEntity({ content, timestamp, pointers: ['P1'] })
-      const files = buildFiles(['C', 3])
+      const entity = buildEntity({ content, timestamp, pointers: ['P1'], type: EntityType.SCENE })
+      const files = buildFiles(['C', 6])
 
       const deployment = buildDeployment({ entity, files })
       const externalCalls = buildExternalCalls({
-        getMaxUploadSizePerTypeInMB: () => 10,
         fetchContentFileSize: (hash) => Promise.resolve(contentSizes.get(hash) ?? 0),
       })
 
       const response = await size.validate({ deployment, externalCalls })
       expect(response.ok).toBeFalsy()
       expect(response.errors).toContain(
-        'The deployment is too big. The maximum allowed size per pointer is 10 MB for profile. You can upload up to 10485760 bytes but you tried to upload 13631488.'
+        'The deployment is too big. The maximum allowed size per pointer is 15 MB for scene. You can upload up to 15728640 bytes but you tried to upload 16777216.'
       )
     })
 
@@ -86,12 +80,11 @@ describe('Size', () => {
         { file: 'C', hash: 'C' },
       ]
 
-      const entity = buildEntity({ content, timestamp, pointers: ['P1'] })
+      const entity = buildEntity({ content, timestamp, pointers: ['P1'], type: EntityType.SCENE })
       const files = buildFiles(['C', 3])
 
       const deployment = buildDeployment({ entity, files })
       const externalCalls = buildExternalCalls({
-        getMaxUploadSizePerTypeInMB: () => 10,
         fetchContentFileSize: () => Promise.resolve(undefined),
       })
 
@@ -108,12 +101,11 @@ describe('Size', () => {
       ]
 
       const contentSizes = new Map([['A', 1024 * 1024 * 5]])
-      const entity = buildEntity({ content, timestamp, pointers: ['P1'] })
+      const entity = buildEntity({ content, timestamp, pointers: ['P1'], type: EntityType.SCENE })
       const files = buildFiles(['C', 3])
 
       const deployment = buildDeployment({ entity, files })
       const externalCalls = buildExternalCalls({
-        getMaxUploadSizePerTypeInMB: () => 10,
         fetchContentFileSize: (hash) => Promise.resolve(contentSizes.get(hash) ?? 0),
       })
 

@@ -38,22 +38,15 @@ export type DeploymentToValidate = {
  * @public
  */
 export type ExternalCalls = {
-  areThereNewerEntities: (entity: Entity) => Promise<boolean>
-  isFailedDeployment: (entityType: EntityType, entityId: EntityId) => Promise<boolean>
   isContentStoredAlready: (hashes: ContentFileHash[]) => Promise<Map<ContentFileHash, boolean>>
-  isEntityDeployedAlready: () => Promise<boolean>
-  isEntityRateLimited: (entity: Entity) => Promise<boolean>
   fetchContentFileSize: (hash: string) => Promise<number | undefined>
   validateSignature: (
     entityId: EntityId,
     auditInfo: LocalDeploymentAuditInfo,
     timestamp: number
   ) => Promise<{ ok: boolean; message?: string }>
-  getMaxUploadSizePerTypeInMB: (entityType: EntityType) => number
   ownerAddress: (auditInfo: LocalDeploymentAuditInfo) => string
   isAddressOwnedByDecentraland: (address: string) => boolean
-  requestTtlBackwards: number
-  wearableSizeLimitInMB: number
   queryGraph: Fetcher['queryGraph']
   subgraphs: {
     L1: {

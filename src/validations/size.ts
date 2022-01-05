@@ -1,22 +1,23 @@
-import { ADR_X_TIMESTAMP, calculateDeploymentSize } from '.'
+import { entityParameters } from 'dcl-catalyst-commons'
+import { ADR_45_TIMESTAMP, calculateDeploymentSize } from '.'
 import { OK, Validation, validationFailed } from '../types'
 
 /** Validate that the full request size is within limits
  *
- * ADR X: After given TIMESTAMPT will also include previous deployments in the validation
+ * ADR 45: After given TIMESTAMPT will also include previous deployments in the validation
  * @public
  */
 export const size: Validation = {
   validate: async ({ deployment, externalCalls }) => {
     const { entity } = deployment
-    const maxSizeInMB = externalCalls.getMaxUploadSizePerTypeInMB(entity.type)
+    const maxSizeInMB = entityParameters[entity.type].maxSizeInMB
     let errors: string[] = []
     if (!maxSizeInMB) {
       return validationFailed(`Type ${entity.type} is not supported yet`)
     }
     const maxSizeInBytes = maxSizeInMB * 1024 * 1024
     let totalSize = 0
-    if (entity.timestamp > ADR_X_TIMESTAMP) {
+    if (entity.timestamp > ADR_45_TIMESTAMP) {
       const result = await calculateDeploymentSize(deployment, externalCalls)
       if (typeof result === 'string') return validationFailed(result)
       totalSize = result

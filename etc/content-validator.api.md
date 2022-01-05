@@ -12,7 +12,7 @@ import { EntityType } from 'dcl-catalyst-commons';
 import { Fetcher } from 'dcl-catalyst-commons';
 
 // @public (undocumented)
-export const ADR_X_TIMESTAMP = 1648954800000;
+export const ADR_45_TIMESTAMP = 1648954800000;
 
 // @public (undocumented)
 export const calculateDeploymentSize: (deployment: DeploymentToValidate, externalCalls: ExternalCalls) => Promise<number | string>;
@@ -44,11 +44,8 @@ export type Errors = string[];
 
 // @public
 export type ExternalCalls = {
-    areThereNewerEntities: (entity: Entity) => Promise<boolean>;
-    isFailedDeployment: (entityType: EntityType, entityId: EntityId) => Promise<boolean>;
     isContentStoredAlready: (hashes: ContentFileHash[]) => Promise<Map<ContentFileHash, boolean>>;
     isEntityDeployedAlready: () => Promise<boolean>;
-    isEntityRateLimited: (entity: Entity) => Promise<boolean>;
     fetchContentFileSize: (hash: string) => Promise<number | undefined>;
     validateSignature: (entityId: EntityId, auditInfo: LocalDeploymentAuditInfo, timestamp: number) => Promise<{
         ok: boolean;
@@ -57,7 +54,6 @@ export type ExternalCalls = {
     getMaxUploadSizePerTypeInMB: (entityType: EntityType) => number;
     ownerAddress: (auditInfo: LocalDeploymentAuditInfo) => string;
     isAddressOwnedByDecentraland: (address: string) => boolean;
-    requestTtlBackwards: number;
     wearableSizeLimitInMB: number;
     queryGraph: Fetcher['queryGraph'];
     subgraphs: {

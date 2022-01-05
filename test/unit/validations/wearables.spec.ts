@@ -116,10 +116,7 @@ describe('Wearables', () => {
       ])
       const entity = buildEntity({ type: EntityType.WEARABLE, metadata: { thumbnail: 'thumbnail.png' }, content })
       const deployment = buildDeployment({ entity, files })
-      const externalCalls = buildExternalCalls({
-        getMaxUploadSizePerTypeInMB: () => 3,
-        wearableSizeLimitInMB: 2,
-      })
+      const externalCalls = buildExternalCalls()
       const result = await wearableSize.validate({ deployment, externalCalls })
 
       expect(result.ok).toBeFalsy()
@@ -141,10 +138,7 @@ describe('Wearables', () => {
       ])
       const entity = buildEntity({ type: EntityType.WEARABLE, metadata: { thumbnail: 'thumbnail.png' }, content })
       const deployment = buildDeployment({ entity, files })
-      const externalCalls = buildExternalCalls({
-        getMaxUploadSizePerTypeInMB: () => 3,
-        wearableSizeLimitInMB: 2,
-      })
+      const externalCalls = buildExternalCalls()
       const result = await size.validate({ deployment, externalCalls })
 
       expect(result.ok).toBeFalsy()
@@ -166,10 +160,7 @@ describe('Wearables', () => {
       ])
       const entity = buildEntity({ type: EntityType.WEARABLE, metadata: { thumbnail: 'thumbnail.png' }, content })
       const deployment = buildDeployment({ entity, files })
-      const externalCalls = buildExternalCalls({
-        getMaxUploadSizePerTypeInMB: () => 3,
-        wearableSizeLimitInMB: 2,
-      })
+      const externalCalls = buildExternalCalls()
       const result = await wearableSize.validate({ deployment, externalCalls })
 
       expect(result.ok).toBeTruthy()
