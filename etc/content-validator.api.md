@@ -26,11 +26,13 @@ export type ConditionalValidation = {
 export const conditionalValidation: (condition: ConditionalValidation) => Validation;
 
 // @public
+export const createValidator: (externalCalls: ExternalCalls) => Validator;
+
+// @public
 export type DeploymentToValidate = {
     entity: Entity;
     files: Map<ContentFileHash, Uint8Array>;
     auditInfo: LocalDeploymentAuditInfo;
-    context: 'LOCAL' | 'SYNCED';
 };
 
 // @public (undocumented)
@@ -101,17 +103,16 @@ export const validationFailed: (...error: string[]) => ValidationResponse;
 export type ValidationResponse = {
     ok: boolean;
     errors?: Errors;
-    warnings?: Warnings;
 };
+
+// @public (undocumented)
+export const validations: Validation[];
 
 // @public
 export interface Validator {
     // (undocumented)
-    validate(deployment: DeploymentToValidate, calls: ExternalCalls): Promise<ValidationResponse>;
+    validate(deployment: DeploymentToValidate): Promise<ValidationResponse>;
 }
-
-// @public (undocumented)
-export const validator: (externalCalls: ExternalCalls) => Validator;
 
 // @public (undocumented)
 export type Warnings = string[];

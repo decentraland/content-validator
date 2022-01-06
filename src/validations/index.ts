@@ -59,3 +59,5 @@ export const statefulValidations = [signature, access, size, wearable, content, 
  * @public
  */
 export const statelessValidations = [entityStructure, ipfsHashing, metadata]
+
+export const validations = [...statelessValidations, ...statefulValidations]

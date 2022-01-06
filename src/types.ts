@@ -30,7 +30,6 @@ export type DeploymentToValidate = {
   entity: Entity
   files: Map<ContentFileHash, Uint8Array>
   auditInfo: LocalDeploymentAuditInfo
-  context: 'LOCAL' | 'SYNCED'
 }
 
 /**
@@ -66,7 +65,7 @@ export type ExternalCalls = {
  * @public
  */
 export interface Validator {
-  validate(deployment: DeploymentToValidate, calls: ExternalCalls): Promise<ValidationResponse>
+  validate(deployment: DeploymentToValidate): Promise<ValidationResponse>
 }
 
 /**
@@ -83,7 +82,6 @@ export type ValidationArgs = {
 export type ValidationResponse = {
   ok: boolean
   errors?: Errors
-  warnings?: Warnings
 }
 
 /**
