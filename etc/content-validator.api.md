@@ -76,10 +76,10 @@ export type LocalDeploymentAuditInfo = Pick<AuditInfo, 'authChain' | 'migrationD
 // @public (undocumented)
 export const OK: ValidationResponse;
 
-// @public (undocumented)
+// @public
 export const statefulValidations: Validation[];
 
-// @public (undocumented)
+// @public
 export const statelessValidations: Validation[];
 
 // @public (undocumented)
@@ -105,7 +105,7 @@ export type ValidationResponse = {
     errors?: Errors;
 };
 
-// @public (undocumented)
+// @public
 export const validations: Validation[];
 
 // @public

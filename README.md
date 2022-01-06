@@ -1,3 +1,5 @@
+<img src="https://ui.decentraland.org/decentraland_256x256.png" height="128" width="128" />
+
 # @dcl/content-validator
 
 Contains all validations to run against entity deployments.
