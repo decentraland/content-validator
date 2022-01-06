@@ -51,13 +51,19 @@ export const calculateDeploymentSize = async (
 }
 
 /**
+ * Stateful validations that are run on a deployment.
  * @public
  */
 export const statefulValidations = [signature, access, size, wearable, content, decentralandAddress]
 
 /**
+ * Stateless validations that are run on a deployment.
  * @public
  */
 export const statelessValidations = [entityStructure, ipfsHashing, metadata]
 
+/**
+ * All validations that are run on a deployment.
+ * @public
+ */
 export const validations = [...statelessValidations, ...statefulValidations]
