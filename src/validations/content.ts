@@ -20,7 +20,9 @@ export const content: Validation = {
     const { entity, files } = deployment
     const errors: string[] = []
     if (entity.content) {
-      const alreadyStoredHashes = await externalCalls.isContentStoredAlready(Array.from(files.keys()))
+      const alreadyStoredHashes = await externalCalls.isContentStoredAlready(
+        entity.content?.map((file) => file.hash) ?? []
+      )
 
       for (const { hash } of entity.content) {
         // Validate that all hashes in entity were uploaded, or were already stored on the service
