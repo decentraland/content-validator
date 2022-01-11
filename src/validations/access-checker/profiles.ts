@@ -1,5 +1,5 @@
+import { isAddress } from '@ethersproject/address'
 import { Pointer } from 'dcl-catalyst-commons'
-import { ethers } from 'ethers'
 import { OK, Validation, validationFailed } from '../../types'
 
 /**
@@ -19,7 +19,7 @@ export const profiles: Validation = {
     if (pointer.startsWith('default')) {
       if (!externalCalls.isAddressOwnedByDecentraland(ethAddress))
         return validationFailed(`Only Decentraland can add or modify default profiles`)
-    } else if (!ethers.utils.isAddress(pointer)) {
+    } else if (!isAddress(pointer)) {
       return validationFailed(`The given pointer is not a valid ethereum address.`)
     } else if (pointer !== ethAddress.toLowerCase()) {
       return validationFailed(
