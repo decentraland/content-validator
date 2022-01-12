@@ -1,5 +1,6 @@
 import { EntityType } from 'dcl-catalyst-commons'
 import sharp from 'sharp'
+import { ADR_45_TIMESTAMP } from '../../../src'
 import { size } from '../../../src/validations/size'
 import { wearableSize, wearableThumbnail } from '../../../src/validations/wearable'
 import { buildDeployment } from '../../setup/deployments'
@@ -8,6 +9,7 @@ import { buildExternalCalls } from '../../setup/mock'
 import { VALID_WEARABLE_METADATA } from '../../setup/wearable'
 
 describe('Wearables', () => {
+  const timestamp = ADR_45_TIMESTAMP + 1
   describe('Thumbnail:', () => {
     let validThumbnailBuffer: Buffer
     let invalidThumbnailBuffer: Buffer
@@ -36,7 +38,7 @@ describe('Wearables', () => {
     const externalCalls = buildExternalCalls()
     it('When there is no hash for given thumbnail file name, it should return an error', async () => {
       const files = new Map([[hash, validThumbnailBuffer]])
-      const entity = buildEntity({ type: EntityType.WEARABLE, metadata: VALID_WEARABLE_METADATA })
+      const entity = buildEntity({ type: EntityType.WEARABLE, metadata: VALID_WEARABLE_METADATA, timestamp })
       const deployment = buildDeployment({ entity, files })
 
       const result = await wearableThumbnail.validate({ deployment, externalCalls })
@@ -47,7 +49,7 @@ describe('Wearables', () => {
     it('When there is no file for given thumbnail file hash, it should return an error', async () => {
       const content = [{ file: fileName, hash }]
       const files = new Map([['notSame' + hash, validThumbnailBuffer]])
-      const entity = buildEntity({ type: EntityType.WEARABLE, metadata: VALID_WEARABLE_METADATA, content })
+      const entity = buildEntity({ type: EntityType.WEARABLE, metadata: VALID_WEARABLE_METADATA, content, timestamp })
       const deployment = buildDeployment({ entity, files })
 
       const result = await wearableThumbnail.validate({ deployment, externalCalls })
@@ -58,7 +60,7 @@ describe('Wearables', () => {
     it('When thumbnail image format is not valid, it should return an error', async () => {
       const content = [{ file: fileName, hash }]
       const files = new Map([[hash, Buffer.alloc(1)]])
-      const entity = buildEntity({ type: EntityType.WEARABLE, metadata: VALID_WEARABLE_METADATA, content })
+      const entity = buildEntity({ type: EntityType.WEARABLE, metadata: VALID_WEARABLE_METADATA, content, timestamp })
       const deployment = buildDeployment({ entity, files })
 
       const result = await wearableThumbnail.validate({ deployment, externalCalls })
@@ -69,7 +71,7 @@ describe('Wearables', () => {
     it('When thumbnail image size is invalid, it should return an error', async () => {
       const content = [{ file: fileName, hash }]
       const files = new Map([[hash, invalidThumbnailBuffer]])
-      const entity = buildEntity({ type: EntityType.WEARABLE, metadata: VALID_WEARABLE_METADATA, content })
+      const entity = buildEntity({ type: EntityType.WEARABLE, metadata: VALID_WEARABLE_METADATA, content, timestamp })
       const deployment = buildDeployment({ entity, files })
 
       const result = await wearableThumbnail.validate({ deployment, externalCalls })
@@ -81,7 +83,7 @@ describe('Wearables', () => {
       const jpgImage = await createImage(1024, 'jpg')
       const content = [{ file: fileName, hash }]
       const files = new Map([[hash, jpgImage]])
-      const entity = buildEntity({ type: EntityType.WEARABLE, metadata: VALID_WEARABLE_METADATA, content })
+      const entity = buildEntity({ type: EntityType.WEARABLE, metadata: VALID_WEARABLE_METADATA, content, timestamp })
       const deployment = buildDeployment({ entity, files })
 
       const result = await wearableThumbnail.validate({ deployment, externalCalls })
@@ -92,7 +94,7 @@ describe('Wearables', () => {
     it('When thumbnail image size is valid, should not return any error', async () => {
       const content = [{ file: fileName, hash }]
       const files = new Map([[hash, validThumbnailBuffer]])
-      const entity = buildEntity({ type: EntityType.WEARABLE, metadata: VALID_WEARABLE_METADATA, content })
+      const entity = buildEntity({ type: EntityType.WEARABLE, metadata: VALID_WEARABLE_METADATA, content, timestamp })
       const deployment = buildDeployment({ entity, files })
 
       const result = await wearableThumbnail.validate({ deployment, externalCalls })
@@ -114,7 +116,12 @@ describe('Wearables', () => {
         ['C', withSize(1.5)],
         ['thumbnail', Buffer.alloc(1)],
       ])
-      const entity = buildEntity({ type: EntityType.WEARABLE, metadata: { thumbnail: 'thumbnail.png' }, content })
+      const entity = buildEntity({
+        type: EntityType.WEARABLE,
+        metadata: { thumbnail: 'thumbnail.png' },
+        content,
+        timestamp,
+      })
       const deployment = buildDeployment({ entity, files })
       const externalCalls = buildExternalCalls()
       const result = await wearableSize.validate({ deployment, externalCalls })
@@ -136,7 +143,12 @@ describe('Wearables', () => {
         ['C', withSize(1)],
         ['thumbnail', withSize(2)],
       ])
-      const entity = buildEntity({ type: EntityType.WEARABLE, metadata: { thumbnail: 'thumbnail.png' }, content })
+      const entity = buildEntity({
+        type: EntityType.WEARABLE,
+        metadata: { thumbnail: 'thumbnail.png' },
+        content,
+        timestamp,
+      })
       const deployment = buildDeployment({ entity, files })
       const externalCalls = buildExternalCalls()
       const result = await size.validate({ deployment, externalCalls })
@@ -158,7 +170,12 @@ describe('Wearables', () => {
         ['C', withSize(1)],
         ['thumbnail', withSize(0.9)],
       ])
-      const entity = buildEntity({ type: EntityType.WEARABLE, metadata: { thumbnail: 'thumbnail.png' }, content })
+      const entity = buildEntity({
+        type: EntityType.WEARABLE,
+        metadata: { thumbnail: 'thumbnail.png' },
+        content,
+        timestamp,
+      })
       const deployment = buildDeployment({ entity, files })
       const externalCalls = buildExternalCalls()
       const result = await wearableSize.validate({ deployment, externalCalls })
