@@ -1,7 +1,7 @@
 import { Wearable } from '@dcl/schemas'
 import { entityParameters, EntityType } from 'dcl-catalyst-commons'
 import sharp from 'sharp'
-import { calculateDeploymentSize, validateInRow } from '.'
+import { ADR_45_TIMESTAMP, calculateDeploymentSize, validateInRow } from '.'
 import { OK, Validation, validationFailed } from '../types'
 
 const wearableSizeLimitInMB = 2
@@ -9,6 +9,7 @@ const wearableSizeLimitInMB = 2
 export const wearableSize: Validation = {
   validate: async ({ deployment, externalCalls }) => {
     const entity = deployment.entity
+    if (entity.timestamp < ADR_45_TIMESTAMP) return OK
     const maxSizeInMB = entityParameters[EntityType.WEARABLE].maxSizeInMB
     if (!maxSizeInMB) return validationFailed(`Type ${EntityType.WEARABLE} is not supported yet`)
 
@@ -37,6 +38,7 @@ export const wearableSize: Validation = {
 const defaultThumbnailSize = 1024
 export const wearableThumbnail: Validation = {
   validate: async ({ deployment }) => {
+    if (deployment.entity.timestamp < ADR_45_TIMESTAMP) return OK
     // read thumbnail field from metadata
     const metadata = deployment.entity.metadata as Wearable
 
