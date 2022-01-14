@@ -20,7 +20,11 @@ const accessCheckers = {
  */
 export const access: Validation = {
   validate: async (args) => {
-    if (args.deployment.entity.timestamp <= LEGACY_CONTENT_MIGRATION_TIMESTAMP) return OK
+    const { deployment, externalCalls } = args
+    const deployedBeforeDCLLaunch = deployment.entity.timestamp <= LEGACY_CONTENT_MIGRATION_TIMESTAMP
+    const address = externalCalls.ownerAddress(deployment.auditInfo)
+    if (deployedBeforeDCLLaunch && externalCalls.isAddressOwnedByDecentraland(address)) return OK
+
     const type = args.deployment.entity.type
     const accessChecker = accessCheckers[type]
 
