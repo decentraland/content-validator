@@ -1,7 +1,6 @@
 import { DeploymentToValidate, ExternalCalls, OK, Validation, ValidationArgs, ValidationResponse } from '../types'
 import { access } from './access-checker/access'
 import { content } from './content'
-import { decentralandAddress } from './decentraland-address'
 import { entityStructure } from './entity-structure'
 import { ipfsHashing } from './ipfs-hashing'
 import { metadata } from './metadata-schema'
@@ -60,7 +59,7 @@ export const calculateDeploymentSize = async (
  * Stateful validations that are run on a deployment.
  * @public
  */
-export const statefulValidations = [signature, access, size, wearable, content, decentralandAddress] as const
+export const statefulValidations = [signature, access, size, wearable, content] as const
 
 /**
  * Stateless validations that are run on a deployment.
