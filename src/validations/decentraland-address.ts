@@ -1,4 +1,5 @@
-import { conditionalValidation, LEGACY_CONTENT_MIGRATION_TIMESTAMP } from '..'
+import { LEGACY_CONTENT_MIGRATION_TIMESTAMP } from '..'
+import { conditionalValidation } from '../types'
 
 /**
  * Validate address is owned by decentraland when deployment is previous to DCL Launch

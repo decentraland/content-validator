@@ -1,4 +1,4 @@
-import { AuditInfo, ContentFileHash, Entity, EntityId, EntityType, Fetcher } from 'dcl-catalyst-commons'
+import { AuditInfo, ContentFileHash, Entity, EntityId, Fetcher } from 'dcl-catalyst-commons'
 
 /**
  * @public
