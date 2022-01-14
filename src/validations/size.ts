@@ -1,5 +1,5 @@
 import { entityParameters } from 'dcl-catalyst-commons'
-import { ADR_45_TIMESTAMP, calculateDeploymentSize } from '.'
+import { ADR_45_TIMESTAMP, calculateDeploymentSize, LEGACY_CONTENT_MIGRATION_TIMESTAMP } from '.'
 import { OK, Validation, validationFailed } from '../types'
 
 /** Validate that the full request size is within limits
@@ -10,6 +10,8 @@ import { OK, Validation, validationFailed } from '../types'
 export const size: Validation = {
   validate: async ({ deployment, externalCalls }) => {
     const { entity } = deployment
+    if (entity.timestamp <= LEGACY_CONTENT_MIGRATION_TIMESTAMP) return OK
+
     const maxSizeInMB = entityParameters[entity.type].maxSizeInMB
     let errors: string[] = []
     if (!maxSizeInMB) {

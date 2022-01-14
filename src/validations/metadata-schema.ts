@@ -1,6 +1,6 @@
 import { Profile, Scene, Wearable } from '@dcl/schemas'
 import { entityParameters, EntityType } from 'dcl-catalyst-commons'
-import { ADR_45_TIMESTAMP } from '.'
+import { ADR_45_TIMESTAMP, LEGACY_CONTENT_MIGRATION_TIMESTAMP } from '.'
 import { conditionalValidation } from '../types'
 
 /**

@@ -1,6 +1,7 @@
 import { EntityType } from 'dcl-catalyst-commons'
+import { LEGACY_CONTENT_MIGRATION_TIMESTAMP } from '..'
 
-import { Validation } from '../../types'
+import { OK, Validation } from '../../types'
 import { profiles } from './profiles'
 import { scenes } from './scenes'
 import { stores } from './stores'
@@ -19,6 +20,7 @@ const accessCheckers = {
  */
 export const access: Validation = {
   validate: async (args) => {
+    if (args.deployment.entity.timestamp <= LEGACY_CONTENT_MIGRATION_TIMESTAMP) return OK
     const type = args.deployment.entity.type
     const accessChecker = accessCheckers[type]
 

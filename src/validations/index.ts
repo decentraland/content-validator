@@ -29,6 +29,12 @@ export const validateInRow = async (
 export const ADR_45_TIMESTAMP = 1648954800000
 
 /**
+ * DCL Launch Day
+ * @public
+ */
+export const LEGACY_CONTENT_MIGRATION_TIMESTAMP = 1582167600000
+
+/**
  * @public
  */
 export const calculateDeploymentSize = async (
