@@ -70,6 +70,9 @@ export type ExternalCalls = {
 // @public (undocumented)
 export const fromErrors: (...errors: Errors) => ValidationResponse;
 
+// @public
+export const LEGACY_CONTENT_MIGRATION_TIMESTAMP = 1582167600000;
+
 // @public (undocumented)
 export type LocalDeploymentAuditInfo = Pick<AuditInfo, 'authChain' | 'migrationData'>;
 
@@ -77,10 +80,10 @@ export type LocalDeploymentAuditInfo = Pick<AuditInfo, 'authChain' | 'migrationD
 export const OK: ValidationResponse;
 
 // @public
-export const statefulValidations: Validation[];
+export const statefulValidations: readonly [Validation, Validation, Validation, Validation, Validation, Validation];
 
 // @public
-export const statelessValidations: Validation[];
+export const statelessValidations: readonly [Validation, Validation, Validation];
 
 // @public (undocumented)
 export const validateInRow: (validationArgs: ValidationArgs, ...validations: Validation[]) => Promise<ValidationResponse>;
@@ -106,7 +109,7 @@ export type ValidationResponse = {
 };
 
 // @public
-export const validations: Validation[];
+export const validations: readonly [Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation];
 
 // @public
 export interface Validator {
