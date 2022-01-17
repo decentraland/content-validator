@@ -10,7 +10,7 @@ const buildFiles = (...files: [hash: string, sizeInMB: number][]): Map<string, U
 
 describe('Size', () => {
   it('When an entity is too big per pointer, then it fails', async () => {
-    const files = buildFiles(['hash', 1])
+    const files = buildFiles(['hash', 2.1])
     const entity = buildEntity({ pointers: ['P1'] })
     const deployment = buildDeployment({ files, entity })
     const externalCalls = buildExternalCalls()
@@ -18,12 +18,12 @@ describe('Size', () => {
     const result = await size.validate({ deployment, externalCalls })
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain(
-      'The deployment is too big. The maximum allowed size per pointer is 0.5 MB for profile. You can upload up to 524288 bytes but you tried to upload 1048576.'
+      'The deployment is too big. The maximum allowed size per pointer is 2 MB for profile. You can upload up to 2097152 bytes but you tried to upload 2202009.'
     )
   })
   it('When an entity is big, but has enough pointers, then it is ok', async () => {
     const entity = buildEntity({ pointers: ['P1', 'P2'] })
-    const files = buildFiles(['hash', 1])
+    const files = buildFiles(['hash', 2.1])
     const deployment = buildDeployment({ entity, files })
     const externalCalls = buildExternalCalls()
 
@@ -36,7 +36,7 @@ describe('Size', () => {
     it('When an entity is too big per pointer, then it fails', async () => {
       const content = [{ file: 'C', hash: 'C' }]
       const entity = buildEntity({ content, timestamp, pointers: ['P1'] })
-      const files = buildFiles(['C', 1])
+      const files = buildFiles(['C', 2.1])
 
       const deployment = buildDeployment({ entity, files })
       const externalCalls = buildExternalCalls()
@@ -44,7 +44,7 @@ describe('Size', () => {
       const result = await size.validate({ deployment, externalCalls })
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
-        'The deployment is too big. The maximum allowed size per pointer is 0.5 MB for profile. You can upload up to 524288 bytes but you tried to upload 1048576.'
+        'The deployment is too big. The maximum allowed size per pointer is 2 MB for profile. You can upload up to 2097152 bytes but you tried to upload 2202009.'
       )
     })
 
