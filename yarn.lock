@@ -2195,10 +2195,10 @@ data-urls@^2.0.0:
     whatwg-mimetype "^2.3.0"
     whatwg-url "^8.0.0"
 
-dcl-catalyst-commons@7.1.4-20220105153139.commit-79398b8:
-  version "7.1.4-20220105153139.commit-79398b8"
-  resolved "https://registry.yarnpkg.com/dcl-catalyst-commons/-/dcl-catalyst-commons-7.1.4-20220105153139.commit-79398b8.tgz#d94ca2de38ecac49b3380bddaeb62066e6b1aaa8"
-  integrity sha512-ZCJLrQlSN0Xj5Ops6aTHyslCyKMNxZpEhhmlZzucAW53EYQCSHG9UpTLeZ/kGgoknPjPnspMl4xpwsoQj4pjIQ==
+dcl-catalyst-commons@7.2.0:
+  version "7.2.0"
+  resolved "https://registry.yarnpkg.com/dcl-catalyst-commons/-/dcl-catalyst-commons-7.2.0.tgz#b94dd999f05b20ebb92bc01e233cd6d9e7ae94a6"
+  integrity sha512-CZBb4H5E+KgFuCijUb5Bh1VzWH9uRdQ+cJTVCmuEAVyQzGOXimNCcru9aobLKwQ+Okw+0jdke+LrHG/dcWMPSw==
   dependencies:
     "@dcl/schemas" "3.1.1"
     abort-controller "^3.0.0"
