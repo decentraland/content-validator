@@ -296,10 +296,17 @@
   resolved "https://registry.npmjs.org/@dcl/eslint-config/-/eslint-config-1.0.0.tgz"
   integrity sha512-9T0xFSQJVuBdmKqOvs/xYCesOqZSnmjZ2Nc40HBOto2U61VnU90Lz3LXMJAbs/nkij6madfgQyd8+uo1XNjhPg==
 
-"@dcl/schemas@3.1.1", "@dcl/schemas@^3.1.1":
+"@dcl/schemas@3.1.1":
   version "3.1.1"
   resolved "https://registry.npmjs.org/@dcl/schemas/-/schemas-3.1.1.tgz"
   integrity sha512-LsNpyjf6T8OM8FkuHrzO2vPoSAggBj1iKY3myoH5K+YYM1s4xBD6wZK9JTcXa9dhBfPnlrr7aJWIsJ81oztlIQ==
+  dependencies:
+    ajv "^7.1.0"
+
+"@dcl/schemas@^3.1.1":
+  version "3.4.1"
+  resolved "https://registry.yarnpkg.com/@dcl/schemas/-/schemas-3.4.1.tgz#ee4a4d6f913b5f5974e1d235d361ba764f357311"
+  integrity sha512-xtt11/QGplk9ohwBIHub9l9kRQvYX+FIcXke58hhkRDATAcGx01ONSvp4qX+EoXQhERtNjfuxheC2uCrwqDakg==
   dependencies:
     ajv "^7.1.0"
 
