@@ -296,14 +296,7 @@
   resolved "https://registry.npmjs.org/@dcl/eslint-config/-/eslint-config-1.0.0.tgz"
   integrity sha512-9T0xFSQJVuBdmKqOvs/xYCesOqZSnmjZ2Nc40HBOto2U61VnU90Lz3LXMJAbs/nkij6madfgQyd8+uo1XNjhPg==
 
-"@dcl/schemas@3.1.1":
-  version "3.1.1"
-  resolved "https://registry.npmjs.org/@dcl/schemas/-/schemas-3.1.1.tgz"
-  integrity sha512-LsNpyjf6T8OM8FkuHrzO2vPoSAggBj1iKY3myoH5K+YYM1s4xBD6wZK9JTcXa9dhBfPnlrr7aJWIsJ81oztlIQ==
-  dependencies:
-    ajv "^7.1.0"
-
-"@dcl/schemas@^3.1.1":
+"@dcl/schemas@3.5.0", "@dcl/schemas@^3.1.1":
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/@dcl/schemas/-/schemas-3.5.0.tgz#6557e7927edb115638e94854dbf39223eb238edf"
   integrity sha512-uwsEHUVA7hGpKrWhCVWe9riaJ/sgJskDUwqlVud0or8Z9lunOEWYhX6bBr28S4Qfkne8MoVeG0wLz5ANdXandg==
@@ -2202,12 +2195,12 @@ data-urls@^2.0.0:
     whatwg-mimetype "^2.3.0"
     whatwg-url "^8.0.0"
 
-dcl-catalyst-commons@7.2.1:
-  version "7.2.1"
-  resolved "https://registry.yarnpkg.com/dcl-catalyst-commons/-/dcl-catalyst-commons-7.2.1.tgz#8a44d41e527a6e96fe94278ee8099bfa0a6c96df"
-  integrity sha512-aXeKlJmQIJ0ihBJbaIfqYM++1ZqVpUTw9Rm0+CE+d9JOmAGQ4x+7ZSJ7XcgujPwOHhXwYpURJAVo2ud1dqC7EA==
+dcl-catalyst-commons@7.2.2:
+  version "7.2.2"
+  resolved "https://registry.yarnpkg.com/dcl-catalyst-commons/-/dcl-catalyst-commons-7.2.2.tgz#88aa7ead766affd8fd1b1da8fb98e133f67beb92"
+  integrity sha512-/tspVyNjlgIiKMor4Wz21rmvzgZ41y54KtfdePRPJFecJqiaMaFb+lOkdE/4fi+MWS2d2+gQmjW7MYqMS9Aivw==
   dependencies:
-    "@dcl/schemas" "3.1.1"
+    "@dcl/schemas" "3.5.0"
     abort-controller "^3.0.0"
     cids "^1.1.9"
     cookie "^0.4.1"
