@@ -11,7 +11,7 @@ import { EntityId } from 'dcl-catalyst-commons';
 import { Fetcher } from 'dcl-catalyst-commons';
 
 // @public (undocumented)
-export const ADR_45_TIMESTAMP = 1648954800000;
+export const ADR_45_TIMESTAMP = 1648771200000;
 
 // @public (undocumented)
 export const calculateDeploymentSize: (deployment: DeploymentToValidate, externalCalls: ExternalCalls) => Promise<number | string>;
@@ -80,7 +80,7 @@ export type LocalDeploymentAuditInfo = Pick<AuditInfo, 'authChain' | 'migrationD
 export const OK: ValidationResponse;
 
 // @public
-export const statefulValidations: readonly [Validation, Validation, Validation, Validation, Validation];
+export const statefulValidations: readonly [Validation, Validation, Validation, Validation, Validation, Validation];
 
 // @public
 export const statelessValidations: readonly [Validation, Validation, Validation];
@@ -109,7 +109,7 @@ export type ValidationResponse = {
 };
 
 // @public
-export const validations: readonly [Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation];
+export const validations: readonly [Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation];
 
 // @public
 export interface Validator {

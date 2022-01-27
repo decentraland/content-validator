@@ -7,6 +7,7 @@ import { metadata } from './metadata-schema'
 import { signature } from './signature'
 import { size } from './size'
 import { wearable } from './wearable'
+import { profile } from './profile'
 
 /**
  * @public
@@ -22,11 +23,10 @@ export const validateInRow = async (
   return OK
 }
 
-// todo: review/define date for entities v4 (for the time being, it is set for test purposes)
 /**
  * @public
  */
-export const ADR_45_TIMESTAMP = 1648954800000
+export const ADR_45_TIMESTAMP = 1648771200000
 
 /**
  * DCL Launch Day
@@ -59,7 +59,7 @@ export const calculateDeploymentSize = async (
  * Stateful validations that are run on a deployment.
  * @public
  */
-export const statefulValidations = [signature, access, size, wearable, content] as const
+export const statefulValidations = [signature, access, size, wearable, profile, content] as const
 
 /**
  * Stateless validations that are run on a deployment.
