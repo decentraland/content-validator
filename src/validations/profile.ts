@@ -40,6 +40,9 @@ export const faceThumbnail: Validation = {
 export const profile: Validation = {
   validate: async (args) => {
     if (args.deployment.entity.type !== EntityType.PROFILE) return OK
-    return validateInRow(args, faceThumbnail)
+    const response = await faceThumbnail.validate(args)
+    
+    if (!response.ok) return response
+    return OK
   },
 }
