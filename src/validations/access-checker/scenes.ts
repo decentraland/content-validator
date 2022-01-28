@@ -32,13 +32,18 @@ type Authorization = {
   isApproved: boolean
 }
 
-const getAuthorizations = async (
-  owner: EthAddress,
-  operator: EthAddress,
-  timestamp: Timestamp,
-  externalCalls: ExternalCalls
-): Promise<Authorization[]> => {
-  const query = `
+/**
+ * Checks if the given address has access to the given parcel at the given timestamp.
+ * @public
+ */
+export const scenes: Validation = {
+  validate: async ({ deployment, externalCalls }, logs) => {
+    const getAuthorizations = async (
+      owner: EthAddress,
+      operator: EthAddress,
+      timestamp: Timestamp
+    ): Promise<Authorization[]> => {
+      const query = `
             query GetAuthorizations($owner: String!, $operator: String!, $timestamp: Int!) {
                 authorizations(
                         where: {
@@ -54,38 +59,34 @@ const getAuthorizations = async (
                 }
             }`
 
-  const variables = {
-    owner,
-    operator,
-    timestamp: Math.floor(timestamp / 1000), // js(ms) -> UNIX(s)
-  }
+      const variables = {
+        owner,
+        operator,
+        timestamp: Math.floor(timestamp / 1000), // js(ms) -> UNIX(s)
+      }
 
-  try {
-    return (
-      await externalCalls.queryGraph<{ authorizations: Authorization[] }>(
-        externalCalls.subgraphs.L1.landManager,
-        query,
-        variables
-      )
-    ).authorizations
-  } catch (error) {
-    // this.LOGGER.error(`Error fetching authorizations for ${owner}`, error)
-    throw error
-  }
-}
+      try {
+        return (
+          await externalCalls.queryGraph<{ authorizations: Authorization[] }>(
+            externalCalls.subgraphs.L1.landManager,
+            query,
+            variables
+          )
+        ).authorizations
+      } catch (error) {
+        // logs?.error(`Error fetching authorizations for ${owner}`, error)
+        throw error
+      }
+    }
 
-const getEstate = async (
-  estateId: string,
-  timestamp: Timestamp,
-  externalCalls: ExternalCalls
-): Promise<Estate | undefined> => {
-  /**
-   * You can use `owner`, `operator` and `updateOperator` to check the current value for that estate.
-   * Keep in mind that each association (owners, operators, etc) is capped to a thousand (1000) results.
-   * For more information, you can use the query explorer at https://thegraph.com/explorer/subgraph/decentraland/land-manager
-   */
+    const getEstate = async (estateId: string, timestamp: Timestamp): Promise<Estate | undefined> => {
+      /**
+       * You can use `owner`, `operator` and `updateOperator` to check the current value for that estate.
+       * Keep in mind that each association (owners, operators, etc) is capped to a thousand (1000) results.
+       * For more information, you can use the query explorer at https://thegraph.com/explorer/subgraph/decentraland/land-manager
+       */
 
-  const query = `
+      const query = `
             query GetEstate($estateId: String!, $timestamp: Int!) {
                 estates(where:{ id: $estateId }) {
                     id
@@ -116,34 +117,33 @@ const getEstate = async (
                 }
             }`
 
-  const variables = {
-    estateId,
-    timestamp: Math.floor(timestamp / 1000), // UNIX
-  }
+      const variables = {
+        estateId,
+        timestamp: Math.floor(timestamp / 1000), // UNIX
+      }
 
-  try {
-    return (
-      await externalCalls.queryGraph<{ estates: Estate[] }>(externalCalls.subgraphs.L1.landManager, query, variables)
-    ).estates[0]
-  } catch (error) {
-    // this.LOGGER.error(`Error fetching estate (${estateId})`, error)
-    throw error
-  }
-}
+      try {
+        return (
+          await externalCalls.queryGraph<{ estates: Estate[] }>(
+            externalCalls.subgraphs.L1.landManager,
+            query,
+            variables
+          )
+        ).estates[0]
+      } catch (error) {
+        logs?.error(`Error fetching estate (${estateId})`)
+        throw error
+      }
+    }
 
-const getParcel = async (
-  x: number,
-  y: number,
-  timestamp: Timestamp,
-  externalCalls: ExternalCalls
-): Promise<Parcel | undefined> => {
-  /**
-   * You can use `owner`, `operator` and `updateOperator` to check the current value for that parcel.
-   * Keep in mind that each association (owners, operators, etc) is capped to a thousand (1000) results.
-   * For more information, you can use the query explorer at https://thegraph.com/explorer/subgraph/decentraland/land-manager
-   */
+    const getParcel = async (x: number, y: number, timestamp: Timestamp): Promise<Parcel | undefined> => {
+      /**
+       * You can use `owner`, `operator` and `updateOperator` to check the current value for that parcel.
+       * Keep in mind that each association (owners, operators, etc) is capped to a thousand (1000) results.
+       * For more information, you can use the query explorer at https://thegraph.com/explorer/subgraph/decentraland/land-manager
+       */
 
-  const query = `
+      const query = `
             query GetParcel($x: Int!, $y: Int!, $timestamp: Int!) {
                 parcels(where:{ x: $x, y: $y }) {
                     estates(
@@ -181,140 +181,128 @@ const getParcel = async (
                 }
             }`
 
-  const variables = {
-    x,
-    y,
-    timestamp: Math.floor(timestamp / 1000), // UNIX
-  }
+      const variables = {
+        x,
+        y,
+        timestamp: Math.floor(timestamp / 1000), // UNIX
+      }
 
-  try {
-    const r = await externalCalls.queryGraph<{ parcels: Parcel[] }>(
-      externalCalls.subgraphs.L1.landManager,
-      query,
-      variables
-    )
+      try {
+        const r = await externalCalls.queryGraph<{ parcels: Parcel[] }>(
+          externalCalls.subgraphs.L1.landManager,
+          query,
+          variables
+        )
 
-    if (r.parcels && r.parcels.length) return r.parcels[0]
+        if (r.parcels && r.parcels.length) return r.parcels[0]
 
-    // this.LOGGER.error(`Error fetching parcel (${x}, ${y}, ${timestamp}): ${JSON.stringify(r)}`)
-    throw new Error(`Error fetching parcel (${x}, ${y}), ${timestamp}`)
-  } catch (error) {
-    // this.LOGGER.error(`Error fetching parcel (${x}, ${y}, ${timestamp})`, error)
-    throw error
-  }
-}
+        logs?.error(`Error fetching parcel (${x}, ${y}, ${timestamp}): ${JSON.stringify(r)}`)
+        throw new Error(`Error fetching parcel (${x}, ${y}), ${timestamp}`)
+      } catch (error) {
+        logs?.error(`Error fetching parcel (${x}, ${y}, ${timestamp})`)
+        throw error
+      }
+    }
 
-const hasAccessThroughAuthorizations = async (
-  owner: EthAddress,
-  ethAddress: EthAddress,
-  timestamp: Timestamp,
-  externalCalls: ExternalCalls
-): Promise<boolean> => {
-  /* You also get access if you received:
-   *   - an authorization with isApproved and type Operator, ApprovalForAll or UpdateManager
-   * at that time
-   */
-  const authorizations = await getAuthorizations(
-    owner.toLowerCase(),
-    ethAddress.toLowerCase(),
-    timestamp,
-    externalCalls
-  )
+    const hasAccessThroughAuthorizations = async (
+      owner: EthAddress,
+      ethAddress: EthAddress,
+      timestamp: Timestamp
+    ): Promise<boolean> => {
+      /* You also get access if you received:
+       *   - an authorization with isApproved and type Operator, ApprovalForAll or UpdateManager
+       * at that time
+       */
+      const authorizations = await getAuthorizations(owner.toLowerCase(), ethAddress.toLowerCase(), timestamp)
 
-  const firstOperatorAuthorization = authorizations.find((authorization) => authorization.type === 'Operator')
-  const firstApprovalForAllAuthorization = authorizations.find(
-    (authorization) => authorization.type === 'ApprovalForAll'
-  )
-  const firstUpdateManagerAuthorization = authorizations.find((authorization) => authorization.type === 'UpdateManager')
+      const firstOperatorAuthorization = authorizations.find((authorization) => authorization.type === 'Operator')
+      const firstApprovalForAllAuthorization = authorizations.find(
+        (authorization) => authorization.type === 'ApprovalForAll'
+      )
+      const firstUpdateManagerAuthorization = authorizations.find(
+        (authorization) => authorization.type === 'UpdateManager'
+      )
 
-  if (
-    firstOperatorAuthorization?.isApproved ||
-    firstApprovalForAllAuthorization?.isApproved ||
-    firstUpdateManagerAuthorization?.isApproved
-  ) {
-    return true
-  }
+      if (
+        firstOperatorAuthorization?.isApproved ||
+        firstApprovalForAllAuthorization?.isApproved ||
+        firstUpdateManagerAuthorization?.isApproved
+      ) {
+        return true
+      }
 
-  return false
-}
+      return false
+    }
 
-const hasAccessThroughFirstLevelAuthorities = async (
-  target: AuthorizationHistory,
-  ethAddress: EthAddress
-): Promise<boolean> => {
-  const firstLevelAuthorities = [...target.owners, ...target.operators, ...target.updateOperators]
-    .filter((addressSnapshot) => addressSnapshot.address)
-    .map((addressSnapshot) => addressSnapshot.address.toLowerCase())
-  return firstLevelAuthorities.includes(ethAddress.toLowerCase())
-}
+    const hasAccessThroughFirstLevelAuthorities = async (
+      target: AuthorizationHistory,
+      ethAddress: EthAddress
+    ): Promise<boolean> => {
+      const firstLevelAuthorities = [...target.owners, ...target.operators, ...target.updateOperators]
+        .filter((addressSnapshot) => addressSnapshot.address)
+        .map((addressSnapshot) => addressSnapshot.address.toLowerCase())
+      return firstLevelAuthorities.includes(ethAddress.toLowerCase())
+    }
 
-const isEstateUpdateAuthorized = async (
-  estateId: number,
-  timestamp: Timestamp,
-  ethAddress: EthAddress,
-  externalCalls: ExternalCalls
-): Promise<boolean> => {
-  const estate = await getEstate(estateId.toString(), timestamp, externalCalls)
-  if (estate) {
-    return (
-      (await hasAccessThroughFirstLevelAuthorities(estate, ethAddress)) ||
-      (await hasAccessThroughAuthorizations(estate.owners[0].address, ethAddress, timestamp, externalCalls))
-    )
-  }
-  throw new Error(`Couldn\'t find the state ${estateId}`)
-}
+    const isEstateUpdateAuthorized = async (
+      estateId: number,
+      timestamp: Timestamp,
+      ethAddress: EthAddress
+    ): Promise<boolean> => {
+      const estate = await getEstate(estateId.toString(), timestamp)
+      if (estate) {
+        return (
+          (await hasAccessThroughFirstLevelAuthorities(estate, ethAddress)) ||
+          (await hasAccessThroughAuthorizations(estate.owners[0].address, ethAddress, timestamp))
+        )
+      }
+      throw new Error(`Couldn\'t find the state ${estateId}`)
+    }
 
-const isParcelUpdateAuthorized = async (
-  x: number,
-  y: number,
-  timestamp: Timestamp,
-  ethAddress: EthAddress,
-  externalCalls: ExternalCalls
-): Promise<boolean> => {
-  /* You get direct access if you were the:
-   *   - owner
-   *   - operator
-   *   - update operator
-   * at that time
-   */
-  const parcel = await getParcel(x, y, timestamp, externalCalls)
-  if (parcel) {
-    const belongsToEstate: boolean =
-      parcel.estates != undefined && parcel.estates.length > 0 && parcel.estates[0].estateId != undefined
+    const isParcelUpdateAuthorized = async (
+      x: number,
+      y: number,
+      timestamp: Timestamp,
+      ethAddress: EthAddress,
+      externalCalls: ExternalCalls
+    ): Promise<boolean> => {
+      /* You get direct access if you were the:
+       *   - owner
+       *   - operator
+       *   - update operator
+       * at that time
+       */
+      const parcel = await getParcel(x, y, timestamp)
+      if (parcel) {
+        const belongsToEstate: boolean =
+          parcel.estates != undefined && parcel.estates.length > 0 && parcel.estates[0].estateId != undefined
 
-    return (
-      (await hasAccessThroughFirstLevelAuthorities(parcel, ethAddress)) ||
-      (await hasAccessThroughAuthorizations(parcel.owners[0].address, ethAddress, timestamp, externalCalls)) ||
-      (belongsToEstate &&
-        (await isEstateUpdateAuthorized(parcel.estates[0].estateId, timestamp, ethAddress, externalCalls)))
-    )
-  }
-  throw new Error(`Parcel(${x},${y},${timestamp}) not found`)
-}
+        return (
+          (await hasAccessThroughFirstLevelAuthorities(parcel, ethAddress)) ||
+          (await hasAccessThroughAuthorizations(parcel.owners[0].address, ethAddress, timestamp)) ||
+          (belongsToEstate && (await isEstateUpdateAuthorized(parcel.estates[0].estateId, timestamp, ethAddress)))
+        )
+      }
+      throw new Error(`Parcel(${x},${y},${timestamp}) not found`)
+    }
 
-const checkParcelAccess = async (
-  x: number,
-  y: number,
-  timestamp: Timestamp,
-  ethAddress: EthAddress,
-  externalCalls: ExternalCalls
-): Promise<boolean> => {
-  try {
-    return await retry(() => isParcelUpdateAuthorized(x, y, timestamp, ethAddress, externalCalls), 5, '0.1s')
-  } catch (error) {
-    // this.LOGGER.error(`Error checking parcel access (${x}, ${y}, ${timestamp}, ${ethAddress}).`, error)
-    throw error
-  }
-}
+    const checkParcelAccess = async (
+      x: number,
+      y: number,
+      timestamp: Timestamp,
+      ethAddress: EthAddress,
+      externalCalls: ExternalCalls
+    ): Promise<boolean> => {
+      try {
+        return await retry(() => isParcelUpdateAuthorized(x, y, timestamp, ethAddress, externalCalls), 5, '0.1s')
+      } catch (error) {
+        logs?.error(`Error checking parcel access (${x}, ${y}, ${timestamp}, ${ethAddress}).`)
+        throw error
+      }
+    }
 
-const SCENE_LOOKBACK_TIME = ms('5m')
+    const SCENE_LOOKBACK_TIME = ms('5m')
 
-/**
- * Checks if the given address has access to the given parcel at the given timestamp.
- * @public
- */
-export const scenes: Validation = {
-  validate: async ({ deployment, externalCalls }) => {
     const { entity } = deployment
     const { pointers, timestamp } = entity
     const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
