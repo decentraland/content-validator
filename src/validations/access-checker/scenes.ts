@@ -74,7 +74,7 @@ export const scenes: Validation = {
           )
         ).authorizations
       } catch (error) {
-        // logs?.error(`Error fetching authorizations for ${owner}`, error)
+        logs?.error(`Error fetching authorizations for ${owner}`)
         throw error
       }
     }
