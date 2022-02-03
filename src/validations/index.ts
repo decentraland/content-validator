@@ -22,11 +22,12 @@ export const validateInRow = async (
   return OK
 }
 
-// todo: review/define date for entities v4 (for the time being, it is set for test purposes)
+// Note: using env variable ADR_45_TIMESTAMP for test purposes
 /**
+ * 1648771200000 = April 1st 2022 UTC
  * @public
  */
-export const ADR_45_TIMESTAMP = 1648954800000
+export const ADR_45_TIMESTAMP = process.env.ADR_45_TIMESTAMP ? parseInt(process.env.ADR_45_TIMESTAMP) : 1648771200000
 
 /**
  * DCL Launch Day
