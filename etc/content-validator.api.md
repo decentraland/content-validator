@@ -11,8 +11,8 @@ import { EntityId } from 'dcl-catalyst-commons';
 import { Fetcher } from 'dcl-catalyst-commons';
 import { ILoggerComponent } from '@well-known-components/interfaces';
 
-// @public (undocumented)
-export const ADR_45_TIMESTAMP = 1648954800000;
+// @public
+export const ADR_45_TIMESTAMP: number;
 
 // @public (undocumented)
 export const calculateDeploymentSize: (deployment: DeploymentToValidate, externalCalls: ExternalCalls) => Promise<number | string>;
