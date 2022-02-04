@@ -68,9 +68,9 @@ describe('Content', () => {
   })
 
   describe('ADR_45: ', () => {
-    it('When profile content files correspond to any shapshot, then no error is returned', async () => {
-      const expectedFile = 'face.png'
-      const hash = 'bafybeiasb5vpmaounyilfuxbd3lryvosl4yefqrfahsb2esg46q6tu6y5q'
+    it('When profile content files correspond to any snapshot, then no error is returned', async () => {
+      const expectedFile = 'face256.png'
+      const hash = 'bafybeiasb5vpmaounyilfuxbd3lryvosl4yefqrfahsb2esg46q6tu6y5s'
 
       const contentItems = [{ file: expectedFile, hash }]
       const files = new Map([[hash, Buffer.from([])]])
@@ -85,8 +85,8 @@ describe('Content', () => {
       expect(result.ok).toBeTruthy()
     })
 
-    it(`When a profile content file hash doesn't correspond to any shapshot, it is reported`, async () => {
-      const expectedFile = 'face.png'
+    it(`When a profile content file hash doesn't correspond to any snapshot, it is reported`, async () => {
+      const expectedFile = 'face256.png'
 
       const invalidHash = 'invalid-hash'
       const contentItems = [{ file: expectedFile, hash: invalidHash }]
