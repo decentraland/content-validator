@@ -1,6 +1,6 @@
 import { EntityType } from 'dcl-catalyst-commons'
 import sharp from 'sharp'
-import { ADR_45_TIMESTAMP } from '../../../src'
+import { ADR_45_TIMESTAMP, ValidationResponse } from '../../../src'
 import { faceThumbnail } from '../../../src/validations/profile'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
@@ -40,9 +40,9 @@ describe('Profiles', () => {
       const entity = buildEntity({ type: EntityType.PROFILE, metadata: VALID_PROFILE_METADATA, timestamp })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await faceThumbnail.validate({ deployment, externalCalls })
+      const result: ValidationResponse = await faceThumbnail.validate({ deployment, externalCalls })
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(`Couldn't find hash for thumbnail file with name: ${fileName}`)
+      expect(result.errors).toContain(`Couldn't find hash for face256 thumbnail file with name: ${fileName}`)
     })
 
     it('When there is no file for given thumbnail file hash, it should return an error', async () => {
@@ -64,7 +64,7 @@ describe('Profiles', () => {
 
       const result = await faceThumbnail.validate({ deployment, externalCalls })
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(`Couldn't parse thumbnail, please check image format.`)
+      expect(result.errors).toContain(`Couldn't parse face256 thumbnail, please check image format.`)
     })
 
     it('When thumbnail image size is invalid, it should return an error', async () => {
@@ -75,7 +75,7 @@ describe('Profiles', () => {
 
       const result = await faceThumbnail.validate({ deployment, externalCalls })
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(`Invalid thumbnail image size (width = 1 / height = 1)`)
+      expect(result.errors).toContain(`Invalid face256 thumbnail image size (width = 1 / height = 1)`)
     })
 
     it('When thumbnail image format is not png, it should return an error', async () => {

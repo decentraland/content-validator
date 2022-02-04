@@ -1,7 +1,7 @@
 import { EntityType } from 'dcl-catalyst-commons'
 import sharp from 'sharp'
-import { ADR_45_TIMESTAMP, validateInRow } from '.'
-import { OK, Validation, validationFailed } from '../types'
+import { ADR_45_TIMESTAMP } from '.'
+import { OK, Validation, validationFailed, ValidationResponse } from '../types'
 
 
 /** Validate that given profile deployment includes a face256 thumbnail with valid size */
@@ -12,7 +12,7 @@ export const faceThumbnail: Validation = {
     if (deployment.entity.timestamp < ADR_45_TIMESTAMP) return OK
 
     const hash = deployment.entity.content?.find(({ file }) => file === faceThumbnailFileName)?.hash
-    if (!hash) return validationFailed(`Couldn't find hash for face 256 thumbnail file with name: ${faceThumbnailFileName}`)
+    if (!hash) return validationFailed(`Couldn't find hash for face256 thumbnail file with name: ${faceThumbnailFileName}`)
 
     const errors: string[] = []
     // check size
@@ -40,7 +40,7 @@ export const faceThumbnail: Validation = {
 export const profile: Validation = {
   validate: async (args) => {
     if (args.deployment.entity.type !== EntityType.PROFILE) return OK
-    const response = await faceThumbnail.validate(args)
+    const response: ValidationResponse = await faceThumbnail.validate(args)
     
     if (!response.ok) return response
     return OK
