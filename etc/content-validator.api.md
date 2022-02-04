@@ -9,9 +9,10 @@ import { ContentFileHash } from 'dcl-catalyst-commons';
 import { Entity } from 'dcl-catalyst-commons';
 import { EntityId } from 'dcl-catalyst-commons';
 import { Fetcher } from 'dcl-catalyst-commons';
+import { ILoggerComponent } from '@well-known-components/interfaces';
 
-// @public (undocumented)
-export const ADR_45_TIMESTAMP = 1648771200000;
+// @public
+export const ADR_45_TIMESTAMP: number;
 
 // @public (undocumented)
 export const calculateDeploymentSize: (deployment: DeploymentToValidate, externalCalls: ExternalCalls) => Promise<number | string>;
@@ -26,7 +27,12 @@ export type ConditionalValidation = {
 export const conditionalValidation: (condition: ConditionalValidation) => Validation;
 
 // @public
-export const createValidator: (externalCalls: ExternalCalls) => Validator;
+export type ContentValidatorComponents = {
+    logs: ILoggerComponent;
+};
+
+// @public
+export const createValidator: (externalCalls: ExternalCalls, components?: Pick<ContentValidatorComponents, "logs"> | undefined) => Validator;
 
 // @public
 export type DeploymentToValidate = {
@@ -90,7 +96,7 @@ export const validateInRow: (validationArgs: ValidationArgs, ...validations: Val
 
 // @public (undocumented)
 export type Validation = {
-    validate: (args: ValidationArgs) => ValidationResponse | Promise<ValidationResponse>;
+    validate: (args: ValidationArgs, logs?: ILoggerComponent.ILogger) => ValidationResponse | Promise<ValidationResponse>;
 };
 
 // @public (undocumented)

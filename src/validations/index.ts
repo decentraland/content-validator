@@ -24,9 +24,10 @@ export const validateInRow = async (
 }
 
 /**
+ * 1648771200000 = April 1st 2022 UTC
  * @public
  */
-export const ADR_45_TIMESTAMP = 1648771200000
+export const ADR_45_TIMESTAMP = process.env.ADR_45_TIMESTAMP ? parseInt(process.env.ADR_45_TIMESTAMP) : 1648771200000
 
 /**
  * DCL Launch Day
