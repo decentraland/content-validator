@@ -7,6 +7,7 @@ import { metadata } from './metadata-schema'
 import { signature } from './signature'
 import { size } from './size'
 import { wearable } from './wearable'
+import { profile } from './profile'
 
 /**
  * @public
@@ -22,7 +23,6 @@ export const validateInRow = async (
   return OK
 }
 
-// Note: using env variable ADR_45_TIMESTAMP for test purposes
 /**
  * 1648771200000 = April 1st 2022 UTC
  * @public
@@ -60,7 +60,7 @@ export const calculateDeploymentSize = async (
  * Stateful validations that are run on a deployment.
  * @public
  */
-export const statefulValidations = [signature, access, size, wearable, content] as const
+export const statefulValidations = [signature, access, size, wearable, profile, content] as const
 
 /**
  * Stateless validations that are run on a deployment.

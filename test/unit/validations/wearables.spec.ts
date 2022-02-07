@@ -1,6 +1,6 @@
 import { EntityType } from 'dcl-catalyst-commons'
 import sharp from 'sharp'
-import { ADR_45_TIMESTAMP } from '../../../src'
+import { ADR_45_TIMESTAMP, ValidationResponse } from '../../../src'
 import { size } from '../../../src/validations/size'
 import { wearableSize, wearableThumbnail } from '../../../src/validations/wearable'
 import { buildDeployment } from '../../setup/deployments'
@@ -86,7 +86,7 @@ describe('Wearables', () => {
       const entity = buildEntity({ type: EntityType.WEARABLE, metadata: VALID_WEARABLE_METADATA, content, timestamp })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await wearableThumbnail.validate({ deployment, externalCalls })
+      const result: ValidationResponse = await wearableThumbnail.validate({ deployment, externalCalls })
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Invalid or unknown image format. Only 'PNG' format is accepted.`)
     })

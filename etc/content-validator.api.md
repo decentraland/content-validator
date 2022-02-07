@@ -86,7 +86,7 @@ export type LocalDeploymentAuditInfo = Pick<AuditInfo, 'authChain' | 'migrationD
 export const OK: ValidationResponse;
 
 // @public
-export const statefulValidations: readonly [Validation, Validation, Validation, Validation, Validation];
+export const statefulValidations: readonly [Validation, Validation, Validation, Validation, Validation, Validation];
 
 // @public
 export const statelessValidations: readonly [Validation, Validation, Validation];
@@ -115,7 +115,7 @@ export type ValidationResponse = {
 };
 
 // @public
-export const validations: readonly [Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation];
+export const validations: readonly [Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation];
 
 // @public
 export interface Validator {
