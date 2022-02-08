@@ -22,20 +22,6 @@ export const buildWearableEntity = (entity?: Partial<Entity>): Entity =>
     ...entity,
   })
 
-export const buildWearableEntityWithRepresentation = (wearableRepresentation: WearableRepresentation): Entity =>
-  Object.assign(
-    {
-      ...buildWearableEntity(),
-    },
-    {
-      metadata: {
-        data: {
-          representations: [wearableRepresentation],
-        },
-      },
-    }
-  )
-
 export const buildEntity = (entity?: Partial<Entity>): Entity => ({
   version: EntityVersion.V4,
   type: EntityType.PROFILE,
