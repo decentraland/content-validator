@@ -5,6 +5,27 @@ import { ADR_45_TIMESTAMP, calculateDeploymentSize, validateInRow } from '.'
 import { OK, Validation, validationFailed } from '../types'
 
 const wearableSizeLimitInMB = 2
+
+/** Validate wearable representations are referencing valid content */
+export const wearableRepresentationContent: Validation = {
+  validate: async ({ deployment }) => {
+    const { entity } = deployment
+    const wearableMetadata = entity.metadata as Wearable
+    const representations = wearableMetadata?.data?.representations
+    if (!representations) return validationFailed('No wearable representations found')
+    if (!entity.content) return validationFailed('No content found')
+
+    for (const representation of representations) {
+      for (const representationContent of representation.contents) {
+        if (!entity.content.find((content) => content.file === representationContent)) {
+          return validationFailed(`Representation content: '${representationContent}' is not one of the content files`)
+        }
+      }
+    }
+    return OK
+  },
+}
+
 /** Validate wearable files size, excluding thumbnail, is less than expected */
 export const wearableSize: Validation = {
   validate: async ({ deployment, externalCalls }) => {
@@ -71,6 +92,6 @@ export const wearableThumbnail: Validation = {
 export const wearable: Validation = {
   validate: async (args) => {
     if (args.deployment.entity.type !== EntityType.WEARABLE) return OK
-    return validateInRow(args, wearableThumbnail, wearableSize)
+    return validateInRow(args, wearableRepresentationContent, wearableThumbnail, wearableSize)
   },
 }

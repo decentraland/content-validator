@@ -1,3 +1,4 @@
+import { WearableRepresentation } from '@dcl/schemas'
 import { Entity, EntityType, EntityVersion } from 'dcl-catalyst-commons'
 
 export const buildProfileEntity = (entity?: Partial<Entity>): Entity =>

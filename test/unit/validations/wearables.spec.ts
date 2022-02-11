@@ -2,7 +2,7 @@ import { EntityType } from 'dcl-catalyst-commons'
 import sharp from 'sharp'
 import { ADR_45_TIMESTAMP, ValidationResponse } from '../../../src'
 import { size } from '../../../src/validations/size'
-import { wearableSize, wearableThumbnail } from '../../../src/validations/wearable'
+import { wearableRepresentationContent, wearableSize, wearableThumbnail } from '../../../src/validations/wearable'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
 import { buildExternalCalls } from '../../setup/mock'
@@ -181,6 +181,54 @@ describe('Wearables', () => {
       const result = await wearableSize.validate({ deployment, externalCalls })
 
       expect(result.ok).toBeTruthy()
+    })
+  })
+  describe('Content:', () => {
+    it('when a wearable representation is referencing files included in content, then it is ok', async () => {
+      const withSize = (size: number) => Buffer.alloc(size * 1024 * 1024)
+      const content = [
+        { file: 'file1', hash: '1' },
+        { file: 'file2', hash: '2' },
+      ]
+      const files = new Map([
+        ['file1', withSize(1)],
+        ['file2', withSize(0.9)],
+      ])
+      const entity = buildEntity({
+        type: EntityType.WEARABLE,
+        // this metadata includes representations pointing to file1 and file2
+        metadata: VALID_WEARABLE_METADATA,
+        content,
+      })
+      const deployment = buildDeployment({ entity, files })
+      const externalCalls = buildExternalCalls()
+      const result = await wearableRepresentationContent.validate({ deployment, externalCalls })
+
+      expect(result.ok).toBeTruthy()
+    })
+
+    it('when a wearable representation is referencing a file that is not present in the content array, it returns an error', async () => {
+      const withSize = (size: number) => Buffer.alloc(size * 1024 * 1024)
+      const content = [
+        { file: 'notFile1', hash: '1' },
+        { file: 'file2', hash: '2' },
+      ]
+      const files = new Map([
+        ['notFile1', withSize(1)],
+        ['file2', withSize(0.9)],
+      ])
+      const entity = buildEntity({
+        type: EntityType.WEARABLE,
+        // this metadata includes representations pointing to file1 and file2
+        metadata: VALID_WEARABLE_METADATA,
+        content,
+      })
+      const deployment = buildDeployment({ entity, files })
+      const externalCalls = buildExternalCalls()
+      const result = await wearableRepresentationContent.validate({ deployment, externalCalls })
+
+      expect(result.ok).toBeFalsy()
+      expect(result.errors).toContain(`Representation content: 'file1' is not one of the content files`)
     })
   })
 })
