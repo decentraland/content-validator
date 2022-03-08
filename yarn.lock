@@ -265,9 +265,15 @@
     ipfs-unixfs-importer "^7.0.3"
     multiformats "^9.6.3"
 
-"@dcl/schemas@3.8.0", "@dcl/schemas@^3.1.1":
+"@dcl/schemas@3.8.0":
   version "3.8.0"
   resolved "https://registry.npmjs.org/@dcl/schemas/-/schemas-3.8.0.tgz"
+  dependencies:
+    ajv "^7.1.0"
+
+"@dcl/schemas@^3.1.1":
+  version "3.9.0"
+  resolved "https://registry.yarnpkg.com/@dcl/schemas/-/schemas-3.9.0.tgz#5e19c8c9be4bb6023009ab10afbf67278f13d424"
   dependencies:
     ajv "^7.1.0"
 
