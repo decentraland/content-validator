@@ -255,8 +255,8 @@
   resolved "https://registry.npmjs.org/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz"
 
 "@dcl/eslint-config@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.npmjs.org/@dcl/eslint-config/-/eslint-config-1.0.0.tgz"
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@dcl/eslint-config/-/eslint-config-1.0.1.tgz#85b257099ccb690a1d3dfcff963ffb370ddd72b4"
 
 "@dcl/hashing@^1.0.0":
   version "1.0.0"
