@@ -1,3 +1,4 @@
+import { MerkleDistributorInfo } from '@dcl/content-hash-tree/dist/types'
 import { Fetcher, Timestamp } from 'dcl-catalyst-commons'
 import { ExternalCalls } from '../../src/types'
 import { WearableCollection } from '../../src/validations/access-checker/wearables'
@@ -9,22 +10,13 @@ export const buildExternalCalls = (externalCalls?: Partial<ExternalCalls>): Exte
   ownerAddress: () => '',
   isAddressOwnedByDecentraland: () => false,
   queryGraph: jest.fn(),
-  subgraphs: {
-    L1: {
-      landManager: '',
-      blocks: '',
-      collections: '',
-    },
-    L2: {
-      blocks: '',
-      collections: '',
-    },
-  },
+  subgraphs: buildSubgraphs(),
   ...externalCalls,
 })
 
 type Subgraphs = ExternalCalls['subgraphs']
-export const buildSubgraphs = (subgraphs?: Partial<Subgraphs>): Subgraphs => ({
+
+const defaultSubgraphs: Subgraphs = {
   L1: {
     landManager: '',
     blocks: '',
@@ -33,15 +25,19 @@ export const buildSubgraphs = (subgraphs?: Partial<Subgraphs>): Subgraphs => ({
   L2: {
     blocks: '',
     collections: '',
+    thirdPartyRegistry: '',
   },
+}
+export const buildSubgraphs = (subgraphs?: Partial<Subgraphs>): Subgraphs => ({
+  ...defaultSubgraphs,
   ...subgraphs,
 })
 
-let queryGraph: Fetcher['queryGraph']
-export const mockedQueryGraph = () => jest.fn() as jest.MockedFunction<typeof queryGraph>
+type QueryGraph = Fetcher['queryGraph']
+export const mockedQueryGraph = () => jest.fn() as jest.MockedFunction<QueryGraph>
 
 const COMMITTEE_MEMBER = '0xCOMMITEE_MEMBER'
-export const buildMockedQueryGraph = (collection?: Partial<WearableCollection>) =>
+export const buildMockedQueryGraph = (collection?: Partial<WearableCollection>, merkleRoot?: string) =>
   mockedQueryGraph().mockImplementation(async (url, _query, _variables) => {
     const withDefaults = {
       collections: [
@@ -110,3 +106,21 @@ export const fetcherWithInvalidCollectionAndContentHash = (contentHash: string) 
     isCompleted: true,
     isApproved: true,
   })
+
+export const fetcherWithThirdPartyMerkleRoot = (root: string) => {
+  return mockedQueryGraph().mockImplementation(async (url, _query, variables) => {
+    if (url.includes('thirdParty')) {
+      return Promise.resolve({
+        thirdParties: [
+          {
+            root,
+          },
+        ],
+      })
+    }
+    if (url.includes('block')) {
+      return Promise.resolve({ after: [{ number: 10 }], fiveMinAfter: [{ number: 5 }] })
+    }
+    return Promise.resolve('')
+  })
+}

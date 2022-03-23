@@ -1,11 +1,19 @@
-import { WearableCollection, wearables } from '../../../src/validations/access-checker/wearables'
-import { buildWearableDeployment } from '../../setup/deployments'
+import { MerkleDistributorInfo } from '@dcl/content-hash-tree/dist/types'
+import { MerkleProof, ThirdPartyWearable } from '@dcl/schemas'
+import {
+  MERKLE_PROOF_REQUIRED_KEYS,
+  WearableCollection,
+  wearables,
+} from '../../../src/validations/access-checker/wearables'
+import { buildThirdPartyWearableDeployment, buildWearableDeployment } from '../../setup/deployments'
 import {
   buildExternalCalls,
   buildSubgraphs,
   fetcherWithoutAccess,
+  fetcherWithThirdPartyMerkleRoot,
   fetcherWithValidCollectionAndCreator,
 } from '../../setup/mock'
+import { entityAndMerkleRoot } from '../../setup/wearable'
 
 describe('Access: wearables', () => {
   it('When non-urns are used as pointers, then validation fails', async () => {
@@ -105,14 +113,21 @@ describe('Access: wearables', () => {
 
   const collectionsUrl = 'http://someUrl'
   const blocksUrl = 'http://blocksUrl'
+  const thirdPartyRegistryUrl = 'http://thirdPartyRegistryUrl'
+  const subgraphs = buildSubgraphs({
+    L1: {
+      landManager: 'landManager' + 'L1',
+      collections: collectionsUrl + 'L1',
+      blocks: blocksUrl + 'L1',
+    },
+    L2: {
+      collections: collectionsUrl + 'L2',
+      blocks: blocksUrl + 'L2',
+      thirdPartyRegistry: thirdPartyRegistryUrl,
+    },
+  })
   it('When urn network belongs to L2, then L2 subgraph is used', async () => {
     const ethAddress = 'address'
-    const subgraphs = buildSubgraphs({
-      L2: {
-        collections: collectionsUrl,
-        blocks: blocksUrl,
-      },
-    })
     const mockedQueryGraph = fetcherWithValidCollectionAndCreator(ethAddress)
     const externalCalls = buildExternalCalls({
       subgraphs,
@@ -133,13 +148,6 @@ describe('Access: wearables', () => {
 
   it('When urn network belongs to L1, then L1 subgraph is used', async () => {
     const ethAddress = 'address'
-    const subgraphs = buildSubgraphs({
-      L1: {
-        landManager: '',
-        collections: collectionsUrl,
-        blocks: blocksUrl,
-      },
-    })
     const mockedQueryGraph = fetcherWithoutAccess()
     const externalCalls = buildExternalCalls({
       subgraphs,
@@ -159,12 +167,6 @@ describe('Access: wearables', () => {
 
   it(`When urn network belongs to L2, and address doesn't have access, then L2 subgraph is used twice`, async () => {
     const ethAddress = 'address'
-    const subgraphs = buildSubgraphs({
-      L2: {
-        collections: collectionsUrl,
-        blocks: blocksUrl,
-      },
-    })
     const mockedQueryGraph = fetcherWithoutAccess()
     const externalCalls = buildExternalCalls({
       subgraphs,
@@ -186,13 +188,6 @@ describe('Access: wearables', () => {
 
   it(`When urn network belongs to L1, and address doesn't have access, then L1 subgraph is used twice`, async () => {
     const ethAddress = 'address'
-    const subgraphs = buildSubgraphs({
-      L1: {
-        landManager: '',
-        collections: collectionsUrl,
-        blocks: blocksUrl,
-      },
-    })
     const mockedQueryGraph = fetcherWithoutAccess()
     const externalCalls = buildExternalCalls({
       subgraphs,
@@ -210,5 +205,54 @@ describe('Access: wearables', () => {
     expect(mockedQueryGraph).toHaveBeenNthCalledWith(1, subgraphs.L1.blocks, expect.anything(), expect.anything())
     expect(mockedQueryGraph).toHaveBeenNthCalledWith(2, subgraphs.L1.collections, expect.anything(), expect.anything())
     expect(mockedQueryGraph).toHaveBeenNthCalledWith(3, subgraphs.L1.collections, expect.anything(), expect.anything())
+  })
+
+  describe(`Merkle Proofed (Third Party) Wearable`, () => {
+    const { entity: metadata, root: merkleRoot } = entityAndMerkleRoot
+
+    it(`When urn corresponds to a Third Party wearable and can verify merkle root with the proofs, validation pass`, async () => {
+      const externalCalls = buildExternalCalls({
+        subgraphs,
+        queryGraph: fetcherWithThirdPartyMerkleRoot(merkleRoot),
+      })
+
+      const deployment = buildThirdPartyWearableDeployment(metadata.id, metadata)
+
+      const response = await wearables.validate({ deployment, externalCalls })
+      expect(response.ok).toBeTruthy()
+    })
+
+    it(`When urn corresponds to a Third Party wearable and metadata is modified, validation fails`, async () => {
+      const externalCalls = buildExternalCalls({
+        subgraphs,
+        queryGraph: fetcherWithThirdPartyMerkleRoot(merkleRoot),
+      })
+
+      const deployment = buildThirdPartyWearableDeployment(metadata.id, { ...metadata, content: {} })
+
+      const response = await wearables.validate({ deployment, externalCalls })
+      expect(response.ok).toBeFalsy()
+    })
+
+    it(`When urn corresponds to a Third Party wearable, then L2 subgraph is used`, async () => {
+      const mockedQueryGraph = fetcherWithThirdPartyMerkleRoot(merkleRoot)
+      const externalCalls = buildExternalCalls({
+        subgraphs,
+        queryGraph: mockedQueryGraph,
+      })
+
+      const deployment = buildThirdPartyWearableDeployment(metadata.id, metadata)
+
+      const response = await wearables.validate({ deployment, externalCalls })
+
+      expect(mockedQueryGraph).toBeCalledTimes(2)
+      expect(mockedQueryGraph).toHaveBeenNthCalledWith(1, subgraphs.L2.blocks, expect.anything(), expect.anything())
+      expect(mockedQueryGraph).toHaveBeenNthCalledWith(
+        2,
+        subgraphs.L2.thirdPartyRegistry,
+        expect.anything(),
+        expect.anything()
+      )
+    })
   })
 })

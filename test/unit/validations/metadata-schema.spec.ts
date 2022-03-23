@@ -5,7 +5,7 @@ import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
 import { buildExternalCalls } from '../../setup/mock'
 import { VALID_PROFILE_METADATA } from '../../setup/profiles'
-import { VALID_WEARABLE_METADATA } from '../../setup/wearable'
+import { entityAndMerkleRoot, VALID_WEARABLE_METADATA } from '../../setup/wearable'
 
 describe('Metadata Schema', () => {
   const POST_ADR_45_TIMESTAMP = ADR_45_TIMESTAMP + 1
@@ -47,6 +47,12 @@ describe('Metadata Schema', () => {
 
   describe('WEARABLE: ', () => {
     const validMetadata = VALID_WEARABLE_METADATA
+    const invalidMetadata = {}
+    testType(EntityType.WEARABLE, validMetadata, invalidMetadata)
+  })
+
+  describe('THIRD PARTY WEARABLE: ', () => {
+    const validMetadata = entityAndMerkleRoot.entity
     const invalidMetadata = {}
     testType(EntityType.WEARABLE, validMetadata, invalidMetadata)
   })

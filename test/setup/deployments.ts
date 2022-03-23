@@ -1,3 +1,4 @@
+import { MerkleProof, ThirdPartyWearable } from '@dcl/schemas'
 import { Entity, EntityType } from 'dcl-catalyst-commons'
 import { DeploymentToValidate, LocalDeploymentAuditInfo } from '../../src/types'
 import { buildEntity, buildProfileEntity, buildSceneEntity, buildWearableEntity } from './entity'
@@ -29,6 +30,12 @@ export const buildSceneDeployment = (pointers: string[]): DeploymentToValidate =
 
 export const buildWearableDeployment = (pointers: string[]): DeploymentToValidate => ({
   entity: buildWearableEntity({ pointers }),
+  auditInfo: buildAuditInfo(),
+  files: new Map(),
+})
+
+export const buildThirdPartyWearableDeployment = (urn: string, metadata: ThirdPartyWearable): DeploymentToValidate => ({
+  entity: buildWearableEntity({ pointers: [urn], metadata }),
   auditInfo: buildAuditInfo(),
   files: new Map(),
 })

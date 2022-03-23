@@ -25,9 +25,6 @@ export const access: Validation = {
     const address = externalCalls.ownerAddress(deployment.auditInfo)
     if (deployedBeforeDCLLaunch && externalCalls.isAddressOwnedByDecentraland(address)) return OK
 
-    const type = args.deployment.entity.type
-    const accessChecker = accessCheckers[type]
-
-    return accessChecker.validate(args)
+    return accessCheckers[deployment.entity.type].validate(args)
   },
 }
