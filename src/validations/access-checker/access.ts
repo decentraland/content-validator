@@ -7,7 +7,7 @@ import { scenes } from './scenes'
 import { stores } from './stores'
 import { wearables } from './wearables'
 
-const accessCheckers = {
+const accessCheckers: Record<EntityType, Validation> = {
   [EntityType.PROFILE]: profiles,
   [EntityType.SCENE]: scenes,
   [EntityType.WEARABLE]: wearables,

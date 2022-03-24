@@ -33,11 +33,20 @@ export const MERKLE_PROOF_REQUIRED_KEYS = [
 // we will place will try to find the closes block to the timestamp, but only if it's within the window
 const ACCESS_WINDOW_IN_SECONDS = ms('15s') / 1000
 
+const validUrnTypes = [
+  'off-chain',
+  'blockchain-collection-v1-asset',
+  'blockchain-collection-v2-asset',
+  'blockchain-collection-third-party',
+] as const
+
 type SupportedAssets =
   | BlockchainCollectionV1Asset
   | BlockchainCollectionV2Asset
   | OffChainAsset
   | BlockchainCollectionThirdParty
+
+type asd = [BlockchainCollectionV1Asset['type']]
 
 type WearableItemPermissionsData = {
   collectionCreator: string
@@ -98,7 +107,7 @@ const parseUrnNoFail = async (urn: string): Promise<SupportedAssets | null> => {
   return null
 }
 
-const toBuffer = (value: string): Buffer => {
+const toHexBuffer = (value: string): Buffer => {
   if (value.startsWith('0x')) {
     return Buffer.from(value.substring(2), 'hex') // removing first 2 characters (0x)
   }
@@ -368,8 +377,8 @@ export const wearables: Validation = {
       }
 
       // Verify if the entity belongs to the Merkle Tree.
-      const bufferedProofs = merkleProof.proof.map((value) => toBuffer(value))
-      const bufferedMerkleRoot = toBuffer(merkleRoot)
+      const bufferedProofs = merkleProof.proof.map((value) => toHexBuffer(value))
+      const bufferedMerkleRoot = toHexBuffer(merkleRoot)
       return verifyProof(merkleProof.index, merkleProof.entityHash, bufferedProofs, bufferedMerkleRoot)
     }
 
@@ -440,14 +449,7 @@ export const wearables: Validation = {
 
     const parsed = resolvedPointers[0]
 
-    if (
-      ![
-        'off-chain',
-        'blockchain-collection-v1-asset',
-        'blockchain-collection-v2-asset',
-        'blockchain-collection-third-party',
-      ].includes(parsed.type)
-    ) {
+    if (!validUrnTypes.includes(parsed.type)) {
       return validationFailed(`Could not resolve the contractAddress of the urn ${parsed}`)
     }
 
