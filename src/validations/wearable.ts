@@ -58,7 +58,7 @@ export const wearableSize: Validation = {
 /** Validate that given wearable deployment includes a thumbnail with valid format and size */
 const defaultThumbnailSize = 1024
 export const wearableThumbnail: Validation = {
-  validate: async ({ deployment }) => {
+  validate: async ({ deployment, externalCalls }, log) => {
     if (deployment.entity.timestamp < ADR_45_TIMESTAMP) return OK
     // read thumbnail field from metadata
     const metadata = deployment.entity.metadata as Wearable
@@ -69,7 +69,15 @@ export const wearableThumbnail: Validation = {
     const errors: string[] = []
     // check size
     const thumbnailBuffer = deployment.files.get(hash)
-    if (!thumbnailBuffer) return validationFailed(`Couldn't find thumbnail file with hash: ${hash}`)
+    if (!thumbnailBuffer) {
+      const isHashStored = (await externalCalls.isContentStoredAlready([hash])).get(hash) ?? false
+      if (!isHashStored) {
+        return validationFailed(`Couldn't find thumbnail file with hash: ${hash}`)
+      }
+      // otherwise, thumbnail was already uploaded and won't be validated again
+      log?.debug(`Thumbnail file with hash: ${hash} is not in the deployment, but it is already stored`)
+      return OK
+    }
     try {
       const { width, height, format } = await sharp(thumbnailBuffer).metadata()
       if (!format || format !== 'png') errors.push(`Invalid or unknown image format. Only 'PNG' format is accepted.`)

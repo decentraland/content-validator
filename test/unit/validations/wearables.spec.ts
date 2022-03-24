@@ -101,6 +101,20 @@ describe('Wearables', () => {
 
       expect(result.ok).toBeTruthy()
     })
+
+    it(`When thumbnail file was already uploaded, it won't be validated again`, async () => {
+      const content = [{ file: fileName, hash }]
+      const entity = buildEntity({ type: EntityType.WEARABLE, metadata: VALID_WEARABLE_METADATA, content, timestamp })
+      const deployment = buildDeployment({ entity })
+
+      const externalCalls = buildExternalCalls({
+        isContentStoredAlready: async () => new Map([[hash, true]]),
+      })
+
+      const result = await wearableThumbnail.validate({ deployment, externalCalls })
+
+      expect(result.ok).toBeTruthy()
+    })
   })
 
   describe('Size:', () => {
