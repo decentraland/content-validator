@@ -336,19 +336,17 @@ export const wearables: Validation = {
           root
         }
       }`
-      const queryByBlockAndId = async (block: number, id: string): Promise<string | undefined> => {
-        const result = await externalCalls.queryGraph<{ thirdParties: { root: string }[] }>(
-          externalCalls.subgraphs.L2.thirdPartyRegistry,
-          query,
-          {
-            id,
-            block,
-          }
-        )
-        if (!result.thirdParties || result.thirdParties.length < 1) return
-        return result.thirdParties[0]?.root
-      }
-      return await queryByBlockAndId(block, thirdPartyId)
+
+      const result = await externalCalls.queryGraph<{ thirdParties: { root: string }[] }>(
+        externalCalls.subgraphs.L2.thirdPartyRegistry,
+        query,
+        {
+          id: thirdPartyId,
+          block,
+        }
+      )
+      if (!result.thirdParties || result.thirdParties.length < 1) return
+      return result.thirdParties[0]?.root
     }
 
     const verifyHash = async (metadata: ThirdPartyWearable, merkleRoot: string): Promise<boolean> => {
