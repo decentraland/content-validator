@@ -69,6 +69,7 @@ export type ExternalCalls = {
         L2: {
             blocks: string;
             collections: string;
+            thirdPartyRegistry: string;
         };
     };
 };
