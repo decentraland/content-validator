@@ -108,7 +108,7 @@ export const fetcherWithInvalidCollectionAndContentHash = (contentHash: string) 
   })
 
 export const fetcherWithThirdPartyMerkleRoot = (root: string) => {
-  return mockedQueryGraph().mockImplementation(async (url, _query, variables) => {
+  return mockedQueryGraph().mockImplementation(async (url, _query, _variables) => {
     if (url.includes('thirdParty')) {
       return Promise.resolve({
         thirdParties: [
@@ -116,6 +116,20 @@ export const fetcherWithThirdPartyMerkleRoot = (root: string) => {
             root,
           },
         ],
+      })
+    }
+    if (url.includes('block')) {
+      return Promise.resolve({ after: [{ number: 10 }], fiveMinAfter: [{ number: 5 }] })
+    }
+    return Promise.resolve('')
+  })
+}
+
+export const fetcherWithThirdPartyEmptyMerkleRoots = () => {
+  return mockedQueryGraph().mockImplementation(async (url, _query, _variables) => {
+    if (url.includes('thirdParty')) {
+      return Promise.resolve({
+        thirdParties: [],
       })
     }
     if (url.includes('block')) {

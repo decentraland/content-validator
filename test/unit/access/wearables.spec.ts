@@ -10,6 +10,7 @@ import {
   buildExternalCalls,
   buildSubgraphs,
   fetcherWithoutAccess,
+  fetcherWithThirdPartyEmptyMerkleRoots,
   fetcherWithThirdPartyMerkleRoot,
   fetcherWithValidCollectionAndCreator,
 } from '../../setup/mock'
@@ -243,7 +244,7 @@ describe('Access: wearables', () => {
 
       const deployment = buildThirdPartyWearableDeployment(metadata.id, metadata)
 
-      const response = await wearables.validate({ deployment, externalCalls })
+      await wearables.validate({ deployment, externalCalls })
 
       expect(mockedQueryGraph).toBeCalledTimes(2)
       expect(mockedQueryGraph).toHaveBeenNthCalledWith(1, subgraphs.L2.blocks, expect.anything(), expect.anything())
@@ -253,6 +254,68 @@ describe('Access: wearables', () => {
         expect.anything(),
         expect.anything()
       )
+    })
+
+    it(`When can't find any merkle proof, it should fail`, async () => {
+      // When The Graph respond with no merkle proof
+      const mockedQueryGraph = fetcherWithThirdPartyEmptyMerkleRoots()
+      const externalCalls = buildExternalCalls({
+        subgraphs,
+        queryGraph: mockedQueryGraph,
+      })
+
+      const deployment = buildThirdPartyWearableDeployment(metadata.id, metadata)
+
+      const response = await wearables.validate({ deployment, externalCalls })
+      expect(response.ok).toBeFalsy()
+    })
+
+    it(`When merkle proof is not well formed, it should fail`, async () => {
+      const mockedQueryGraph = fetcherWithThirdPartyMerkleRoot(merkleRoot)
+      const externalCalls = buildExternalCalls({
+        subgraphs,
+        queryGraph: mockedQueryGraph,
+      })
+
+      const deployment = buildThirdPartyWearableDeployment(metadata.id, {
+        ...metadata,
+        merkleProof: { proof: [], index: 0, hashingKeys: [], entityHash: '' },
+      })
+
+      const response = await wearables.validate({ deployment, externalCalls })
+      expect(response.ok).toBeFalsy()
+    })
+
+    it(`When requiredKeys are not a subset of the hashingKeys, it should fail`, async () => {
+      const mockedQueryGraph = fetcherWithThirdPartyMerkleRoot(merkleRoot)
+      const externalCalls = buildExternalCalls({
+        subgraphs,
+        queryGraph: mockedQueryGraph,
+      })
+
+      const deployment = buildThirdPartyWearableDeployment(metadata.id, {
+        ...metadata,
+        merkleProof: { ...metadata.merkleProof, hashingKeys: ['id', 'description'] },
+      })
+
+      const response = await wearables.validate({ deployment, externalCalls })
+      expect(response.ok).toBeFalsy()
+    })
+
+    it(`When entityHash doesn’t match the calculated hash, it should fail`, async () => {
+      const mockedQueryGraph = fetcherWithThirdPartyMerkleRoot(merkleRoot)
+      const externalCalls = buildExternalCalls({
+        subgraphs,
+        queryGraph: mockedQueryGraph,
+      })
+
+      const deployment = buildThirdPartyWearableDeployment(metadata.id, {
+        ...metadata,
+        merkleProof: { ...metadata.merkleProof, entityHash: 'someInvalidHash' },
+      })
+
+      const response = await wearables.validate({ deployment, externalCalls })
+      expect(response.ok).toBeFalsy()
     })
   })
 })
