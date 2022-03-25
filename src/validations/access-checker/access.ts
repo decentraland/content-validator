@@ -7,7 +7,7 @@ import { scenes } from './scenes'
 import { stores } from './stores'
 import { wearables } from './wearables'
 
-const accessCheckers = {
+const accessCheckers: Record<EntityType, Validation> = {
   [EntityType.PROFILE]: profiles,
   [EntityType.SCENE]: scenes,
   [EntityType.WEARABLE]: wearables,
@@ -25,9 +25,6 @@ export const access: Validation = {
     const address = externalCalls.ownerAddress(deployment.auditInfo)
     if (deployedBeforeDCLLaunch && externalCalls.isAddressOwnedByDecentraland(address)) return OK
 
-    const type = args.deployment.entity.type
-    const accessChecker = accessCheckers[type]
-
-    return accessChecker.validate(args)
+    return accessCheckers[deployment.entity.type].validate(args)
   },
 }
