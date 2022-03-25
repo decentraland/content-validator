@@ -46,8 +46,6 @@ type SupportedAssets =
   | OffChainAsset
   | BlockchainCollectionThirdParty
 
-type asd = [BlockchainCollectionV1Asset['type']]
-
 type WearableItemPermissionsData = {
   collectionCreator: string
   collectionManagers: string[]
