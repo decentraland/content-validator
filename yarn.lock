@@ -271,9 +271,9 @@
   dependencies:
     ajv "^7.1.0"
 
-"@dcl/schemas@^3.1.1":
-  version "3.9.0"
-  resolved "https://registry.yarnpkg.com/@dcl/schemas/-/schemas-3.9.0.tgz#5e19c8c9be4bb6023009ab10afbf67278f13d424"
+"@dcl/schemas@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@dcl/schemas/-/schemas-4.0.0.tgz#838f415720a4e5e22da01a3c9632ba67824f71dd"
   dependencies:
     ajv "^7.1.0"
 
