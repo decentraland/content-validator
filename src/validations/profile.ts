@@ -3,17 +3,21 @@ import sharp from 'sharp'
 import { ADR_45_TIMESTAMP } from '.'
 import { OK, Validation, validationFailed, ValidationResponse } from '../types'
 
-
 /** Validate that given profile deployment includes a face256 thumbnail with valid size */
 const defaultThumbnailSize = 256
 const faceThumbnailFileName = 'face256.png'
 export const faceThumbnail: Validation = {
-  validate: async ({ deployment }) => {
+  validate: async ({ deployment, externalCalls }) => {
     if (deployment.entity.timestamp < ADR_45_TIMESTAMP) return OK
 
     const hash = deployment.entity.content?.find(({ file }) => file === faceThumbnailFileName)?.hash
-    if (!hash) return validationFailed(`Couldn't find hash for face256 thumbnail file with name: ${faceThumbnailFileName}`)
+    if (!hash)
+      return validationFailed(`Couldn't find hash for face256 thumbnail file with name: ${faceThumbnailFileName}`)
 
+    const isAlreadyStored = (await externalCalls.isContentStoredAlready([hash])).get(hash) ?? false
+    if (isAlreadyStored) {
+      return OK
+    }
     const errors: string[] = []
     // check size
     const thumbnailBuffer = deployment.files.get(hash)
@@ -41,7 +45,7 @@ export const profile: Validation = {
   validate: async (args) => {
     if (args.deployment.entity.type !== EntityType.PROFILE) return OK
     const response: ValidationResponse = await faceThumbnail.validate(args)
-    
+
     if (!response.ok) return response
     return OK
   },
