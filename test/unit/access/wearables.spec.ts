@@ -1,8 +1,5 @@
-import { MerkleDistributorInfo } from '@dcl/content-hash-tree/dist/types'
-import { MerkleProof, ThirdPartyWearable } from '@dcl/schemas'
+import { ADR_45_TIMESTAMP } from '../../../src'
 import {
-  MERKLE_PROOF_REQUIRED_KEYS,
-  WearableCollection,
   wearables,
 } from '../../../src/validations/access-checker/wearables'
 import { buildThirdPartyWearableDeployment, buildWearableDeployment } from '../../setup/deployments'
@@ -17,6 +14,8 @@ import {
 import { entityAndMerkleRoot } from '../../setup/wearable'
 
 describe('Access: wearables', () => {
+  const POST_ADR_45_TIMESTAMP = ADR_45_TIMESTAMP + 1
+  const PRE_ADR_45_TIMESTAMP = ADR_45_TIMESTAMP - 1
   it('When non-urns are used as pointers, then validation fails', async () => {
     const pointers = ['invalid-pointer']
     const deployment = buildWearableDeployment(pointers)
@@ -42,12 +41,12 @@ describe('Access: wearables', () => {
     expect(response.errors).toContain(`Only one pointer is allowed when you create a Wearable. Received: ${pointers}`)
   })
 
-  it('When several pointers resolve to the same URN then accept both but fail with the access', async () => {
+  it('Before ADR 45, when several pointers resolve to the same URN then accept both, then fail with the access', async () => {
     const pointers = [
       'urn:decentraland:ethereum:collections-v1:atari_launch:atari_red_upper_body',
       'urn:decentraland:ethereum:collections-v1:0x4c290f486bae507719c562b6b524bdb71a2570c9:atari_red_upper_body',
     ]
-    const deployment = buildWearableDeployment(pointers)
+    const deployment = buildWearableDeployment(pointers, PRE_ADR_45_TIMESTAMP)
     const externalCalls = buildExternalCalls({
       ownerAddress: () => 'some address',
     })
@@ -59,12 +58,12 @@ describe('Access: wearables', () => {
     )
   })
 
-  it('When several pointers resolve to the same URN then accept both 2', async () => {
+  it('After ADR 45, fail when received more than 1 pointer even if they resolve to the same URN', async () => {
     const pointers = [
       'urn:decentraland:ethereum:collections-v1:dgtble_headspace:dgtble_hoodi_linetang_upper_body',
       'urn:decentraland:ethereum:collections-v1:0x574f64ac2e7215cba9752b85fc73030f35166bc0:dgtble_hoodi_linetang_upper_body',
     ]
-    const deployment = buildWearableDeployment(pointers)
+    const deployment = buildWearableDeployment(pointers, POST_ADR_45_TIMESTAMP)
     const externalCalls = buildExternalCalls({
       ownerAddress: () => 'some address',
     })
@@ -72,7 +71,7 @@ describe('Access: wearables', () => {
     const response = await wearables.validate({ deployment, externalCalls })
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
-      `The provided Eth Address 'some address' does not have access to the following wearable: 'urn:decentraland:ethereum:collections-v1:dgtble_headspace:dgtble_hoodi_linetang_upper_body'`
+      `Only one pointer is allowed when you create a Wearable. Received: ${pointers}`
     )
   })
 
@@ -161,7 +160,7 @@ describe('Access: wearables', () => {
     ])
 
     await wearables.validate({ deployment, externalCalls })
-
+    
     expect(mockedQueryGraph).toHaveBeenNthCalledWith(1, subgraphs.L1.blocks, expect.anything(), expect.anything())
     expect(mockedQueryGraph).toHaveBeenNthCalledWith(2, subgraphs.L1.collections, expect.anything(), expect.anything())
   })

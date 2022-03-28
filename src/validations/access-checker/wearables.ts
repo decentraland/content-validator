@@ -10,7 +10,7 @@ import {
 } from '@dcl/urn-resolver'
 import { Hashing, Timestamp } from 'dcl-catalyst-commons'
 import ms from 'ms'
-import { EntityWithEthAddress, validationFailed } from '../..'
+import { ADR_45_TIMESTAMP, EntityWithEthAddress, validationFailed } from '../..'
 import { OK, Validation } from '../../types'
 
 const L1_NETWORKS = ['mainnet', 'ropsten', 'kovan', 'rinkeby', 'goerli']
@@ -33,14 +33,7 @@ export const MERKLE_PROOF_REQUIRED_KEYS = [
 // we will place will try to find the closes block to the timestamp, but only if it's within the window
 const ACCESS_WINDOW_IN_SECONDS = ms('15s') / 1000
 
-const validUrnTypes = [
-  'off-chain',
-  'blockchain-collection-v1-asset',
-  'blockchain-collection-v2-asset',
-  'blockchain-collection-third-party',
-] as const
-
-type SupportedAssets =
+type SupportedAsset =
   | BlockchainCollectionV1Asset
   | BlockchainCollectionV2Asset
   | OffChainAsset
@@ -72,37 +65,6 @@ export type WearableCollection = {
 type WearableCollectionItem = {
   managers: string[]
   contentHash: string
-}
-
-const alreadySeen = (resolvedPointers: SupportedAssets[], parsed: SupportedAssets): boolean => {
-  return resolvedPointers.some((alreadyResolved) => resolveSameUrn(alreadyResolved, parsed))
-}
-
-const resolveSameUrn = (alreadyParsed: SupportedAssets, parsed: SupportedAssets): boolean => {
-  const alreadyParsedCopy = Object.assign({}, alreadyParsed)
-  const parsedCopy = Object.assign({}, parsed)
-  alreadyParsedCopy.uri = new URL('urn:same')
-  parsedCopy.uri = new URL('urn:same')
-  return JSON.stringify(alreadyParsedCopy) == JSON.stringify(parsedCopy)
-}
-
-const parseUrnNoFail = async (urn: string): Promise<SupportedAssets | null> => {
-  try {
-    const parsed = await parseUrn(urn)
-    if (parsed?.type === 'blockchain-collection-v1-asset') {
-      return parsed
-    }
-    if (parsed?.type === 'blockchain-collection-v2-asset') {
-      return parsed
-    }
-    if (parsed?.type === 'off-chain') {
-      return parsed
-    }
-    if (parsed?.type === 'blockchain-collection-third-party') {
-      return parsed
-    }
-  } catch {}
-  return null
 }
 
 const toHexBuffer = (value: string): Buffer => {
@@ -427,38 +389,55 @@ export const wearables: Validation = {
 
     const { pointers } = deployment.entity
     const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
-
-    const resolvedPointers: SupportedAssets[] = []
-    // deduplicate pointer resolution
+    
+    const parsedPointers: SupportedAsset[] = []
     for (const pointer of pointers) {
-      const parsed = await parseUrnNoFail(pointer)
-      if (!parsed)
-        return validationFailed(
-          `Wearable pointers should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (${pointer})`
-        )
-
-      if (!alreadySeen(resolvedPointers, parsed)) resolvedPointers.push(parsed)
+      try {
+        const parsedPointer = await parseUrn(pointer)
+        if (parsedPointer === null) {
+          return validationFailed('POR FAVOR TESTEAME!!!')
+        }
+        if (parsedPointer?.type !== 'blockchain-collection-v1-asset' && 
+            parsedPointer?.type !== 'blockchain-collection-v2-asset' &&
+            parsedPointer?.type !== 'off-chain' &&
+            parsedPointer?.type !== 'blockchain-collection-third-party') {
+          return validationFailed('POR FAVOR TESTEAME 2!!!')
+        }
+        parsedPointers.push(parsedPointer)
+      } catch {
+        return validationFailed(`Wearable pointers should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (${pointer})`)   
+      }
     }
 
-    if (resolvedPointers.length > 1)
-      return validationFailed(`Only one pointer is allowed when you create a Wearable. Received: ${pointers}`)
-
-    const parsed = resolvedPointers[0]
-
-    if (!validUrnTypes.includes(parsed.type)) {
-      return validationFailed(`Could not resolve the contractAddress of the urn ${parsed}`)
+    if (parsedPointers.length > 1) {
+      const ENTITY_TIMESTAMP_IS_AFTER_ADR_45 = deployment.entity.timestamp >= ADR_45_TIMESTAMP
+      if (ENTITY_TIMESTAMP_IS_AFTER_ADR_45) {
+        return validationFailed(`Only one pointer is allowed when you create a Wearable. Received: ${pointers}`)
+      } else {
+        const stringPointersWithoutURI = new Set()
+        parsedPointers.map(parsedPointer => {
+          // uri holds the urn
+          const { uri, ...pointerWithoutURI } = parsedPointer
+          return JSON.stringify(pointerWithoutURI)
+        }).forEach(p => stringPointersWithoutURI.add(p))
+        if (stringPointersWithoutURI.size > 1) {
+          return validationFailed(`Only one pointer is allowed when you create a Wearable. Received: ${pointers}`)
+        }
+      }
     }
 
-    if (parsed.type === 'off-chain') {
+    const parsedPointer = parsedPointers[0]
+
+    if (parsedPointer.type === 'off-chain') {
       // Validate Off Chain Asset
       if (!externalCalls.isAddressOwnedByDecentraland(ethAddress))
         return validationFailed(
-          `The provided Eth Address '${ethAddress}' does not have access to the following wearable: '${parsed.uri}'`
+          `The provided Eth Address '${ethAddress}' does not have access to the following wearable: '${parsedPointer.uri}'`
         )
-    } else if (parsed?.type === 'blockchain-collection-v1-asset' || parsed?.type === 'blockchain-collection-v2-asset') {
+    } else if (parsedPointer?.type === 'blockchain-collection-v1-asset' || parsedPointer?.type === 'blockchain-collection-v2-asset') {
       // L1 or L2 so contractAddress is present
-      const collection = parsed.contractAddress!
-      const network = parsed.network
+      const collection = parsedPointer.contractAddress!
+      const network = parsedPointer.network
 
       const isL1 = L1_NETWORKS.includes(network)
       const isL2 = L2_NETWORKS.includes(network)
@@ -470,7 +449,7 @@ export const wearables: Validation = {
         ? externalCalls.subgraphs.L1.collections
         : externalCalls.subgraphs.L2.collections
 
-      const hasAccess = await checkCollectionAccess(blocksSubgraphUrl, collectionsSubgraphUrl, collection, parsed.id, {
+      const hasAccess = await checkCollectionAccess(blocksSubgraphUrl, collectionsSubgraphUrl, collection, parsedPointer.id, {
         ...deployment.entity,
         ethAddress,
       })
@@ -478,21 +457,21 @@ export const wearables: Validation = {
       if (!hasAccess) {
         if (isL2)
           return validationFailed(
-            `The provided Eth Address does not have access to the following wearable: (${parsed.contractAddress}, ${parsed.id})`
+            `The provided Eth Address does not have access to the following wearable: (${parsedPointer.contractAddress}, ${parsedPointer.id})`
           )
 
         // Some L1 collections are deployed by Decentraland Address
         // Maybe this is not necessary as we already know that it's a 'blockchain-collection-v1-asset'
-        const isAllowlistedCollection = parsed.uri.toString().startsWith('urn:decentraland:ethereum:collections-v1')
+        const isAllowlistedCollection = parsedPointer.uri.toString().startsWith('urn:decentraland:ethereum:collections-v1')
         if (!externalCalls.isAddressOwnedByDecentraland(ethAddress) || !isAllowlistedCollection) {
           return validationFailed(
-            `The provided Eth Address '${ethAddress}' does not have access to the following wearable: '${parsed.uri}'`
+            `The provided Eth Address '${ethAddress}' does not have access to the following wearable: '${parsedPointer.uri}'`
           )
         }
       }
-    } else if (parsed?.type === 'blockchain-collection-third-party') {
+    } else if (parsedPointer?.type === 'blockchain-collection-third-party') {
       // Third Party wearables are validated doing merkle tree based verification proof
-      const verified = await verifyMerkleProofedEntity(parsed)
+      const verified = await verifyMerkleProofedEntity(parsedPointer)
       if (!verified) {
         return validationFailed(`Couldn't verify merkle proofed entity`)
       }
