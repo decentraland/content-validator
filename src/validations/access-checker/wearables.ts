@@ -3,10 +3,7 @@ import { keccak256Hash } from '@dcl/hashing'
 import { EthAddress, MerkleProof, ThirdPartyWearable } from '@dcl/schemas'
 import {
   BlockchainCollectionThirdParty,
-  BlockchainCollectionV1Asset,
-  BlockchainCollectionV2Asset,
   DecentralandAssetIdentifier,
-  OffChainAsset,
   parseUrn,
 } from '@dcl/urn-resolver'
 import { Hashing, Timestamp } from 'dcl-catalyst-commons'
@@ -30,15 +27,16 @@ export const MERKLE_PROOF_REQUIRED_KEYS = [
   'content',
 ] as const
 
+const validUrnTypes = [
+  'off-chain',
+  'blockchain-collection-v1-asset',
+  'blockchain-collection-v2-asset',
+  'blockchain-collection-third-party',
+]
+
 // When we want to find a block for a specific timestamp, we define an access window. This means that
 // we will place will try to find the closes block to the timestamp, but only if it's within the window
 const ACCESS_WINDOW_IN_SECONDS = ms('15s') / 1000
-
-type SupportedAsset =
-  | BlockchainCollectionV1Asset
-  | BlockchainCollectionV2Asset
-  | OffChainAsset
-  | BlockchainCollectionThirdParty
 
 type WearableItemPermissionsData = {
   collectionCreator: string
@@ -411,33 +409,35 @@ export const wearables: Validation = {
     const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
 
     if (pointers.length == 0) {
-      return validationFailed('Wearable should specify a valid pointer')
+      return validationFailed('Wearable should specify a pointer')
+    }
+
+    const wearablePointer: DecentralandAssetIdentifier | null = await parseUrnNoFail(pointers[0])
+    if (wearablePointer === null) {
+      return validationFailed(`Wearable pointers should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (${pointers[0]})`)
     }
 
     const ENTITY_TIMESTAMP_IS_AFTER_ADR_45 = deployment.entity.timestamp >= ADR_45_TIMESTAMP
-    if (ENTITY_TIMESTAMP_IS_AFTER_ADR_45 && pointers.length > 1) {
-      return validationFailed(`Only one pointer is allowed when you create a Wearable. Received: ${pointers}`)
-    }
-  
-    let wearablePointer: DecentralandAssetIdentifier | undefined = undefined
-    for (const pointer of pointers) {
-      const parsedPointer = await parseUrnNoFail(pointer)
-      if (parsedPointer === null) {
-        return validationFailed(`Wearable pointers should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (${pointer})`)
+    if (ENTITY_TIMESTAMP_IS_AFTER_ADR_45) {
+      if (pointers.length > 1) {
+        return validationFailed(`Only one pointer is allowed when you create a Wearable. Received: ${pointers}`)  
       }
-
-      if (wearablePointer && !resolveSameUrn(wearablePointer, parsedPointer)) {
-        return validationFailed(`Only one pointer is allowed when you create a Wearable. Received: ${pointers}`)
-      }
-      wearablePointer ??= parsedPointer
+    } else {
+      // If there's more than one pointer, all must resolve to the same urn
+      for (const pointer of pointers.slice(1)) {
+        const parsedPointer = await parseUrnNoFail(pointer)
+        if (!parsedPointer) {
+          return validationFailed(`Wearable pointers should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (${pointer})`)
+        }
+        if (!resolveSameUrn(wearablePointer, parsedPointer)) {
+          return validationFailed(`Only one pointer is allowed when you create a Wearable. Received: ${pointers}`)
+        }
+      }  
     }
 
-    if (!wearablePointer) {
-      // This should never happen, it's just for safety
-      return validationFailed(`Error parsing pointers: ${JSON.stringify(pointers)}`)
-    }
-
-    if (wearablePointer.type === 'off-chain') {
+    if (!validUrnTypes.includes(wearablePointer.type)) {
+      return validationFailed(`Pointer ${wearablePointer?.uri.toString()} has an invalid type: ${wearablePointer.type}`)
+    } else if (wearablePointer.type === 'off-chain') {
       // Validate Off Chain Asset
       if (!externalCalls.isAddressOwnedByDecentraland(ethAddress))
         return validationFailed(
@@ -485,7 +485,7 @@ export const wearables: Validation = {
         return validationFailed(`Couldn't verify merkle proofed entity`)
       }
     } else {
-      return validationFailed(`Pointer ${wearablePointer?.uri.toString()} has an invalid type: ${wearablePointer.type}`)
+      return validationFailed(`This should never happen`)
     }
     return OK
   },

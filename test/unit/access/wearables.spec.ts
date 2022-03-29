@@ -23,7 +23,7 @@ describe('Access: wearables', () => {
 
     const response = await wearables.validate({ deployment, externalCalls })
     expect(response.ok).toBeFalsy()
-    expect(response.errors).toContain('Wearable should specify a valid pointer')
+    expect(response.errors).toContain('Wearable should specify a pointer')
   })
   it('When non-urns are used as pointers, then validation fails', async () => {
     const pointers = ['invalid-pointer']
