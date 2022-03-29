@@ -16,6 +16,15 @@ import { entityAndMerkleRoot } from '../../setup/wearable'
 describe('Access: wearables', () => {
   const POST_ADR_45_TIMESTAMP = ADR_45_TIMESTAMP + 1
   const PRE_ADR_45_TIMESTAMP = ADR_45_TIMESTAMP - 1
+
+  it('When no pointers are set, then validation fails', async () => {
+    const deployment = buildWearableDeployment([])
+    const externalCalls = buildExternalCalls()
+
+    const response = await wearables.validate({ deployment, externalCalls })
+    expect(response.ok).toBeFalsy()
+    expect(response.errors).toContain('Wearable should specify a valid pointer')
+  })
   it('When non-urns are used as pointers, then validation fails', async () => {
     const pointers = ['invalid-pointer']
     const deployment = buildWearableDeployment(pointers)
@@ -39,6 +48,26 @@ describe('Access: wearables', () => {
     const response = await wearables.validate({ deployment, externalCalls })
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(`Only one pointer is allowed when you create a Wearable. Received: ${pointers}`)
+  })
+
+  it('When the pointer parse returns null, then validation fails', async () => {
+    const pointers = ['non-dcl:decentraland:ethereum:collections-v1:atari_launch:a']
+    const deployment = buildWearableDeployment(pointers)
+    const externalCalls = buildExternalCalls()
+
+    const response = await wearables.validate({ deployment, externalCalls })
+    expect(response.ok).toBeFalsy()
+    expect(response.errors).toContain(`Wearable pointers should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (${pointers[0]})`)
+  })
+
+  it('When the pointer has an invalid type, then validation fails', async () => {
+    const pointers = ['urn:decentraland:ropsten:LAND:0x1']
+    const deployment = buildWearableDeployment(pointers)
+    const externalCalls = buildExternalCalls()
+
+    const response = await wearables.validate({ deployment, externalCalls })
+    expect(response.ok).toBeFalsy()
+    expect(response.errors).toContain('Pointer urn:decentraland:ropsten:LAND:0x1 has an invalid type: blockchain-asset')
   })
 
   it('Before ADR 45, when several pointers resolve to the same URN then accept both, then fail with the access', async () => {
