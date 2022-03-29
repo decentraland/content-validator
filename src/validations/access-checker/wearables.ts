@@ -417,8 +417,8 @@ export const wearables: Validation = {
       return validationFailed(`Wearable pointers should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (${pointers[0]})`)
     }
 
-    const ENTITY_TIMESTAMP_IS_AFTER_ADR_45 = deployment.entity.timestamp >= ADR_45_TIMESTAMP
-    if (ENTITY_TIMESTAMP_IS_AFTER_ADR_45) {
+    const entityTimestampIsAfterADR45 = deployment.entity.timestamp >= ADR_45_TIMESTAMP
+    if (entityTimestampIsAfterADR45) {
       if (pointers.length > 1) {
         return validationFailed(`Only one pointer is allowed when you create a Wearable. Received: ${pointers}`)  
       }
