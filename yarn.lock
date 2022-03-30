@@ -303,10 +303,10 @@
   resolved "https://registry.yarnpkg.com/@dcl/content-hash-tree/-/content-hash-tree-1.1.2.tgz#a7677825183605e8011a8efe45912c64486a0b7f"
   integrity sha512-uX3LfF844r7eBxmd6wE8uYU1as/MQfmTov2im6PXu/nI+AMxF+YNzLKDQ4mB0OVtAL3Yy0SEQpAPQgs3GbraXA==
 
-"@dcl/eslint-config@1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@dcl/eslint-config/-/eslint-config-1.0.0.tgz#e7389e39d22b611a8e4f259c287e99f2489bbc57"
-  integrity sha512-9T0xFSQJVuBdmKqOvs/xYCesOqZSnmjZ2Nc40HBOto2U61VnU90Lz3LXMJAbs/nkij6madfgQyd8+uo1XNjhPg==
+"@dcl/eslint-config@1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@dcl/eslint-config/-/eslint-config-1.0.3.tgz#dda729f67908c83320f440a2a8383dd535eca95f"
+  integrity sha512-yFYeP2ESuEhd+UCuTILMc84DvIA9raWxxOe0sFhN+9BF4nuYApV8y/AsOKYN6lvFV5c5Pkd/XWgcnNJzMarjZQ==
 
 "@dcl/hashing@1.1.0", "@dcl/hashing@^1.0.0":
   version "1.1.0"
