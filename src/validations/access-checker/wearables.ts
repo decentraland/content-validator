@@ -21,8 +21,9 @@ const L2_NETWORKS = ['matic', 'mumbai']
 // you MUST review the validation in order to not break the sync between catalysts (aka failed deployments)
 export const MERKLE_PROOF_REQUIRED_KEYS = [
   'id',
-  'names',
-  'descriptions',
+  'name',
+  'description',
+  'i18n',
   'image',
   'thumbnail',
   'data',
@@ -190,7 +191,7 @@ export const wearables: Validation = {
                     contentHash
                   }
                 }
-    
+
                 accounts(where:{ isCommitteeMember: true }, block: { number: $block }) {
                   id
                 }

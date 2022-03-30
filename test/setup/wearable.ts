@@ -21,19 +21,11 @@ const representation: WearableRepresentation = {
 
 export const VALID_WEARABLE_METADATA: Wearable = {
   id: 'some id',
-  descriptions: [
-    {
-      code: Locale.EN,
-      text: 'some description',
-    },
-    {
-      code: Locale.ES,
-      text: 'una descripcion',
-    },
-  ],
+  name: 'name',
+  description: 'some description',
   collectionAddress: '0x0000000collection_address',
   rarity: Rarity.LEGENDARY,
-  names: [
+  i18n: [
     {
       code: Locale.EN,
       text: 'name',
@@ -52,17 +44,9 @@ export const VALID_WEARABLE_METADATA: Wearable = {
 
 export const VALID_THIRD_PARTY_WEARABLE_BASE_METADATA: Pick<ThirdPartyWearable, BaseKeys> = {
   id: 'urn:decentraland:mumbai:collections-thirdparty:jean-pier:someCollection:someItemId',
-  descriptions: [
-    {
-      code: Locale.EN,
-      text: 'some description',
-    },
-    {
-      code: Locale.ES,
-      text: 'una descripcion',
-    },
-  ],
-  names: [
+  name: 'name',
+  description: 'some description',
+  i18n: [
     {
       code: Locale.EN,
       text: 'name',
