@@ -311,31 +311,25 @@ export const scenes: Validation = {
     const lowerCasePointers = pointers.map((pointer) => pointer.toLowerCase())
 
     for (const pointer of lowerCasePointers) {
-      if (pointer.startsWith('default')) {
-        if (!externalCalls.isAddressOwnedByDecentraland(ethAddress)) {
-          errors.push(`Only Decentraland can add or modify default scenes`)
+      const pointerParts: string[] = pointer.split(',')
+      if (pointerParts.length === 2) {
+        const x: number = parseInt(pointerParts[0], 10)
+        const y: number = parseInt(pointerParts[1], 10)
+        try {
+          // Check that the address has access (we check both the present and the 5 min into the past to avoid synchronization issues in the blockchain)
+          const hasAccess =
+            (await checkParcelAccess(x, y, timestamp, ethAddress, externalCalls)) ||
+            (await checkParcelAccess(x, y, timestamp - SCENE_LOOKBACK_TIME, ethAddress, externalCalls))
+          if (!hasAccess) {
+            errors.push(`The provided Eth Address does not have access to the following parcel: (${x},${y})`)
+          }
+        } catch (e) {
+          errors.push(`The provided Eth Address does not have access to the following parcel: (${x},${y}). ${e}`)
         }
       } else {
-        const pointerParts: string[] = pointer.split(',')
-        if (pointerParts.length === 2) {
-          const x: number = parseInt(pointerParts[0], 10)
-          const y: number = parseInt(pointerParts[1], 10)
-          try {
-            // Check that the address has access (we check both the present and the 5 min into the past to avoid synchronization issues in the blockchain)
-            const hasAccess =
-              (await checkParcelAccess(x, y, timestamp, ethAddress, externalCalls)) ||
-              (await checkParcelAccess(x, y, timestamp - SCENE_LOOKBACK_TIME, ethAddress, externalCalls))
-            if (!hasAccess) {
-              errors.push(`The provided Eth Address does not have access to the following parcel: (${x},${y})`)
-            }
-          } catch (e) {
-            errors.push(`The provided Eth Address does not have access to the following parcel: (${x},${y}). ${e}`)
-          }
-        } else {
-          errors.push(
-            `Scene pointers should only contain two integers separated by a comma, for example (10,10) or (120,-45). Invalid pointer: ${pointer}`
-          )
-        }
+        errors.push(
+          `Scene pointers should only contain two integers separated by a comma, for example (10,10) or (120,-45). Invalid pointer: ${pointer}`
+        )
       }
     }
 

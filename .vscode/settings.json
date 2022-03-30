@@ -1,5 +1,32 @@
 {
+  "files.exclude": {
+    "**/dist/": true,
+    "**/node_modules/": true,
+    "**/coverage/": true
+  },
+  "editor.formatOnSave": true,
+  "cSpell.words": [
+    "comms",
+    "Ethereum",
+    "IPFS",
+    "Metaverse",
+    "openapi"
+  ],
+  "editor.rulers": [
+    120
+  ],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true,
+    "source.organizeImports": true
+  },
+  "eslint.validate": [
+    "typescript"
+  ],
   "files.associations": {
     "*.json": "jsonc"
-  }
+  },
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "files.trimFinalNewlines": true,
+  "typescript.preferences.importModuleSpecifier": "relative",
 }
