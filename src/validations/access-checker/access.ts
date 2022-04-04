@@ -1,6 +1,6 @@
 import { Entity, EntityType } from 'dcl-catalyst-commons'
 import { LEGACY_CONTENT_MIGRATION_TIMESTAMP } from '..'
-import { OK, Validation } from '../../types'
+import { OK, Validation, validationFailed } from '../../types'
 import { profiles } from './profiles'
 import { scenes } from './scenes'
 import { stores } from './stores'
@@ -26,10 +26,8 @@ export const access: Validation = {
 
     // Default scenes were removed from the Content Servers after https://github.com/decentraland/catalyst/issues/878
     if (isDefaultScene(deployment.entity)) {
-      return {
-          ok: false,
-          errors: [`Scene pointers should only contain two integers separated by a comma, for example (10,10) or (120,-45).`]
-        }
+      return validationFailed(
+        `Scene pointers should only contain two integers separated by a comma, for example (10,10) or (120,-45).`)
     }
     // Legacy entities still need to be synchronized
     if (deployedBeforeDCLLaunch && externalCalls.isAddressOwnedByDecentraland(address)) return OK
