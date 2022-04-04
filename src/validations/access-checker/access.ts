@@ -37,5 +37,6 @@ export const access: Validation = {
 }
 
 function isDefaultScene(entity: Entity) {
-  return entity.type === EntityType.SCENE && !!entity.pointers.find(p => p.startsWith('default'))
+  return entity.type === EntityType.SCENE &&
+    entity.pointers.some(p => p.toLowerCase().startsWith('default'))
 }

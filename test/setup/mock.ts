@@ -1,5 +1,4 @@
-import { MerkleDistributorInfo } from '@dcl/content-hash-tree/dist/types'
-import { Fetcher, Timestamp } from 'dcl-catalyst-commons'
+import { Fetcher } from 'dcl-catalyst-commons'
 import { ExternalCalls } from '../../src/types'
 import { WearableCollection } from '../../src/validations/access-checker/wearables'
 
