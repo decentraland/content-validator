@@ -81,7 +81,7 @@ export const fromErrors: (...errors: Errors) => ValidationResponse;
 export const LEGACY_CONTENT_MIGRATION_TIMESTAMP = 1582167600000;
 
 // @public (undocumented)
-export type LocalDeploymentAuditInfo = Pick<AuditInfo, 'authChain' | 'migrationData'>;
+export type LocalDeploymentAuditInfo = Pick<AuditInfo, 'authChain'>;
 
 // @public (undocumented)
 export const OK: ValidationResponse;

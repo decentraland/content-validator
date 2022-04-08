@@ -4,7 +4,7 @@ import { AuditInfo, ContentFileHash, Entity, EntityId, Fetcher } from 'dcl-catal
 /**
  * @public
  */
-export type LocalDeploymentAuditInfo = Pick<AuditInfo, 'authChain' | 'migrationData'>
+export type LocalDeploymentAuditInfo = Pick<AuditInfo, 'authChain'>
 
 /**
  * @public
