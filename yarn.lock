@@ -331,10 +331,10 @@
   dependencies:
     ajv "^7.1.0"
 
-"@dcl/urn-resolver@1.3.0":
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/@dcl/urn-resolver/-/urn-resolver-1.3.0.tgz#680b8e0fb91e0d18a9ff0a9431d0783aa6dfae99"
-  integrity sha512-AFKn6u4exB2z0K7o0z8rPAWztkpiAyz4gZd6OqKl/Yy6OxdoPdf0IwnuZzRZYsOgvxZv/LbwOgtSnNtvJVlLxQ==
+"@dcl/urn-resolver@1.3.1":
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/@dcl/urn-resolver/-/urn-resolver-1.3.1.tgz#fa1a036f562c2e2fe12ee44a8b0465b62d7e9ef5"
+  integrity sha512-I/ktPcHjAMsJcGL3tsFcNZ4SjZ9UEVEfLue9ys5Ci2S/J/DE5zUPijBc2AFOvAT1sV/4WtF57SNDxMAvwPRNNQ==
 
 "@ethersproject/abi@5.0.13":
   version "5.0.13"
