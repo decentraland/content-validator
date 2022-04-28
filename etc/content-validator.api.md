@@ -19,8 +19,7 @@ export const calculateDeploymentSize: (deployment: DeploymentToValidate, externa
 
 // @public (undocumented)
 export type ConditionalValidation = {
-    predicate: (args: ValidationArgs) => boolean | Promise<boolean>;
-    message: (args: ValidationArgs) => string;
+    predicate: (args: ValidationArgs) => ValidationResponse | Promise<ValidationResponse>;
 };
 
 // @public (undocumented)
