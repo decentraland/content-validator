@@ -97,8 +97,7 @@ export type Validation = {
  * @public
  */
 export type ConditionalValidation = {
-  predicate: (args: ValidationArgs) => boolean | Promise<boolean>
-  message: (args: ValidationArgs) => string
+  predicate: (args: ValidationArgs) => ValidationResponse | Promise<ValidationResponse>
 }
 
 /**
@@ -119,10 +118,12 @@ export const validationFailed = (...error: string[]): ValidationResponse => ({
  */
 export const conditionalValidation = (condition: ConditionalValidation): Validation => ({
   validate: async (args) => {
-    if (!(await condition.predicate(args))) {
-      return validationFailed(condition.message(args))
+    try {
+      return await condition.predicate(args)
+      //     ^^^^^ never remove this await, it exists to ensure try {} catch
+    } catch (err: any) {
+      return validationFailed(`Validation failed: ${err}`)
     }
-    return OK
   },
 })
 
