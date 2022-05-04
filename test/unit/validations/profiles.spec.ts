@@ -13,7 +13,7 @@ describe('Profiles', () => {
     let validThumbnailBuffer: Buffer
     let invalidThumbnailBuffer: Buffer
     const fileName = 'face256.png'
-    const hash = 'thumbnail'
+    const hash = 'bafybeiasb5vpmaounyilfuxbd3lryvosl4yefqrfahsb2esg46q6tu6y5s'
 
     const createImage = async (size: number, format: 'png' | 'jpg' = 'png'): Promise<Buffer> => {
       let image = sharp({
@@ -36,13 +36,14 @@ describe('Profiles', () => {
     })
     const externalCalls = buildExternalCalls()
     it('When there is no hash for given thumbnail file name, it should return an error', async () => {
-      const files = new Map([[hash, validThumbnailBuffer]])
+      const files = new Map([['invalidHash', validThumbnailBuffer]])
       const entity = buildEntity({ type: EntityType.PROFILE, metadata: VALID_PROFILE_METADATA, timestamp })
       const deployment = buildDeployment({ entity, files })
 
       const result: ValidationResponse = await faceThumbnail.validate({ deployment, externalCalls })
+
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(`Couldn't find hash for face256 thumbnail file with name: ${fileName}`)
+      expect(result.errors).toContain(`Couldn't find thumbnail file with hash: ${hash}`)
     })
 
     it('When there is no file for given thumbnail file hash, it should return an error', async () => {
