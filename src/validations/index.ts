@@ -4,10 +4,10 @@ import { content } from './content'
 import { entityStructure } from './entity-structure'
 import { ipfsHashing } from './ipfs-hashing'
 import { metadata } from './metadata-schema'
+import { profile } from './profile'
 import { signature } from './signature'
 import { size } from './size'
 import { wearable } from './wearable'
-import { profile } from './profile'
 
 /**
  * @public
@@ -52,6 +52,9 @@ export const calculateDeploymentSize = async (
       if (!contentSize) return `Couldn't fetch content file with hash: ${hash}`
       totalSize += contentSize
     }
+  }
+  if (totalSize === 0) {
+    return `Invalid size of all contents: 0 size`
   }
   return totalSize
 }

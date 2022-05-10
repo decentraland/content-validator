@@ -6,6 +6,7 @@ import { fromErrors, Validation } from '../types'
 const correspondsToASnapshot = (fileName: string, hash: string, metadata: Profile) => {
   const fileNameWithoutExtension = fileName.replace(/.[^/.]+$/, '')
 
+  if (!metadata || !metadata.avatars) return false
   return metadata.avatars.some((avatar: Avatar) =>
     Object.entries(avatar.avatar.snapshots).some((key) => key[0] === fileNameWithoutExtension && key[1] === hash)
   )
