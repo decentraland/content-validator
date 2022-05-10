@@ -53,9 +53,6 @@ export const calculateDeploymentSize = async (
       totalSize += contentSize
     }
   }
-  if (totalSize === 0) {
-    return `Invalid size of all contents: 0 size`
-  }
   return totalSize
 }
 
