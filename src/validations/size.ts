@@ -4,7 +4,7 @@ import { OK, Validation, validationFailed } from '../types'
 
 /** Validate that the full request size is within limits
  *
- * ADR 45: After given TIMESTAMPT will also include previous deployments in the validation
+ * ADR 45: After given TIMESTAMP will also include previous deployments in the validation
  * @public
  */
 export const size: Validation = {

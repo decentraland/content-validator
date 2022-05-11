@@ -27,9 +27,18 @@ describe('Content', () => {
     expect(result.errors).toContain(notAvailableHashMessage('hash'))
   })
 
-  it(`When a hash that was not uploaded was already stored, then no error is returned`, async () => {
+  it(`When a hash content file was not uploaded but was already stored, then no error is returned`, async () => {
     const entity = buildEntity({
-      content: [{ file: 'name', hash: 'hash' }],
+      content: [{ file: 'body.png', hash: 'hash' }],
+      metadata: {
+        avatars: [{
+          avatar: {
+            snapshots: {
+              "body": "hash"
+            }
+          }
+        }]
+      }
     })
     const deployment = buildDeployment({ entity })
     const externalCalls = buildExternalCalls({
@@ -40,7 +49,7 @@ describe('Content', () => {
     expect(result.ok).toBeTruthy()
   })
 
-  it(`When a hash that was uploaded wasn't already stored, then no error is returned`, async () => {
+  it(`When a hash that was uploaded wasn't already stored, then an error is returned`, async () => {
     const entity = buildEntity({
       content: [{ file: 'name', hash: 'hash' }],
     })
@@ -48,7 +57,8 @@ describe('Content', () => {
     const deployment = buildDeployment({ entity, files })
 
     const result = await content.validate({ deployment, externalCalls })
-    expect(result.ok).toBeTruthy()
+    expect(result.ok).toBeFalsy()
+    expect(result.errors).toContain("This file is not expected: 'name' or its hash is invalid: 'hash'. Please, include only valid snapshot files.")
   })
 
   it('When a hash is uploaded but not referenced, it is reported', async () => {
