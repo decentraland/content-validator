@@ -48,7 +48,8 @@ export const calculateDeploymentSize = async (
     if (uploadedFile) {
       totalSize += uploadedFile.byteLength
     } else {
-      const contentSize = await externalCalls.fetchContentFileSize(hash) ?? 0
+      const contentSize = await externalCalls.fetchContentFileSize(hash)
+      if (contentSize === undefined) return `Couldn't fetch content file with hash: ${hash}`
       totalSize += contentSize
     }
   }

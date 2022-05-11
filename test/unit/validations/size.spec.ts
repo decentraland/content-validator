@@ -124,6 +124,25 @@ describe('Size', () => {
       })
 
       const response = await size.validate({ deployment, externalCalls })
+      expect(response.ok).toBeFalsy()
+      expect(response.errors).toContain(`Couldn't fetch content file with hash: A`)
+    })
+
+    it('When file has 0 size, it succeeds', async () => {
+      const content = [
+        { file: 'A', hash: 'A' },
+        { file: 'C', hash: 'C' },
+      ]
+
+      const entity = buildEntity({ content, timestamp, pointers: ['P1'], type: EntityType.SCENE })
+      const files = buildFiles(['C', 3])
+
+      const deployment = buildDeployment({ entity, files })
+      const externalCalls = buildExternalCalls({
+        fetchContentFileSize: () => Promise.resolve(0),
+      })
+
+      const response = await size.validate({ deployment, externalCalls })
       expect(response.ok).toBeTruthy()
     })
 
