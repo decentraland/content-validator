@@ -109,7 +109,7 @@ describe('Size', () => {
       )
     })
 
-    it('When cannot fetch content file in order to check size, then it fails', async () => {
+    it('When cannot fetch content file in order to check size, then it takes it as zero', async () => {
       const content = [
         { file: 'A', hash: 'A' },
         { file: 'C', hash: 'C' },
@@ -124,8 +124,7 @@ describe('Size', () => {
       })
 
       const response = await size.validate({ deployment, externalCalls })
-      expect(response.ok).toBeFalsy()
-      expect(response.errors).toContain(`Couldn't fetch content file with hash: A`)
+      expect(response.ok).toBeTruthy()
     })
 
     it(`When there are repeated hashes in content, then it doesn't count multiple times and is ok`, async () => {
