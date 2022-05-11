@@ -6,7 +6,7 @@ import {
   BlockchainCollectionV1Asset,
   BlockchainCollectionV2Asset,
   OffChainAsset,
-  parseUrn,
+  parseUrn
 } from '@dcl/urn-resolver'
 import { Hashing, Timestamp } from 'dcl-catalyst-commons'
 import ms from 'ms'
@@ -331,7 +331,7 @@ export const wearables: Validation = {
     }): Promise<string | undefined> => {
       const query = `
       query MerkleRoot($id: String!, $block: Int!) {
-        thirdParties(where: { id: $id }, block: { number: $block }, first: 1) {
+        thirdParties(where: { id: $id, isApproved: true }, block: { number: $block }, first: 1) {
           root
         }
       }`
