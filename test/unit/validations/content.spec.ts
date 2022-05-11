@@ -27,7 +27,7 @@ describe('Content', () => {
     expect(result.errors).toContain(notAvailableHashMessage('hash'))
   })
 
-  it(`When a hash that was not uploaded was already stored, then no error is returned`, async () => {
+  it(`When a hash content file was not uploaded but was already stored, then no error is returned`, async () => {
     const entity = buildEntity({
       content: [{ file: 'body.png', hash: 'hash' }],
       metadata: {
