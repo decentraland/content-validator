@@ -4,10 +4,10 @@ import { content } from './content'
 import { entityStructure } from './entity-structure'
 import { ipfsHashing } from './ipfs-hashing'
 import { metadata } from './metadata-schema'
+import { profile } from './profile'
 import { signature } from './signature'
 import { size } from './size'
 import { wearable } from './wearable'
-import { profile } from './profile'
 
 /**
  * @public

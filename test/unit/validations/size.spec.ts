@@ -1,3 +1,4 @@
+import { hashV1 } from '@dcl/hashing'
 import { EntityType } from 'dcl-catalyst-commons'
 import { ADR_45_TIMESTAMP } from '../../../src'
 import { size } from '../../../src/validations/size'
@@ -10,9 +11,26 @@ const buildFiles = (...files: [hash: string, sizeInMB: number][]): Map<string, U
 
 describe('Size', () => {
   it('When an entity is too big per pointer, then it fails', async () => {
-    const files = buildFiles(['hash', 2.1])
-    const entity = buildEntity({ pointers: ['P1'] })
-    const deployment = buildDeployment({ files, entity })
+    const files = buildFiles(['body.png', 2.1])
+    const hash = await hashV1(files.get('body.png')!)
+
+    const entity = buildEntity({
+      pointers: ['P1'],
+      content: [{
+        "file": "body.png",
+        "hash": hash
+      }],
+      metadata: {
+        avatars: [{
+          avatar: {
+            snapshots: {
+              "body": hash
+            }
+          }
+        }]
+      }
+    })
+    const deployment = buildDeployment({ files: new Map([[hash, files.get('body.png')!]]), entity })
     const externalCalls = buildExternalCalls()
 
     const result = await size.validate({ deployment, externalCalls })
@@ -22,9 +40,26 @@ describe('Size', () => {
     )
   })
   it('When an entity is big, but has enough pointers, then it is ok', async () => {
-    const entity = buildEntity({ pointers: ['P1', 'P2'] })
-    const files = buildFiles(['hash', 2.1])
-    const deployment = buildDeployment({ entity, files })
+    const files = buildFiles(['body.png', 2.1])
+    const hash = await hashV1(files.get('body.png')!)
+
+    const entity = buildEntity({
+      pointers: ['P1', 'P2'],
+      content: [{
+        "file": "body.png",
+        "hash": hash
+      }],
+      metadata: {
+        avatars: [{
+          avatar: {
+            snapshots: {
+              "body": hash
+            }
+          }
+        }]
+      }
+    })
+    const deployment = buildDeployment({ files: new Map([[hash, files.get('body.png')!]]), entity })
     const externalCalls = buildExternalCalls()
 
     const result = await size.validate({ deployment, externalCalls })
