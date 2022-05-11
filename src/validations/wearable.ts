@@ -56,7 +56,7 @@ export const wearableSize: Validation = {
 }
 
 /** Validate that given wearable deployment includes a thumbnail with valid format and size */
-const defaultThumbnailSize = 1024
+const maxThumbnailSize = 1024
 export const wearableThumbnail: Validation = {
   validate: async ({ deployment, externalCalls }, log) => {
     if (deployment.entity.timestamp < ADR_45_TIMESTAMP) return OK
@@ -83,7 +83,7 @@ export const wearableThumbnail: Validation = {
       if (!format || format !== 'png') errors.push(`Invalid or unknown image format. Only 'PNG' format is accepted.`)
       if (!width || !height) {
         errors.push(`Couldn't validate thumbnail size for file ${metadata.thumbnail}`)
-      } else if (width !== defaultThumbnailSize || height !== defaultThumbnailSize) {
+      } else if (width > maxThumbnailSize || height > maxThumbnailSize) {
         errors.push(`Invalid thumbnail image size (width = ${width} / height = ${height})`)
       }
     } catch (e) {

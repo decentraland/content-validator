@@ -33,7 +33,7 @@ describe('Wearables', () => {
 
     beforeAll(async () => {
       validThumbnailBuffer = await createImage(1024)
-      invalidThumbnailBuffer = await createImage(1)
+      invalidThumbnailBuffer = await createImage(1025)
     })
     const externalCalls = buildExternalCalls()
     it('When there is no hash for given thumbnail file name, it should return an error', async () => {
@@ -76,7 +76,7 @@ describe('Wearables', () => {
 
       const result = await wearableThumbnail.validate({ deployment, externalCalls })
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(`Invalid thumbnail image size (width = 1 / height = 1)`)
+      expect(result.errors).toContain(`Invalid thumbnail image size (width = 1025 / height = 1025)`)
     })
 
     it('When thumbnail image format is not png, it should return an error', async () => {
