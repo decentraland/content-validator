@@ -109,7 +109,7 @@ describe('Size', () => {
       )
     })
 
-    it('When cannot fetch content file in order to check size, then it takes it as zero', async () => {
+    it('When cannot fetch content file in order to check size, then it takes it fails', async () => {
       const content = [
         { file: 'A', hash: 'A' },
         { file: 'C', hash: 'C' },
