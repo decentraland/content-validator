@@ -351,7 +351,8 @@ export const wearables: Validation = {
     const verifyHash = async (metadata: ThirdPartyWearable, merkleRoot: string): Promise<boolean> => {
       // Validate merkle proof data is valid
       if (!MerkleProof.validate(metadata.merkleProof)) {
-        logs?.debug('Merkle proof is not valid', { merkleProof: metadata.merkleProof })
+        const debugInfo = { merkleProof: metadata.merkleProof }
+        console.log(`Merkle proof is not valid', ${debugInfo}`)
         return false
       }
       const merkleProof = metadata.merkleProof
