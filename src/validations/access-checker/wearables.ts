@@ -410,7 +410,9 @@ export const wearables: Validation = {
           }
           merkleRoots.push(merkleRoot)
           return await verifyHash(metadata, merkleRoot)
-        } catch {
+        } catch (e) {
+          const error = (e as any)?.message
+          logs?.debug(error)
           return false
         }
       }
