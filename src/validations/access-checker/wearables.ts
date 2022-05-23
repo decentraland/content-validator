@@ -398,17 +398,23 @@ export const wearables: Validation = {
 
       let merkleRoots: string[] = []
       const hasPermissionOnBlock = async (blockNumber: number | undefined) => {
-        if (!blockNumber) return false
-        const merkleRoot = await getMerkleRoot({
-          block: blockNumber,
-          thirdPartyId,
-        })
-        if (!merkleRoot) {
-          logs?.debug(`Merkle proof not found for given block and third party ID`, { blockNumber, thirdPartyId })
+        try {
+          if (!blockNumber) return false
+          const merkleRoot = await getMerkleRoot({
+            block: blockNumber,
+            thirdPartyId,
+          })
+          if (!merkleRoot) {
+            logs?.debug(`Merkle proof not found for given block and third party ID`, { blockNumber, thirdPartyId })
+            return false
+          }
+          merkleRoots.push(merkleRoot)
+          return await verifyHash(metadata, merkleRoot)
+        } catch (e) {
+          const error = (e as any)?.message
+          logs?.debug(error)
           return false
         }
-        merkleRoots.push(merkleRoot)
-        return await verifyHash(metadata, merkleRoot)
       }
 
       const validMerkleProofedEntity =
