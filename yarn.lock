@@ -301,7 +301,7 @@
   resolved "https://registry.npmjs.org/@dcl/eslint-config/-/eslint-config-1.0.3.tgz"
   integrity sha512-yFYeP2ESuEhd+UCuTILMc84DvIA9raWxxOe0sFhN+9BF4nuYApV8y/AsOKYN6lvFV5c5Pkd/XWgcnNJzMarjZQ==
 
-"@dcl/hashing@1.1.0", "@dcl/hashing@^1.0.0":
+"@dcl/hashing@1.1.0", "@dcl/hashing@^1.1.0":
   version "1.1.0"
   resolved "https://registry.npmjs.org/@dcl/hashing/-/hashing-1.1.0.tgz"
   integrity sha512-u20iZwIT9YBLkoxO2rHw53zm2ePagFvJ2lChclN2wxlZoL04SlAucu3njsOSYcgPBMRrmMqHk3cbxVuP70aBbA==
@@ -310,14 +310,7 @@
     ipfs-unixfs-importer "^7.0.3"
     multiformats "^9.6.3"
 
-"@dcl/schemas@4.8.0":
-  version "4.8.0"
-  resolved "https://registry.yarnpkg.com/@dcl/schemas/-/schemas-4.8.0.tgz#5f9ac0857c396b1bddfdcb3924c79a9b68e0f634"
-  integrity sha512-NLvu90JSAunwA6vVYfVcdvlwO2x5fTc2tPhsko5kFfBEIp7lCzwSy6DoSlee/t92Uw9zIyNIS9Ai3ewLQ0T4zQ==
-  dependencies:
-    ajv "^7.1.0"
-
-"@dcl/schemas@^4.11.0":
+"@dcl/schemas@4.11.0", "@dcl/schemas@^4.11.0":
   version "4.11.0"
   resolved "https://registry.yarnpkg.com/@dcl/schemas/-/schemas-4.11.0.tgz#321b45e231784ceb84b39d88f7380f0d23c23042"
   integrity sha512-D31OvYmz3JrBLRf6ibpPC+K4zry8OUXn5/0tWQDgMH26XxsbOWxsRfREqbSmj8fv9SQMjbgSHBfmL2VEi+s73Q==
@@ -2037,13 +2030,13 @@ data-urls@^2.0.0:
     whatwg-mimetype "^2.3.0"
     whatwg-url "^8.0.0"
 
-dcl-catalyst-commons@8.2.1:
-  version "8.2.1"
-  resolved "https://registry.yarnpkg.com/dcl-catalyst-commons/-/dcl-catalyst-commons-8.2.1.tgz#4abe13d2d2a1c360e666930f048d91a1e74f9872"
-  integrity sha512-C9wu8lHox+f1DbsJ0T6izupftmYnvpsRDh/DcTUONOUasLtkzbirlmYZYG8LksVY5VdSGIUuyfp+9WWprLmsSw==
+dcl-catalyst-commons@8.2.2:
+  version "8.2.2"
+  resolved "https://registry.yarnpkg.com/dcl-catalyst-commons/-/dcl-catalyst-commons-8.2.2.tgz#924c933b575f6fd874387e9847699a4a8e447180"
+  integrity sha512-50kl9Q6Dp7fh4Rp2BOHHT+Jz/T8rVX8QLWr3DOQucCBJviD7m5OOinNjjlDcAjzB9s/shTX+DFg3daa9doIYag==
   dependencies:
-    "@dcl/hashing" "^1.0.0"
-    "@dcl/schemas" "4.8.0"
+    "@dcl/hashing" "^1.1.0"
+    "@dcl/schemas" "4.11.0"
     abort-controller "^3.0.0"
     cids "^1.1.9"
     cookie "^0.4.1"
