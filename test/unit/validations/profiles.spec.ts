@@ -1,7 +1,7 @@
 import { EntityType } from 'dcl-catalyst-commons'
 import sharp from 'sharp'
 import { ADR_45_TIMESTAMP, ValidationResponse } from '../../../src'
-import { faceThumbnail } from '../../../src/validations/profile'
+import {faceThumbnail, wearables} from '../../../src/validations/profile'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
 import { buildExternalCalls } from '../../setup/mock'
@@ -9,6 +9,7 @@ import { VALID_PROFILE_METADATA } from '../../setup/profiles'
 
 describe('Profiles', () => {
   const timestamp = ADR_45_TIMESTAMP + 1
+  const externalCalls = buildExternalCalls()
   describe('Thumbnail face256:', () => {
     let validThumbnailBuffer: Buffer
     let invalidThumbnailBuffer: Buffer
@@ -37,7 +38,7 @@ describe('Profiles', () => {
       validThumbnailBuffer = await createImage(256)
       invalidThumbnailBuffer = await createImage(1)
     })
-    const externalCalls = buildExternalCalls()
+
     it('When there is no hash for given thumbnail file name, it should return an error', async () => {
       const files = new Map([['invalidHash', validThumbnailBuffer]])
       const entity = buildEntity({
@@ -146,6 +147,7 @@ describe('Profiles', () => {
 
       expect(result.ok).toBeTruthy()
     })
+
     it(`When thumbnail file was already uploaded, it won't be validated again`, async () => {
       const content = [{ file: fileName, hash }]
       const entity = buildEntity({
@@ -163,6 +165,39 @@ describe('Profiles', () => {
       const result = await faceThumbnail.validate({ deployment, externalCalls })
 
       expect(result.ok).toBeTruthy()
+    })
+  })
+
+  describe('Wearables urns', () => {
+    it('When wearable urn is correct, should return no errors', async () => {
+      const entity = buildEntity({ type: EntityType.PROFILE, metadata: VALID_PROFILE_METADATA, timestamp })
+      const deployment = buildDeployment({ entity })
+
+      const result = await wearables.validate({ deployment, externalCalls })
+
+      expect(result.ok).toBeTruthy()
+    })
+
+    it('When wearable urn is wrong, should return the correct error', async () => {
+      const entity = buildEntity({
+        type: EntityType.PROFILE,
+        metadata: {
+          avatars: [{
+            avatar: {
+              wearables: [
+                'urn:decentraland:tucu-tucu:base-avatars:tall_front_01',
+              ],
+            },
+          }]
+        },
+        timestamp,
+      })
+      const deployment = buildDeployment({ entity })
+
+      const result = await wearables.validate({ deployment, externalCalls })
+
+      expect(result.ok).toBeFalsy()
+      expect(result.errors).toContain("Wearable pointers should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (urn:decentraland:tucu-tucu:base-avatars:tall_front_01)")
     })
   })
 })

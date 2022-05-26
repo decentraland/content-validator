@@ -1,7 +1,8 @@
 import { EntityType } from 'dcl-catalyst-commons'
 import sharp from 'sharp'
-import { ADR_45_TIMESTAMP } from '.'
-import { OK, Validation, validationFailed, ValidationResponse } from '../types'
+import { ADR_45_TIMESTAMP, validateInRow } from '.'
+import { OK, Validation, validationFailed } from '../types'
+import {parseUrn} from "@dcl/urn-resolver";
 
 /** Validate that given profile deployment includes a face256 thumbnail with valid size */
 const defaultThumbnailSize = 256
@@ -58,6 +59,22 @@ export const faceThumbnail: Validation = {
   }
 }
 
+export const wearables: Validation = {
+  validate: async ({ deployment, externalCalls }) => {
+    const allAvatars: any[] = deployment.entity.metadata?.avatars ?? []
+    for (const avatar of allAvatars) {
+      for (const pointer of avatar.avatar.wearables) {
+        const parsed = await parseUrn(pointer)
+        if (!parsed)
+          return validationFailed(
+              `Wearable pointers should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (${pointer})`
+          )
+      }
+    }
+    return OK
+  },
+}
+
 /**
  * Validate that given profile deployment includes the face256 file with the correct size
  * * @public
@@ -65,9 +82,7 @@ export const faceThumbnail: Validation = {
 export const profile: Validation = {
   validate: async (args) => {
     if (args.deployment.entity.type !== EntityType.PROFILE) return OK
-    const response: ValidationResponse = await faceThumbnail.validate(args)
 
-    if (!response.ok) return response
-    return OK
-  }
+    return validateInRow(args, faceThumbnail, wearables)
+  },
 }
