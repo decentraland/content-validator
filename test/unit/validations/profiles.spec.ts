@@ -1,7 +1,7 @@
 import { EntityType } from 'dcl-catalyst-commons'
 import sharp from 'sharp'
 import { ADR_45_TIMESTAMP, ValidationResponse } from '../../../src'
-import {faceThumbnail, wearables} from '../../../src/validations/profile'
+import { faceThumbnail, wearableUrns } from '../../../src/validations/profile'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
 import { buildExternalCalls } from '../../setup/mock'
@@ -173,7 +173,7 @@ describe('Profiles', () => {
       const entity = buildEntity({ type: EntityType.PROFILE, metadata: VALID_PROFILE_METADATA, timestamp })
       const deployment = buildDeployment({ entity })
 
-      const result = await wearables.validate({ deployment, externalCalls })
+      const result = await wearableUrns.validate({ deployment, externalCalls })
 
       expect(result.ok).toBeTruthy()
     })
@@ -194,7 +194,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await wearables.validate({ deployment, externalCalls })
+      const result = await wearableUrns.validate({ deployment, externalCalls })
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain("Wearable pointers should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (urn:decentraland:tucu-tucu:base-avatars:tall_front_01)")

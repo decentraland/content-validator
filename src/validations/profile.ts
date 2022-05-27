@@ -59,7 +59,7 @@ export const faceThumbnail: Validation = {
   }
 }
 
-export const wearables: Validation = {
+export const wearableUrns: Validation = {
   validate: async ({ deployment, externalCalls }) => {
     const allAvatars: any[] = deployment.entity.metadata?.avatars ?? []
     for (const avatar of allAvatars) {
@@ -83,6 +83,6 @@ export const profile: Validation = {
   validate: async (args) => {
     if (args.deployment.entity.type !== EntityType.PROFILE) return OK
 
-    return validateInRow(args, faceThumbnail, wearables)
+    return validateInRow(args, faceThumbnail, wearableUrns)
   },
 }
