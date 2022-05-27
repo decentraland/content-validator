@@ -22,8 +22,8 @@ describe('Wearables', () => {
           width: size,
           height: size,
           channels: 4,
-          background: { r: 255, g: 0, b: 0, alpha: 0.5 },
-        },
+          background: { r: 255, g: 0, b: 0, alpha: 0.5 }
+        }
       })
       if (format) {
         image = format === 'png' ? image.png() : image.jpeg()
@@ -108,7 +108,7 @@ describe('Wearables', () => {
       const deployment = buildDeployment({ entity })
 
       const externalCalls = buildExternalCalls({
-        isContentStoredAlready: async () => new Map([[hash, true]]),
+        isContentStoredAlready: async () => new Map([[hash, true]])
       })
 
       const result = await wearableThumbnail.validate({ deployment, externalCalls })
@@ -123,18 +123,18 @@ describe('Wearables', () => {
       const content = [
         { file: 'A', hash: 'A' },
         { file: 'C', hash: 'C' },
-        { file: 'thumbnail.png', hash: 'thumbnail' },
+        { file: 'thumbnail.png', hash: 'thumbnail' }
       ]
       const files = new Map([
         ['A', withSize(1)],
         ['C', withSize(1.5)],
-        ['thumbnail', Buffer.alloc(1)],
+        ['thumbnail', Buffer.alloc(1)]
       ])
       const entity = buildEntity({
         type: EntityType.WEARABLE,
         metadata: { thumbnail: 'thumbnail.png' },
         content,
-        timestamp,
+        timestamp
       })
       const deployment = buildDeployment({ entity, files })
       const externalCalls = buildExternalCalls()
@@ -150,18 +150,18 @@ describe('Wearables', () => {
       const content = [
         { file: 'A', hash: 'A' },
         { file: 'C', hash: 'C' },
-        { file: 'thumbnail.png', hash: 'thumbnail' },
+        { file: 'thumbnail.png', hash: 'thumbnail' }
       ]
       const files = new Map([
         ['A', withSize(1)],
         ['C', withSize(1)],
-        ['thumbnail', withSize(2)],
+        ['thumbnail', withSize(2)]
       ])
       const entity = buildEntity({
         type: EntityType.WEARABLE,
         metadata: { thumbnail: 'thumbnail.png' },
         content,
-        timestamp,
+        timestamp
       })
       const deployment = buildDeployment({ entity, files })
       const externalCalls = buildExternalCalls()
@@ -177,18 +177,18 @@ describe('Wearables', () => {
       const content = [
         { file: 'A', hash: 'A' },
         { file: 'C', hash: 'C' },
-        { file: 'thumbnail.png', hash: 'thumbnail' },
+        { file: 'thumbnail.png', hash: 'thumbnail' }
       ]
       const files = new Map([
         ['A', withSize(1)],
         ['C', withSize(1)],
-        ['thumbnail', withSize(0.9)],
+        ['thumbnail', withSize(0.9)]
       ])
       const entity = buildEntity({
         type: EntityType.WEARABLE,
         metadata: { thumbnail: 'thumbnail.png' },
         content,
-        timestamp,
+        timestamp
       })
       const deployment = buildDeployment({ entity, files })
       const externalCalls = buildExternalCalls()
@@ -202,17 +202,17 @@ describe('Wearables', () => {
       const withSize = (size: number) => Buffer.alloc(size * 1024 * 1024)
       const content = [
         { file: 'file1', hash: '1' },
-        { file: 'file2', hash: '2' },
+        { file: 'file2', hash: '2' }
       ]
       const files = new Map([
         ['file1', withSize(1)],
-        ['file2', withSize(0.9)],
+        ['file2', withSize(0.9)]
       ])
       const entity = buildEntity({
         type: EntityType.WEARABLE,
         // this metadata includes representations pointing to file1 and file2
         metadata: VALID_WEARABLE_METADATA,
-        content,
+        content
       })
       const deployment = buildDeployment({ entity, files })
       const externalCalls = buildExternalCalls()
@@ -225,17 +225,17 @@ describe('Wearables', () => {
       const withSize = (size: number) => Buffer.alloc(size * 1024 * 1024)
       const content = [
         { file: 'notFile1', hash: '1' },
-        { file: 'file2', hash: '2' },
+        { file: 'file2', hash: '2' }
       ]
       const files = new Map([
         ['notFile1', withSize(1)],
-        ['file2', withSize(0.9)],
+        ['file2', withSize(0.9)]
       ])
       const entity = buildEntity({
         type: EntityType.WEARABLE,
         // this metadata includes representations pointing to file1 and file2
         metadata: VALID_WEARABLE_METADATA,
-        content,
+        content
       })
       const deployment = buildDeployment({ entity, files })
       const externalCalls = buildExternalCalls()

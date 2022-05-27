@@ -21,8 +21,8 @@ describe('Profiles', () => {
           width: size,
           height: size,
           channels: 4,
-          background: { r: 255, g: 0, b: 0, alpha: 0.5 },
-        },
+          background: { r: 255, g: 0, b: 0, alpha: 0.5 }
+        }
       })
       if (format) {
         image = format === 'png' ? image.png() : image.jpeg()
@@ -107,7 +107,7 @@ describe('Profiles', () => {
       const deployment = buildDeployment({ entity })
 
       const externalCalls = buildExternalCalls({
-        isContentStoredAlready: async () => new Map([[hash, true]]),
+        isContentStoredAlready: async () => new Map([[hash, true]])
       })
 
       const result = await faceThumbnail.validate({ deployment, externalCalls })

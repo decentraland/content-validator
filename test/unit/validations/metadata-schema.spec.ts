@@ -45,8 +45,8 @@ describe('Metadata Schema', () => {
       main: 'bin/main.js',
       scene: {
         base: '0,0',
-        parcels: ['0,0'],
-      },
+        parcels: ['0,0']
+      }
     }
     const invalidMetadata = {}
     testType(EntityType.SCENE, validMetadata, invalidMetadata, undefined, ["should have required property 'main'"])

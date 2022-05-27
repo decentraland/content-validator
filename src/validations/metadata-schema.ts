@@ -17,5 +17,5 @@ export const metadata = conditionalValidation({
     }
     const errors = validator.errors?.map(($) => '' + $.message) || []
     return validationFailed(`The metadata for this entity type (${deployment.entity.type}) is not valid.`, ...errors)
-  },
+  }
 })

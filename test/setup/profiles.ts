@@ -15,8 +15,8 @@ const avatarInfo = {
     'urn:decentraland:matic:collections-v2:0xf6f601efee04e74cecac02c8c5bdc8cc0fc1c721:0',
     'urn:decentraland:off-chain:base-avatars:classic_shoes',
     'urn:decentraland:off-chain:base-avatars:red_tshirt',
-    'urn:decentraland:off-chain:base-avatars:trash_jean',
-  ],
+    'urn:decentraland:off-chain:base-avatars:trash_jean'
+  ]
 }
 
 const avatar = {
@@ -29,7 +29,7 @@ const avatar = {
   version: 44,
   avatar: avatarInfo,
   tutorialStep: 355,
-  interests: [],
+  interests: []
 }
 
 export const VALID_PROFILE_METADATA = { avatars: [avatar] }

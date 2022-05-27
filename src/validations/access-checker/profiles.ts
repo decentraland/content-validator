@@ -28,5 +28,5 @@ export const profiles: Validation = {
     }
 
     return OK
-  },
+  }
 }

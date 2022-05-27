@@ -5,7 +5,7 @@ import { buildEntity, buildProfileEntity, buildSceneEntity, buildWearableEntity 
 
 export const buildAuditInfo = (auditInfo?: Partial<LocalDeploymentAuditInfo>): LocalDeploymentAuditInfo => ({
   authChain: [],
-  ...auditInfo,
+  ...auditInfo
 })
 
 export const buildStoreDeployment = (pointers: string[]): DeploymentToValidate => {
@@ -19,29 +19,29 @@ export const buildStoreDeployment = (pointers: string[]): DeploymentToValidate =
 export const buildProfileDeployment = (pointers: string[]): DeploymentToValidate => ({
   entity: buildProfileEntity({ pointers }),
   auditInfo: buildAuditInfo(),
-  files: new Map(),
+  files: new Map()
 })
 
 export const buildSceneDeployment = (pointers: string[]): DeploymentToValidate => ({
   entity: buildSceneEntity({ pointers }),
   auditInfo: buildAuditInfo(),
-  files: new Map(),
+  files: new Map()
 })
 
 export const buildWearableDeployment = (pointers: string[]): DeploymentToValidate => ({
   entity: buildWearableEntity({ pointers }),
   auditInfo: buildAuditInfo(),
-  files: new Map(),
+  files: new Map()
 })
 
 export const buildThirdPartyWearableDeployment = (urn: string, metadata: ThirdPartyWearable): DeploymentToValidate => ({
   entity: buildWearableEntity({ pointers: [urn], metadata }),
   auditInfo: buildAuditInfo(),
-  files: new Map(),
+  files: new Map()
 })
 
 export const buildDeployment = (args?: { entity?: Entity; files?: Map<string, Uint8Array> }): DeploymentToValidate => ({
   entity: args?.entity ?? buildEntity(),
   auditInfo: buildAuditInfo(),
-  files: args?.files ?? new Map(),
+  files: args?.files ?? new Map()
 })

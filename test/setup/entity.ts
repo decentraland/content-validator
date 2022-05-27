@@ -5,21 +5,21 @@ export const buildProfileEntity = (entity?: Partial<Entity>): Entity =>
   buildEntity({
     version: EntityVersion.V4,
     type: EntityType.PROFILE,
-    ...entity,
+    ...entity
   })
 
 export const buildSceneEntity = (entity?: Partial<Entity>): Entity =>
   buildEntity({
     version: EntityVersion.V4,
     type: EntityType.SCENE,
-    ...entity,
+    ...entity
   })
 
 export const buildWearableEntity = (entity?: Partial<Entity>): Entity =>
   buildEntity({
     version: EntityVersion.V4,
     type: EntityType.SCENE,
-    ...entity,
+    ...entity
   })
 
 export const buildEntity = (
@@ -31,5 +31,5 @@ export const buildEntity = (
   pointers: ['P1'],
   timestamp: Date.now(),
   id,
-  ...entity,
+  ...entity
 })

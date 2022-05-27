@@ -10,7 +10,7 @@ export const buildExternalCalls = (externalCalls?: Partial<ExternalCalls>): Exte
   isAddressOwnedByDecentraland: () => false,
   queryGraph: jest.fn(),
   subgraphs: buildSubgraphs(),
-  ...externalCalls,
+  ...externalCalls
 })
 
 type Subgraphs = ExternalCalls['subgraphs']
@@ -19,17 +19,17 @@ const defaultSubgraphs: Subgraphs = {
   L1: {
     landManager: '',
     blocks: '',
-    collections: '',
+    collections: ''
   },
   L2: {
     blocks: '',
     collections: '',
-    thirdPartyRegistry: '',
-  },
+    thirdPartyRegistry: ''
+  }
 }
 export const buildSubgraphs = (subgraphs?: Partial<Subgraphs>): Subgraphs => ({
   ...defaultSubgraphs,
-  ...subgraphs,
+  ...subgraphs
 })
 
 type QueryGraph = Fetcher['queryGraph']
@@ -48,13 +48,13 @@ export const buildMockedQueryGraph = (collection?: Partial<WearableCollection>, 
           items: [
             {
               managers: [],
-              contentHash: '',
-            },
+              contentHash: ''
+            }
           ],
-          ...collection,
-        },
+          ...collection
+        }
       ],
-      accounts: [{ id: COMMITTEE_MEMBER }],
+      accounts: [{ id: COMMITTEE_MEMBER }]
     }
     if (url.includes('block')) {
       return Promise.resolve({ after: [{ number: 10 }], fiveMinAfter: [{ number: 5 }] })
@@ -75,7 +75,7 @@ export const fetcherWithValidCollectionAndItemManager = (address: string) =>
   buildMockedQueryGraph({
     items: [{ managers: [address.toLowerCase()], contentHash: '' }],
     isCompleted: true,
-    isApproved: false,
+    isApproved: false
   })
 
 export const fetcherWithValidCollectionAndCreatorAndContentHash = (address: string, contentHash: string) =>
@@ -83,7 +83,7 @@ export const fetcherWithValidCollectionAndCreatorAndContentHash = (address: stri
     creator: address.toLowerCase(),
     isCompleted: true,
     isApproved: false,
-    items: [{ managers: [], contentHash }],
+    items: [{ managers: [], contentHash }]
   })
 
 export const fetcherWithInvalidCollectionAndCreator = (address: string) =>
@@ -96,14 +96,14 @@ export const fetcherWithInvalidCollectionAndItemManager = (address: string) =>
   buildMockedQueryGraph({
     items: [{ managers: [address.toLowerCase()], contentHash: '' }],
     isCompleted: true,
-    isApproved: true,
+    isApproved: true
   })
 
 export const fetcherWithInvalidCollectionAndContentHash = (contentHash: string) =>
   buildMockedQueryGraph({
     items: [{ managers: [], contentHash }],
     isCompleted: true,
-    isApproved: true,
+    isApproved: true
   })
 
 export const fetcherWithThirdPartyMerkleRoot = (root: string) => {
@@ -112,9 +112,9 @@ export const fetcherWithThirdPartyMerkleRoot = (root: string) => {
       return Promise.resolve({
         thirdParties: [
           {
-            root,
-          },
-        ],
+            root
+          }
+        ]
       })
     }
     if (url.includes('block')) {
@@ -128,7 +128,7 @@ export const fetcherWithThirdPartyEmptyMerkleRoots = () => {
   return mockedQueryGraph().mockImplementation(async (url, _query, _variables) => {
     if (url.includes('thirdParty')) {
       return Promise.resolve({
-        thirdParties: [],
+        thirdParties: []
       })
     }
     if (url.includes('block')) {

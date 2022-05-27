@@ -14,8 +14,7 @@ export const faceThumbnail: Validation = {
 
     for (const avatar of allAvatars) {
       const hash = avatar.avatar.snapshots.face256
-      if (!hash)
-        return validationFailed(`Couldn't find hash for face256 thumbnail file with name: 'face256'`)
+      if (!hash) return validationFailed(`Couldn't find hash for face256 thumbnail file with name: 'face256'`)
 
       const isAlreadyStored = (await externalCalls.isContentStoredAlready([hash])).get(hash) ?? false
       if (isAlreadyStored) {
@@ -37,7 +36,7 @@ export const faceThumbnail: Validation = {
       }
     }
     return errors.length > 0 ? validationFailed(...errors) : OK
-  },
+  }
 }
 
 /**
@@ -51,5 +50,5 @@ export const profile: Validation = {
 
     if (!response.ok) return response
     return OK
-  },
+  }
 }

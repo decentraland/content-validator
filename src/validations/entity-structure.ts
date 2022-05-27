@@ -13,5 +13,5 @@ export const entityStructure: Validation = {
       return validationFailed('The entity needs to be pointed by one or more pointers.')
     }
     return OK
-  },
+  }
 }

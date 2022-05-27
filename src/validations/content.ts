@@ -54,5 +54,5 @@ export const content: Validation = {
       }
     }
     return fromErrors(...errors)
-  },
+  }
 }

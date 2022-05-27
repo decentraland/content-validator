@@ -21,5 +21,5 @@ export const ipfsHashing: Validation = {
       .map((hash) => `This hash '${hash}' is not valid. It should be IPFS v2 format.`)
 
     return fromErrors(...errors)
-  },
+  }
 }

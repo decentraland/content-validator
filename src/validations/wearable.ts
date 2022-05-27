@@ -23,7 +23,7 @@ export const wearableRepresentationContent: Validation = {
       }
     }
     return OK
-  },
+  }
 }
 
 /** Validate wearable files size, excluding thumbnail, is less than expected */
@@ -52,7 +52,7 @@ export const wearableSize: Validation = {
         } bytes but you tried to upload ${modelSize}.`
       )
     return OK
-  },
+  }
 }
 
 /** Validate that given wearable deployment includes a thumbnail with valid format and size */
@@ -90,7 +90,7 @@ export const wearableThumbnail: Validation = {
       errors.push(`Couldn't parse thumbnail, please check image format.`)
     }
     return errors.length > 0 ? validationFailed(...errors) : OK
-  },
+  }
 }
 
 /**
@@ -101,5 +101,5 @@ export const wearable: Validation = {
   validate: async (args) => {
     if (args.deployment.entity.type !== EntityType.WEARABLE) return OK
     return validateInRow(args, wearableRepresentationContent, wearableThumbnail, wearableSize)
-  },
+  }
 }

@@ -110,7 +110,7 @@ export const OK: ValidationResponse = { ok: true }
  */
 export const validationFailed = (...error: string[]): ValidationResponse => ({
   ok: false,
-  errors: error,
+  errors: error
 })
 
 /**
@@ -124,7 +124,7 @@ export const conditionalValidation = (condition: ConditionalValidation): Validat
     } catch (err: any) {
       return validationFailed(`Validation failed: ${err}`)
     }
-  },
+  }
 })
 
 /**
@@ -132,7 +132,7 @@ export const conditionalValidation = (condition: ConditionalValidation): Validat
  */
 export const fromErrors = (...errors: Errors): ValidationResponse => ({
   ok: errors.length === 0,
-  errors: errors.length > 0 ? errors : undefined,
+  errors: errors.length > 0 ? errors : undefined
 })
 
 /**

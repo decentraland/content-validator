@@ -8,12 +8,14 @@ describe('Access: scenes', () => {
     const deployment = buildSceneDeployment(pointers)
     const externalCalls = buildExternalCalls({
       isAddressOwnedByDecentraland: () => false,
-      ownerAddress: () => '0xAddress',
+      ownerAddress: () => '0xAddress'
     })
 
     const response = await scenes.validate({ deployment, externalCalls })
     expect(response.ok).toBeFalsy()
-    expect(response.errors).toContain('Scene pointers should only contain two integers separated by a comma, for example (10,10) or (120,-45). Invalid pointer: default10')
+    expect(response.errors).toContain(
+      'Scene pointers should only contain two integers separated by a comma, for example (10,10) or (120,-45). Invalid pointer: default10'
+    )
   })
 
   it('When a decentraland address tries to deploy an default scene, then it is not allowed', async () => {
@@ -21,7 +23,7 @@ describe('Access: scenes', () => {
     const deployment = buildSceneDeployment(pointers)
     const externalCalls = buildExternalCalls({
       isAddressOwnedByDecentraland: () => true,
-      ownerAddress: () => '0xAddress',
+      ownerAddress: () => '0xAddress'
     })
 
     const response = await scenes.validate({ deployment, externalCalls })
@@ -33,7 +35,7 @@ describe('Access: scenes', () => {
     const deployment = buildSceneDeployment(pointers)
     const externalCalls = buildExternalCalls({
       isAddressOwnedByDecentraland: () => true,
-      ownerAddress: () => '0xAddress',
+      ownerAddress: () => '0xAddress'
     })
 
     const response = await scenes.validate({ deployment, externalCalls })

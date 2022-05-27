@@ -62,7 +62,7 @@ export const scenes: Validation = {
       const variables = {
         owner,
         operator,
-        timestamp: Math.floor(timestamp / 1000), // js(ms) -> UNIX(s)
+        timestamp: Math.floor(timestamp / 1000) // js(ms) -> UNIX(s)
       }
 
       try {
@@ -119,7 +119,7 @@ export const scenes: Validation = {
 
       const variables = {
         estateId,
-        timestamp: Math.floor(timestamp / 1000), // UNIX
+        timestamp: Math.floor(timestamp / 1000) // UNIX
       }
 
       try {
@@ -184,7 +184,7 @@ export const scenes: Validation = {
       const variables = {
         x,
         y,
-        timestamp: Math.floor(timestamp / 1000), // UNIX
+        timestamp: Math.floor(timestamp / 1000) // UNIX
       }
 
       try {
@@ -334,5 +334,5 @@ export const scenes: Validation = {
     }
 
     return fromErrors(...errors)
-  },
+  }
 }

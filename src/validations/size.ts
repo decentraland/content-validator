@@ -31,9 +31,9 @@ export const size: Validation = {
       errors = [
         `The deployment is too big. The maximum allowed size per pointer is ${maxSizeInMB} MB for ${
           entity.type
-        }. You can upload up to ${entity.pointers.length * maxSizeInBytes} bytes but you tried to upload ${totalSize}.`,
+        }. You can upload up to ${entity.pointers.length * maxSizeInBytes} bytes but you tried to upload ${totalSize}.`
       ]
     }
     return errors.length > 0 ? validationFailed(...errors) : OK
-  },
+  }
 }

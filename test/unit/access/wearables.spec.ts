@@ -3,7 +3,7 @@ import { MerkleProof, ThirdPartyWearable } from '@dcl/schemas'
 import {
   MERKLE_PROOF_REQUIRED_KEYS,
   WearableCollection,
-  wearables,
+  wearables
 } from '../../../src/validations/access-checker/wearables'
 import { buildThirdPartyWearableDeployment, buildWearableDeployment } from '../../setup/deployments'
 import {
@@ -12,7 +12,7 @@ import {
   fetcherWithoutAccess,
   fetcherWithThirdPartyEmptyMerkleRoots,
   fetcherWithThirdPartyMerkleRoot,
-  fetcherWithValidCollectionAndCreator,
+  fetcherWithValidCollectionAndCreator
 } from '../../setup/mock'
 import { entityAndMerkleRoot } from '../../setup/wearable'
 
@@ -32,7 +32,7 @@ describe('Access: wearables', () => {
   it('When there is more than one pointer set, then validation fails', async () => {
     const pointers = [
       'urn:decentraland:ethereum:collections-v1:atari_launch:a',
-      'urn:decentraland:ethereum:collections-v1:atari_launch:b',
+      'urn:decentraland:ethereum:collections-v1:atari_launch:b'
     ]
     const deployment = buildWearableDeployment(pointers)
     const externalCalls = buildExternalCalls()
@@ -45,11 +45,11 @@ describe('Access: wearables', () => {
   it('When several pointers resolve to the same URN then accept both but fail with the access', async () => {
     const pointers = [
       'urn:decentraland:ethereum:collections-v1:atari_launch:atari_red_upper_body',
-      'urn:decentraland:ethereum:collections-v1:0x4c290f486bae507719c562b6b524bdb71a2570c9:atari_red_upper_body',
+      'urn:decentraland:ethereum:collections-v1:0x4c290f486bae507719c562b6b524bdb71a2570c9:atari_red_upper_body'
     ]
     const deployment = buildWearableDeployment(pointers)
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => 'some address',
+      ownerAddress: () => 'some address'
     })
 
     const response = await wearables.validate({ deployment, externalCalls })
@@ -62,11 +62,11 @@ describe('Access: wearables', () => {
   it('When several pointers resolve to the same URN then accept both 2', async () => {
     const pointers = [
       'urn:decentraland:ethereum:collections-v1:dgtble_headspace:dgtble_hoodi_linetang_upper_body',
-      'urn:decentraland:ethereum:collections-v1:0x574f64ac2e7215cba9752b85fc73030f35166bc0:dgtble_hoodi_linetang_upper_body',
+      'urn:decentraland:ethereum:collections-v1:0x574f64ac2e7215cba9752b85fc73030f35166bc0:dgtble_hoodi_linetang_upper_body'
     ]
     const deployment = buildWearableDeployment(pointers)
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => 'some address',
+      ownerAddress: () => 'some address'
     })
 
     const response = await wearables.validate({ deployment, externalCalls })
@@ -80,7 +80,7 @@ describe('Access: wearables', () => {
     const pointers = ['urn:decentraland:ethereum:collections-v1:dgtble_headspace:dgtble_hoodi_linetang_upper_body']
     const deployment = buildWearableDeployment(pointers)
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => 'some address',
+      ownerAddress: () => 'some address'
     })
 
     const response = await wearables.validate({ deployment, externalCalls })
@@ -94,7 +94,7 @@ describe('Access: wearables', () => {
     const pointers = ['urn:decentraland:ethereum:collections-v1:dgtble_headspace:dgtble_hoodi_linetang_upper_body']
     const deployment = buildWearableDeployment(pointers)
     const externalCalls = buildExternalCalls({
-      isAddressOwnedByDecentraland: () => true,
+      isAddressOwnedByDecentraland: () => true
     })
 
     const response = await wearables.validate({ deployment, externalCalls })
@@ -105,7 +105,7 @@ describe('Access: wearables', () => {
     const pointers = ['urn:decentraland:off-chain:base-avatars:BaseFemale']
     const deployment = buildWearableDeployment(pointers)
     const externalCalls = buildExternalCalls({
-      isAddressOwnedByDecentraland: () => true,
+      isAddressOwnedByDecentraland: () => true
     })
 
     const response = await wearables.validate({ deployment, externalCalls })
@@ -119,13 +119,13 @@ describe('Access: wearables', () => {
     L1: {
       landManager: 'landManager' + 'L1',
       collections: collectionsUrl + 'L1',
-      blocks: blocksUrl + 'L1',
+      blocks: blocksUrl + 'L1'
     },
     L2: {
       collections: collectionsUrl + 'L2',
       blocks: blocksUrl + 'L2',
-      thirdPartyRegistry: thirdPartyRegistryUrl,
-    },
+      thirdPartyRegistry: thirdPartyRegistryUrl
+    }
   })
   it('When urn network belongs to L2, then L2 subgraph is used', async () => {
     const ethAddress = 'address'
@@ -133,11 +133,11 @@ describe('Access: wearables', () => {
     const externalCalls = buildExternalCalls({
       subgraphs,
       queryGraph: mockedQueryGraph,
-      ownerAddress: () => ethAddress,
+      ownerAddress: () => ethAddress
     })
 
     const deployment = buildWearableDeployment([
-      'urn:decentraland:mumbai:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1',
+      'urn:decentraland:mumbai:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
     await wearables.validate({ deployment, externalCalls })
@@ -153,11 +153,11 @@ describe('Access: wearables', () => {
     const externalCalls = buildExternalCalls({
       subgraphs,
       queryGraph: mockedQueryGraph,
-      ownerAddress: () => ethAddress,
+      ownerAddress: () => ethAddress
     })
 
     const deployment = buildWearableDeployment([
-      'urn:decentraland:ethereum:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1',
+      'urn:decentraland:ethereum:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
     await wearables.validate({ deployment, externalCalls })
@@ -172,11 +172,11 @@ describe('Access: wearables', () => {
     const externalCalls = buildExternalCalls({
       subgraphs,
       queryGraph: mockedQueryGraph,
-      ownerAddress: () => ethAddress,
+      ownerAddress: () => ethAddress
     })
 
     const deployment = buildWearableDeployment([
-      'urn:decentraland:mumbai:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1',
+      'urn:decentraland:mumbai:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
     await wearables.validate({ deployment, externalCalls })
@@ -193,11 +193,11 @@ describe('Access: wearables', () => {
     const externalCalls = buildExternalCalls({
       subgraphs,
       queryGraph: mockedQueryGraph,
-      ownerAddress: () => ethAddress,
+      ownerAddress: () => ethAddress
     })
 
     const deployment = buildWearableDeployment([
-      'urn:decentraland:ethereum:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1',
+      'urn:decentraland:ethereum:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
     await wearables.validate({ deployment, externalCalls })
@@ -214,7 +214,7 @@ describe('Access: wearables', () => {
     it(`When urn corresponds to a Third Party wearable and can verify merkle root with the proofs, validation pass`, async () => {
       const externalCalls = buildExternalCalls({
         subgraphs,
-        queryGraph: fetcherWithThirdPartyMerkleRoot(merkleRoot),
+        queryGraph: fetcherWithThirdPartyMerkleRoot(merkleRoot)
       })
 
       const deployment = buildThirdPartyWearableDeployment(metadata.id, metadata)
@@ -226,7 +226,7 @@ describe('Access: wearables', () => {
     it(`When urn corresponds to a Third Party wearable and metadata is modified, validation fails`, async () => {
       const externalCalls = buildExternalCalls({
         subgraphs,
-        queryGraph: fetcherWithThirdPartyMerkleRoot(merkleRoot),
+        queryGraph: fetcherWithThirdPartyMerkleRoot(merkleRoot)
       })
 
       const deployment = buildThirdPartyWearableDeployment(metadata.id, { ...metadata, content: {} })
@@ -239,7 +239,7 @@ describe('Access: wearables', () => {
       const mockedQueryGraph = fetcherWithThirdPartyMerkleRoot(merkleRoot)
       const externalCalls = buildExternalCalls({
         subgraphs,
-        queryGraph: mockedQueryGraph,
+        queryGraph: mockedQueryGraph
       })
 
       const deployment = buildThirdPartyWearableDeployment(metadata.id, metadata)
@@ -261,7 +261,7 @@ describe('Access: wearables', () => {
       const mockedQueryGraph = fetcherWithThirdPartyEmptyMerkleRoots()
       const externalCalls = buildExternalCalls({
         subgraphs,
-        queryGraph: mockedQueryGraph,
+        queryGraph: mockedQueryGraph
       })
 
       const deployment = buildThirdPartyWearableDeployment(metadata.id, metadata)
@@ -274,12 +274,12 @@ describe('Access: wearables', () => {
       const mockedQueryGraph = fetcherWithThirdPartyMerkleRoot(merkleRoot)
       const externalCalls = buildExternalCalls({
         subgraphs,
-        queryGraph: mockedQueryGraph,
+        queryGraph: mockedQueryGraph
       })
 
       const deployment = buildThirdPartyWearableDeployment(metadata.id, {
         ...metadata,
-        merkleProof: { proof: [], index: 0, hashingKeys: [], entityHash: '' },
+        merkleProof: { proof: [], index: 0, hashingKeys: [], entityHash: '' }
       })
 
       const response = await wearables.validate({ deployment, externalCalls })
@@ -290,12 +290,12 @@ describe('Access: wearables', () => {
       const mockedQueryGraph = fetcherWithThirdPartyMerkleRoot(merkleRoot)
       const externalCalls = buildExternalCalls({
         subgraphs,
-        queryGraph: mockedQueryGraph,
+        queryGraph: mockedQueryGraph
       })
 
       const deployment = buildThirdPartyWearableDeployment(metadata.id, {
         ...metadata,
-        merkleProof: { ...metadata.merkleProof, hashingKeys: ['id', 'description'] },
+        merkleProof: { ...metadata.merkleProof, hashingKeys: ['id', 'description'] }
       })
 
       const response = await wearables.validate({ deployment, externalCalls })
@@ -306,12 +306,12 @@ describe('Access: wearables', () => {
       const mockedQueryGraph = fetcherWithThirdPartyMerkleRoot(merkleRoot)
       const externalCalls = buildExternalCalls({
         subgraphs,
-        queryGraph: mockedQueryGraph,
+        queryGraph: mockedQueryGraph
       })
 
       const deployment = buildThirdPartyWearableDeployment(metadata.id, {
         ...metadata,
-        merkleProof: { ...metadata.merkleProof, entityHash: 'someInvalidHash' },
+        merkleProof: { ...metadata.merkleProof, entityHash: 'someInvalidHash' }
       })
 
       const response = await wearables.validate({ deployment, externalCalls })

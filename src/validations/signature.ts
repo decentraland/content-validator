@@ -10,5 +10,5 @@ export const signature: Validation = {
     const { entity, auditInfo } = deployment
     const validationResult = await externalCalls.validateSignature(entity.id, auditInfo, entity.timestamp)
     return !validationResult.ok ? validationFailed('The signature is invalid. ' + validationResult.message) : OK
-  },
+  }
 }
