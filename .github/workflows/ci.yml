@@ -24,6 +24,8 @@ jobs:
           cache: 'yarn'
       - name: install
         run:  yarn install --frozen-lockfile
+      - name: check code lint
+      - run:  yarn lint:check
       - name: build
         run:  make build
       - name: test
