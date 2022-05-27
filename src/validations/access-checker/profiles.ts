@@ -1,6 +1,7 @@
 import { isAddress } from '@ethersproject/address'
 import { Pointer } from 'dcl-catalyst-commons'
 import { OK, Validation, validationFailed } from '../../types'
+import { createTheGraph } from './the-graph-client'
 
 /**
  * Validate that the pointers are valid, and that the Ethereum address has write access to them
@@ -34,7 +35,20 @@ export const profiles: Validation = {
     }
 
     // TODO Add wearables ownership validations
+    const collectionsSubgraph: string = env.getConfig(EnvironmentConfig.COLLECTIONS_L1_SUBGRAPH_URL)
+    const maticCollectionsSubgraph: string = env.getConfig(EnvironmentConfig.COLLECTIONS_L2_SUBGRAPH_URL)
+    const ensSubgraph: string = env.getConfig(EnvironmentConfig.ENS_OWNER_PROVIDER_URL)
+    const thirdPartyRegistrySubgraph: string = env.getConfig(EnvironmentConfig.THIRD_PARTY_REGISTRY_SUBGRAPH_URL)
 
+    const theGraph = createTheGraph(externalCalls, {
+      ensSubgraph,
+      collectionsSubgraph,
+      maticCollectionsSubgraph,
+      thirdPartyRegistrySubgraph
+    })
+
+    const response = await theGraph.checkForWearablesOwnership([])
+    console.log(response)
     return OK
   }
 }
