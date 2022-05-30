@@ -17,7 +17,7 @@ describe('Content', () => {
   const externalCalls = buildExternalCalls()
   it(`When a hash that was not uploaded and not present is referenced, it is reported`, async () => {
     const entity = buildEntity({
-      content: [{ file: 'name', hash: 'hash' }]
+      content: [{ file: 'name', hash: 'hash' }],
     })
 
     const deployment = buildDeployment({ entity })
@@ -31,20 +31,18 @@ describe('Content', () => {
     const entity = buildEntity({
       content: [{ file: 'body.png', hash: 'hash' }],
       metadata: {
-        avatars: [
-          {
-            avatar: {
-              snapshots: {
-                body: 'hash'
-              }
+        avatars: [{
+          avatar: {
+            snapshots: {
+              "body": "hash"
             }
           }
-        ]
+        }]
       }
     })
     const deployment = buildDeployment({ entity })
     const externalCalls = buildExternalCalls({
-      isContentStoredAlready: () => Promise.resolve(new Map([['hash', true]]))
+      isContentStoredAlready: () => Promise.resolve(new Map([['hash', true]])),
     })
 
     const result = await content.validate({ deployment, externalCalls })
@@ -53,26 +51,24 @@ describe('Content', () => {
 
   it(`When a hash that was uploaded wasn't already stored, then an error is returned`, async () => {
     const entity = buildEntity({
-      content: [{ file: 'name', hash: 'hash' }]
+      content: [{ file: 'name', hash: 'hash' }],
     })
     const files = new Map([['hash', Buffer.from([])]])
     const deployment = buildDeployment({ entity, files })
 
     const result = await content.validate({ deployment, externalCalls })
     expect(result.ok).toBeFalsy()
-    expect(result.errors).toContain(
-      "This file is not expected: 'name' or its hash is invalid: 'hash'. Please, include only valid snapshot files."
-    )
+    expect(result.errors).toContain("This file is not expected: 'name' or its hash is invalid: 'hash'. Please, include only valid snapshot files.")
   })
 
   it('When a hash is uploaded but not referenced, it is reported', async () => {
     const entity = buildEntity({
-      content: [{ file: 'name', hash: 'hash' }]
+      content: [{ file: 'name', hash: 'hash' }],
     })
 
     const files = new Map([
       ['hash-1', Buffer.from([])],
-      ['hash-2', Buffer.from([])]
+      ['hash-2', Buffer.from([])],
     ])
     const deployment = buildDeployment({ entity, files })
 
@@ -91,7 +87,7 @@ describe('Content', () => {
       const entity = buildEntity({
         metadata: VALID_PROFILE_METADATA,
         content: contentItems,
-        timestamp: ADR_45_TIMESTAMP + 1
+        timestamp: ADR_45_TIMESTAMP + 1,
       })
 
       const deployment = buildDeployment({ entity, files })
@@ -108,14 +104,11 @@ describe('Content', () => {
       const entity = buildEntity({
         metadata: VALID_PROFILE_METADATA,
         content: contentItems,
-        timestamp: ADR_45_TIMESTAMP + 1
+        timestamp: ADR_45_TIMESTAMP + 1,
       })
 
       const deployment = buildDeployment({ entity, files })
-      const result = await content.validate({
-        deployment,
-        externalCalls: buildExternalCalls()
-      })
+      const result = await content.validate({ deployment, externalCalls: buildExternalCalls() })
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `This file is not expected: '${expectedFile}' or its hash is invalid: '${invalidHash}'. Please, include only valid snapshot files.`
@@ -131,7 +124,7 @@ describe('Content', () => {
       const entity = buildEntity({
         metadata: VALID_PROFILE_METADATA,
         content: contentItems,
-        timestamp: ADR_45_TIMESTAMP + 1
+        timestamp: ADR_45_TIMESTAMP + 1,
       })
 
       const deployment = buildDeployment({ entity, files })

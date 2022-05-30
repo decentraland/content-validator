@@ -5,10 +5,7 @@ import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
 import { buildExternalCalls } from '../../setup/mock'
 import { VALID_PROFILE_METADATA } from '../../setup/profiles'
-import {
-  entityAndMerkleRoot,
-  VALID_WEARABLE_METADATA
-} from '../../setup/wearable'
+import { entityAndMerkleRoot, VALID_WEARABLE_METADATA } from '../../setup/wearable'
 
 describe('Metadata Schema', () => {
   const POST_ADR_45_TIMESTAMP = ADR_45_TIMESTAMP + 1
@@ -23,25 +20,17 @@ describe('Metadata Schema', () => {
     it('when entity metadata is valid should not report errors', async () => {
       const entity = buildEntity({ type, metadata: validMetadata, timestamp })
       const deployment = buildDeployment({ entity })
-      const result = await metadata.validate({
-        deployment,
-        externalCalls: buildExternalCalls()
-      })
+      const result = await metadata.validate({ deployment, externalCalls: buildExternalCalls() })
 
       expect(result.ok).toBeTruthy()
     })
     it('when entity metadata is invalid should report an error', async () => {
       const entity = buildEntity({ type, metadata: invalidMetadata, timestamp })
       const deployment = buildDeployment({ entity })
-      const result = await metadata.validate({
-        deployment,
-        externalCalls: buildExternalCalls()
-      })
+      const result = await metadata.validate({ deployment, externalCalls: buildExternalCalls() })
 
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(
-        `The metadata for this entity type (${type}) is not valid.`
-      )
+      expect(result.errors).toContain(`The metadata for this entity type (${type}) is not valid.`)
       errors.forEach(($) => expect(result.errors).toContain($))
     })
   }
@@ -56,13 +45,11 @@ describe('Metadata Schema', () => {
       main: 'bin/main.js',
       scene: {
         base: '0,0',
-        parcels: ['0,0']
-      }
+        parcels: ['0,0'],
+      },
     }
     const invalidMetadata = {}
-    testType(EntityType.SCENE, validMetadata, invalidMetadata, undefined, [
-      "should have required property 'main'"
-    ])
+    testType(EntityType.SCENE, validMetadata, invalidMetadata, undefined, ["should have required property 'main'"])
   })
 
   describe('WEARABLE: ', () => {
@@ -78,16 +65,9 @@ describe('Metadata Schema', () => {
   })
 
   it('When entity timestamp is previous to ADR_45, then validation does not run', async () => {
-    const entity = buildEntity({
-      type: EntityType.PROFILE,
-      metadata: {},
-      timestamp: PRE_ADR_45_TIMESTAMP
-    })
+    const entity = buildEntity({ type: EntityType.PROFILE, metadata: {}, timestamp: PRE_ADR_45_TIMESTAMP })
     const deployment = buildDeployment({ entity })
-    const result = await metadata.validate({
-      deployment,
-      externalCalls: buildExternalCalls()
-    })
+    const result = await metadata.validate({ deployment, externalCalls: buildExternalCalls() })
 
     expect(result.ok).toBeTruthy()
   })

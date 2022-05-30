@@ -9,9 +9,7 @@ describe('Access: profiles', () => {
 
     const response = await profiles.validate({ deployment, externalCalls })
     expect(response.ok).toBeFalsy()
-    expect(response.errors).toContain(
-      'Only Decentraland can add or modify default profiles'
-    )
+    expect(response.errors).toContain('Only Decentraland can add or modify default profiles')
   })
 
   it('When a decentraland address tries to deploy an default profile, then it is allowed', async () => {
@@ -19,7 +17,7 @@ describe('Access: profiles', () => {
     const deployment = buildProfileDeployment(['Default10'])
     const externalCalls = buildExternalCalls({
       isAddressOwnedByDecentraland: () => true,
-      ownerAddress: () => someValidAddress
+      ownerAddress: () => someValidAddress,
     })
 
     const response = await profiles.validate({ deployment, externalCalls })
@@ -30,7 +28,7 @@ describe('Access: profiles', () => {
     const someAddress = '0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c'
     const deployment = buildProfileDeployment([someAddress])
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => someAddress
+      ownerAddress: () => someAddress,
     })
 
     const response = await profiles.validate({ deployment, externalCalls })
@@ -41,14 +39,12 @@ describe('Access: profiles', () => {
     const addresses = ['some-address-1', 'some-address=2']
     const deployment = buildProfileDeployment(addresses)
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => 'some-address'
+      ownerAddress: () => 'some-address',
     })
 
     const response = await profiles.validate({ deployment, externalCalls })
     expect(response.ok).toBeFalsy()
-    expect(response.errors).toContain(
-      `Only one pointer is allowed when you create a Profile. Received: ${addresses}`
-    )
+    expect(response.errors).toContain(`Only one pointer is allowed when you create a Profile. Received: ${addresses}`)
   })
 
   it('When a profile is created and the pointers does not match the signer, the access check fails', async () => {
@@ -57,7 +53,7 @@ describe('Access: profiles', () => {
 
     const deployment = buildProfileDeployment([pointer])
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => address
+      ownerAddress: () => address,
     })
 
     const response = await profiles.validate({ deployment, externalCalls })
@@ -73,13 +69,11 @@ describe('Access: profiles', () => {
 
     const deployment = buildProfileDeployment([pointer])
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => address
+      ownerAddress: () => address,
     })
 
     const response = await profiles.validate({ deployment, externalCalls })
     expect(response.ok).toBeFalsy()
-    expect(response.errors).toContain(
-      'The given pointer is not a valid ethereum address.'
-    )
+    expect(response.errors).toContain('The given pointer is not a valid ethereum address.')
   })
 })

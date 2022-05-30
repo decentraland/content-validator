@@ -1,8 +1,5 @@
 import { signature } from '../../../src/validations/signature'
-import {
-  buildDeployment,
-  buildProfileDeployment
-} from '../../setup/deployments'
+import { buildDeployment, buildProfileDeployment } from '../../setup/deployments'
 import { buildExternalCalls } from '../../setup/mock'
 
 describe('Signature', () => {
@@ -10,8 +7,7 @@ describe('Signature', () => {
     const testMessage = 'test'
     const deployment = buildDeployment()
     const externalCalls = buildExternalCalls({
-      validateSignature: () =>
-        Promise.resolve({ ok: false, message: testMessage })
+      validateSignature: () => Promise.resolve({ ok: false, message: testMessage }),
     })
 
     const result = await signature.validate({ deployment, externalCalls })
@@ -23,7 +19,7 @@ describe('Signature', () => {
   it(`When can validate signature, then no errors are reported`, async () => {
     const deployment = buildDeployment()
     const externalCalls = buildExternalCalls({
-      validateSignature: () => Promise.resolve({ ok: true })
+      validateSignature: () => Promise.resolve({ ok: true }),
     })
 
     const result = await signature.validate({ deployment, externalCalls })

@@ -6,12 +6,8 @@ import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
 import { buildExternalCalls } from '../../setup/mock'
 
-const buildFiles = (
-  ...files: [hash: string, sizeInMB: number][]
-): Map<string, Uint8Array> =>
-  new Map(
-    files?.map((file) => [file[0], Buffer.alloc(file[1] * 1024 * 1024)]) ?? []
-  )
+const buildFiles = (...files: [hash: string, sizeInMB: number][]): Map<string, Uint8Array> =>
+  new Map(files?.map((file) => [file[0], Buffer.alloc(file[1] * 1024 * 1024)]) ?? [])
 
 describe('Size', () => {
   it('When an entity is too big per pointer, then it fails', async () => {
@@ -20,28 +16,21 @@ describe('Size', () => {
 
     const entity = buildEntity({
       pointers: ['P1'],
-      content: [
-        {
-          file: 'body.png',
-          hash: hash
-        }
-      ],
+      content: [{
+        "file": "body.png",
+        "hash": hash
+      }],
       metadata: {
-        avatars: [
-          {
-            avatar: {
-              snapshots: {
-                body: hash
-              }
+        avatars: [{
+          avatar: {
+            snapshots: {
+              "body": hash
             }
           }
-        ]
+        }]
       }
     })
-    const deployment = buildDeployment({
-      files: new Map([[hash, files.get('body.png')!]]),
-      entity
-    })
+    const deployment = buildDeployment({ files: new Map([[hash, files.get('body.png')!]]), entity })
     const externalCalls = buildExternalCalls()
 
     const result = await size.validate({ deployment, externalCalls })
@@ -56,28 +45,21 @@ describe('Size', () => {
 
     const entity = buildEntity({
       pointers: ['P1', 'P2'],
-      content: [
-        {
-          file: 'body.png',
-          hash: hash
-        }
-      ],
+      content: [{
+        "file": "body.png",
+        "hash": hash
+      }],
       metadata: {
-        avatars: [
-          {
-            avatar: {
-              snapshots: {
-                body: hash
-              }
+        avatars: [{
+          avatar: {
+            snapshots: {
+              "body": hash
             }
           }
-        ]
+        }]
       }
     })
-    const deployment = buildDeployment({
-      files: new Map([[hash, files.get('body.png')!]]),
-      entity
-    })
+    const deployment = buildDeployment({ files: new Map([[hash, files.get('body.png')!]]), entity })
     const externalCalls = buildExternalCalls()
 
     const result = await size.validate({ deployment, externalCalls })
@@ -105,25 +87,19 @@ describe('Size', () => {
       const content = [
         { file: 'A', hash: 'A' },
         { file: 'B', hash: 'B' },
-        { file: 'C', hash: 'C' }
+        { file: 'C', hash: 'C' },
       ]
 
       const contentSizes = new Map([
         ['A', 1024 * 1024 * 5],
-        ['B', 1024 * 1024 * 5]
+        ['B', 1024 * 1024 * 5],
       ])
-      const entity = buildEntity({
-        content,
-        timestamp,
-        pointers: ['P1'],
-        type: EntityType.SCENE
-      })
+      const entity = buildEntity({ content, timestamp, pointers: ['P1'], type: EntityType.SCENE })
       const files = buildFiles(['C', 6])
 
       const deployment = buildDeployment({ entity, files })
       const externalCalls = buildExternalCalls({
-        fetchContentFileSize: (hash) =>
-          Promise.resolve(contentSizes.get(hash) ?? 0)
+        fetchContentFileSize: (hash) => Promise.resolve(contentSizes.get(hash) ?? 0),
       })
 
       const response = await size.validate({ deployment, externalCalls })
@@ -136,46 +112,34 @@ describe('Size', () => {
     it('When cannot fetch content file in order to check size, then it fails', async () => {
       const content = [
         { file: 'A', hash: 'A' },
-        { file: 'C', hash: 'C' }
+        { file: 'C', hash: 'C' },
       ]
 
-      const entity = buildEntity({
-        content,
-        timestamp,
-        pointers: ['P1'],
-        type: EntityType.SCENE
-      })
+      const entity = buildEntity({ content, timestamp, pointers: ['P1'], type: EntityType.SCENE })
       const files = buildFiles(['C', 3])
 
       const deployment = buildDeployment({ entity, files })
       const externalCalls = buildExternalCalls({
-        fetchContentFileSize: () => Promise.resolve(undefined)
+        fetchContentFileSize: () => Promise.resolve(undefined),
       })
 
       const response = await size.validate({ deployment, externalCalls })
       expect(response.ok).toBeFalsy()
-      expect(response.errors).toContain(
-        `Couldn't fetch content file with hash: A`
-      )
+      expect(response.errors).toContain(`Couldn't fetch content file with hash: A`)
     })
 
     it('When file has 0 size, it succeeds', async () => {
       const content = [
         { file: 'A', hash: 'A' },
-        { file: 'C', hash: 'C' }
+        { file: 'C', hash: 'C' },
       ]
 
-      const entity = buildEntity({
-        content,
-        timestamp,
-        pointers: ['P1'],
-        type: EntityType.SCENE
-      })
+      const entity = buildEntity({ content, timestamp, pointers: ['P1'], type: EntityType.SCENE })
       const files = buildFiles(['C', 3])
 
       const deployment = buildDeployment({ entity, files })
       const externalCalls = buildExternalCalls({
-        fetchContentFileSize: () => Promise.resolve(0)
+        fetchContentFileSize: () => Promise.resolve(0),
       })
 
       const response = await size.validate({ deployment, externalCalls })
@@ -186,22 +150,16 @@ describe('Size', () => {
       const content = [
         { file: 'A', hash: 'A' },
         { file: 'B', hash: 'A' },
-        { file: 'C', hash: 'C' }
+        { file: 'C', hash: 'C' },
       ]
 
       const contentSizes = new Map([['A', 1024 * 1024 * 5]])
-      const entity = buildEntity({
-        content,
-        timestamp,
-        pointers: ['P1'],
-        type: EntityType.SCENE
-      })
+      const entity = buildEntity({ content, timestamp, pointers: ['P1'], type: EntityType.SCENE })
       const files = buildFiles(['C', 3])
 
       const deployment = buildDeployment({ entity, files })
       const externalCalls = buildExternalCalls({
-        fetchContentFileSize: (hash) =>
-          Promise.resolve(contentSizes.get(hash) ?? 0)
+        fetchContentFileSize: (hash) => Promise.resolve(contentSizes.get(hash) ?? 0),
       })
 
       const response = await size.validate({ deployment, externalCalls })

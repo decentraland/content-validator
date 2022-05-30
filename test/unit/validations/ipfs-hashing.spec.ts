@@ -9,10 +9,7 @@ describe('IPFS hashing', () => {
   const externalCalls = buildExternalCalls()
   const timestamp = ADR_45_TIMESTAMP + 1
   it(`When an entity's id is not an ipfs hash, then it fails`, async () => {
-    const entity = buildEntity({
-      id: 'QmTBPcZLFQf1rZpZg2T8nMDwWRoqeftRdvkaexgAECaqHp',
-      timestamp
-    })
+    const entity = buildEntity({ id: 'QmTBPcZLFQf1rZpZg2T8nMDwWRoqeftRdvkaexgAECaqHp', timestamp })
     const deployment = buildDeployment({ entity })
 
     const result = await ipfsHashing.validate({ deployment, externalCalls })
@@ -24,12 +21,7 @@ describe('IPFS hashing', () => {
   })
 
   it(`When an entity's id is not an ipfs hash, then it fails`, async () => {
-    const content = [
-      {
-        file: 'someFile',
-        hash: 'QmTBPcZLFQf1rZpZg2T8nMDwWRoqeftRdvkaexgAECaqHp'
-      }
-    ]
+    const content = [{ file: 'someFile', hash: 'QmTBPcZLFQf1rZpZg2T8nMDwWRoqeftRdvkaexgAECaqHp' }]
     const entity = buildEntity({ timestamp, content })
     const deployment = buildDeployment({ entity })
 
@@ -43,10 +35,7 @@ describe('IPFS hashing', () => {
 
   it(`when all entity's hashes are ipfs, then no errors are reported`, async () => {
     const someHash = await Hashing.calculateIPFSHash(Buffer.from('some file'))
-    const entity = buildEntity({
-      content: [{ file: 'someFile.png', hash: someHash }],
-      timestamp
-    })
+    const entity = buildEntity({ content: [{ file: 'someFile.png', hash: someHash }], timestamp })
 
     const deployment = buildDeployment({ entity })
 
@@ -55,12 +44,7 @@ describe('IPFS hashing', () => {
   })
 
   it(`When an entity timestamp is previous to ADR_45, then no validation is run`, async () => {
-    const content = [
-      {
-        file: 'someFile',
-        hash: 'QmTBPcZLFQf1rZpZg2T8nMDwWRoqeftRdvkaexgAECaqHp'
-      }
-    ]
+    const content = [{ file: 'someFile', hash: 'QmTBPcZLFQf1rZpZg2T8nMDwWRoqeftRdvkaexgAECaqHp' }]
     const entity = buildEntity({ content, timestamp: ADR_45_TIMESTAMP - 1 })
     const deployment = buildDeployment({ entity })
 
