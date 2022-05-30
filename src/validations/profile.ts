@@ -2,7 +2,7 @@ import { EntityType } from 'dcl-catalyst-commons'
 import sharp from 'sharp'
 import { ADR_45_TIMESTAMP, validateInRow } from '.'
 import { OK, Validation, validationFailed } from '../types'
-import {parseUrn} from "@dcl/urn-resolver";
+import { parseUrn } from '@dcl/urn-resolver'
 
 /** Validate that given profile deployment includes a face256 thumbnail with valid size */
 const defaultThumbnailSize = 256
@@ -67,12 +67,12 @@ export const wearableUrns: Validation = {
         const parsed = await parseUrn(pointer)
         if (!parsed)
           return validationFailed(
-              `Wearable pointers should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (${pointer})`
+            `Wearable pointers should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (${pointer})`
           )
       }
     }
     return OK
-  },
+  }
 }
 
 /**
@@ -84,5 +84,5 @@ export const profile: Validation = {
     if (args.deployment.entity.type !== EntityType.PROFILE) return OK
 
     return validateInRow(args, faceThumbnail, wearableUrns)
-  },
+  }
 }

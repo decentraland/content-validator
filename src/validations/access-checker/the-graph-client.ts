@@ -21,7 +21,10 @@ type URLs = {
   thirdPartyRegistrySubgraph: string
 }
 
-export function createTheGraph(externalCalls: ExternalCalls, urls: URLs): TheGraphComponent {
+export function createTheGraph(
+  externalCalls: ExternalCalls,
+  urls: URLs
+): TheGraphComponent {
   /**
    * This function returns all the owners from the given wearables URNs. It looks for them first in Ethereum and then in Matic
    * @param wearableIdsToCheck pairs of ethAddress and a list of urns to check ownership
@@ -30,8 +33,14 @@ export function createTheGraph(externalCalls: ExternalCalls, urls: URLs): TheGra
   const checkForWearablesOwnership = async (
     wearableIdsToCheck: [EthAddress, string[]][]
   ): Promise<{ owner: EthAddress; urns: string[] }[]> => {
-    const ethereumWearablesOwnersPromise = getOwnedWearables(wearableIdsToCheck, 'collectionsSubgraph')
-    const maticWearablesOwnersPromise = getOwnedWearables(wearableIdsToCheck, 'maticCollectionsSubgraph')
+    const ethereumWearablesOwnersPromise = getOwnedWearables(
+      wearableIdsToCheck,
+      'collectionsSubgraph'
+    )
+    const maticWearablesOwnersPromise = getOwnedWearables(
+      wearableIdsToCheck,
+      'maticCollectionsSubgraph'
+    )
 
     const [ethereumWearablesOwners, maticWearablesOwners] = await Promise.all([
       ethereumWearablesOwnersPromise,
@@ -55,7 +64,10 @@ export function createTheGraph(externalCalls: ExternalCalls, urls: URLs): TheGra
       allWearables.set(b.owner, existingUrns.concat(b.urns))
     })
 
-    return Array.from(allWearables.entries()).map(([owner, urns]) => ({ owner, urns }))
+    return Array.from(allWearables.entries()).map(([owner, urns]) => ({
+      owner,
+      urns
+    }))
   }
 
   const getOwnedWearables = async (
@@ -74,13 +86,21 @@ export function createTheGraph(externalCalls: ExternalCalls, urls: URLs): TheGra
     wearableIdsToCheck: [string, string[]][],
     subgraph: keyof URLs
   ): Promise<{ owner: EthAddress; urns: string[] }[]> => {
-    const subgraphQuery = `{` + wearableIdsToCheck.map((query) => getWearablesFragment(query)).join('\n') + `}`
+    const subgraphQuery =
+      `{` +
+      wearableIdsToCheck
+        .map((query) => getWearablesFragment(query))
+        .join('\n') +
+      `}`
     const mapper = (response: { [owner: string]: { urn: string }[] }) =>
       Object.entries(response).map(([addressWithPrefix, wearables]) => ({
         owner: addressWithPrefix.substring(1),
         urns: wearables.map(({ urn }) => urn)
       }))
-    const query: Query<{ [owner: string]: { urn: string }[] }, { owner: EthAddress; urns: string[] }[]> = {
+    const query: Query<
+      { [owner: string]: { urn: string }[] },
+      { owner: EthAddress; urns: string[] }[]
+    > = {
       description: 'check for wearables ownership',
       subgraph: subgraph,
       query: subgraphQuery,
@@ -89,7 +109,10 @@ export function createTheGraph(externalCalls: ExternalCalls, urls: URLs): TheGra
     return runQuery(query, {})
   }
 
-  const getWearablesFragment = ([ethAddress, wearableIds]: [EthAddress, string[]]) => {
+  const getWearablesFragment = ([ethAddress, wearableIds]: [
+    EthAddress,
+    string[]
+  ]) => {
     const urnList = wearableIds.map((wearableId) => `"${wearableId}"`).join(',')
     // We need to add a 'P' prefix, because the graph needs the fragment name to start with a letter
     return `
@@ -104,11 +127,17 @@ export function createTheGraph(externalCalls: ExternalCalls, urls: URLs): TheGra
     variables: Record<string, any>
   ): Promise<ReturnType> => {
     try {
-      const response = await externalCalls.queryGraph<QueryResult>(urls[query.subgraph], query.query, variables)
+      const response = await externalCalls.queryGraph<QueryResult>(
+        urls[query.subgraph],
+        query.query,
+        variables
+      )
       return query.mapper(response)
     } catch (error) {
       console.error(
-        `Failed to execute the following query to the subgraph ${urls[query.subgraph]} ${query.description}'.`,
+        `Failed to execute the following query to the subgraph ${
+          urls[query.subgraph]
+        } ${query.description}'.`,
         error
       )
       throw new Error('Internal server error')

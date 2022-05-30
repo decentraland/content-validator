@@ -170,7 +170,11 @@ describe('Profiles', () => {
 
   describe('Wearables urns', () => {
     it('When wearable urn is correct, should return no errors', async () => {
-      const entity = buildEntity({ type: EntityType.PROFILE, metadata: VALID_PROFILE_METADATA, timestamp })
+      const entity = buildEntity({
+        type: EntityType.PROFILE,
+        metadata: VALID_PROFILE_METADATA,
+        timestamp
+      })
       const deployment = buildDeployment({ entity })
 
       const result = await wearableUrns.validate({ deployment, externalCalls })
@@ -182,22 +186,26 @@ describe('Profiles', () => {
       const entity = buildEntity({
         type: EntityType.PROFILE,
         metadata: {
-          avatars: [{
-            avatar: {
-              wearables: [
-                'urn:decentraland:tucu-tucu:base-avatars:tall_front_01',
-              ],
-            },
-          }]
+          avatars: [
+            {
+              avatar: {
+                wearables: [
+                  'urn:decentraland:tucu-tucu:base-avatars:tall_front_01'
+                ]
+              }
+            }
+          ]
         },
-        timestamp,
+        timestamp
       })
       const deployment = buildDeployment({ entity })
 
       const result = await wearableUrns.validate({ deployment, externalCalls })
 
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain("Wearable pointers should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (urn:decentraland:tucu-tucu:base-avatars:tall_front_01)")
+      expect(result.errors).toContain(
+        'Wearable pointers should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (urn:decentraland:tucu-tucu:base-avatars:tall_front_01)'
+      )
     })
   })
 })

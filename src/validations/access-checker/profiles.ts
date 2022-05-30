@@ -35,9 +35,11 @@ export const profiles: Validation = {
     }
 
     const collectionsSubgraph: string = externalCalls.subgraphs.L1.collections
-    const maticCollectionsSubgraph: string = externalCalls.subgraphs.L2.collections
+    const maticCollectionsSubgraph: string =
+      externalCalls.subgraphs.L2.collections
     const ensSubgraph: string = externalCalls.subgraphs.L2.ensOwner
-    const thirdPartyRegistrySubgraph: string = externalCalls.subgraphs.L2.thirdPartyRegistry
+    const thirdPartyRegistrySubgraph: string =
+      externalCalls.subgraphs.L2.thirdPartyRegistry
 
     const theGraph = createTheGraph(externalCalls, {
       ensSubgraph,
