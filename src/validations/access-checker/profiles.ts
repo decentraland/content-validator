@@ -34,10 +34,9 @@ export const profiles: Validation = {
       )
     }
 
-    // TODO Add wearables ownership validations
     const collectionsSubgraph: string = externalCalls.subgraphs.L1.collections
     const maticCollectionsSubgraph: string = externalCalls.subgraphs.L2.collections
-    const ensSubgraph: string = externalCalls.ensOwner
+    const ensSubgraph: string = externalCalls.subgraphs.L2.ensOwner
     const thirdPartyRegistrySubgraph: string = externalCalls.subgraphs.L2.thirdPartyRegistry
 
     const theGraph = createTheGraph(externalCalls, {
