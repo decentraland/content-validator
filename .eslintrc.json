@@ -4,7 +4,8 @@
     "sourceType": "module", // Allows for the use of imports
     "project": [
       // Specify it only for TypeScript files
-      "./tsconfig.json"
+      "./tsconfig.json",
+      "./test/tsconfig.json"
     ]
   },
   "extends": "@dcl/eslint-config"
