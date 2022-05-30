@@ -26,7 +26,8 @@ const defaultSubgraphs: Subgraphs = {
   L2: {
     blocks: '',
     collections: '',
-    thirdPartyRegistry: ''
+    thirdPartyRegistry: '',
+    ensOwner: ''
   }
 }
 export const buildSubgraphs = (subgraphs?: Partial<Subgraphs>): Subgraphs => ({
