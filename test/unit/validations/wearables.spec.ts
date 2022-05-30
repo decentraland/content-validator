@@ -2,7 +2,11 @@ import { EntityType } from 'dcl-catalyst-commons'
 import sharp from 'sharp'
 import { ADR_45_TIMESTAMP, ValidationResponse } from '../../../src'
 import { size } from '../../../src/validations/size'
-import { wearableRepresentationContent, wearableSize, wearableThumbnail } from '../../../src/validations/wearable'
+import {
+  wearableRepresentationContent,
+  wearableSize,
+  wearableThumbnail
+} from '../../../src/validations/wearable'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
 import { buildExternalCalls } from '../../setup/mock'
@@ -16,14 +20,17 @@ describe('Wearables', () => {
     const fileName = 'thumbnail.png'
     const hash = 'thumbnail'
 
-    const createImage = async (size: number, format: 'png' | 'jpg' = 'png'): Promise<Buffer> => {
+    const createImage = async (
+      size: number,
+      format: 'png' | 'jpg' = 'png'
+    ): Promise<Buffer> => {
       let image = sharp({
         create: {
           width: size,
           height: size,
           channels: 4,
-          background: { r: 255, g: 0, b: 0, alpha: 0.5 },
-        },
+          background: { r: 255, g: 0, b: 0, alpha: 0.5 }
+        }
       })
       if (format) {
         image = format === 'png' ? image.png() : image.jpeg()
@@ -38,80 +45,145 @@ describe('Wearables', () => {
     const externalCalls = buildExternalCalls()
     it('When there is no hash for given thumbnail file name, it should return an error', async () => {
       const files = new Map([[hash, validThumbnailBuffer]])
-      const entity = buildEntity({ type: EntityType.WEARABLE, metadata: VALID_WEARABLE_METADATA, timestamp })
+      const entity = buildEntity({
+        type: EntityType.WEARABLE,
+        metadata: VALID_WEARABLE_METADATA,
+        timestamp
+      })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await wearableThumbnail.validate({ deployment, externalCalls })
+      const result = await wearableThumbnail.validate({
+        deployment,
+        externalCalls
+      })
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(`Couldn't find hash for thumbnail file with name: ${fileName}`)
+      expect(result.errors).toContain(
+        `Couldn't find hash for thumbnail file with name: ${fileName}`
+      )
     })
 
     it('When there is no file for given thumbnail file hash, it should return an error', async () => {
       const content = [{ file: fileName, hash }]
       const files = new Map([['notSame' + hash, validThumbnailBuffer]])
-      const entity = buildEntity({ type: EntityType.WEARABLE, metadata: VALID_WEARABLE_METADATA, content, timestamp })
+      const entity = buildEntity({
+        type: EntityType.WEARABLE,
+        metadata: VALID_WEARABLE_METADATA,
+        content,
+        timestamp
+      })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await wearableThumbnail.validate({ deployment, externalCalls })
+      const result = await wearableThumbnail.validate({
+        deployment,
+        externalCalls
+      })
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(`Couldn't find thumbnail file with hash: ${hash}`)
+      expect(result.errors).toContain(
+        `Couldn't find thumbnail file with hash: ${hash}`
+      )
     })
 
     it('When thumbnail image format is not valid, it should return an error', async () => {
       const content = [{ file: fileName, hash }]
       const files = new Map([[hash, Buffer.alloc(1)]])
-      const entity = buildEntity({ type: EntityType.WEARABLE, metadata: VALID_WEARABLE_METADATA, content, timestamp })
+      const entity = buildEntity({
+        type: EntityType.WEARABLE,
+        metadata: VALID_WEARABLE_METADATA,
+        content,
+        timestamp
+      })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await wearableThumbnail.validate({ deployment, externalCalls })
+      const result = await wearableThumbnail.validate({
+        deployment,
+        externalCalls
+      })
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(`Couldn't parse thumbnail, please check image format.`)
+      expect(result.errors).toContain(
+        `Couldn't parse thumbnail, please check image format.`
+      )
     })
 
     it('When thumbnail image size is invalid, it should return an error', async () => {
       const content = [{ file: fileName, hash }]
       const files = new Map([[hash, invalidThumbnailBuffer]])
-      const entity = buildEntity({ type: EntityType.WEARABLE, metadata: VALID_WEARABLE_METADATA, content, timestamp })
+      const entity = buildEntity({
+        type: EntityType.WEARABLE,
+        metadata: VALID_WEARABLE_METADATA,
+        content,
+        timestamp
+      })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await wearableThumbnail.validate({ deployment, externalCalls })
+      const result = await wearableThumbnail.validate({
+        deployment,
+        externalCalls
+      })
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(`Invalid thumbnail image size (width = 1025 / height = 1025)`)
+      expect(result.errors).toContain(
+        `Invalid thumbnail image size (width = 1025 / height = 1025)`
+      )
     })
 
     it('When thumbnail image format is not png, it should return an error', async () => {
       const jpgImage = await createImage(1024, 'jpg')
       const content = [{ file: fileName, hash }]
       const files = new Map([[hash, jpgImage]])
-      const entity = buildEntity({ type: EntityType.WEARABLE, metadata: VALID_WEARABLE_METADATA, content, timestamp })
+      const entity = buildEntity({
+        type: EntityType.WEARABLE,
+        metadata: VALID_WEARABLE_METADATA,
+        content,
+        timestamp
+      })
       const deployment = buildDeployment({ entity, files })
 
-      const result: ValidationResponse = await wearableThumbnail.validate({ deployment, externalCalls })
+      const result: ValidationResponse = await wearableThumbnail.validate({
+        deployment,
+        externalCalls
+      })
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(`Invalid or unknown image format. Only 'PNG' format is accepted.`)
+      expect(result.errors).toContain(
+        `Invalid or unknown image format. Only 'PNG' format is accepted.`
+      )
     })
 
     it('When thumbnail image size is valid, should not return any error', async () => {
       const content = [{ file: fileName, hash }]
       const files = new Map([[hash, validThumbnailBuffer]])
-      const entity = buildEntity({ type: EntityType.WEARABLE, metadata: VALID_WEARABLE_METADATA, content, timestamp })
+      const entity = buildEntity({
+        type: EntityType.WEARABLE,
+        metadata: VALID_WEARABLE_METADATA,
+        content,
+        timestamp
+      })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await wearableThumbnail.validate({ deployment, externalCalls })
+      const result = await wearableThumbnail.validate({
+        deployment,
+        externalCalls
+      })
 
       expect(result.ok).toBeTruthy()
     })
 
     it(`When thumbnail file was already uploaded, it won't be validated again`, async () => {
       const content = [{ file: fileName, hash }]
-      const entity = buildEntity({ type: EntityType.WEARABLE, metadata: VALID_WEARABLE_METADATA, content, timestamp })
+      const entity = buildEntity({
+        type: EntityType.WEARABLE,
+        metadata: VALID_WEARABLE_METADATA,
+        content,
+        timestamp
+      })
       const deployment = buildDeployment({ entity })
 
       const externalCalls = buildExternalCalls({
-        isContentStoredAlready: async () => new Map([[hash, true]]),
+        isContentStoredAlready: async () => new Map([[hash, true]])
       })
 
-      const result = await wearableThumbnail.validate({ deployment, externalCalls })
+      const result = await wearableThumbnail.validate({
+        deployment,
+        externalCalls
+      })
 
       expect(result.ok).toBeTruthy()
     })
@@ -123,18 +195,18 @@ describe('Wearables', () => {
       const content = [
         { file: 'A', hash: 'A' },
         { file: 'C', hash: 'C' },
-        { file: 'thumbnail.png', hash: 'thumbnail' },
+        { file: 'thumbnail.png', hash: 'thumbnail' }
       ]
       const files = new Map([
         ['A', withSize(1)],
         ['C', withSize(1.5)],
-        ['thumbnail', Buffer.alloc(1)],
+        ['thumbnail', Buffer.alloc(1)]
       ])
       const entity = buildEntity({
         type: EntityType.WEARABLE,
         metadata: { thumbnail: 'thumbnail.png' },
         content,
-        timestamp,
+        timestamp
       })
       const deployment = buildDeployment({ entity, files })
       const externalCalls = buildExternalCalls()
@@ -150,18 +222,18 @@ describe('Wearables', () => {
       const content = [
         { file: 'A', hash: 'A' },
         { file: 'C', hash: 'C' },
-        { file: 'thumbnail.png', hash: 'thumbnail' },
+        { file: 'thumbnail.png', hash: 'thumbnail' }
       ]
       const files = new Map([
         ['A', withSize(1)],
         ['C', withSize(1)],
-        ['thumbnail', withSize(2)],
+        ['thumbnail', withSize(2)]
       ])
       const entity = buildEntity({
         type: EntityType.WEARABLE,
         metadata: { thumbnail: 'thumbnail.png' },
         content,
-        timestamp,
+        timestamp
       })
       const deployment = buildDeployment({ entity, files })
       const externalCalls = buildExternalCalls()
@@ -177,18 +249,18 @@ describe('Wearables', () => {
       const content = [
         { file: 'A', hash: 'A' },
         { file: 'C', hash: 'C' },
-        { file: 'thumbnail.png', hash: 'thumbnail' },
+        { file: 'thumbnail.png', hash: 'thumbnail' }
       ]
       const files = new Map([
         ['A', withSize(1)],
         ['C', withSize(1)],
-        ['thumbnail', withSize(0.9)],
+        ['thumbnail', withSize(0.9)]
       ])
       const entity = buildEntity({
         type: EntityType.WEARABLE,
         metadata: { thumbnail: 'thumbnail.png' },
         content,
-        timestamp,
+        timestamp
       })
       const deployment = buildDeployment({ entity, files })
       const externalCalls = buildExternalCalls()
@@ -202,21 +274,24 @@ describe('Wearables', () => {
       const withSize = (size: number) => Buffer.alloc(size * 1024 * 1024)
       const content = [
         { file: 'file1', hash: '1' },
-        { file: 'file2', hash: '2' },
+        { file: 'file2', hash: '2' }
       ]
       const files = new Map([
         ['file1', withSize(1)],
-        ['file2', withSize(0.9)],
+        ['file2', withSize(0.9)]
       ])
       const entity = buildEntity({
         type: EntityType.WEARABLE,
         // this metadata includes representations pointing to file1 and file2
         metadata: VALID_WEARABLE_METADATA,
-        content,
+        content
       })
       const deployment = buildDeployment({ entity, files })
       const externalCalls = buildExternalCalls()
-      const result = await wearableRepresentationContent.validate({ deployment, externalCalls })
+      const result = await wearableRepresentationContent.validate({
+        deployment,
+        externalCalls
+      })
 
       expect(result.ok).toBeTruthy()
     })
@@ -225,24 +300,29 @@ describe('Wearables', () => {
       const withSize = (size: number) => Buffer.alloc(size * 1024 * 1024)
       const content = [
         { file: 'notFile1', hash: '1' },
-        { file: 'file2', hash: '2' },
+        { file: 'file2', hash: '2' }
       ]
       const files = new Map([
         ['notFile1', withSize(1)],
-        ['file2', withSize(0.9)],
+        ['file2', withSize(0.9)]
       ])
       const entity = buildEntity({
         type: EntityType.WEARABLE,
         // this metadata includes representations pointing to file1 and file2
         metadata: VALID_WEARABLE_METADATA,
-        content,
+        content
       })
       const deployment = buildDeployment({ entity, files })
       const externalCalls = buildExternalCalls()
-      const result = await wearableRepresentationContent.validate({ deployment, externalCalls })
+      const result = await wearableRepresentationContent.validate({
+        deployment,
+        externalCalls
+      })
 
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(`Representation content: 'file1' is not one of the content files`)
+      expect(result.errors).toContain(
+        `Representation content: 'file1' is not one of the content files`
+      )
     })
   })
 })

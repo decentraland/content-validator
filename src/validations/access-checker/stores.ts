@@ -2,7 +2,9 @@ import { OffChainAsset, parseUrn } from '@dcl/urn-resolver'
 import { Pointer } from 'dcl-catalyst-commons'
 import { OK, Validation, validationFailed } from '../../types'
 
-const parseUrnNoFail = async (pointer: Pointer): Promise<OffChainAsset | undefined> => {
+const parseUrnNoFail = async (
+  pointer: Pointer
+): Promise<OffChainAsset | undefined> => {
   try {
     const parsed = await parseUrn(pointer)
     if (!parsed || parsed?.type !== 'off-chain') return undefined
@@ -20,7 +22,9 @@ export const stores: Validation = {
     const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
 
     if (pointers.length !== 1)
-      return validationFailed(`Only one pointer is allowed when you create a Store. Received: ${pointers}`)
+      return validationFailed(
+        `Only one pointer is allowed when you create a Store. Received: ${pointers}`
+      )
 
     const pointer: Pointer = pointers[0].toLowerCase()
     const offchainAsset = await parseUrnNoFail(pointer)
@@ -36,5 +40,5 @@ export const stores: Validation = {
       )
 
     return OK
-  },
+  }
 }

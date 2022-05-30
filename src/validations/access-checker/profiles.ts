@@ -12,15 +12,21 @@ export const profiles: Validation = {
     const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
 
     if (pointers.length !== 1)
-      return validationFailed(`Only one pointer is allowed when you create a Profile. Received: ${pointers}`)
+      return validationFailed(
+        `Only one pointer is allowed when you create a Profile. Received: ${pointers}`
+      )
 
     const pointer: Pointer = pointers[0].toLowerCase()
 
     if (pointer.startsWith('default')) {
       if (!externalCalls.isAddressOwnedByDecentraland(ethAddress))
-        return validationFailed(`Only Decentraland can add or modify default profiles`)
+        return validationFailed(
+          `Only Decentraland can add or modify default profiles`
+        )
     } else if (!isAddress(pointer)) {
-      return validationFailed(`The given pointer is not a valid ethereum address.`)
+      return validationFailed(
+        `The given pointer is not a valid ethereum address.`
+      )
     } else if (pointer !== ethAddress.toLowerCase()) {
       return validationFailed(
         `You can only alter your own profile. The pointer address and the signer address are different (pointer:${pointer} signer: ${ethAddress.toLowerCase()}).`
@@ -28,5 +34,5 @@ export const profiles: Validation = {
     }
 
     return OK
-  },
+  }
 }

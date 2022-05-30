@@ -1,4 +1,9 @@
-import { ContentValidatorComponents, ExternalCalls, OK, Validator } from './types'
+import {
+  ContentValidatorComponents,
+  ExternalCalls,
+  OK,
+  Validator
+} from './types'
 import { validations } from './validations'
 
 export * from './types'
@@ -17,13 +22,16 @@ export const createValidator = (
   return {
     validate: async (deployment) => {
       for (const validation of validations) {
-        const result = await validation.validate({ deployment, externalCalls }, logs)
+        const result = await validation.validate(
+          { deployment, externalCalls },
+          logs
+        )
         if (!result.ok) {
           logs?.debug(`Validation failed:\n${result.errors?.join('\n')}`)
           return result
         }
       }
       return OK
-    },
+    }
   }
 }

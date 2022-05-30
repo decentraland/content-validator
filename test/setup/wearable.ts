@@ -7,7 +7,7 @@ import {
   Wearable,
   WearableBodyShape,
   WearableCategory,
-  WearableRepresentation,
+  WearableRepresentation
 } from '@dcl/schemas'
 import { MERKLE_PROOF_REQUIRED_KEYS } from '../../src/validations/access-checker/wearables'
 
@@ -16,7 +16,7 @@ const representation: WearableRepresentation = {
   mainFile: 'file1',
   contents: ['file1', 'file2'],
   overrideHides: [],
-  overrideReplaces: [],
+  overrideReplaces: []
 }
 
 export const VALID_WEARABLE_METADATA: Wearable = {
@@ -28,53 +28,58 @@ export const VALID_WEARABLE_METADATA: Wearable = {
   i18n: [
     {
       code: Locale.EN,
-      text: 'name',
-    },
+      text: 'name'
+    }
   ],
   data: {
     replaces: [],
     hides: [],
     tags: ['tag1'],
     representations: [representation],
-    category: WearableCategory.UPPER_BODY,
+    category: WearableCategory.UPPER_BODY
   },
   thumbnail: 'thumbnail.png',
-  image: 'image.png',
+  image: 'image.png'
 }
 
-export const VALID_THIRD_PARTY_WEARABLE_BASE_METADATA: Pick<ThirdPartyWearable, BaseKeys> = {
+export const VALID_THIRD_PARTY_WEARABLE_BASE_METADATA: Pick<
+  ThirdPartyWearable,
+  BaseKeys
+> = {
   id: 'urn:decentraland:mumbai:collections-thirdparty:jean-pier:someCollection:someItemId',
   name: 'name',
   description: 'some description',
   i18n: [
     {
       code: Locale.EN,
-      text: 'name',
-    },
+      text: 'name'
+    }
   ],
   data: {
     replaces: [],
     hides: [],
     tags: ['tag1'],
     representations: [representation],
-    category: WearableCategory.UPPER_BODY,
+    category: WearableCategory.UPPER_BODY
   },
   thumbnail: 'thumbnail.png',
   image: 'image.png',
   content: {
     ['image.png']: 'QmPEXLrQNEYVJfe5P2CbNuVpx4UabK37jQ6Hor1n9gw8dY',
-    ['female/M_3LAU_Hat_Blue.glb']: 'QmebRdUS12afshxzNtTb2h6UhSXjMrGTGeZWcwwtmhTJng',
-    ['male/M_3LAU_Hat_Blue.glb']: 'QmebRdUS12afshxzNtTb2h6UhSXjMrGTGeZWcwwtmhTJng',
-    ['thumbnail.png']: 'QmPP232rkN2UDg8yGAyJ6hkHGsDFwXivcv9MXFfnW8r34y',
-  },
+    ['female/M_3LAU_Hat_Blue.glb']:
+      'QmebRdUS12afshxzNtTb2h6UhSXjMrGTGeZWcwwtmhTJng',
+    ['male/M_3LAU_Hat_Blue.glb']:
+      'QmebRdUS12afshxzNtTb2h6UhSXjMrGTGeZWcwwtmhTJng',
+    ['thumbnail.png']: 'QmPP232rkN2UDg8yGAyJ6hkHGsDFwXivcv9MXFfnW8r34y'
+  }
 }
 
 type BaseKeys = typeof MERKLE_PROOF_REQUIRED_KEYS[number]
 
-export const entityAndMerkleRoot = buildEntityMetadataWithMerkleProof(VALID_THIRD_PARTY_WEARABLE_BASE_METADATA, [
-  'someOtherHash1',
-  'someOtherHash2',
-])
+export const entityAndMerkleRoot = buildEntityMetadataWithMerkleProof(
+  VALID_THIRD_PARTY_WEARABLE_BASE_METADATA,
+  ['someOtherHash1', 'someOtherHash2']
+)
 
 // Using the entity, the keys to be hashed and the other node hashes, build the merkle proof for the entity and return a new proofed entity.
 function buildEntityMetadataWithMerkleProof(
@@ -91,11 +96,11 @@ function buildEntityMetadataWithMerkleProof(
       index: entityProof.index,
       proof: entityProof.proof,
       hashingKeys: [...MERKLE_PROOF_REQUIRED_KEYS],
-      entityHash,
-    },
+      entityHash
+    }
   }
   return {
     root: tree.merkleRoot,
-    entity: thirdPartyWearable,
+    entity: thirdPartyWearable
   }
 }
