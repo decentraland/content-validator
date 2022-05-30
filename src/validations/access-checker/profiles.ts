@@ -35,10 +35,10 @@ export const profiles: Validation = {
     }
 
     // TODO Add wearables ownership validations
-    const collectionsSubgraph: string = env.getConfig(EnvironmentConfig.COLLECTIONS_L1_SUBGRAPH_URL)
-    const maticCollectionsSubgraph: string = env.getConfig(EnvironmentConfig.COLLECTIONS_L2_SUBGRAPH_URL)
-    const ensSubgraph: string = env.getConfig(EnvironmentConfig.ENS_OWNER_PROVIDER_URL)
-    const thirdPartyRegistrySubgraph: string = env.getConfig(EnvironmentConfig.THIRD_PARTY_REGISTRY_SUBGRAPH_URL)
+    const collectionsSubgraph: string = externalCalls.subgraphs.L1.collections
+    const maticCollectionsSubgraph: string = externalCalls.subgraphs.L2.collections
+    const ensSubgraph: string = externalCalls.ensOwner
+    const thirdPartyRegistrySubgraph: string = externalCalls.subgraphs.L2.thirdPartyRegistry
 
     const theGraph = createTheGraph(externalCalls, {
       ensSubgraph,

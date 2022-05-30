@@ -66,6 +66,7 @@ export type ExternalCalls = {
       blocks: string
       collections: string
       thirdPartyRegistry: string
+      ensOwner: string
     }
   }
 }
