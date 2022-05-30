@@ -2,8 +2,8 @@
   "name": "@dcl/content-validator",
   "version": "1.0.0",
   "description": "Catalyst content validations",
-  "main": "dist/src/index.js",
-  "typings": "dist/src/index.d.ts",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
   "scripts": {
     "lint:check": "eslint '**/*.{js,ts}'",
     "lint:fix": "eslint '**/*.{js,ts}' --fix"
@@ -57,6 +57,6 @@
     "@dcl/schemas": ">= 4.1.0"
   },
   "files": [
-    "dist/src"
+    "dist"
   ]
 }
