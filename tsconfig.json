@@ -11,6 +11,7 @@
     ],
     "strict": true,
     "outDir": "./dist", /* Redirect output structure to the directory. */
+//    "rootDir": "src",
     "rootDirs": [
       "src",
       "test"
