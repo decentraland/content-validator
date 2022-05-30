@@ -21,8 +21,7 @@
   "prettier": {
     "printWidth": 120,
     "semi": false,
-    "singleQuote": true,
-    "trailingComma": "none"
+    "singleQuote": true
   },
   "homepage": "https://github.com/decentraland/content-validator#readme",
   "devDependencies": {
