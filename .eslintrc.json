@@ -1,4 +1,6 @@
 {
+  "extends": "@dcl/eslint-config",
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 2020, // Allows for the parsing of modern ECMAScript features
     "sourceType": "module", // Allows for the use of imports
@@ -7,6 +9,5 @@
       "./tsconfig.json",
       "./test/tsconfig.json"
     ]
-  },
-  "extends": "@dcl/eslint-config"
+  }
 }
