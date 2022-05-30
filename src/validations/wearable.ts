@@ -12,13 +12,20 @@ export const wearableRepresentationContent: Validation = {
     const { entity } = deployment
     const wearableMetadata = entity.metadata as Wearable
     const representations = wearableMetadata?.data?.representations
-    if (!representations) return validationFailed('No wearable representations found')
+    if (!representations)
+      return validationFailed('No wearable representations found')
     if (!entity.content) return validationFailed('No content found')
 
     for (const representation of representations) {
       for (const representationContent of representation.contents) {
-        if (!entity.content.find((content) => content.file === representationContent)) {
-          return validationFailed(`Representation content: '${representationContent}' is not one of the content files`)
+        if (
+          !entity.content.find(
+            (content) => content.file === representationContent
+          )
+        ) {
+          return validationFailed(
+            `Representation content: '${representationContent}' is not one of the content files`
+          )
         }
       }
     }
@@ -32,13 +39,19 @@ export const wearableSize: Validation = {
     const entity = deployment.entity
     if (entity.timestamp < ADR_45_TIMESTAMP) return OK
     const maxSizeInMB = entityParameters[EntityType.WEARABLE].maxSizeInMB
-    if (!maxSizeInMB) return validationFailed(`Type ${EntityType.WEARABLE} is not supported yet`)
+    if (!maxSizeInMB)
+      return validationFailed(
+        `Type ${EntityType.WEARABLE} is not supported yet`
+      )
 
     const modelSizeInMB = wearableSizeLimitInMB
 
     const metadata = entity.metadata as Wearable
-    const thumbnailHash = entity.content?.find(({ file }) => file === metadata.thumbnail)?.hash
-    if (!thumbnailHash) return validationFailed("Couldn't find the thumbnail hash")
+    const thumbnailHash = entity.content?.find(
+      ({ file }) => file === metadata.thumbnail
+    )?.hash
+    if (!thumbnailHash)
+      return validationFailed("Couldn't find the thumbnail hash")
 
     const result = await calculateDeploymentSize(deployment, externalCalls)
     if (typeof result === 'string') return validationFailed(result)
@@ -63,28 +76,45 @@ export const wearableThumbnail: Validation = {
     // read thumbnail field from metadata
     const metadata = deployment.entity.metadata as Wearable
 
-    const hash = deployment.entity.content?.find(({ file }) => file === metadata.thumbnail)?.hash
-    if (!hash) return validationFailed(`Couldn't find hash for thumbnail file with name: ${metadata.thumbnail}`)
+    const hash = deployment.entity.content?.find(
+      ({ file }) => file === metadata.thumbnail
+    )?.hash
+    if (!hash)
+      return validationFailed(
+        `Couldn't find hash for thumbnail file with name: ${metadata.thumbnail}`
+      )
 
     const errors: string[] = []
     // check size
     const thumbnailBuffer = deployment.files.get(hash)
     if (!thumbnailBuffer) {
-      const isHashStored = (await externalCalls.isContentStoredAlready([hash])).get(hash) ?? false
+      const isHashStored =
+        (await externalCalls.isContentStoredAlready([hash])).get(hash) ?? false
       if (!isHashStored) {
-        return validationFailed(`Couldn't find thumbnail file with hash: ${hash}`)
+        return validationFailed(
+          `Couldn't find thumbnail file with hash: ${hash}`
+        )
       }
       // otherwise, thumbnail was already uploaded and won't be validated again
-      log?.debug(`Thumbnail file with hash: ${hash} is not in the deployment, but it is already stored`)
+      log?.debug(
+        `Thumbnail file with hash: ${hash} is not in the deployment, but it is already stored`
+      )
       return OK
     }
     try {
       const { width, height, format } = await sharp(thumbnailBuffer).metadata()
-      if (!format || format !== 'png') errors.push(`Invalid or unknown image format. Only 'PNG' format is accepted.`)
+      if (!format || format !== 'png')
+        errors.push(
+          `Invalid or unknown image format. Only 'PNG' format is accepted.`
+        )
       if (!width || !height) {
-        errors.push(`Couldn't validate thumbnail size for file ${metadata.thumbnail}`)
+        errors.push(
+          `Couldn't validate thumbnail size for file ${metadata.thumbnail}`
+        )
       } else if (width > maxThumbnailSize || height > maxThumbnailSize) {
-        errors.push(`Invalid thumbnail image size (width = ${width} / height = ${height})`)
+        errors.push(
+          `Invalid thumbnail image size (width = ${width} / height = ${height})`
+        )
       }
     } catch (e) {
       errors.push(`Couldn't parse thumbnail, please check image format.`)
@@ -100,6 +130,11 @@ export const wearableThumbnail: Validation = {
 export const wearable: Validation = {
   validate: async (args) => {
     if (args.deployment.entity.type !== EntityType.WEARABLE) return OK
-    return validateInRow(args, wearableRepresentationContent, wearableThumbnail, wearableSize)
+    return validateInRow(
+      args,
+      wearableRepresentationContent,
+      wearableThumbnail,
+      wearableSize
+    )
   }
 }

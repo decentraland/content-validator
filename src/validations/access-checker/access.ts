@@ -20,7 +20,8 @@ const accessCheckers: Record<EntityType, Validation> = {
 export const access: Validation = {
   validate: async (args) => {
     const { deployment, externalCalls } = args
-    const deployedBeforeDCLLaunch = deployment.entity.timestamp <= LEGACY_CONTENT_MIGRATION_TIMESTAMP
+    const deployedBeforeDCLLaunch =
+      deployment.entity.timestamp <= LEGACY_CONTENT_MIGRATION_TIMESTAMP
     const address = externalCalls.ownerAddress(deployment.auditInfo)
 
     // Default scenes were removed from the Content Servers after https://github.com/decentraland/catalyst/issues/878
@@ -30,12 +31,19 @@ export const access: Validation = {
       )
     }
     // Legacy entities still need to be synchronized
-    if (deployedBeforeDCLLaunch && externalCalls.isAddressOwnedByDecentraland(address)) return OK
+    if (
+      deployedBeforeDCLLaunch &&
+      externalCalls.isAddressOwnedByDecentraland(address)
+    )
+      return OK
 
     return accessCheckers[deployment.entity.type].validate(args)
   }
 }
 
 function isDefaultScene(entity: Entity) {
-  return entity.type === EntityType.SCENE && entity.pointers.some((p) => p.toLowerCase().startsWith('default'))
+  return (
+    entity.type === EntityType.SCENE &&
+    entity.pointers.some((p) => p.toLowerCase().startsWith('default'))
+  )
 }

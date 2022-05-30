@@ -5,7 +5,10 @@ import {
   WearableCollection,
   wearables
 } from '../../../src/validations/access-checker/wearables'
-import { buildThirdPartyWearableDeployment, buildWearableDeployment } from '../../setup/deployments'
+import {
+  buildThirdPartyWearableDeployment,
+  buildWearableDeployment
+} from '../../setup/deployments'
 import {
   buildExternalCalls,
   buildSubgraphs,
@@ -39,7 +42,9 @@ describe('Access: wearables', () => {
 
     const response = await wearables.validate({ deployment, externalCalls })
     expect(response.ok).toBeFalsy()
-    expect(response.errors).toContain(`Only one pointer is allowed when you create a Wearable. Received: ${pointers}`)
+    expect(response.errors).toContain(
+      `Only one pointer is allowed when you create a Wearable. Received: ${pointers}`
+    )
   })
 
   it('When several pointers resolve to the same URN then accept both but fail with the access', async () => {
@@ -77,7 +82,9 @@ describe('Access: wearables', () => {
   })
 
   it('When pointer resolves to L1 fails with invalid address', async () => {
-    const pointers = ['urn:decentraland:ethereum:collections-v1:dgtble_headspace:dgtble_hoodi_linetang_upper_body']
+    const pointers = [
+      'urn:decentraland:ethereum:collections-v1:dgtble_headspace:dgtble_hoodi_linetang_upper_body'
+    ]
     const deployment = buildWearableDeployment(pointers)
     const externalCalls = buildExternalCalls({
       ownerAddress: () => 'some address'
@@ -91,7 +98,9 @@ describe('Access: wearables', () => {
   })
 
   it('When pointer resolves to L1 succeeds with valid address', async () => {
-    const pointers = ['urn:decentraland:ethereum:collections-v1:dgtble_headspace:dgtble_hoodi_linetang_upper_body']
+    const pointers = [
+      'urn:decentraland:ethereum:collections-v1:dgtble_headspace:dgtble_hoodi_linetang_upper_body'
+    ]
     const deployment = buildWearableDeployment(pointers)
     const externalCalls = buildExternalCalls({
       isAddressOwnedByDecentraland: () => true
@@ -142,8 +151,18 @@ describe('Access: wearables', () => {
 
     await wearables.validate({ deployment, externalCalls })
 
-    expect(mockedQueryGraph).toHaveBeenNthCalledWith(1, subgraphs.L2.blocks, expect.anything(), expect.anything())
-    expect(mockedQueryGraph).toHaveBeenNthCalledWith(2, subgraphs.L2.collections, expect.anything(), expect.anything())
+    expect(mockedQueryGraph).toHaveBeenNthCalledWith(
+      1,
+      subgraphs.L2.blocks,
+      expect.anything(),
+      expect.anything()
+    )
+    expect(mockedQueryGraph).toHaveBeenNthCalledWith(
+      2,
+      subgraphs.L2.collections,
+      expect.anything(),
+      expect.anything()
+    )
     expect(mockedQueryGraph).toBeCalledTimes(2)
   })
 
@@ -162,8 +181,18 @@ describe('Access: wearables', () => {
 
     await wearables.validate({ deployment, externalCalls })
 
-    expect(mockedQueryGraph).toHaveBeenNthCalledWith(1, subgraphs.L1.blocks, expect.anything(), expect.anything())
-    expect(mockedQueryGraph).toHaveBeenNthCalledWith(2, subgraphs.L1.collections, expect.anything(), expect.anything())
+    expect(mockedQueryGraph).toHaveBeenNthCalledWith(
+      1,
+      subgraphs.L1.blocks,
+      expect.anything(),
+      expect.anything()
+    )
+    expect(mockedQueryGraph).toHaveBeenNthCalledWith(
+      2,
+      subgraphs.L1.collections,
+      expect.anything(),
+      expect.anything()
+    )
   })
 
   it(`When urn network belongs to L2, and address doesn't have access, then L2 subgraph is used twice`, async () => {
@@ -182,9 +211,24 @@ describe('Access: wearables', () => {
     await wearables.validate({ deployment, externalCalls })
 
     expect(mockedQueryGraph).toBeCalledTimes(3)
-    expect(mockedQueryGraph).toHaveBeenNthCalledWith(1, subgraphs.L2.blocks, expect.anything(), expect.anything())
-    expect(mockedQueryGraph).toHaveBeenNthCalledWith(2, subgraphs.L2.collections, expect.anything(), expect.anything())
-    expect(mockedQueryGraph).toHaveBeenNthCalledWith(3, subgraphs.L2.collections, expect.anything(), expect.anything())
+    expect(mockedQueryGraph).toHaveBeenNthCalledWith(
+      1,
+      subgraphs.L2.blocks,
+      expect.anything(),
+      expect.anything()
+    )
+    expect(mockedQueryGraph).toHaveBeenNthCalledWith(
+      2,
+      subgraphs.L2.collections,
+      expect.anything(),
+      expect.anything()
+    )
+    expect(mockedQueryGraph).toHaveBeenNthCalledWith(
+      3,
+      subgraphs.L2.collections,
+      expect.anything(),
+      expect.anything()
+    )
   })
 
   it(`When urn network belongs to L1, and address doesn't have access, then L1 subgraph is used twice`, async () => {
@@ -203,9 +247,24 @@ describe('Access: wearables', () => {
     await wearables.validate({ deployment, externalCalls })
 
     expect(mockedQueryGraph).toBeCalledTimes(3)
-    expect(mockedQueryGraph).toHaveBeenNthCalledWith(1, subgraphs.L1.blocks, expect.anything(), expect.anything())
-    expect(mockedQueryGraph).toHaveBeenNthCalledWith(2, subgraphs.L1.collections, expect.anything(), expect.anything())
-    expect(mockedQueryGraph).toHaveBeenNthCalledWith(3, subgraphs.L1.collections, expect.anything(), expect.anything())
+    expect(mockedQueryGraph).toHaveBeenNthCalledWith(
+      1,
+      subgraphs.L1.blocks,
+      expect.anything(),
+      expect.anything()
+    )
+    expect(mockedQueryGraph).toHaveBeenNthCalledWith(
+      2,
+      subgraphs.L1.collections,
+      expect.anything(),
+      expect.anything()
+    )
+    expect(mockedQueryGraph).toHaveBeenNthCalledWith(
+      3,
+      subgraphs.L1.collections,
+      expect.anything(),
+      expect.anything()
+    )
   })
 
   describe(`Merkle Proofed (Third Party) Wearable`, () => {
@@ -217,7 +276,10 @@ describe('Access: wearables', () => {
         queryGraph: fetcherWithThirdPartyMerkleRoot(merkleRoot)
       })
 
-      const deployment = buildThirdPartyWearableDeployment(metadata.id, metadata)
+      const deployment = buildThirdPartyWearableDeployment(
+        metadata.id,
+        metadata
+      )
 
       const response = await wearables.validate({ deployment, externalCalls })
       expect(response.ok).toBeTruthy()
@@ -229,7 +291,10 @@ describe('Access: wearables', () => {
         queryGraph: fetcherWithThirdPartyMerkleRoot(merkleRoot)
       })
 
-      const deployment = buildThirdPartyWearableDeployment(metadata.id, { ...metadata, content: {} })
+      const deployment = buildThirdPartyWearableDeployment(metadata.id, {
+        ...metadata,
+        content: {}
+      })
 
       const response = await wearables.validate({ deployment, externalCalls })
       expect(response.ok).toBeFalsy()
@@ -242,12 +307,20 @@ describe('Access: wearables', () => {
         queryGraph: mockedQueryGraph
       })
 
-      const deployment = buildThirdPartyWearableDeployment(metadata.id, metadata)
+      const deployment = buildThirdPartyWearableDeployment(
+        metadata.id,
+        metadata
+      )
 
       await wearables.validate({ deployment, externalCalls })
 
       expect(mockedQueryGraph).toBeCalledTimes(2)
-      expect(mockedQueryGraph).toHaveBeenNthCalledWith(1, subgraphs.L2.blocks, expect.anything(), expect.anything())
+      expect(mockedQueryGraph).toHaveBeenNthCalledWith(
+        1,
+        subgraphs.L2.blocks,
+        expect.anything(),
+        expect.anything()
+      )
       expect(mockedQueryGraph).toHaveBeenNthCalledWith(
         2,
         subgraphs.L2.thirdPartyRegistry,
@@ -264,7 +337,10 @@ describe('Access: wearables', () => {
         queryGraph: mockedQueryGraph
       })
 
-      const deployment = buildThirdPartyWearableDeployment(metadata.id, metadata)
+      const deployment = buildThirdPartyWearableDeployment(
+        metadata.id,
+        metadata
+      )
 
       const response = await wearables.validate({ deployment, externalCalls })
       expect(response.ok).toBeFalsy()
@@ -295,7 +371,10 @@ describe('Access: wearables', () => {
 
       const deployment = buildThirdPartyWearableDeployment(metadata.id, {
         ...metadata,
-        merkleProof: { ...metadata.merkleProof, hashingKeys: ['id', 'description'] }
+        merkleProof: {
+          ...metadata.merkleProof,
+          hashingKeys: ['id', 'description']
+        }
       })
 
       const response = await wearables.validate({ deployment, externalCalls })

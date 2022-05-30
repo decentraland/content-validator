@@ -1,5 +1,11 @@
 import { ILoggerComponent } from '@well-known-components/interfaces'
-import { AuditInfo, ContentFileHash, Entity, EntityId, Fetcher } from 'dcl-catalyst-commons'
+import {
+  AuditInfo,
+  ContentFileHash,
+  Entity,
+  EntityId,
+  Fetcher
+} from 'dcl-catalyst-commons'
 
 /**
  * @public
@@ -38,7 +44,9 @@ export type DeploymentToValidate = {
  * @public
  */
 export type ExternalCalls = {
-  isContentStoredAlready: (hashes: ContentFileHash[]) => Promise<Map<ContentFileHash, boolean>>
+  isContentStoredAlready: (
+    hashes: ContentFileHash[]
+  ) => Promise<Map<ContentFileHash, boolean>>
   fetchContentFileSize: (hash: string) => Promise<number | undefined>
   validateSignature: (
     entityId: EntityId,
@@ -90,14 +98,19 @@ export type ValidationResponse = {
  * @public
  */
 export type Validation = {
-  validate: (args: ValidationArgs, logs?: ILoggerComponent.ILogger) => ValidationResponse | Promise<ValidationResponse>
+  validate: (
+    args: ValidationArgs,
+    logs?: ILoggerComponent.ILogger
+  ) => ValidationResponse | Promise<ValidationResponse>
 }
 
 /**
  * @public
  */
 export type ConditionalValidation = {
-  predicate: (args: ValidationArgs) => ValidationResponse | Promise<ValidationResponse>
+  predicate: (
+    args: ValidationArgs
+  ) => ValidationResponse | Promise<ValidationResponse>
 }
 
 /**
@@ -116,7 +129,9 @@ export const validationFailed = (...error: string[]): ValidationResponse => ({
 /**
  * @public
  */
-export const conditionalValidation = (condition: ConditionalValidation): Validation => ({
+export const conditionalValidation = (
+  condition: ConditionalValidation
+): Validation => ({
   validate: async (args) => {
     try {
       return await condition.predicate(args)

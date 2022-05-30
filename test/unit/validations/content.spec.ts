@@ -112,7 +112,10 @@ describe('Content', () => {
       })
 
       const deployment = buildDeployment({ entity, files })
-      const result = await content.validate({ deployment, externalCalls: buildExternalCalls() })
+      const result = await content.validate({
+        deployment,
+        externalCalls: buildExternalCalls()
+      })
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `This file is not expected: '${expectedFile}' or its hash is invalid: '${invalidHash}'. Please, include only valid snapshot files.`

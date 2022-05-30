@@ -9,7 +9,9 @@ describe('Access: profiles', () => {
 
     const response = await profiles.validate({ deployment, externalCalls })
     expect(response.ok).toBeFalsy()
-    expect(response.errors).toContain('Only Decentraland can add or modify default profiles')
+    expect(response.errors).toContain(
+      'Only Decentraland can add or modify default profiles'
+    )
   })
 
   it('When a decentraland address tries to deploy an default profile, then it is allowed', async () => {
@@ -44,7 +46,9 @@ describe('Access: profiles', () => {
 
     const response = await profiles.validate({ deployment, externalCalls })
     expect(response.ok).toBeFalsy()
-    expect(response.errors).toContain(`Only one pointer is allowed when you create a Profile. Received: ${addresses}`)
+    expect(response.errors).toContain(
+      `Only one pointer is allowed when you create a Profile. Received: ${addresses}`
+    )
   })
 
   it('When a profile is created and the pointers does not match the signer, the access check fails', async () => {
@@ -74,6 +78,8 @@ describe('Access: profiles', () => {
 
     const response = await profiles.validate({ deployment, externalCalls })
     expect(response.ok).toBeFalsy()
-    expect(response.errors).toContain('The given pointer is not a valid ethereum address.')
+    expect(response.errors).toContain(
+      'The given pointer is not a valid ethereum address.'
+    )
   })
 })
