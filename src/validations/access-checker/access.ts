@@ -18,7 +18,7 @@ const accessCheckers: Record<EntityType, Validation> = {
  * @public
  */
 export const access: Validation = {
-  validate: async (args) => {
+  validate: async (args, components) => {
     const { deployment, externalCalls } = args
     const deployedBeforeDCLLaunch =
       deployment.entity.timestamp <= LEGACY_CONTENT_MIGRATION_TIMESTAMP
@@ -37,7 +37,7 @@ export const access: Validation = {
     )
       return OK
 
-    return accessCheckers[deployment.entity.type].validate(args)
+    return accessCheckers[deployment.entity.type].validate(args, components)
   }
 }
 

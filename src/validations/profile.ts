@@ -82,9 +82,9 @@ export const wearableUrns: Validation = {
  * * @public
  */
 export const profile: Validation = {
-  validate: async (args) => {
+  validate: async (args, components) => {
     if (args.deployment.entity.type !== EntityType.PROFILE) return OK
 
-    return validateInRow(args, faceThumbnail, wearableUrns)
+    return validateInRow(args, components, faceThumbnail, wearableUrns)
   }
 }

@@ -108,7 +108,7 @@ export type ValidationResponse = {
 export type Validation = {
   validate: (
     args: ValidationArgs,
-    logs?: ILoggerComponent.ILogger
+    components: ContentValidatorComponents
   ) => ValidationResponse | Promise<ValidationResponse>
 }
 

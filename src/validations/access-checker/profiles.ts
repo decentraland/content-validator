@@ -1,17 +1,25 @@
 import { isAddress } from '@ethersproject/address'
 import { Entity, Pointer } from 'dcl-catalyst-commons'
-import { OK, Validation, validationFailed } from '../../types'
-import { createTheGraph } from './the-graph-client'
+import {
+  ContentValidatorComponents,
+  OK,
+  Validation,
+  validationFailed
+} from '../../types'
 import { parseUrn } from '@dcl/urn-resolver'
 import { Avatar } from '@dcl/schemas'
 import { ADR_XXX_TIMESTAMP } from '../index'
+import { createTheGraphClient } from '../../the-graph-client/the-graph-client'
 
 /**
  * Validate that the pointers are valid, and that the Ethereum address has write access to them
  * @public
  */
 export const profiles: Validation = {
-  validate: async ({ deployment, externalCalls }) => {
+  validate: async (
+    { deployment, externalCalls },
+    components: Pick<ContentValidatorComponents, 'logs' | 'theGraphClient'>
+  ) => {
     const pointers = deployment.entity.pointers
     const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
 
@@ -39,23 +47,30 @@ export const profiles: Validation = {
 
     if (deployment.entity.timestamp < ADR_XXX_TIMESTAMP) return OK
 
-    const collectionsSubgraph: string = externalCalls.subgraphs.L1.collections
-    const maticCollectionsSubgraph: string =
-      externalCalls.subgraphs.L2.collections
-    const ensSubgraph: string = externalCalls.subgraphs.L2.ensOwner
-    const thirdPartyRegistrySubgraph: string =
-      externalCalls.subgraphs.L2.thirdPartyRegistry
+    // const collectionsSubgraph: string = externalCalls.subgraphs.L1.collections
+    // const maticCollectionsSubgraph: string =
+    //   externalCalls.subgraphs.L2.collections
+    // const ensSubgraph: string = externalCalls.subgraphs.L2.ensOwner
+    // const thirdPartyRegistrySubgraph: string =
+    //   externalCalls.subgraphs.L2.thirdPartyRegistry
 
-    const theGraph = createTheGraph(externalCalls, {
-      ensSubgraph,
-      collectionsSubgraph,
-      maticCollectionsSubgraph,
-      thirdPartyRegistrySubgraph
-    })
+    const theGraph = components.theGraphClient
+    // createTheGraphClient(
+    //     components.queryGraph,
+    //   {
+    //     ensSubgraph,
+    //     collectionsSubgraph,
+    //     maticCollectionsSubgraph,
+    //     thirdPartyRegistrySubgraph
+    //   },
+    //   logs
+    // )
+
+    const logger = components.logs.getLogger('profiles access validator')
 
     console.log(deployment.entity.metadata.avatars[0].avatar.wearables)
 
-    const names = await allNames(deployment.entity)
+    const names = allNames(deployment.entity)
     const wearableUrns = await allWearablesUrns(deployment.entity)
     console.log('names', names, 'wearableUrns', wearableUrns)
 

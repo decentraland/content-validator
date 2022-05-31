@@ -2,7 +2,12 @@ import { Wearable } from '@dcl/schemas'
 import { entityParameters, EntityType } from 'dcl-catalyst-commons'
 import sharp from 'sharp'
 import { ADR_45_TIMESTAMP, calculateDeploymentSize, validateInRow } from '.'
-import { OK, Validation, validationFailed } from '../types'
+import {
+  ContentValidatorComponents,
+  OK,
+  Validation,
+  validationFailed
+} from '../types'
 
 const wearableSizeLimitInMB = 2
 
@@ -71,7 +76,12 @@ export const wearableSize: Validation = {
 /** Validate that given wearable deployment includes a thumbnail with valid format and size */
 const maxThumbnailSize = 1024
 export const wearableThumbnail: Validation = {
-  validate: async ({ deployment, externalCalls }, log) => {
+  validate: async (
+    { deployment, externalCalls },
+    components: Pick<ContentValidatorComponents, 'logs'>
+  ) => {
+    const logger = components.logs.getLogger('wearable validator')
+
     if (deployment.entity.timestamp < ADR_45_TIMESTAMP) return OK
     // read thumbnail field from metadata
     const metadata = deployment.entity.metadata as Wearable
@@ -96,7 +106,7 @@ export const wearableThumbnail: Validation = {
         )
       }
       // otherwise, thumbnail was already uploaded and won't be validated again
-      log?.debug(
+      logger.debug(
         `Thumbnail file with hash: ${hash} is not in the deployment, but it is already stored`
       )
       return OK
@@ -128,10 +138,11 @@ export const wearableThumbnail: Validation = {
  * * @public
  */
 export const wearable: Validation = {
-  validate: async (args) => {
+  validate: async (args, components) => {
     if (args.deployment.entity.type !== EntityType.WEARABLE) return OK
     return validateInRow(
       args,
+      components,
       wearableRepresentationContent,
       wearableThumbnail,
       wearableSize

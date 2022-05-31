@@ -8,11 +8,15 @@ import { AuditInfo } from 'dcl-catalyst-commons';
 import { ContentFileHash } from 'dcl-catalyst-commons';
 import { Entity } from 'dcl-catalyst-commons';
 import { EntityId } from 'dcl-catalyst-commons';
+import { EthAddress } from 'dcl-crypto';
 import { Fetcher } from 'dcl-catalyst-commons';
 import { ILoggerComponent } from '@well-known-components/interfaces';
 
 // @public
 export const ADR_45_TIMESTAMP: number;
+
+// @public
+export const ADR_XXX_TIMESTAMP: number;
 
 // @public (undocumented)
 export const calculateDeploymentSize: (deployment: DeploymentToValidate, externalCalls: ExternalCalls) => Promise<number | string>;
@@ -28,10 +32,16 @@ export const conditionalValidation: (condition: ConditionalValidation) => Valida
 // @public
 export type ContentValidatorComponents = {
     logs: ILoggerComponent;
+    theGraphClient: TheGraphClient;
 };
 
+// Warning: (ae-internal-missing-underscore) The name "createTheGraphClient" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export const createTheGraphClient: (components: Pick<ContentValidatorComponents, 'logs'>, queryGraph: Fetcher['queryGraph'], urls: URLs) => TheGraphClient;
+
 // @public
-export const createValidator: (externalCalls: ExternalCalls, components?: Pick<ContentValidatorComponents, "logs"> | undefined) => Validator;
+export const createValidator: (externalCalls: ExternalCalls, components: Pick<ContentValidatorComponents, 'logs' | 'theGraphClient'>) => Validator;
 
 // @public
 export type DeploymentToValidate = {
@@ -92,12 +102,51 @@ export const statefulValidations: readonly [Validation, Validation, Validation, 
 // @public
 export const statelessValidations: readonly [Validation, Validation, Validation];
 
+// Warning: (ae-internal-missing-underscore) The name "TheGraphClient" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export type TheGraphClient = {
+    checkForNamesOwnership: (namesToCheck: [EthAddress, string[]][]) => Promise<{
+        owner: EthAddress;
+        names: string[];
+    }[]>;
+    checkForWearablesOwnership: (wearableIdsToCheck: [EthAddress, string[]][]) => Promise<{
+        owner: EthAddress;
+        urns: string[];
+    }[]>;
+    findOwnersByName: (names: string[]) => Promise<{
+        name: string;
+        owner: EthAddress;
+    }[]>;
+    findThirdPartyResolver: (subgraph: keyof URLs, id: string) => Promise<string | undefined>;
+    findWearablesByFilters: (filters: WearablesFilters, pagination: {
+        limit: number;
+        lastId: string | undefined;
+    }) => Promise<WearableId[]>;
+    findWearablesByOwner: (owner: EthAddress) => Promise<WearableId[]>;
+    getAllCollections: () => Promise<{
+        name: string;
+        urn: string;
+    }[]>;
+    getThirdPartyIntegrations: () => Promise<ThirdPartyIntegration[]>;
+};
+
+// Warning: (ae-internal-missing-underscore) The name "URLs" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export type URLs = {
+    ensSubgraph: string;
+    collectionsSubgraph: string;
+    maticCollectionsSubgraph: string;
+    thirdPartyRegistrySubgraph: string;
+};
+
 // @public (undocumented)
-export const validateInRow: (validationArgs: ValidationArgs, ...validations: Validation[]) => Promise<ValidationResponse>;
+export const validateInRow: (validationArgs: ValidationArgs, components: ContentValidatorComponents, ...validations: Validation[]) => Promise<ValidationResponse>;
 
 // @public (undocumented)
 export type Validation = {
-    validate: (args: ValidationArgs, logs?: ILoggerComponent.ILogger) => ValidationResponse | Promise<ValidationResponse>;
+    validate: (args: ValidationArgs, components: ContentValidatorComponents) => ValidationResponse | Promise<ValidationResponse>;
 };
 
 // @public (undocumented)
@@ -126,6 +175,13 @@ export interface Validator {
 
 // @public (undocumented)
 export type Warnings = string[];
+
+// Warnings were encountered during analysis:
+//
+// src/types.ts:192:3 - (ae-forgotten-export) The symbol "WearablesFilters" needs to be exported by the entry point index.d.ts
+// src/types.ts:192:3 - (ae-forgotten-export) The symbol "WearableId" needs to be exported by the entry point index.d.ts
+// src/types.ts:201:3 - (ae-forgotten-export) The symbol "ThirdPartyIntegration" needs to be exported by the entry point index.d.ts
+// src/types.ts:210:3 - (ae-incompatible-release-tags) The symbol "theGraphClient" is marked as @public, but its signature references "TheGraphClient" which is marked as @internal
 
 // (No @packageDocumentation comment for this package)
 

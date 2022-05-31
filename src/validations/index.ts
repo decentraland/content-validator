@@ -1,4 +1,5 @@
 import {
+  ContentValidatorComponents,
   DeploymentToValidate,
   ExternalCalls,
   OK,
@@ -21,10 +22,11 @@ import { wearable } from './wearable'
  */
 export const validateInRow = async (
   validationArgs: ValidationArgs,
+  components: ContentValidatorComponents,
   ...validations: Validation[]
 ): Promise<ValidationResponse> => {
   for (const validation of validations) {
-    const response = await validation.validate(validationArgs)
+    const response = await validation.validate(validationArgs, components)
     if (!response.ok) return response
   }
   return OK

@@ -1,7 +1,12 @@
 import { EthAddress } from '@dcl/schemas'
 import { retry, Timestamp } from 'dcl-catalyst-commons'
 import ms from 'ms'
-import { ExternalCalls, fromErrors, Validation } from '../../types'
+import {
+  ContentValidatorComponents,
+  ExternalCalls,
+  fromErrors,
+  Validation
+} from '../../types'
 
 type AddressSnapshot = {
   address: string
@@ -37,7 +42,11 @@ type Authorization = {
  * @public
  */
 export const scenes: Validation = {
-  validate: async ({ deployment, externalCalls }, logs) => {
+  validate: async (
+    { deployment, externalCalls },
+    components: Pick<ContentValidatorComponents, 'logs'>
+  ) => {
+    const logger = components.logs.getLogger('scenes access validator')
     const getAuthorizations = async (
       owner: EthAddress,
       operator: EthAddress,
@@ -74,7 +83,7 @@ export const scenes: Validation = {
           )
         ).authorizations
       } catch (error) {
-        logs?.error(`Error fetching authorizations for ${owner}`)
+        logger.error(`Error fetching authorizations for ${owner}`)
         throw error
       }
     }
@@ -134,7 +143,7 @@ export const scenes: Validation = {
           )
         ).estates[0]
       } catch (error) {
-        logs?.error(`Error fetching estate (${estateId})`)
+        logger.error(`Error fetching estate (${estateId})`)
         throw error
       }
     }
@@ -203,14 +212,14 @@ export const scenes: Validation = {
 
         if (r.parcels && r.parcels.length) return r.parcels[0]
 
-        logs?.error(
+        logger.error(
           `Error fetching parcel (${x}, ${y}, ${timestamp}): ${JSON.stringify(
             r
           )}`
         )
         throw new Error(`Error fetching parcel (${x}, ${y}), ${timestamp}`)
       } catch (error) {
-        logs?.error(`Error fetching parcel (${x}, ${y}, ${timestamp})`)
+        logger.error(`Error fetching parcel (${x}, ${y}, ${timestamp})`)
         throw error
       }
     }
@@ -343,7 +352,7 @@ export const scenes: Validation = {
           '0.1s'
         )
       } catch (error) {
-        logs?.error(
+        logger.error(
           `Error checking parcel access (${x}, ${y}, ${timestamp}, ${ethAddress}).`
         )
         throw error

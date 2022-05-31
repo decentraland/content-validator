@@ -15,19 +15,19 @@ export * from './validations'
  */
 export const createValidator = (
   externalCalls: ExternalCalls,
-  components?: Pick<ContentValidatorComponents, 'logs'>
+  components: Pick<ContentValidatorComponents, 'logs' | 'theGraphClient'>
 ): Validator => {
-  const logs = components?.logs.getLogger('ContentValidator')
+  const logs = components.logs.getLogger('ContentValidator')
 
   return {
     validate: async (deployment) => {
       for (const validation of validations) {
         const result = await validation.validate(
           { deployment, externalCalls },
-          logs
+          components
         )
         if (!result.ok) {
-          logs?.debug(`Validation failed:\n${result.errors?.join('\n')}`)
+          logs.debug(`Validation failed:\n${result.errors?.join('\n')}`)
           return result
         }
       }
@@ -35,3 +35,5 @@ export const createValidator = (
     }
   }
 }
+
+export { createTheGraphClient } from './the-graph-client/the-graph-client'
