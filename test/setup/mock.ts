@@ -1,5 +1,4 @@
-import { Fetcher } from 'dcl-catalyst-commons'
-import { ExternalCalls } from '../../src/types'
+import { ExternalCalls, QueryGraph } from '../../src/types'
 import { WearableCollection } from '../../src/validations/access-checker/wearables'
 
 export const buildExternalCalls = (
@@ -34,14 +33,13 @@ export const buildSubgraphs = (subgraphs?: Partial<Subgraphs>): Subgraphs => ({
   ...subgraphs
 })
 
-type QueryGraph = Fetcher['queryGraph']
 export const mockedQueryGraph = () =>
   jest.fn() as jest.MockedFunction<QueryGraph>
 
 const COMMITTEE_MEMBER = '0xCOMMITEE_MEMBER'
 export const buildMockedQueryGraph = (
   collection?: Partial<WearableCollection>,
-  merkleRoot?: string
+  _merkleRoot?: string
 ) =>
   mockedQueryGraph().mockImplementation(async (url, _query, _variables) => {
     const withDefaults = {

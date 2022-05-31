@@ -1,4 +1,4 @@
-import { entityParameters } from 'dcl-catalyst-commons'
+import { entityParameters } from './ADR51'
 import { ADR_45_TIMESTAMP } from '.'
 import { conditionalValidation, OK, validationFailed } from '../types'
 

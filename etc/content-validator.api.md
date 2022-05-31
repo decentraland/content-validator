@@ -4,11 +4,7 @@
 
 ```ts
 
-import { AuditInfo } from 'dcl-catalyst-commons';
-import { ContentFileHash } from 'dcl-catalyst-commons';
-import { Entity } from 'dcl-catalyst-commons';
-import { EntityId } from 'dcl-catalyst-commons';
-import { Fetcher } from 'dcl-catalyst-commons';
+import { AuditInfo, ContentFileHash, Entity, EntityId, Fetcher } from '@dcl/schemas'
 import { ILoggerComponent } from '@well-known-components/interfaces';
 
 // @public

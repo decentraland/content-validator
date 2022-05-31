@@ -1,4 +1,4 @@
-import { EntityType } from 'dcl-catalyst-commons'
+import { EntityType } from '@dcl/schemas'
 import sharp from 'sharp'
 import { ADR_45_TIMESTAMP, ValidationResponse } from '../../../src'
 import { faceThumbnail } from '../../../src/validations/profile'

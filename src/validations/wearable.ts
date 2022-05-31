@@ -1,5 +1,5 @@
-import { Wearable } from '@dcl/schemas'
-import { entityParameters, EntityType } from 'dcl-catalyst-commons'
+import { EntityType, Wearable } from '@dcl/schemas'
+import { entityParameters } from './ADR51'
 import sharp from 'sharp'
 import { ADR_45_TIMESTAMP, calculateDeploymentSize, validateInRow } from '.'
 import { OK, Validation, validationFailed } from '../types'
@@ -38,7 +38,7 @@ export const wearableSize: Validation = {
   validate: async ({ deployment, externalCalls }) => {
     const entity = deployment.entity
     if (entity.timestamp < ADR_45_TIMESTAMP) return OK
-    const maxSizeInMB = entityParameters[EntityType.WEARABLE].maxSizeInMB
+    const maxSizeInMB = entityParameters[EntityType.WEARABLE]?.maxSizeInMB
     if (!maxSizeInMB)
       return validationFailed(
         `Type ${EntityType.WEARABLE} is not supported yet`
