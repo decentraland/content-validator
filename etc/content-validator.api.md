@@ -4,7 +4,8 @@
 
 ```ts
 
-import { AuditInfo, ContentFileHash, Entity, EntityId, Fetcher } from '@dcl/schemas'
+import { AuthChain } from '@dcl/schemas';
+import { Entity } from '@dcl/schemas';
 import { ILoggerComponent } from '@well-known-components/interfaces';
 
 // @public
@@ -32,7 +33,7 @@ export const createValidator: (externalCalls: ExternalCalls, components?: Pick<C
 // @public
 export type DeploymentToValidate = {
     entity: Entity;
-    files: Map<ContentFileHash, Uint8Array>;
+    files: Map<string, Uint8Array>;
     auditInfo: LocalDeploymentAuditInfo;
 };
 
@@ -46,15 +47,15 @@ export type Errors = string[];
 
 // @public
 export type ExternalCalls = {
-    isContentStoredAlready: (hashes: ContentFileHash[]) => Promise<Map<ContentFileHash, boolean>>;
+    isContentStoredAlready: (hashes: string[]) => Promise<Map<string, boolean>>;
     fetchContentFileSize: (hash: string) => Promise<number | undefined>;
-    validateSignature: (entityId: EntityId, auditInfo: LocalDeploymentAuditInfo, timestamp: number) => Promise<{
+    validateSignature: (entityId: string, auditInfo: LocalDeploymentAuditInfo, timestamp: number) => Promise<{
         ok: boolean;
         message?: string;
     }>;
     ownerAddress: (auditInfo: LocalDeploymentAuditInfo) => string;
     isAddressOwnedByDecentraland: (address: string) => boolean;
-    queryGraph: Fetcher['queryGraph'];
+    queryGraph: QueryGraph;
     subgraphs: {
         L1: {
             landManager: string;
@@ -76,10 +77,15 @@ export const fromErrors: (...errors: Errors) => ValidationResponse;
 export const LEGACY_CONTENT_MIGRATION_TIMESTAMP = 1582167600000;
 
 // @public (undocumented)
-export type LocalDeploymentAuditInfo = Pick<AuditInfo, 'authChain'>;
+export type LocalDeploymentAuditInfo = {
+    authChain: AuthChain;
+};
 
 // @public (undocumented)
 export const OK: ValidationResponse;
+
+// @public
+export type QueryGraph = <T = any>(url: string, query: string, variables: Record<string, any>) => Promise<T>;
 
 // @public
 export const statefulValidations: readonly [Validation, Validation, Validation, Validation, Validation, Validation];
