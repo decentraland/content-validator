@@ -8,7 +8,7 @@ import { fromErrors, Validation } from '../types'
  * @public
  */
 export const ipfsHashing: Validation = {
-  validate: ({ deployment }) => {
+  validate: (deployment) => {
     const { entity } = deployment
 
     if (entity.timestamp < ADR_45_TIMESTAMP) return OK

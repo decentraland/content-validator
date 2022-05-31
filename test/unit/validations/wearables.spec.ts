@@ -9,11 +9,12 @@ import {
 } from '../../../src/validations/wearable'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
-import { buildExternalCalls } from '../../setup/mock'
+import { buildComponents, buildExternalCalls } from '../../setup/mock'
 import { VALID_WEARABLE_METADATA } from '../../setup/wearable'
 
 describe('Wearables', () => {
   const timestamp = ADR_45_TIMESTAMP + 1
+  const components = buildComponents()
   describe('Thumbnail:', () => {
     let validThumbnailBuffer: Buffer
     let invalidThumbnailBuffer: Buffer
@@ -42,7 +43,7 @@ describe('Wearables', () => {
       validThumbnailBuffer = await createImage(1024)
       invalidThumbnailBuffer = await createImage(1025)
     })
-    const externalCalls = buildExternalCalls()
+
     it('When there is no hash for given thumbnail file name, it should return an error', async () => {
       const files = new Map([[hash, validThumbnailBuffer]])
       const entity = buildEntity({
@@ -52,10 +53,7 @@ describe('Wearables', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await wearableThumbnail.validate({
-        deployment,
-        externalCalls
-      })
+      const result = await wearableThumbnail.validate(deployment, components)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `Couldn't find hash for thumbnail file with name: ${fileName}`
@@ -73,10 +71,7 @@ describe('Wearables', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await wearableThumbnail.validate({
-        deployment,
-        externalCalls
-      })
+      const result = await wearableThumbnail.validate(deployment, components)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `Couldn't find thumbnail file with hash: ${hash}`
@@ -94,10 +89,7 @@ describe('Wearables', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await wearableThumbnail.validate({
-        deployment,
-        externalCalls
-      })
+      const result = await wearableThumbnail.validate(deployment, components)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `Couldn't parse thumbnail, please check image format.`
@@ -115,10 +107,7 @@ describe('Wearables', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await wearableThumbnail.validate({
-        deployment,
-        externalCalls
-      })
+      const result = await wearableThumbnail.validate(deployment, components)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `Invalid thumbnail image size (width = 1025 / height = 1025)`
@@ -137,10 +126,10 @@ describe('Wearables', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result: ValidationResponse = await wearableThumbnail.validate({
+      const result: ValidationResponse = await wearableThumbnail.validate(
         deployment,
-        externalCalls
-      })
+        components
+      )
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `Invalid or unknown image format. Only 'PNG' format is accepted.`
@@ -158,10 +147,7 @@ describe('Wearables', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await wearableThumbnail.validate({
-        deployment,
-        externalCalls
-      })
+      const result = await wearableThumbnail.validate(deployment, components)
 
       expect(result.ok).toBeTruthy()
     })
@@ -180,10 +166,10 @@ describe('Wearables', () => {
         isContentStoredAlready: async () => new Map([[hash, true]])
       })
 
-      const result = await wearableThumbnail.validate({
+      const result = await wearableThumbnail.validate(
         deployment,
-        externalCalls
-      })
+        buildComponents({ externalCalls })
+      )
 
       expect(result.ok).toBeTruthy()
     })
@@ -209,8 +195,7 @@ describe('Wearables', () => {
         timestamp
       })
       const deployment = buildDeployment({ entity, files })
-      const externalCalls = buildExternalCalls()
-      const result = await wearableSize.validate({ deployment, externalCalls })
+      const result = await wearableSize.validate(deployment, components)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
@@ -236,8 +221,7 @@ describe('Wearables', () => {
         timestamp
       })
       const deployment = buildDeployment({ entity, files })
-      const externalCalls = buildExternalCalls()
-      const result = await size.validate({ deployment, externalCalls })
+      const result = await size.validate(deployment, components)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
@@ -263,8 +247,7 @@ describe('Wearables', () => {
         timestamp
       })
       const deployment = buildDeployment({ entity, files })
-      const externalCalls = buildExternalCalls()
-      const result = await wearableSize.validate({ deployment, externalCalls })
+      const result = await wearableSize.validate(deployment, components)
 
       expect(result.ok).toBeTruthy()
     })
@@ -287,11 +270,10 @@ describe('Wearables', () => {
         content
       })
       const deployment = buildDeployment({ entity, files })
-      const externalCalls = buildExternalCalls()
-      const result = await wearableRepresentationContent.validate({
+      const result = await wearableRepresentationContent.validate(
         deployment,
-        externalCalls
-      })
+        components
+      )
 
       expect(result.ok).toBeTruthy()
     })
@@ -313,11 +295,10 @@ describe('Wearables', () => {
         content
       })
       const deployment = buildDeployment({ entity, files })
-      const externalCalls = buildExternalCalls()
-      const result = await wearableRepresentationContent.validate({
+      const result = await wearableRepresentationContent.validate(
         deployment,
-        externalCalls
-      })
+        components
+      )
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(

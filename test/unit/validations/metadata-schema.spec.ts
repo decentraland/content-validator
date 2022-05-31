@@ -3,7 +3,7 @@ import { ADR_45_TIMESTAMP } from '../../../src'
 import { metadata } from '../../../src/validations/metadata-schema'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
-import { buildExternalCalls } from '../../setup/mock'
+import { buildComponents, buildExternalCalls } from '../../setup/mock'
 import { VALID_PROFILE_METADATA } from '../../setup/profiles'
 import {
   entityAndMerkleRoot,
@@ -23,20 +23,14 @@ describe('Metadata Schema', () => {
     it('when entity metadata is valid should not report errors', async () => {
       const entity = buildEntity({ type, metadata: validMetadata, timestamp })
       const deployment = buildDeployment({ entity })
-      const result = await metadata.validate({
-        deployment,
-        externalCalls: buildExternalCalls()
-      })
+      const result = await metadata.validate(deployment, buildComponents())
 
       expect(result.ok).toBeTruthy()
     })
     it('when entity metadata is invalid should report an error', async () => {
       const entity = buildEntity({ type, metadata: invalidMetadata, timestamp })
       const deployment = buildDeployment({ entity })
-      const result = await metadata.validate({
-        deployment,
-        externalCalls: buildExternalCalls()
-      })
+      const result = await metadata.validate(deployment, buildComponents())
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
@@ -84,10 +78,7 @@ describe('Metadata Schema', () => {
       timestamp: PRE_ADR_45_TIMESTAMP
     })
     const deployment = buildDeployment({ entity })
-    const result = await metadata.validate({
-      deployment,
-      externalCalls: buildExternalCalls()
-    })
+    const result = await metadata.validate(deployment, buildComponents())
 
     expect(result.ok).toBeTruthy()
   })

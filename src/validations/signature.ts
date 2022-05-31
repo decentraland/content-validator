@@ -6,7 +6,7 @@ import { OK, Validation, validationFailed } from '../types'
  */
 export const signature: Validation = {
   // todo: should we include signature result message?
-  validate: async ({ deployment, externalCalls }) => {
+  validate: async (deployment, { externalCalls }) => {
     const { entity, auditInfo } = deployment
     const validationResult = await externalCalls.validateSignature(
       entity.id,

@@ -7,7 +7,7 @@ import { conditionalValidation, OK, validationFailed } from '../types'
  * @public
  */
 export const metadata = conditionalValidation({
-  async predicate({ deployment }) {
+  async predicate(deployment) {
     if (deployment.entity.timestamp <= ADR_45_TIMESTAMP) return OK
 
     const { type, metadata } = deployment.entity

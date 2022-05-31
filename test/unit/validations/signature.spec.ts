@@ -1,9 +1,6 @@
 import { signature } from '../../../src/validations/signature'
-import {
-  buildDeployment,
-  buildProfileDeployment
-} from '../../setup/deployments'
-import { buildExternalCalls } from '../../setup/mock'
+import { buildDeployment } from '../../setup/deployments'
+import { buildComponents, buildExternalCalls } from '../../setup/mock'
 
 describe('Signature', () => {
   it(`When can't validate signature, it's reported`, async () => {
@@ -14,7 +11,10 @@ describe('Signature', () => {
         Promise.resolve({ ok: false, message: testMessage })
     })
 
-    const result = await signature.validate({ deployment, externalCalls })
+    const result = await signature.validate(
+      deployment,
+      buildComponents({ externalCalls })
+    )
 
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain(`The signature is invalid. ${testMessage}`)
@@ -26,7 +26,10 @@ describe('Signature', () => {
       validateSignature: () => Promise.resolve({ ok: true })
     })
 
-    const result = await signature.validate({ deployment, externalCalls })
+    const result = await signature.validate(
+      deployment,
+      buildComponents({ externalCalls })
+    )
 
     expect(result.ok).toBeTruthy()
   })

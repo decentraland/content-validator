@@ -1,13 +1,16 @@
 import { profiles } from '../../../src/validations/access-checker/profiles'
 import { buildProfileDeployment } from '../../setup/deployments'
-import { buildExternalCalls } from '../../setup/mock'
+import { buildComponents, buildExternalCalls } from '../../setup/mock'
 
 describe('Access: profiles', () => {
   it('When a non-decentraland address tries to deploy an default profile, then an error is returned', async () => {
     const deployment = buildProfileDeployment(['Default10'])
     const externalCalls = buildExternalCalls()
 
-    const response = await profiles.validate({ deployment, externalCalls })
+    const response = await profiles.validate(
+      deployment,
+      buildComponents({ externalCalls })
+    )
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       'Only Decentraland can add or modify default profiles'
@@ -22,7 +25,10 @@ describe('Access: profiles', () => {
       ownerAddress: () => someValidAddress
     })
 
-    const response = await profiles.validate({ deployment, externalCalls })
+    const response = await profiles.validate(
+      deployment,
+      buildComponents({ externalCalls })
+    )
     expect(response.ok).toBeTruthy()
   })
 
@@ -33,7 +39,10 @@ describe('Access: profiles', () => {
       ownerAddress: () => someAddress
     })
 
-    const response = await profiles.validate({ deployment, externalCalls })
+    const response = await profiles.validate(
+      deployment,
+      buildComponents({ externalCalls })
+    )
     expect(response.ok).toBeTruthy()
   })
 
@@ -44,7 +53,10 @@ describe('Access: profiles', () => {
       ownerAddress: () => 'some-address'
     })
 
-    const response = await profiles.validate({ deployment, externalCalls })
+    const response = await profiles.validate(
+      deployment,
+      buildComponents({ externalCalls })
+    )
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       `Only one pointer is allowed when you create a Profile. Received: ${addresses}`
@@ -60,7 +72,10 @@ describe('Access: profiles', () => {
       ownerAddress: () => address
     })
 
-    const response = await profiles.validate({ deployment, externalCalls })
+    const response = await profiles.validate(
+      deployment,
+      buildComponents({ externalCalls })
+    )
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       `You can only alter your own profile. The pointer address and the signer address are different (pointer:${pointer} signer: ${address}).`
@@ -76,7 +91,10 @@ describe('Access: profiles', () => {
       ownerAddress: () => address
     })
 
-    const response = await profiles.validate({ deployment, externalCalls })
+    const response = await profiles.validate(
+      deployment,
+      buildComponents({ externalCalls })
+    )
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       'The given pointer is not a valid ethereum address.'

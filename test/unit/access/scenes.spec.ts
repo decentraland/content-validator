@@ -1,6 +1,6 @@
 import { scenes } from '../../../src/validations/access-checker/scenes'
 import { buildSceneDeployment } from '../../setup/deployments'
-import { buildExternalCalls } from '../../setup/mock'
+import { buildComponents, buildExternalCalls } from '../../setup/mock'
 
 describe('Access: scenes', () => {
   it('When a non-decentraland address tries to deploy a default scene, then an error is returned', async () => {
@@ -11,7 +11,10 @@ describe('Access: scenes', () => {
       ownerAddress: () => '0xAddress'
     })
 
-    const response = await scenes.validate({ deployment, externalCalls })
+    const response = await scenes.validate(
+      deployment,
+      buildComponents({ externalCalls })
+    )
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       'Scene pointers should only contain two integers separated by a comma, for example (10,10) or (120,-45). Invalid pointer: default10'
@@ -26,7 +29,10 @@ describe('Access: scenes', () => {
       ownerAddress: () => '0xAddress'
     })
 
-    const response = await scenes.validate({ deployment, externalCalls })
+    const response = await scenes.validate(
+      deployment,
+      buildComponents({ externalCalls })
+    )
     expect(response.ok).toBeFalsy()
   })
 
@@ -38,7 +44,10 @@ describe('Access: scenes', () => {
       ownerAddress: () => '0xAddress'
     })
 
-    const response = await scenes.validate({ deployment, externalCalls })
+    const response = await scenes.validate(
+      deployment,
+      buildComponents({ externalCalls })
+    )
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       'Scene pointers should only contain two integers separated by a comma, for example (10,10) or (120,-45). Invalid pointer: invalid-pointer'

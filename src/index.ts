@@ -15,19 +15,16 @@ export * from './validations'
  */
 export const createValidator = (
   externalCalls: ExternalCalls,
-  components?: Pick<ContentValidatorComponents, 'logs'>
+  components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs'>
 ): Validator => {
-  const logs = components?.logs.getLogger('ContentValidator')
+  const logs = components.logs.getLogger('ContentValidator')
 
   return {
     validate: async (deployment) => {
       for (const validation of validations) {
-        const result = await validation.validate(
-          { deployment, externalCalls },
-          logs
-        )
+        const result = await validation.validate(deployment, components)
         if (!result.ok) {
-          logs?.debug(`Validation failed:\n${result.errors?.join('\n')}`)
+          logs.debug(`Validation failed:\n${result.errors?.join('\n')}`)
           return result
         }
       }

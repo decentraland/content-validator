@@ -1,12 +1,12 @@
 import { EntityType } from '@dcl/schemas'
 import sharp from 'sharp'
 import { ADR_45_TIMESTAMP } from '.'
-import { OK, Validation, validationFailed, ValidationResponse } from '../types'
+import { OK, Validation, validationFailed } from '../types'
 
 /** Validate that given profile deployment includes a face256 thumbnail with valid size */
 const defaultThumbnailSize = 256
 export const faceThumbnail: Validation = {
-  validate: async ({ deployment, externalCalls }) => {
+  validate: async (deployment, { externalCalls }) => {
     if (deployment.entity.timestamp < ADR_45_TIMESTAMP) return OK
 
     const errors: string[] = []
@@ -63,11 +63,9 @@ export const faceThumbnail: Validation = {
  * * @public
  */
 export const profile: Validation = {
-  validate: async (args) => {
-    if (args.deployment.entity.type !== EntityType.PROFILE) return OK
-    const response: ValidationResponse = await faceThumbnail.validate(args)
+  validate: async (deployment, components) => {
+    if (deployment.entity.type !== EntityType.PROFILE) return OK
 
-    if (!response.ok) return response
-    return OK
+    return faceThumbnail.validate(deployment, components)
   }
 }

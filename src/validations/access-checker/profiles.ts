@@ -6,7 +6,7 @@ import { OK, Validation, validationFailed } from '../../types'
  * @public
  */
 export const profiles: Validation = {
-  validate: async ({ deployment, externalCalls }) => {
+  validate: async (deployment, { externalCalls, logs }) => {
     const pointers = deployment.entity.pointers
     const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
 

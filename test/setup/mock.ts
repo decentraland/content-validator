@@ -1,5 +1,18 @@
-import { ExternalCalls, QueryGraph } from '../../src/types'
+import { ContentValidatorComponents, ExternalCalls, QueryGraph } from '../../src/types'
 import { WearableCollection } from '../../src/validations/access-checker/wearables'
+
+export const buildComponents = (
+  components?: Partial<ContentValidatorComponents>
+): ContentValidatorComponents => {
+  const externalCalls = buildExternalCalls()
+  const logs = { getLogger: () => console }
+
+  return {
+    externalCalls,
+    logs: logs,
+    ...components
+  }
+}
 
 export const buildExternalCalls = (
   externalCalls?: Partial<ExternalCalls>
