@@ -1,15 +1,15 @@
 import { EntityType } from 'dcl-catalyst-commons'
 import sharp from 'sharp'
-import { ADR_45_TIMESTAMP, ValidationResponse } from '../../../src'
+import {ADR_45_TIMESTAMP, ADR_XXX_TIMESTAMP, ValidationResponse} from '../../../src'
 import { faceThumbnail, wearableUrns } from '../../../src/validations/profile'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
-import { buildExternalCalls } from '../../setup/mock'
+import { buildComponents, buildExternalCalls } from '../../setup/mock'
 import { VALID_PROFILE_METADATA } from '../../setup/profiles'
 
 describe('Profiles', () => {
   const timestamp = ADR_45_TIMESTAMP + 1
-  const externalCalls = buildExternalCalls()
+  const components = buildComponents()
   describe('Thumbnail face256:', () => {
     let validThumbnailBuffer: Buffer
     let invalidThumbnailBuffer: Buffer
@@ -48,10 +48,10 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result: ValidationResponse = await faceThumbnail.validate({
+      const result: ValidationResponse = await faceThumbnail.validate(
         deployment,
-        externalCalls
-      })
+        components
+      )
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
@@ -70,7 +70,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await faceThumbnail.validate({ deployment, externalCalls })
+      const result = await faceThumbnail.validate(deployment, components)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `Couldn't find thumbnail file with hash: ${hash}`
@@ -88,7 +88,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await faceThumbnail.validate({ deployment, externalCalls })
+      const result = await faceThumbnail.validate(deployment, components)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `Couldn't parse face256 thumbnail, please check image format.`
@@ -106,7 +106,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await faceThumbnail.validate({ deployment, externalCalls })
+      const result = await faceThumbnail.validate(deployment, components)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `Invalid face256 thumbnail image size (width = 1 / height = 1)`
@@ -125,7 +125,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await faceThumbnail.validate({ deployment, externalCalls })
+      const result = await faceThumbnail.validate(deployment, components)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `Invalid or unknown image format. Only 'PNG' format is accepted.`
@@ -143,7 +143,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await faceThumbnail.validate({ deployment, externalCalls })
+      const result = await faceThumbnail.validate(deployment, components)
 
       expect(result.ok).toBeTruthy()
     })
@@ -162,7 +162,10 @@ describe('Profiles', () => {
         isContentStoredAlready: async () => new Map([[hash, true]])
       })
 
-      const result = await faceThumbnail.validate({ deployment, externalCalls })
+      const result = await faceThumbnail.validate(
+        deployment,
+        buildComponents({ externalCalls })
+      )
 
       expect(result.ok).toBeTruthy()
     })
@@ -177,7 +180,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await wearableUrns.validate({ deployment, externalCalls })
+      const result = await wearableUrns.validate(deployment, components)
 
       expect(result.ok).toBeTruthy()
     })
@@ -196,11 +199,11 @@ describe('Profiles', () => {
             }
           ]
         },
-        timestamp
+        timestamp: ADR_XXX_TIMESTAMP + 1
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await wearableUrns.validate({ deployment, externalCalls })
+      const result = await wearableUrns.validate(deployment, components)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(

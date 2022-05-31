@@ -1,6 +1,7 @@
 import { Fetcher } from 'dcl-catalyst-commons'
-import { ExternalCalls } from '../../src/types'
+import { ContentValidatorComponents, ExternalCalls } from '../../src/types'
 import { WearableCollection } from '../../src/validations/access-checker/wearables'
+import { createTheGraphClient } from '../../src'
 
 export const fetcher = new Fetcher({
   timeout: '30s',
@@ -13,6 +14,30 @@ export const fetcher = new Fetcher({
     return Promise.resolve(request)
   }
 })
+
+export const buildComponents = (
+  components?: Partial<ContentValidatorComponents>
+): ContentValidatorComponents => {
+  const externalCalls = buildExternalCalls()
+  const logs = { getLogger: () => console }
+  const theGraphClient = createTheGraphClient(
+    { logs },
+    externalCalls.queryGraph,
+    {
+      collectionsSubgraph: '',
+      ensSubgraph: '',
+      maticCollectionsSubgraph: '',
+      thirdPartyRegistrySubgraph: ''
+    }
+  )
+
+  return {
+    externalCalls,
+    logs: logs,
+    theGraphClient: theGraphClient,
+    ...components
+  }
+}
 
 export const buildExternalCalls = (
   externalCalls?: Partial<ExternalCalls>
