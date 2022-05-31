@@ -1,6 +1,10 @@
 import { EntityType } from 'dcl-catalyst-commons'
 import sharp from 'sharp'
-import {ADR_45_TIMESTAMP, ADR_XXX_TIMESTAMP, ValidationResponse} from '../../../src'
+import {
+  ADR_45_TIMESTAMP,
+  ADR_XXX_TIMESTAMP,
+  ValidationResponse
+} from '../../../src'
 import { faceThumbnail, wearableUrns } from '../../../src/validations/profile'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
