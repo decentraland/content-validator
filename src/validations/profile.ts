@@ -60,7 +60,7 @@ export const faceThumbnail: Validation = {
 }
 
 export const wearableUrns: Validation = {
-  validate: async ({ deployment, externalCalls }) => {
+  validate: async ({ deployment }) => {
     const allAvatars: any[] = deployment.entity.metadata?.avatars ?? []
     for (const avatar of allAvatars) {
       for (const pointer of avatar.avatar.wearables) {

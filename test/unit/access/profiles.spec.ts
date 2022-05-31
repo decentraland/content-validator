@@ -1,6 +1,13 @@
 import { profiles } from '../../../src/validations/access-checker/profiles'
-import { buildProfileDeployment } from '../../setup/deployments'
+import {
+  buildDeployment,
+  buildProfileDeployment
+} from '../../setup/deployments'
 import { buildExternalCalls } from '../../setup/mock'
+import { buildEntity } from '../../setup/entity'
+import { EntityType } from 'dcl-catalyst-commons'
+import { VALID_PROFILE_METADATA } from '../../setup/profiles'
+import { ADR_45_TIMESTAMP } from '../../../src'
 
 describe('Access: profiles', () => {
   it('When a non-decentraland address tries to deploy an default profile, then an error is returned', async () => {
@@ -81,5 +88,24 @@ describe('Access: profiles', () => {
     expect(response.errors).toContain(
       'The given pointer is not a valid ethereum address.'
     )
+  })
+
+  it('When a profile has wearables, then all wearables must be owned by the ETH address', async () => {
+    const someAddress = '0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c'
+
+    const entity = buildEntity({
+      type: EntityType.PROFILE,
+      metadata: VALID_PROFILE_METADATA,
+      timestamp: ADR_45_TIMESTAMP + 1,
+      pointers: [someAddress]
+    })
+    const deployment = buildDeployment({ entity })
+
+    const externalCalls = buildExternalCalls({
+      ownerAddress: () => someAddress
+    })
+
+    const response = await profiles.validate({ deployment, externalCalls })
+    expect(response.ok).toBeTruthy()
   })
 })

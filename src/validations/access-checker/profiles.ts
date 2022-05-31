@@ -1,7 +1,9 @@
 import { isAddress } from '@ethersproject/address'
-import { Pointer } from 'dcl-catalyst-commons'
+import { Entity, Pointer } from 'dcl-catalyst-commons'
 import { OK, Validation, validationFailed } from '../../types'
 import { createTheGraph } from './the-graph-client'
+import { parseUrn } from '@dcl/urn-resolver'
+import { Avatar } from '@dcl/schemas'
 
 /**
  * Validate that the pointers are valid, and that the Ethereum address has write access to them
@@ -48,8 +50,53 @@ export const profiles: Validation = {
       thirdPartyRegistrySubgraph
     })
 
-    const response = await theGraph.checkForWearablesOwnership([])
+    console.log(deployment.entity.metadata.avatars[0].avatar.wearables)
+
+    const names = await allNames(deployment.entity)
+    const wearableUrns = await allWearablesUrns(deployment.entity)
+    console.log('names', names, 'wearableUrns', wearableUrns)
+
+    const response = await theGraph.checkForWearablesOwnership([
+      [pointer, wearableUrns]
+    ])
     console.log(response)
     return OK
   }
+}
+
+function allNames(entity: Entity): string[] {
+  return entity.metadata.avatars
+    .map((avatar: Avatar) => avatar.name)
+    .filter((name: string) => name && name.trim().length > 0)
+}
+
+async function allWearablesUrns(entity: Entity) {
+  const allWearablesInProfilePromises: Promise<string | undefined>[] = []
+  for (const avatar of entity.metadata.avatars) {
+    for (const wearableId of avatar.avatar.wearables) {
+      if (!isBaseAvatar(wearableId)) {
+        allWearablesInProfilePromises.push(
+          translateWearablesIdFormat(wearableId)
+        )
+      }
+    }
+  }
+
+  return (await Promise.all(allWearablesInProfilePromises)).filter(
+    (wearableId): wearableId is string => !!wearableId
+  )
+}
+
+function isBaseAvatar(wearable: string): boolean {
+  return wearable.includes('base-avatars')
+}
+
+async function translateWearablesIdFormat(
+  wearableId: string
+): Promise<string | undefined> {
+  if (!wearableId.startsWith('dcl://')) {
+    return wearableId
+  }
+  const parsed = await parseUrn(wearableId)
+  return parsed?.uri?.toString()
 }

@@ -2,6 +2,18 @@ import { Fetcher } from 'dcl-catalyst-commons'
 import { ExternalCalls } from '../../src/types'
 import { WearableCollection } from '../../src/validations/access-checker/wearables'
 
+export const fetcher = new Fetcher({
+  timeout: '30s',
+  headers: {
+    'User-Agent': `content-server/Unknown (+https://github.com/decentraland/catalyst)`,
+    Origin: '127.0.0.1'
+  },
+  requestMiddleware: (request) => {
+    console.log(request)
+    return Promise.resolve(request)
+  }
+})
+
 export const buildExternalCalls = (
   externalCalls?: Partial<ExternalCalls>
 ): ExternalCalls => ({
@@ -10,8 +22,24 @@ export const buildExternalCalls = (
   validateSignature: () => Promise.resolve({ ok: true }),
   ownerAddress: () => '',
   isAddressOwnedByDecentraland: () => false,
-  queryGraph: jest.fn(),
-  subgraphs: buildSubgraphs(),
+  queryGraph: fetcher.queryGraph,
+  subgraphs: buildSubgraphs({
+    L1: {
+      collections:
+        'https://api.thegraph.com/subgraphs/name/decentraland/collections-ethereum-ropsten',
+      blocks: '',
+      landManager: ''
+    },
+    L2: {
+      collections:
+        'https://api.thegraph.com/subgraphs/name/decentraland/collections-matic-mumbai',
+      blocks: '',
+      thirdPartyRegistry:
+        'https://api.thegraph.com/subgraphs/name/decentraland/tpr-matic-mumbai',
+      ensOwner:
+        'https://api.thegraph.com/subgraphs/name/decentraland/marketplace-ropsten'
+    }
+  }),
   ...externalCalls
 })
 
