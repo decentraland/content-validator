@@ -1,4 +1,4 @@
-import { Entity, EntityType } from 'dcl-catalyst-commons'
+import { Entity, EntityType } from '@dcl/schemas'
 import { LEGACY_CONTENT_MIGRATION_TIMESTAMP } from '..'
 import { OK, Validation, validationFailed } from '../../types'
 import { profiles } from './profiles'

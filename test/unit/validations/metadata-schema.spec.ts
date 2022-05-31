@@ -1,4 +1,4 @@
-import { EntityType } from 'dcl-catalyst-commons'
+import { EntityType } from '@dcl/schemas'
 import { ADR_45_TIMESTAMP } from '../../../src'
 import { metadata } from '../../../src/validations/metadata-schema'
 import { buildDeployment } from '../../setup/deployments'

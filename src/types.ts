@@ -1,16 +1,10 @@
+import { AuthChain, Entity } from '@dcl/schemas'
 import { ILoggerComponent } from '@well-known-components/interfaces'
-import {
-  AuditInfo,
-  ContentFileHash,
-  Entity,
-  EntityId,
-  Fetcher
-} from 'dcl-catalyst-commons'
 
 /**
  * @public
  */
-export type LocalDeploymentAuditInfo = Pick<AuditInfo, 'authChain'>
+export type LocalDeploymentAuditInfo = { authChain: AuthChain }
 
 /**
  * @public
@@ -35,27 +29,35 @@ export type EntityWithEthAddress = Entity & {
  */
 export type DeploymentToValidate = {
   entity: Entity
-  files: Map<ContentFileHash, Uint8Array>
+  files: Map<string, Uint8Array>
   auditInfo: LocalDeploymentAuditInfo
 }
+
+/**
+ * Function used to fetch TheGraph
+ * @public
+ */
+export type QueryGraph = <T = any>(
+  url: string,
+  query: string,
+  variables: Record<string, any>
+) => Promise<T>
 
 /**
  * External calls interface to be provided by the servers.
  * @public
  */
 export type ExternalCalls = {
-  isContentStoredAlready: (
-    hashes: ContentFileHash[]
-  ) => Promise<Map<ContentFileHash, boolean>>
+  isContentStoredAlready: (hashes: string[]) => Promise<Map<string, boolean>>
   fetchContentFileSize: (hash: string) => Promise<number | undefined>
   validateSignature: (
-    entityId: EntityId,
+    entityId: string,
     auditInfo: LocalDeploymentAuditInfo,
     timestamp: number
   ) => Promise<{ ok: boolean; message?: string }>
   ownerAddress: (auditInfo: LocalDeploymentAuditInfo) => string
   isAddressOwnedByDecentraland: (address: string) => boolean
-  queryGraph: Fetcher['queryGraph']
+  queryGraph: QueryGraph
   subgraphs: {
     L1: {
       landManager: string

@@ -1,5 +1,5 @@
 import { hashV1 } from '@dcl/hashing'
-import { EntityType } from 'dcl-catalyst-commons'
+import { EntityType } from '@dcl/schemas'
 import { ADR_45_TIMESTAMP } from '../../../src'
 import { size } from '../../../src/validations/size'
 import { buildDeployment } from '../../setup/deployments'

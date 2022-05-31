@@ -1,4 +1,4 @@
-import { Hashing } from 'dcl-catalyst-commons'
+import { hashV1 } from '@dcl/hashing'
 import { ADR_45_TIMESTAMP } from '../../../src'
 import { ipfsHashing } from '../../../src/validations/ipfs-hashing'
 import { buildDeployment } from '../../setup/deployments'
@@ -42,7 +42,7 @@ describe('IPFS hashing', () => {
   })
 
   it(`when all entity's hashes are ipfs, then no errors are reported`, async () => {
-    const someHash = await Hashing.calculateIPFSHash(Buffer.from('some file'))
+    const someHash = await hashV1(Buffer.from('some file'))
     const entity = buildEntity({
       content: [{ file: 'someFile.png', hash: someHash }],
       timestamp

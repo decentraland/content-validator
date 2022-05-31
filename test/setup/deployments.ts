@@ -1,5 +1,4 @@
-import { MerkleProof, ThirdPartyWearable } from '@dcl/schemas'
-import { Entity, EntityType } from 'dcl-catalyst-commons'
+import { ThirdPartyWearable, Entity, EntityType } from '@dcl/schemas'
 import { DeploymentToValidate, LocalDeploymentAuditInfo } from '../../src/types'
 import {
   buildEntity,
