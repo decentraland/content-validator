@@ -7,7 +7,7 @@ import { parseUrn } from '@dcl/urn-resolver'
 /** Validate that given profile deployment includes a face256 thumbnail with valid size */
 const defaultThumbnailSize = 256
 export const faceThumbnail: Validation = {
-  validate: async ({ deployment, externalCalls }) => {
+  validate: async (deployment, { externalCalls }) => {
     if (deployment.entity.timestamp < ADR_45_TIMESTAMP) return OK
 
     const errors: string[] = []
@@ -60,7 +60,7 @@ export const faceThumbnail: Validation = {
 }
 
 export const wearableUrns: Validation = {
-  validate: async ({ deployment }) => {
+  validate: async (deployment) => {
     if (deployment.entity.timestamp < ADR_XXX_TIMESTAMP) return OK
 
     const allAvatars: any[] = deployment.entity.metadata?.avatars ?? []
@@ -82,9 +82,9 @@ export const wearableUrns: Validation = {
  * * @public
  */
 export const profile: Validation = {
-  validate: async (args, components) => {
-    if (args.deployment.entity.type !== EntityType.PROFILE) return OK
+  validate: async (deployment, components) => {
+    if (deployment.entity.type !== EntityType.PROFILE) return OK
 
-    return validateInRow(args, components, faceThumbnail, wearableUrns)
+    return validateInRow(deployment, components, faceThumbnail, wearableUrns)
   }
 }

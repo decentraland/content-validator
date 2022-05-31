@@ -91,7 +91,6 @@ export interface Validator {
  */
 export type ValidationArgs = {
   deployment: DeploymentToValidate
-  externalCalls: ExternalCalls
 }
 
 /**
@@ -107,7 +106,7 @@ export type ValidationResponse = {
  */
 export type Validation = {
   validate: (
-    args: ValidationArgs,
+    deployment: DeploymentToValidate,
     components: ContentValidatorComponents
   ) => ValidationResponse | Promise<ValidationResponse>
 }
@@ -117,7 +116,7 @@ export type Validation = {
  */
 export type ConditionalValidation = {
   predicate: (
-    args: ValidationArgs
+    deployment: DeploymentToValidate
   ) => ValidationResponse | Promise<ValidationResponse>
 }
 
@@ -208,4 +207,5 @@ export type TheGraphClient = {
 export type ContentValidatorComponents = {
   logs: ILoggerComponent
   theGraphClient: TheGraphClient
+  externalCalls: ExternalCalls
 }

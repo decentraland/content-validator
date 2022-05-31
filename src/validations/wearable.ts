@@ -13,7 +13,7 @@ const wearableSizeLimitInMB = 2
 
 /** Validate wearable representations are referencing valid content */
 export const wearableRepresentationContent: Validation = {
-  validate: async ({ deployment }) => {
+  validate: async (deployment) => {
     const { entity } = deployment
     const wearableMetadata = entity.metadata as Wearable
     const representations = wearableMetadata?.data?.representations
@@ -40,7 +40,7 @@ export const wearableRepresentationContent: Validation = {
 
 /** Validate wearable files size, excluding thumbnail, is less than expected */
 export const wearableSize: Validation = {
-  validate: async ({ deployment, externalCalls }) => {
+  validate: async (deployment, { externalCalls }) => {
     const entity = deployment.entity
     if (entity.timestamp < ADR_45_TIMESTAMP) return OK
     const maxSizeInMB = entityParameters[EntityType.WEARABLE].maxSizeInMB
@@ -76,11 +76,8 @@ export const wearableSize: Validation = {
 /** Validate that given wearable deployment includes a thumbnail with valid format and size */
 const maxThumbnailSize = 1024
 export const wearableThumbnail: Validation = {
-  validate: async (
-    { deployment, externalCalls },
-    components: Pick<ContentValidatorComponents, 'logs'>
-  ) => {
-    const logger = components.logs.getLogger('wearable validator')
+  validate: async (deployment, { externalCalls, logs }) => {
+    const logger = logs.getLogger('wearable validator')
 
     if (deployment.entity.timestamp < ADR_45_TIMESTAMP) return OK
     // read thumbnail field from metadata
@@ -138,10 +135,10 @@ export const wearableThumbnail: Validation = {
  * * @public
  */
 export const wearable: Validation = {
-  validate: async (args, components) => {
-    if (args.deployment.entity.type !== EntityType.WEARABLE) return OK
+  validate: async (deployment, components) => {
+    if (deployment.entity.type !== EntityType.WEARABLE) return OK
     return validateInRow(
-      args,
+      deployment,
       components,
       wearableRepresentationContent,
       wearableThumbnail,

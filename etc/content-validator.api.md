@@ -23,7 +23,7 @@ export const calculateDeploymentSize: (deployment: DeploymentToValidate, externa
 
 // @public (undocumented)
 export type ConditionalValidation = {
-    predicate: (args: ValidationArgs) => ValidationResponse | Promise<ValidationResponse>;
+    predicate: (deployment: DeploymentToValidate) => ValidationResponse | Promise<ValidationResponse>;
 };
 
 // @public (undocumented)
@@ -33,6 +33,7 @@ export const conditionalValidation: (condition: ConditionalValidation) => Valida
 export type ContentValidatorComponents = {
     logs: ILoggerComponent;
     theGraphClient: TheGraphClient;
+    externalCalls: ExternalCalls;
 };
 
 // Warning: (ae-internal-missing-underscore) The name "createTheGraphClient" should be prefixed with an underscore because the declaration is marked as @internal
@@ -41,7 +42,7 @@ export type ContentValidatorComponents = {
 export const createTheGraphClient: (components: Pick<ContentValidatorComponents, 'logs'>, queryGraph: Fetcher['queryGraph'], urls: URLs) => TheGraphClient;
 
 // @public
-export const createValidator: (externalCalls: ExternalCalls, components: Pick<ContentValidatorComponents, 'logs' | 'theGraphClient'>) => Validator;
+export const createValidator: (externalCalls: ExternalCalls, components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'theGraphClient'>) => Validator;
 
 // @public
 export type DeploymentToValidate = {
@@ -142,17 +143,16 @@ export type URLs = {
 };
 
 // @public (undocumented)
-export const validateInRow: (validationArgs: ValidationArgs, components: ContentValidatorComponents, ...validations: Validation[]) => Promise<ValidationResponse>;
+export const validateInRow: (deployment: DeploymentToValidate, components: ContentValidatorComponents, ...validations: Validation[]) => Promise<ValidationResponse>;
 
 // @public (undocumented)
 export type Validation = {
-    validate: (args: ValidationArgs, components: ContentValidatorComponents) => ValidationResponse | Promise<ValidationResponse>;
+    validate: (deployment: DeploymentToValidate, components: ContentValidatorComponents) => ValidationResponse | Promise<ValidationResponse>;
 };
 
 // @public (undocumented)
 export type ValidationArgs = {
     deployment: DeploymentToValidate;
-    externalCalls: ExternalCalls;
 };
 
 // @public (undocumented)
@@ -178,10 +178,10 @@ export type Warnings = string[];
 
 // Warnings were encountered during analysis:
 //
-// src/types.ts:192:3 - (ae-forgotten-export) The symbol "WearablesFilters" needs to be exported by the entry point index.d.ts
-// src/types.ts:192:3 - (ae-forgotten-export) The symbol "WearableId" needs to be exported by the entry point index.d.ts
-// src/types.ts:201:3 - (ae-forgotten-export) The symbol "ThirdPartyIntegration" needs to be exported by the entry point index.d.ts
-// src/types.ts:210:3 - (ae-incompatible-release-tags) The symbol "theGraphClient" is marked as @public, but its signature references "TheGraphClient" which is marked as @internal
+// src/types.ts:191:3 - (ae-forgotten-export) The symbol "WearablesFilters" needs to be exported by the entry point index.d.ts
+// src/types.ts:191:3 - (ae-forgotten-export) The symbol "WearableId" needs to be exported by the entry point index.d.ts
+// src/types.ts:200:3 - (ae-forgotten-export) The symbol "ThirdPartyIntegration" needs to be exported by the entry point index.d.ts
+// src/types.ts:209:3 - (ae-incompatible-release-tags) The symbol "theGraphClient" is marked as @public, but its signature references "TheGraphClient" which is marked as @internal
 
 // (No @packageDocumentation comment for this package)
 

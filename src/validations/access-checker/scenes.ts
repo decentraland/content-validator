@@ -1,12 +1,7 @@
 import { EthAddress } from '@dcl/schemas'
 import { retry, Timestamp } from 'dcl-catalyst-commons'
 import ms from 'ms'
-import {
-  ContentValidatorComponents,
-  ExternalCalls,
-  fromErrors,
-  Validation
-} from '../../types'
+import { ExternalCalls, fromErrors, Validation } from '../../types'
 
 type AddressSnapshot = {
   address: string
@@ -42,11 +37,8 @@ type Authorization = {
  * @public
  */
 export const scenes: Validation = {
-  validate: async (
-    { deployment, externalCalls },
-    components: Pick<ContentValidatorComponents, 'logs'>
-  ) => {
-    const logger = components.logs.getLogger('scenes access validator')
+  validate: async (deployment, { externalCalls, logs }) => {
+    const logger = logs.getLogger('scenes access validator')
     const getAuthorizations = async (
       owner: EthAddress,
       operator: EthAddress,

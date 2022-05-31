@@ -1,25 +1,16 @@
 import { isAddress } from '@ethersproject/address'
 import { Entity, Pointer } from 'dcl-catalyst-commons'
-import {
-  ContentValidatorComponents,
-  OK,
-  Validation,
-  validationFailed
-} from '../../types'
+import { OK, Validation, validationFailed } from '../../types'
 import { parseUrn } from '@dcl/urn-resolver'
 import { Avatar } from '@dcl/schemas'
 import { ADR_XXX_TIMESTAMP } from '../index'
-import { createTheGraphClient } from '../../the-graph-client/the-graph-client'
 
 /**
  * Validate that the pointers are valid, and that the Ethereum address has write access to them
  * @public
  */
 export const profiles: Validation = {
-  validate: async (
-    { deployment, externalCalls },
-    components: Pick<ContentValidatorComponents, 'logs' | 'theGraphClient'>
-  ) => {
+  validate: async (deployment, { externalCalls, theGraphClient, logs }) => {
     const pointers = deployment.entity.pointers
     const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
 
@@ -54,7 +45,6 @@ export const profiles: Validation = {
     // const thirdPartyRegistrySubgraph: string =
     //   externalCalls.subgraphs.L2.thirdPartyRegistry
 
-    const theGraph = components.theGraphClient
     // createTheGraphClient(
     //     components.queryGraph,
     //   {
@@ -66,15 +56,15 @@ export const profiles: Validation = {
     //   logs
     // )
 
-    const logger = components.logs.getLogger('profiles access validator')
+    const logger = logs.getLogger('profiles access validator')
 
-    console.log(deployment.entity.metadata.avatars[0].avatar.wearables)
+    logger.debug(deployment.entity.metadata.avatars[0].avatar.wearables)
 
     const names = allNames(deployment.entity)
     const wearableUrns = await allWearablesUrns(deployment.entity)
     console.log('names', names, 'wearableUrns', wearableUrns)
 
-    const response = await theGraph.checkForWearablesOwnership([
+    const response = await theGraphClient.checkForWearablesOwnership([
       [pointer, wearableUrns]
     ])
     console.log(response)

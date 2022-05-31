@@ -135,10 +135,9 @@ const getThirdPartyId = (urn: BlockchainCollectionThirdParty): string =>
  */
 export const wearables: Validation = {
   validate: async (
-    { deployment, externalCalls },
-    components: Pick<ContentValidatorComponents, 'logs'>
+    deployment, { externalCalls, logs },
   ) => {
-    const logger = components.logs.getLogger('wearables access validator')
+    const logger = logs.getLogger('wearables access validator')
 
     const hasPermission = async (
       subgraphUrl: string,

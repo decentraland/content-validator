@@ -15,17 +15,17 @@ export * from './validations'
  */
 export const createValidator = (
   externalCalls: ExternalCalls,
-  components: Pick<ContentValidatorComponents, 'logs' | 'theGraphClient'>
+  components: Pick<
+    ContentValidatorComponents,
+    'externalCalls' | 'logs' | 'theGraphClient'
+  >
 ): Validator => {
   const logs = components.logs.getLogger('ContentValidator')
 
   return {
     validate: async (deployment) => {
       for (const validation of validations) {
-        const result = await validation.validate(
-          { deployment, externalCalls },
-          components
-        )
+        const result = await validation.validate(deployment, components)
         if (!result.ok) {
           logs.debug(`Validation failed:\n${result.errors?.join('\n')}`)
           return result
