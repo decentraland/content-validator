@@ -1,6 +1,6 @@
 import { EntityType } from 'dcl-catalyst-commons'
 import sharp from 'sharp'
-import {ADR_45_TIMESTAMP, ADR_XXX_TIMESTAMP, validateInRow} from '.'
+import { ADR_45_TIMESTAMP, ADR_XXX_TIMESTAMP, validateInRow } from '.'
 import { OK, Validation, validationFailed } from '../types'
 import { parseUrn } from '@dcl/urn-resolver'
 

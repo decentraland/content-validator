@@ -7,6 +7,13 @@ import {
   Fetcher
 } from 'dcl-catalyst-commons'
 
+import { EthAddress } from 'dcl-crypto'
+import {
+  ThirdPartyIntegration,
+  WearableId,
+  WearablesFilters
+} from './the-graph-client/types'
+
 /**
  * @public
  */
@@ -152,9 +159,53 @@ export const fromErrors = (...errors: Errors): ValidationResponse => ({
 })
 
 /**
+ * @internal
+ */
+export type URLs = {
+  ensSubgraph: string
+  collectionsSubgraph: string
+  maticCollectionsSubgraph: string
+  thirdPartyRegistrySubgraph: string
+}
+
+/**
+ * @internal
+ */
+export type TheGraphClient = {
+  checkForNamesOwnership: (
+    namesToCheck: [EthAddress, string[]][]
+  ) => Promise<{ owner: EthAddress; names: string[] }[]>
+
+  checkForWearablesOwnership: (
+    wearableIdsToCheck: [EthAddress, string[]][]
+  ) => Promise<{ owner: EthAddress; urns: string[] }[]>
+
+  findOwnersByName: (
+    names: string[]
+  ) => Promise<{ name: string; owner: EthAddress }[]>
+
+  findThirdPartyResolver: (
+    subgraph: keyof URLs,
+    id: string
+  ) => Promise<string | undefined>
+
+  findWearablesByFilters: (
+    filters: WearablesFilters,
+    pagination: { limit: number; lastId: string | undefined }
+  ) => Promise<WearableId[]>
+
+  findWearablesByOwner: (owner: EthAddress) => Promise<WearableId[]>
+
+  getAllCollections: () => Promise<{ name: string; urn: string }[]>
+
+  getThirdPartyIntegrations: () => Promise<ThirdPartyIntegration[]>
+}
+
+/**
  * Components that can be used to validate deployments.
  * @public
  */
 export type ContentValidatorComponents = {
   logs: ILoggerComponent
+  theGraphClient: TheGraphClient
 }
