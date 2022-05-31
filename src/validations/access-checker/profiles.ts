@@ -4,6 +4,7 @@ import { OK, Validation, validationFailed } from '../../types'
 import { createTheGraph } from './the-graph-client'
 import { parseUrn } from '@dcl/urn-resolver'
 import { Avatar } from '@dcl/schemas'
+import { ADR_XXX_TIMESTAMP } from '../index'
 
 /**
  * Validate that the pointers are valid, and that the Ethereum address has write access to them
@@ -35,6 +36,8 @@ export const profiles: Validation = {
         `You can only alter your own profile. The pointer address and the signer address are different (pointer:${pointer} signer: ${ethAddress.toLowerCase()}).`
       )
     }
+
+    if (deployment.entity.timestamp < ADR_XXX_TIMESTAMP) return OK
 
     const collectionsSubgraph: string = externalCalls.subgraphs.L1.collections
     const maticCollectionsSubgraph: string =
