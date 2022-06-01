@@ -46,7 +46,7 @@ describe('Size', () => {
     })
     const externalCalls = buildExternalCalls()
 
-    const result = await size.validate(deployment, components)
+    const result = await size.validate(components, deployment)
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain(
       'The deployment is too big. The maximum allowed size per pointer is 2 MB for profile. You can upload up to 2097152 bytes but you tried to upload 2202009.'
@@ -82,7 +82,7 @@ describe('Size', () => {
     })
     const externalCalls = buildExternalCalls()
 
-    const result = await size.validate(deployment, components)
+    const result = await size.validate(components, deployment)
     expect(result.ok).toBeTruthy()
   })
 
@@ -96,7 +96,7 @@ describe('Size', () => {
       const deployment = buildDeployment({ entity, files })
       const externalCalls = buildExternalCalls()
 
-      const result = await size.validate(deployment, components)
+      const result = await size.validate(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         'The deployment is too big. The maximum allowed size per pointer is 2 MB for profile. You can upload up to 2097152 bytes but you tried to upload 2202009.'
@@ -128,10 +128,7 @@ describe('Size', () => {
           Promise.resolve(contentSizes.get(hash) ?? 0)
       })
 
-      const response = await size.validate(
-        deployment,
-        buildComponents({ externalCalls })
-      )
+      const response = await size.validate(buildComponents({ externalCalls }), deployment)
       expect(response.ok).toBeFalsy()
       expect(response.errors).toContain(
         'The deployment is too big. The maximum allowed size per pointer is 15 MB for scene. You can upload up to 15728640 bytes but you tried to upload 16777216.'
@@ -157,7 +154,7 @@ describe('Size', () => {
         fetchContentFileSize: () => Promise.resolve(undefined)
       })
 
-      const response = await size.validate(deployment, components)
+      const response = await size.validate(components, deployment)
       expect(response.ok).toBeFalsy()
       expect(response.errors).toContain(
         `Couldn't fetch content file with hash: A`
@@ -183,10 +180,7 @@ describe('Size', () => {
         fetchContentFileSize: () => Promise.resolve(0)
       })
 
-      const response = await size.validate(
-        deployment,
-        buildComponents({ externalCalls })
-      )
+      const response = await size.validate(buildComponents({ externalCalls }), deployment)
       expect(response.ok).toBeTruthy()
     })
 
@@ -212,10 +206,7 @@ describe('Size', () => {
           Promise.resolve(contentSizes.get(hash) ?? 0)
       })
 
-      const response = await size.validate(
-        deployment,
-        buildComponents({ externalCalls })
-      )
+      const response = await size.validate(buildComponents({ externalCalls }), deployment)
       expect(response.ok).toBeTruthy()
     })
   })

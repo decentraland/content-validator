@@ -23,14 +23,14 @@ describe('Metadata Schema', () => {
     it('when entity metadata is valid should not report errors', async () => {
       const entity = buildEntity({ type, metadata: validMetadata, timestamp })
       const deployment = buildDeployment({ entity })
-      const result = await metadata.validate(deployment, buildComponents())
+      const result = await metadata.validate(buildComponents(), deployment)
 
       expect(result.ok).toBeTruthy()
     })
     it('when entity metadata is invalid should report an error', async () => {
       const entity = buildEntity({ type, metadata: invalidMetadata, timestamp })
       const deployment = buildDeployment({ entity })
-      const result = await metadata.validate(deployment, buildComponents())
+      const result = await metadata.validate(buildComponents(), deployment)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
@@ -78,7 +78,7 @@ describe('Metadata Schema', () => {
       timestamp: PRE_ADR_45_TIMESTAMP
     })
     const deployment = buildDeployment({ entity })
-    const result = await metadata.validate(deployment, buildComponents())
+    const result = await metadata.validate(buildComponents(), deployment)
 
     expect(result.ok).toBeTruthy()
   })

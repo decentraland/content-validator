@@ -16,7 +16,7 @@ export const calculateDeploymentSize: (deployment: DeploymentToValidate, externa
 
 // @public (undocumented)
 export type ConditionalValidation = {
-    predicate: (deployment: DeploymentToValidate) => ValidationResponse | Promise<ValidationResponse>;
+    predicate: (components: ContentValidatorComponents, deployment: DeploymentToValidate) => ValidationResponse | Promise<ValidationResponse>;
 };
 
 // @public (undocumented)
@@ -29,7 +29,7 @@ export type ContentValidatorComponents = {
 };
 
 // @public
-export const createValidator: (externalCalls: ExternalCalls, components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs'>) => Validator;
+export const createValidator: (components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs'>) => Validator;
 
 // @public
 export type DeploymentToValidate = {
@@ -99,7 +99,7 @@ export const validateInRow: (deployment: DeploymentToValidate, components: Conte
 
 // @public (undocumented)
 export type Validation = {
-    validate: (deployment: DeploymentToValidate, components: ContentValidatorComponents) => ValidationResponse | Promise<ValidationResponse>;
+    validate: (components: ContentValidatorComponents, deployment: DeploymentToValidate) => ValidationResponse | Promise<ValidationResponse>;
 };
 
 // @public (undocumented)

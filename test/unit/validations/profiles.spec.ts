@@ -48,10 +48,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result: ValidationResponse = await faceThumbnail.validate(
-        deployment,
-        components
-      )
+      const result: ValidationResponse = await faceThumbnail.validate(components, deployment)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
@@ -70,7 +67,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await faceThumbnail.validate(deployment, components)
+      const result = await faceThumbnail.validate(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `Couldn't find thumbnail file with hash: ${hash}`
@@ -88,7 +85,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await faceThumbnail.validate(deployment, components)
+      const result = await faceThumbnail.validate(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `Couldn't parse face256 thumbnail, please check image format.`
@@ -106,7 +103,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await faceThumbnail.validate(deployment, components)
+      const result = await faceThumbnail.validate(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `Invalid face256 thumbnail image size (width = 1 / height = 1)`
@@ -125,7 +122,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await faceThumbnail.validate(deployment, components)
+      const result = await faceThumbnail.validate(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `Invalid or unknown image format. Only 'PNG' format is accepted.`
@@ -143,7 +140,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await faceThumbnail.validate(deployment, components)
+      const result = await faceThumbnail.validate(components, deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -161,10 +158,7 @@ describe('Profiles', () => {
         isContentStoredAlready: async () => new Map([[hash, true]])
       })
 
-      const result = await faceThumbnail.validate(
-        deployment,
-        buildComponents({ externalCalls })
-      )
+      const result = await faceThumbnail.validate(buildComponents({ externalCalls }), deployment)
 
       expect(result.ok).toBeTruthy()
     })

@@ -53,7 +53,7 @@ describe('Wearables', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await wearableThumbnail.validate(deployment, components)
+      const result = await wearableThumbnail.validate(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `Couldn't find hash for thumbnail file with name: ${fileName}`
@@ -71,7 +71,7 @@ describe('Wearables', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await wearableThumbnail.validate(deployment, components)
+      const result = await wearableThumbnail.validate(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `Couldn't find thumbnail file with hash: ${hash}`
@@ -89,7 +89,7 @@ describe('Wearables', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await wearableThumbnail.validate(deployment, components)
+      const result = await wearableThumbnail.validate(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `Couldn't parse thumbnail, please check image format.`
@@ -107,7 +107,7 @@ describe('Wearables', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await wearableThumbnail.validate(deployment, components)
+      const result = await wearableThumbnail.validate(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `Invalid thumbnail image size (width = 1025 / height = 1025)`
@@ -126,10 +126,7 @@ describe('Wearables', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result: ValidationResponse = await wearableThumbnail.validate(
-        deployment,
-        components
-      )
+      const result: ValidationResponse = await wearableThumbnail.validate(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `Invalid or unknown image format. Only 'PNG' format is accepted.`
@@ -147,7 +144,7 @@ describe('Wearables', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await wearableThumbnail.validate(deployment, components)
+      const result = await wearableThumbnail.validate(components, deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -166,10 +163,7 @@ describe('Wearables', () => {
         isContentStoredAlready: async () => new Map([[hash, true]])
       })
 
-      const result = await wearableThumbnail.validate(
-        deployment,
-        buildComponents({ externalCalls })
-      )
+      const result = await wearableThumbnail.validate(buildComponents({ externalCalls }), deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -195,7 +189,7 @@ describe('Wearables', () => {
         timestamp
       })
       const deployment = buildDeployment({ entity, files })
-      const result = await wearableSize.validate(deployment, components)
+      const result = await wearableSize.validate(components, deployment)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
@@ -221,7 +215,7 @@ describe('Wearables', () => {
         timestamp
       })
       const deployment = buildDeployment({ entity, files })
-      const result = await size.validate(deployment, components)
+      const result = await size.validate(components, deployment)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
@@ -247,7 +241,7 @@ describe('Wearables', () => {
         timestamp
       })
       const deployment = buildDeployment({ entity, files })
-      const result = await wearableSize.validate(deployment, components)
+      const result = await wearableSize.validate(components, deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -270,10 +264,7 @@ describe('Wearables', () => {
         content
       })
       const deployment = buildDeployment({ entity, files })
-      const result = await wearableRepresentationContent.validate(
-        deployment,
-        components
-      )
+      const result = await wearableRepresentationContent.validate(components, deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -295,10 +286,7 @@ describe('Wearables', () => {
         content
       })
       const deployment = buildDeployment({ entity, files })
-      const result = await wearableRepresentationContent.validate(
-        deployment,
-        components
-      )
+      const result = await wearableRepresentationContent.validate(components, deployment)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(

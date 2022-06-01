@@ -15,7 +15,7 @@ describe('IPFS hashing', () => {
     })
     const deployment = buildDeployment({ entity })
 
-    const result = await ipfsHashing.validate(deployment, components)
+    const result = await ipfsHashing.validate(components, deployment)
 
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain(
@@ -33,7 +33,7 @@ describe('IPFS hashing', () => {
     const entity = buildEntity({ timestamp, content })
     const deployment = buildDeployment({ entity })
 
-    const result = await ipfsHashing.validate(deployment, components)
+    const result = await ipfsHashing.validate(components, deployment)
 
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain(
@@ -50,7 +50,7 @@ describe('IPFS hashing', () => {
 
     const deployment = buildDeployment({ entity })
 
-    const result = await ipfsHashing.validate(deployment, components)
+    const result = await ipfsHashing.validate(components, deployment)
     expect(result.ok).toBeTruthy()
   })
 
@@ -64,7 +64,7 @@ describe('IPFS hashing', () => {
     const entity = buildEntity({ content, timestamp: ADR_45_TIMESTAMP - 1 })
     const deployment = buildDeployment({ entity })
 
-    const result = await ipfsHashing.validate(deployment, components)
+    const result = await ipfsHashing.validate(components, deployment)
 
     expect(result.ok).toBeTruthy()
   })

@@ -6,7 +6,7 @@ import { OK, Validation, validationFailed } from '../types'
 /** Validate that given profile deployment includes a face256 thumbnail with valid size */
 const defaultThumbnailSize = 256
 export const faceThumbnail: Validation = {
-  validate: async (deployment, { externalCalls }) => {
+  validate: async ({ externalCalls }, deployment) => {
     if (deployment.entity.timestamp < ADR_45_TIMESTAMP) return OK
 
     const errors: string[] = []
@@ -63,9 +63,9 @@ export const faceThumbnail: Validation = {
  * * @public
  */
 export const profile: Validation = {
-  validate: async (deployment, components) => {
+  validate: async (components, deployment) => {
     if (deployment.entity.type !== EntityType.PROFILE) return OK
 
-    return faceThumbnail.validate(deployment, components)
+    return faceThumbnail.validate(components, deployment)
   }
 }

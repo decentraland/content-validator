@@ -11,10 +11,7 @@ describe('Access: scenes', () => {
       ownerAddress: () => '0xAddress'
     })
 
-    const response = await scenes.validate(
-      deployment,
-      buildComponents({ externalCalls })
-    )
+    const response = await scenes.validate(buildComponents({ externalCalls }), deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       'Scene pointers should only contain two integers separated by a comma, for example (10,10) or (120,-45). Invalid pointer: default10'
@@ -29,10 +26,7 @@ describe('Access: scenes', () => {
       ownerAddress: () => '0xAddress'
     })
 
-    const response = await scenes.validate(
-      deployment,
-      buildComponents({ externalCalls })
-    )
+    const response = await scenes.validate(buildComponents({ externalCalls }), deployment)
     expect(response.ok).toBeFalsy()
   })
 
@@ -44,10 +38,7 @@ describe('Access: scenes', () => {
       ownerAddress: () => '0xAddress'
     })
 
-    const response = await scenes.validate(
-      deployment,
-      buildComponents({ externalCalls })
-    )
+    const response = await scenes.validate(buildComponents({ externalCalls }), deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       'Scene pointers should only contain two integers separated by a comma, for example (10,10) or (120,-45). Invalid pointer: invalid-pointer'

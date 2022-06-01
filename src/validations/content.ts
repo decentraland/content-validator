@@ -22,7 +22,7 @@ const correspondsToASnapshot = (
  * @public
  */
 export const content: Validation = {
-  validate: async (deployment, { externalCalls }) => {
+  validate: async ({ externalCalls }, deployment) => {
     const { entity, files } = deployment
     const errors: string[] = []
     if (entity.content) {

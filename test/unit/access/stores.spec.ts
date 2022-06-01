@@ -12,10 +12,7 @@ describe('Access: stores', () => {
       ownerAddress: () => someAddress
     })
 
-    const response = await stores.validate(
-      deployment,
-      buildComponents({ externalCalls })
-    )
+    const response = await stores.validate(buildComponents({ externalCalls }), deployment)
     expect(response.ok).toBeTruthy()
   })
 
@@ -26,10 +23,7 @@ describe('Access: stores', () => {
       ownerAddress: () => 'some-address'
     })
 
-    const response = await stores.validate(
-      deployment,
-      buildComponents({ externalCalls })
-    )
+    const response = await stores.validate(buildComponents({ externalCalls }), deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       `Only one pointer is allowed when you create a Store. Received: ${addresses}`
@@ -47,10 +41,7 @@ describe('Access: stores', () => {
       ownerAddress: () => address
     })
 
-    const response = await stores.validate(
-      deployment,
-      buildComponents({ externalCalls })
-    )
+    const response = await stores.validate(buildComponents({ externalCalls }), deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       `You can only alter your own store. The pointer address and the signer address are different (address:${otherAddress} signer: ${address}).`
