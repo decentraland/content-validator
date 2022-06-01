@@ -1,4 +1,8 @@
-import { ContentValidatorComponents, ExternalCalls, QueryGraph } from '../../src/types'
+import {
+  ContentValidatorComponents,
+  ExternalCalls,
+  QueryGraph
+} from '../../src/types'
 import { WearableCollection } from '../../src/validations/access-checker/wearables'
 
 export const buildComponents = (

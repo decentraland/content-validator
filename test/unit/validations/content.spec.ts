@@ -47,7 +47,10 @@ describe('Content', () => {
       isContentStoredAlready: () => Promise.resolve(new Map([['hash', true]]))
     })
 
-    const result = await content.validate(buildComponents({ externalCalls }), deployment)
+    const result = await content.validate(
+      buildComponents({ externalCalls }),
+      deployment
+    )
     expect(result.ok).toBeTruthy()
   })
 

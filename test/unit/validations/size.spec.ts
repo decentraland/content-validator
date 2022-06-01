@@ -128,7 +128,10 @@ describe('Size', () => {
           Promise.resolve(contentSizes.get(hash) ?? 0)
       })
 
-      const response = await size.validate(buildComponents({ externalCalls }), deployment)
+      const response = await size.validate(
+        buildComponents({ externalCalls }),
+        deployment
+      )
       expect(response.ok).toBeFalsy()
       expect(response.errors).toContain(
         'The deployment is too big. The maximum allowed size per pointer is 15 MB for scene. You can upload up to 15728640 bytes but you tried to upload 16777216.'
@@ -180,7 +183,10 @@ describe('Size', () => {
         fetchContentFileSize: () => Promise.resolve(0)
       })
 
-      const response = await size.validate(buildComponents({ externalCalls }), deployment)
+      const response = await size.validate(
+        buildComponents({ externalCalls }),
+        deployment
+      )
       expect(response.ok).toBeTruthy()
     })
 
@@ -206,7 +212,10 @@ describe('Size', () => {
           Promise.resolve(contentSizes.get(hash) ?? 0)
       })
 
-      const response = await size.validate(buildComponents({ externalCalls }), deployment)
+      const response = await size.validate(
+        buildComponents({ externalCalls }),
+        deployment
+      )
       expect(response.ok).toBeTruthy()
     })
   })

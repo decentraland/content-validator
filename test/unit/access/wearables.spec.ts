@@ -20,7 +20,10 @@ describe('Access: wearables', () => {
     const deployment = buildWearableDeployment(pointers)
     const externalCalls = buildExternalCalls()
 
-    const response = await wearables.validate(buildComponents({ externalCalls }), deployment)
+    const response = await wearables.validate(
+      buildComponents({ externalCalls }),
+      deployment
+    )
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       'Wearable pointers should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (invalid-pointer)'
@@ -35,7 +38,10 @@ describe('Access: wearables', () => {
     const deployment = buildWearableDeployment(pointers)
     const externalCalls = buildExternalCalls()
 
-    const response = await wearables.validate(buildComponents({ externalCalls }), deployment)
+    const response = await wearables.validate(
+      buildComponents({ externalCalls }),
+      deployment
+    )
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       `Only one pointer is allowed when you create a Wearable. Received: ${pointers}`
@@ -52,7 +58,10 @@ describe('Access: wearables', () => {
       ownerAddress: () => 'some address'
     })
 
-    const response = await wearables.validate(buildComponents({ externalCalls }), deployment)
+    const response = await wearables.validate(
+      buildComponents({ externalCalls }),
+      deployment
+    )
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       `The provided Eth Address 'some address' does not have access to the following wearable: 'urn:decentraland:ethereum:collections-v1:atari_launch:atari_red_upper_body'`
@@ -69,7 +78,10 @@ describe('Access: wearables', () => {
       ownerAddress: () => 'some address'
     })
 
-    const response = await wearables.validate(buildComponents({ externalCalls }), deployment)
+    const response = await wearables.validate(
+      buildComponents({ externalCalls }),
+      deployment
+    )
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       `The provided Eth Address 'some address' does not have access to the following wearable: 'urn:decentraland:ethereum:collections-v1:dgtble_headspace:dgtble_hoodi_linetang_upper_body'`
@@ -85,7 +97,10 @@ describe('Access: wearables', () => {
       ownerAddress: () => 'some address'
     })
 
-    const response = await wearables.validate(buildComponents({ externalCalls }), deployment)
+    const response = await wearables.validate(
+      buildComponents({ externalCalls }),
+      deployment
+    )
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       `The provided Eth Address 'some address' does not have access to the following wearable: 'urn:decentraland:ethereum:collections-v1:dgtble_headspace:dgtble_hoodi_linetang_upper_body'`
@@ -101,7 +116,10 @@ describe('Access: wearables', () => {
       isAddressOwnedByDecentraland: () => true
     })
 
-    const response = await wearables.validate(buildComponents({ externalCalls }), deployment)
+    const response = await wearables.validate(
+      buildComponents({ externalCalls }),
+      deployment
+    )
     expect(response.ok).toBeTruthy()
   })
 
@@ -112,7 +130,10 @@ describe('Access: wearables', () => {
       isAddressOwnedByDecentraland: () => true
     })
 
-    const response = await wearables.validate(buildComponents({ externalCalls }), deployment)
+    const response = await wearables.validate(
+      buildComponents({ externalCalls }),
+      deployment
+    )
     expect(response.ok).toBeTruthy()
   })
 
@@ -147,7 +168,12 @@ describe('Access: wearables', () => {
 
     await wearables.validate(buildComponents({ externalCalls }), deployment)
 
-    expect(mockedQueryGraph).toHaveBeenNthCalledWith(1, subgraphs.L2.blocks, expect.anything(), expect.anything())
+    expect(mockedQueryGraph).toHaveBeenNthCalledWith(
+      1,
+      subgraphs.L2.blocks,
+      expect.anything(),
+      expect.anything()
+    )
     expect(mockedQueryGraph).toHaveBeenNthCalledWith(
       2,
       subgraphs.L2.collections,
@@ -172,7 +198,12 @@ describe('Access: wearables', () => {
 
     await wearables.validate(buildComponents({ externalCalls }), deployment)
 
-    expect(mockedQueryGraph).toHaveBeenNthCalledWith(1, subgraphs.L1.blocks, expect.anything(), expect.anything())
+    expect(mockedQueryGraph).toHaveBeenNthCalledWith(
+      1,
+      subgraphs.L1.blocks,
+      expect.anything(),
+      expect.anything()
+    )
     expect(mockedQueryGraph).toHaveBeenNthCalledWith(
       2,
       subgraphs.L1.collections,
@@ -267,7 +298,10 @@ describe('Access: wearables', () => {
         metadata
       )
 
-      const response = await wearables.validate(buildComponents({ externalCalls }), deployment)
+      const response = await wearables.validate(
+        buildComponents({ externalCalls }),
+        deployment
+      )
       expect(response.ok).toBeTruthy()
     })
 
@@ -282,7 +316,10 @@ describe('Access: wearables', () => {
         content: {}
       })
 
-      const response = await wearables.validate(buildComponents({ externalCalls }), deployment)
+      const response = await wearables.validate(
+        buildComponents({ externalCalls }),
+        deployment
+      )
       expect(response.ok).toBeFalsy()
     })
 
@@ -328,7 +365,10 @@ describe('Access: wearables', () => {
         metadata
       )
 
-      const response = await wearables.validate(buildComponents({ externalCalls }), deployment)
+      const response = await wearables.validate(
+        buildComponents({ externalCalls }),
+        deployment
+      )
       expect(response.ok).toBeFalsy()
     })
 
@@ -344,7 +384,10 @@ describe('Access: wearables', () => {
         merkleProof: { proof: [], index: 0, hashingKeys: [], entityHash: '' }
       })
 
-      const response = await wearables.validate(buildComponents({ externalCalls }), deployment)
+      const response = await wearables.validate(
+        buildComponents({ externalCalls }),
+        deployment
+      )
       expect(response.ok).toBeFalsy()
     })
 
@@ -363,7 +406,10 @@ describe('Access: wearables', () => {
         }
       })
 
-      const response = await wearables.validate(buildComponents({ externalCalls }), deployment)
+      const response = await wearables.validate(
+        buildComponents({ externalCalls }),
+        deployment
+      )
       expect(response.ok).toBeFalsy()
     })
 
@@ -379,7 +425,10 @@ describe('Access: wearables', () => {
         merkleProof: { ...metadata.merkleProof, entityHash: 'someInvalidHash' }
       })
 
-      const response = await wearables.validate(buildComponents({ externalCalls }), deployment)
+      const response = await wearables.validate(
+        buildComponents({ externalCalls }),
+        deployment
+      )
       expect(response.ok).toBeFalsy()
     })
   })

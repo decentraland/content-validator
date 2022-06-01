@@ -8,7 +8,9 @@ export * from './validations'
  * Creates a validator instance with given external calls.
  * @public
  */
-export const createValidator = (components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs'>): Validator => {
+export const createValidator = (
+  components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs'>
+): Validator => {
   const logs = components.logs.getLogger('ContentValidator')
 
   return {
@@ -21,6 +23,6 @@ export const createValidator = (components: Pick<ContentValidatorComponents, 'ex
         }
       }
       return OK
-    },
+    }
   }
 }

@@ -48,7 +48,10 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result: ValidationResponse = await faceThumbnail.validate(components, deployment)
+      const result: ValidationResponse = await faceThumbnail.validate(
+        components,
+        deployment
+      )
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
@@ -158,7 +161,10 @@ describe('Profiles', () => {
         isContentStoredAlready: async () => new Map([[hash, true]])
       })
 
-      const result = await faceThumbnail.validate(buildComponents({ externalCalls }), deployment)
+      const result = await faceThumbnail.validate(
+        buildComponents({ externalCalls }),
+        deployment
+      )
 
       expect(result.ok).toBeTruthy()
     })

@@ -126,7 +126,10 @@ describe('Wearables', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result: ValidationResponse = await wearableThumbnail.validate(components, deployment)
+      const result: ValidationResponse = await wearableThumbnail.validate(
+        components,
+        deployment
+      )
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `Invalid or unknown image format. Only 'PNG' format is accepted.`
@@ -163,7 +166,10 @@ describe('Wearables', () => {
         isContentStoredAlready: async () => new Map([[hash, true]])
       })
 
-      const result = await wearableThumbnail.validate(buildComponents({ externalCalls }), deployment)
+      const result = await wearableThumbnail.validate(
+        buildComponents({ externalCalls }),
+        deployment
+      )
 
       expect(result.ok).toBeTruthy()
     })
@@ -264,7 +270,10 @@ describe('Wearables', () => {
         content
       })
       const deployment = buildDeployment({ entity, files })
-      const result = await wearableRepresentationContent.validate(components, deployment)
+      const result = await wearableRepresentationContent.validate(
+        components,
+        deployment
+      )
 
       expect(result.ok).toBeTruthy()
     })
@@ -286,7 +295,10 @@ describe('Wearables', () => {
         content
       })
       const deployment = buildDeployment({ entity, files })
-      const result = await wearableRepresentationContent.validate(components, deployment)
+      const result = await wearableRepresentationContent.validate(
+        components,
+        deployment
+      )
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(

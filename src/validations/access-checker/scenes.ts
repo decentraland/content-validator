@@ -63,7 +63,7 @@ export const scenes: Validation = {
       const variables = {
         owner,
         operator,
-        timestamp: Math.floor(timestamp / 1000), // js(ms) -> UNIX(s)
+        timestamp: Math.floor(timestamp / 1000) // js(ms) -> UNIX(s)
       }
 
       try {
@@ -80,7 +80,10 @@ export const scenes: Validation = {
       }
     }
 
-    const getEstate = async (estateId: string, timestamp: Timestamp): Promise<Estate | undefined> => {
+    const getEstate = async (
+      estateId: string,
+      timestamp: Timestamp
+    ): Promise<Estate | undefined> => {
       /**
        * You can use `owner`, `operator` and `updateOperator` to check the current value for that estate.
        * Keep in mind that each association (owners, operators, etc) is capped to a thousand (1000) results.
@@ -120,7 +123,7 @@ export const scenes: Validation = {
 
       const variables = {
         estateId,
-        timestamp: Math.floor(timestamp / 1000), // UNIX
+        timestamp: Math.floor(timestamp / 1000) // UNIX
       }
 
       try {
@@ -137,7 +140,11 @@ export const scenes: Validation = {
       }
     }
 
-    const getParcel = async (x: number, y: number, timestamp: Timestamp): Promise<Parcel | undefined> => {
+    const getParcel = async (
+      x: number,
+      y: number,
+      timestamp: Timestamp
+    ): Promise<Parcel | undefined> => {
       /**
        * You can use `owner`, `operator` and `updateOperator` to check the current value for that parcel.
        * Keep in mind that each association (owners, operators, etc) is capped to a thousand (1000) results.
@@ -185,7 +192,7 @@ export const scenes: Validation = {
       const variables = {
         x,
         y,
-        timestamp: Math.floor(timestamp / 1000), // UNIX
+        timestamp: Math.floor(timestamp / 1000) // UNIX
       }
 
       try {
@@ -197,7 +204,11 @@ export const scenes: Validation = {
 
         if (r.parcels && r.parcels.length) return r.parcels[0]
 
-        logger.error(`Error fetching parcel (${x}, ${y}, ${timestamp}): ${JSON.stringify(r)}`)
+        logger.error(
+          `Error fetching parcel (${x}, ${y}, ${timestamp}): ${JSON.stringify(
+            r
+          )}`
+        )
         throw new Error(`Error fetching parcel (${x}, ${y}), ${timestamp}`)
       } catch (error) {
         logger.error(`Error fetching parcel (${x}, ${y}, ${timestamp})`)
@@ -214,9 +225,15 @@ export const scenes: Validation = {
        *   - an authorization with isApproved and type Operator, ApprovalForAll or UpdateManager
        * at that time
        */
-      const authorizations = await getAuthorizations(owner.toLowerCase(), ethAddress.toLowerCase(), timestamp)
+      const authorizations = await getAuthorizations(
+        owner.toLowerCase(),
+        ethAddress.toLowerCase(),
+        timestamp
+      )
 
-      const firstOperatorAuthorization = authorizations.find((authorization) => authorization.type === 'Operator')
+      const firstOperatorAuthorization = authorizations.find(
+        (authorization) => authorization.type === 'Operator'
+      )
       const firstApprovalForAllAuthorization = authorizations.find(
         (authorization) => authorization.type === 'ApprovalForAll'
       )
@@ -239,7 +256,11 @@ export const scenes: Validation = {
       target: AuthorizationHistory,
       ethAddress: EthAddress
     ): Promise<boolean> => {
-      const firstLevelAuthorities = [...target.owners, ...target.operators, ...target.updateOperators]
+      const firstLevelAuthorities = [
+        ...target.owners,
+        ...target.operators,
+        ...target.updateOperators
+      ]
         .filter((addressSnapshot) => addressSnapshot.address)
         .map((addressSnapshot) => addressSnapshot.address.toLowerCase())
       return firstLevelAuthorities.includes(ethAddress.toLowerCase())
@@ -254,7 +275,11 @@ export const scenes: Validation = {
       if (estate) {
         return (
           (await hasAccessThroughFirstLevelAuthorities(estate, ethAddress)) ||
-          (await hasAccessThroughAuthorizations(estate.owners[0].address, ethAddress, timestamp))
+          (await hasAccessThroughAuthorizations(
+            estate.owners[0].address,
+            ethAddress,
+            timestamp
+          ))
         )
       }
       throw new Error(`Couldn\'t find the state ${estateId}`)
@@ -276,12 +301,23 @@ export const scenes: Validation = {
       const parcel = await getParcel(x, y, timestamp)
       if (parcel) {
         const belongsToEstate: boolean =
-          parcel.estates != undefined && parcel.estates.length > 0 && parcel.estates[0].estateId != undefined
+          parcel.estates != undefined &&
+          parcel.estates.length > 0 &&
+          parcel.estates[0].estateId != undefined
 
         return (
           (await hasAccessThroughFirstLevelAuthorities(parcel, ethAddress)) ||
-          (await hasAccessThroughAuthorizations(parcel.owners[0].address, ethAddress, timestamp)) ||
-          (belongsToEstate && (await isEstateUpdateAuthorized(parcel.estates[0].estateId, timestamp, ethAddress)))
+          (await hasAccessThroughAuthorizations(
+            parcel.owners[0].address,
+            ethAddress,
+            timestamp
+          )) ||
+          (belongsToEstate &&
+            (await isEstateUpdateAuthorized(
+              parcel.estates[0].estateId,
+              timestamp,
+              ethAddress
+            )))
         )
       }
       throw new Error(`Parcel(${x},${y},${timestamp}) not found`)
@@ -295,9 +331,22 @@ export const scenes: Validation = {
       externalCalls: ExternalCalls
     ): Promise<boolean> => {
       try {
-        return await retry(() => isParcelUpdateAuthorized(x, y, timestamp, ethAddress, externalCalls), 5, '0.1s')
+        return await retry(
+          () =>
+            isParcelUpdateAuthorized(
+              x,
+              y,
+              timestamp,
+              ethAddress,
+              externalCalls
+            ),
+          5,
+          '0.1s'
+        )
       } catch (error) {
-        logger.error(`Error checking parcel access (${x}, ${y}, ${timestamp}, ${ethAddress}).`)
+        logger.error(
+          `Error checking parcel access (${x}, ${y}, ${timestamp}, ${ethAddress}).`
+        )
         throw error
       }
     }
@@ -319,13 +368,29 @@ export const scenes: Validation = {
         try {
           // Check that the address has access (we check both the present and the 5 min into the past to avoid synchronization issues in the blockchain)
           const hasAccess =
-            (await checkParcelAccess(x, y, timestamp, ethAddress, externalCalls)) ||
-            (await checkParcelAccess(x, y, timestamp - SCENE_LOOKBACK_TIME, ethAddress, externalCalls))
+            (await checkParcelAccess(
+              x,
+              y,
+              timestamp,
+              ethAddress,
+              externalCalls
+            )) ||
+            (await checkParcelAccess(
+              x,
+              y,
+              timestamp - SCENE_LOOKBACK_TIME,
+              ethAddress,
+              externalCalls
+            ))
           if (!hasAccess) {
-            errors.push(`The provided Eth Address does not have access to the following parcel: (${x},${y})`)
+            errors.push(
+              `The provided Eth Address does not have access to the following parcel: (${x},${y})`
+            )
           }
         } catch (e) {
-          errors.push(`The provided Eth Address does not have access to the following parcel: (${x},${y}). ${e}`)
+          errors.push(
+            `The provided Eth Address does not have access to the following parcel: (${x},${y}). ${e}`
+          )
         }
       } else {
         errors.push(
@@ -335,7 +400,7 @@ export const scenes: Validation = {
     }
 
     return fromErrors(...errors)
-  },
+  }
 }
 
 /** @internal */
