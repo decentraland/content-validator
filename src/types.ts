@@ -69,12 +69,12 @@ export type ExternalCalls = {
       landManager: string
       blocks: string
       collections: string
+      ensOwner: string
     }
     L2: {
       blocks: string
       collections: string
       thirdPartyRegistry: string
-      ensOwner: string
     }
   }
 }

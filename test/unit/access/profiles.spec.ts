@@ -3,7 +3,7 @@ import {
   buildDeployment,
   buildProfileDeployment
 } from '../../setup/deployments'
-import { buildComponents, buildExternalCalls } from '../../setup/mock'
+import {buildComponents, buildExternalCalls, realQueryGraph} from '../../setup/mock'
 import { buildEntity } from '../../setup/entity'
 import { EntityType } from '@dcl/schemas'
 import { VALID_PROFILE_METADATA } from '../../setup/profiles'
@@ -120,7 +120,8 @@ describe('Access: profiles', () => {
     const deployment = buildDeployment({ entity })
 
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => someAddress
+      ownerAddress: () => someAddress,
+      queryGraph: realQueryGraph
     })
 
     const response = await profiles.validate(

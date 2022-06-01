@@ -15,7 +15,7 @@ export const buildComponents = (
   const logs = components?.logs ?? buildLogger()
   const urls = {
     collectionsSubgraph: externalCalls.subgraphs.L1.collections,
-    ensSubgraph: '', //externalCalls.subgraphs.L2.ensOwner,
+    ensSubgraph: externalCalls.subgraphs.L1.ensOwner,
     maticCollectionsSubgraph: externalCalls.subgraphs.L2.collections,
     thirdPartyRegistrySubgraph: externalCalls.subgraphs.L2.thirdPartyRegistry
   }
@@ -40,7 +40,7 @@ export const buildExternalCalls = (
   validateSignature: () => Promise.resolve({ ok: true }),
   ownerAddress: () => '',
   isAddressOwnedByDecentraland: () => false,
-  queryGraph: realQueryGraph,
+  queryGraph: mockedQueryGraph(),
   subgraphs: buildSubgraphs(),
   ...externalCalls
 })
@@ -54,7 +54,9 @@ const defaultSubgraphs: Subgraphs = {
     blocks:
       'https://api.thegraph.com/subgraphs/name/decentraland/blocks-ethereum-ropsten',
     landManager:
-      'https://api.thegraph.com/subgraphs/name/decentraland/land-manager-ropsten'
+      'https://api.thegraph.com/subgraphs/name/decentraland/land-manager-ropsten',
+    ensOwner:
+      'https://api.thegraph.com/subgraphs/name/decentraland/marketplace-ropsten'
   },
   L2: {
     collections:
@@ -62,9 +64,7 @@ const defaultSubgraphs: Subgraphs = {
     blocks:
       'https://api.thegraph.com/subgraphs/name/decentraland/blocks-matic-mumbai',
     thirdPartyRegistry:
-      'https://api.thegraph.com/subgraphs/name/decentraland/tpr-matic-mumbai',
-    ensOwner:
-      'https://api.thegraph.com/subgraphs/name/decentraland/marketplace-ropsten'
+      'https://api.thegraph.com/subgraphs/name/decentraland/tpr-matic-mumbai'
   }
 }
 
