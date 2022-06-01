@@ -7,7 +7,7 @@ import { buildComponents, buildExternalCalls } from '../../setup/mock'
 import { buildEntity } from '../../setup/entity'
 import { EntityType } from '@dcl/schemas'
 import { VALID_PROFILE_METADATA } from '../../setup/profiles'
-import { ADR_45_TIMESTAMP } from '../../../src'
+import { ADR_XXX_TIMESTAMP } from '../../../src'
 
 describe('Access: profiles', () => {
   it('When a non-decentraland address tries to deploy an default profile, then an error is returned', async () => {
@@ -114,7 +114,7 @@ describe('Access: profiles', () => {
     const entity = buildEntity({
       type: EntityType.PROFILE,
       metadata: VALID_PROFILE_METADATA,
-      timestamp: ADR_45_TIMESTAMP + 1,
+      timestamp: ADR_XXX_TIMESTAMP + 1,
       pointers: [someAddress]
     })
     const deployment = buildDeployment({ entity })

@@ -37,24 +37,6 @@ export const profiles: Validation = {
 
     if (deployment.entity.timestamp < ADR_XXX_TIMESTAMP) return OK
 
-    // const collectionsSubgraph: string = externalCalls.subgraphs.L1.collections
-    // const maticCollectionsSubgraph: string =
-    //   externalCalls.subgraphs.L2.collections
-    // const ensSubgraph: string = externalCalls.subgraphs.L2.ensOwner
-    // const thirdPartyRegistrySubgraph: string =
-    //   externalCalls.subgraphs.L2.thirdPartyRegistry
-
-    // createTheGraphClient(
-    //     components.queryGraph,
-    //   {
-    //     ensSubgraph,
-    //     collectionsSubgraph,
-    //     maticCollectionsSubgraph,
-    //     thirdPartyRegistrySubgraph
-    //   },
-    //   logs
-    // )
-
     const logger = logs.getLogger('profiles access validator')
 
     logger.debug(deployment.entity.metadata.avatars[0].avatar.wearables)

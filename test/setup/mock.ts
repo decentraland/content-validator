@@ -5,41 +5,32 @@ import {
 } from '../../src/types'
 import { WearableCollection } from '../../src/validations/access-checker/wearables'
 import { createTheGraphClient } from '../../src'
-
-// export const fetcher = new Fetcher({
-//   timeout: '30s',
-//   headers: {
-//     'User-Agent': `content-server/Unknown (+https://github.com/decentraland/catalyst)`,
-//     Origin: '127.0.0.1'
-//   },
-//   requestMiddleware: (request) => {
-//     console.log(request)
-//     return Promise.resolve(request)
-//   }
-// })
+import { IFetchComponent } from '@well-known-components/http-server'
+import * as nodeFetch from 'node-fetch'
 
 export const buildComponents = (
   components?: Partial<ContentValidatorComponents>
 ): ContentValidatorComponents => {
-  const externalCalls = buildExternalCalls()
-  const logs = { getLogger: () => console }
-  const theGraphClient = createTheGraphClient(
-    { logs, externalCalls },
-    {
-      collectionsSubgraph: '',
-      ensSubgraph: '',
-      maticCollectionsSubgraph: '',
-      thirdPartyRegistrySubgraph: ''
-    }
-  )
+  const externalCalls = components?.externalCalls ?? buildExternalCalls()
+  const logs = components?.logs ?? buildLogger()
+  const urls = {
+    collectionsSubgraph: externalCalls.subgraphs.L1.collections,
+    ensSubgraph: '', //externalCalls.subgraphs.L2.ensOwner,
+    maticCollectionsSubgraph: externalCalls.subgraphs.L2.collections,
+    thirdPartyRegistrySubgraph: externalCalls.subgraphs.L2.thirdPartyRegistry
+  }
+  const theGraphClient =
+    components?.theGraphClient ??
+    createTheGraphClient({ logs, externalCalls, ...components }, urls)
 
   return {
     externalCalls,
     logs: logs,
-    theGraphClient: theGraphClient,
-    ...components
+    theGraphClient: theGraphClient
   }
 }
+
+export const buildLogger = () => ({ getLogger: () => console })
 
 export const buildExternalCalls = (
   externalCalls?: Partial<ExternalCalls>
@@ -49,24 +40,8 @@ export const buildExternalCalls = (
   validateSignature: () => Promise.resolve({ ok: true }),
   ownerAddress: () => '',
   isAddressOwnedByDecentraland: () => false,
-  queryGraph: jest.fn(),
-  subgraphs: buildSubgraphs({
-    L1: {
-      collections:
-        'https://api.thegraph.com/subgraphs/name/decentraland/collections-ethereum-ropsten',
-      blocks: '',
-      landManager: ''
-    },
-    L2: {
-      collections:
-        'https://api.thegraph.com/subgraphs/name/decentraland/collections-matic-mumbai',
-      blocks: '',
-      thirdPartyRegistry:
-        'https://api.thegraph.com/subgraphs/name/decentraland/tpr-matic-mumbai',
-      ensOwner:
-        'https://api.thegraph.com/subgraphs/name/decentraland/marketplace-ropsten'
-    }
-  }),
+  queryGraph: realQueryGraph,
+  subgraphs: buildSubgraphs(),
   ...externalCalls
 })
 
@@ -74,21 +49,61 @@ type Subgraphs = ExternalCalls['subgraphs']
 
 const defaultSubgraphs: Subgraphs = {
   L1: {
-    landManager: '',
-    blocks: '',
-    collections: ''
+    collections:
+      'https://api.thegraph.com/subgraphs/name/decentraland/collections-ethereum-ropsten',
+    blocks:
+      'https://api.thegraph.com/subgraphs/name/decentraland/blocks-ethereum-ropsten',
+    landManager:
+      'https://api.thegraph.com/subgraphs/name/decentraland/land-manager-ropsten'
   },
   L2: {
-    blocks: '',
-    collections: '',
-    thirdPartyRegistry: '',
-    ensOwner: ''
+    collections:
+      'https://api.thegraph.com/subgraphs/name/decentraland/collections-matic-mumbai',
+    blocks:
+      'https://api.thegraph.com/subgraphs/name/decentraland/blocks-matic-mumbai',
+    thirdPartyRegistry:
+      'https://api.thegraph.com/subgraphs/name/decentraland/tpr-matic-mumbai',
+    ensOwner:
+      'https://api.thegraph.com/subgraphs/name/decentraland/marketplace-ropsten'
   }
 }
+
 export const buildSubgraphs = (subgraphs?: Partial<Subgraphs>): Subgraphs => ({
   ...defaultSubgraphs,
   ...subgraphs
 })
+
+export function createFetchComponent(): IFetchComponent {
+  return {
+    async fetch(
+      url: nodeFetch.RequestInfo,
+      init?: nodeFetch.RequestInit
+    ): Promise<nodeFetch.Response> {
+      return nodeFetch.default(url, init)
+    }
+  }
+}
+
+export async function realQueryGraph<T = any>(
+  url: string,
+  query: string,
+  variables: Record<string, any>
+): Promise<T> {
+  console.log(url, query, variables)
+  const response = await createFetchComponent().fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query, variables })
+  })
+  const responseBody = await response.json()
+  console.log('response', responseBody)
+  if (!response.ok) {
+    throw new Error(
+      `Error querying graph. Reasons: ${JSON.stringify(responseBody)}`
+    )
+  }
+  return responseBody.data as T
+}
 
 export const mockedQueryGraph = () =>
   jest.fn() as jest.MockedFunction<QueryGraph>
