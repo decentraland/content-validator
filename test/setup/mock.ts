@@ -7,6 +7,7 @@ import { WearableCollection } from '../../src/validations/access-checker/wearabl
 import { createTheGraphClient } from '../../src'
 import { IFetchComponent } from '@well-known-components/http-server'
 import * as nodeFetch from 'node-fetch'
+import { ILoggerComponent } from '@well-known-components/interfaces'
 
 export const buildComponents = (
   components?: Partial<ContentValidatorComponents>
@@ -25,12 +26,20 @@ export const buildComponents = (
 
   return {
     externalCalls,
-    logs: logs,
-    theGraphClient: theGraphClient
+    logs,
+    theGraphClient
   }
 }
 
-export const buildLogger = () => ({ getLogger: () => console })
+export const buildLogger = (): ILoggerComponent => ({
+  getLogger: () => ({
+    debug() {},
+    info() {},
+    warn() {},
+    error() {},
+    log() {}
+  })
+})
 
 export const buildExternalCalls = (
   externalCalls?: Partial<ExternalCalls>
