@@ -3,7 +3,11 @@ import {
   buildDeployment,
   buildProfileDeployment
 } from '../../setup/deployments'
-import {buildComponents, buildExternalCalls, realQueryGraph} from '../../setup/mock'
+import {
+  buildComponents,
+  buildExternalCalls,
+  realQueryGraph
+} from '../../setup/mock'
 import { buildEntity } from '../../setup/entity'
 import { EntityType } from '@dcl/schemas'
 import { VALID_PROFILE_METADATA } from '../../setup/profiles'
