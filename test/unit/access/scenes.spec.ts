@@ -12,8 +12,8 @@ describe('Access: scenes', () => {
     })
 
     const response = await scenes.validate(
-      deployment,
-      buildComponents({ externalCalls })
+      buildComponents({ externalCalls }),
+      deployment
     )
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
@@ -30,8 +30,8 @@ describe('Access: scenes', () => {
     })
 
     const response = await scenes.validate(
-      deployment,
-      buildComponents({ externalCalls })
+      buildComponents({ externalCalls }),
+      deployment
     )
     expect(response.ok).toBeFalsy()
   })
@@ -45,8 +45,8 @@ describe('Access: scenes', () => {
     })
 
     const response = await scenes.validate(
-      deployment,
-      buildComponents({ externalCalls })
+      buildComponents({ externalCalls }),
+      deployment
     )
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(

@@ -1,15 +1,13 @@
 import { parseUrn } from '@dcl/urn-resolver'
-import { EthAddress } from 'dcl-crypto'
+import { EthAddress } from '@dcl/schemas'
 import { ThirdPartyIntegration, WearableId, WearablesFilters } from './types'
-import { Fetcher } from 'dcl-catalyst-commons'
 import { ContentValidatorComponents, TheGraphClient, URLs } from '../types'
 
 /**
  * @internal
  */
 export const createTheGraphClient = (
-  components: Pick<ContentValidatorComponents, 'logs'>,
-  queryGraph: Fetcher['queryGraph'],
+  components: Pick<ContentValidatorComponents, 'logs' | 'externalCalls'>,
   urls: URLs
 ): TheGraphClient => {
   const MAX_PAGE_SIZE = 1000
@@ -467,7 +465,7 @@ export const createTheGraphClient = (
     variables: Record<string, any>
   ): Promise<ReturnType> {
     try {
-      const response = await queryGraph<QueryResult>(
+      const response = await components.externalCalls.queryGraph<QueryResult>(
         urls[query.subgraph],
         query.query,
         variables

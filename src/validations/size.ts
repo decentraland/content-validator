@@ -1,4 +1,4 @@
-import { entityParameters } from 'dcl-catalyst-commons'
+import { entityParameters } from './ADR51'
 import {
   ADR_45_TIMESTAMP,
   calculateDeploymentSize,
@@ -12,7 +12,7 @@ import { OK, Validation, validationFailed } from '../types'
  * @public
  */
 export const size: Validation = {
-  validate: async (deployment, { externalCalls }) => {
+  validate: async ({ externalCalls }, deployment) => {
     const { entity } = deployment
     if (entity.timestamp <= LEGACY_CONTENT_MIGRATION_TIMESTAMP) return OK
 

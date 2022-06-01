@@ -1,19 +1,22 @@
-import { Fetcher } from 'dcl-catalyst-commons'
-import { ContentValidatorComponents, ExternalCalls } from '../../src/types'
+import {
+  ContentValidatorComponents,
+  ExternalCalls,
+  QueryGraph
+} from '../../src/types'
 import { WearableCollection } from '../../src/validations/access-checker/wearables'
 import { createTheGraphClient } from '../../src'
 
-export const fetcher = new Fetcher({
-  timeout: '30s',
-  headers: {
-    'User-Agent': `content-server/Unknown (+https://github.com/decentraland/catalyst)`,
-    Origin: '127.0.0.1'
-  },
-  requestMiddleware: (request) => {
-    console.log(request)
-    return Promise.resolve(request)
-  }
-})
+// export const fetcher = new Fetcher({
+//   timeout: '30s',
+//   headers: {
+//     'User-Agent': `content-server/Unknown (+https://github.com/decentraland/catalyst)`,
+//     Origin: '127.0.0.1'
+//   },
+//   requestMiddleware: (request) => {
+//     console.log(request)
+//     return Promise.resolve(request)
+//   }
+// })
 
 export const buildComponents = (
   components?: Partial<ContentValidatorComponents>
@@ -21,8 +24,7 @@ export const buildComponents = (
   const externalCalls = buildExternalCalls()
   const logs = { getLogger: () => console }
   const theGraphClient = createTheGraphClient(
-    { logs },
-    externalCalls.queryGraph,
+    { logs, externalCalls },
     {
       collectionsSubgraph: '',
       ensSubgraph: '',
@@ -47,7 +49,7 @@ export const buildExternalCalls = (
   validateSignature: () => Promise.resolve({ ok: true }),
   ownerAddress: () => '',
   isAddressOwnedByDecentraland: () => false,
-  queryGraph: fetcher.queryGraph,
+  queryGraph: jest.fn(),
   subgraphs: buildSubgraphs({
     L1: {
       collections:
@@ -88,14 +90,13 @@ export const buildSubgraphs = (subgraphs?: Partial<Subgraphs>): Subgraphs => ({
   ...subgraphs
 })
 
-type QueryGraph = Fetcher['queryGraph']
 export const mockedQueryGraph = () =>
   jest.fn() as jest.MockedFunction<QueryGraph>
 
 const COMMITTEE_MEMBER = '0xCOMMITEE_MEMBER'
 export const buildMockedQueryGraph = (
   collection?: Partial<WearableCollection>,
-  merkleRoot?: string
+  _merkleRoot?: string
 ) =>
   mockedQueryGraph().mockImplementation(async (url, _query, _variables) => {
     const withDefaults = {

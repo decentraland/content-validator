@@ -13,8 +13,8 @@ describe('Access: stores', () => {
     })
 
     const response = await stores.validate(
-      deployment,
-      buildComponents({ externalCalls })
+      buildComponents({ externalCalls }),
+      deployment
     )
     expect(response.ok).toBeTruthy()
   })
@@ -27,8 +27,8 @@ describe('Access: stores', () => {
     })
 
     const response = await stores.validate(
-      deployment,
-      buildComponents({ externalCalls })
+      buildComponents({ externalCalls }),
+      deployment
     )
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
@@ -48,8 +48,8 @@ describe('Access: stores', () => {
     })
 
     const response = await stores.validate(
-      deployment,
-      buildComponents({ externalCalls })
+      buildComponents({ externalCalls }),
+      deployment
     )
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(

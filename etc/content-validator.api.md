@@ -4,12 +4,9 @@
 
 ```ts
 
-import { AuditInfo } from 'dcl-catalyst-commons';
-import { ContentFileHash } from 'dcl-catalyst-commons';
-import { Entity } from 'dcl-catalyst-commons';
-import { EntityId } from 'dcl-catalyst-commons';
-import { EthAddress } from 'dcl-crypto';
-import { Fetcher } from 'dcl-catalyst-commons';
+import { AuthChain } from '@dcl/schemas';
+import { Entity } from '@dcl/schemas';
+import { EthAddress } from '@dcl/schemas';
 import { ILoggerComponent } from '@well-known-components/interfaces';
 
 // @public
@@ -23,7 +20,7 @@ export const calculateDeploymentSize: (deployment: DeploymentToValidate, externa
 
 // @public (undocumented)
 export type ConditionalValidation = {
-    predicate: (deployment: DeploymentToValidate) => ValidationResponse | Promise<ValidationResponse>;
+    predicate: (components: ContentValidatorComponents, deployment: DeploymentToValidate) => ValidationResponse | Promise<ValidationResponse>;
 };
 
 // @public (undocumented)
@@ -39,15 +36,15 @@ export type ContentValidatorComponents = {
 // Warning: (ae-internal-missing-underscore) The name "createTheGraphClient" should be prefixed with an underscore because the declaration is marked as @internal
 //
 // @internal (undocumented)
-export const createTheGraphClient: (components: Pick<ContentValidatorComponents, 'logs'>, queryGraph: Fetcher['queryGraph'], urls: URLs) => TheGraphClient;
+export const createTheGraphClient: (components: Pick<ContentValidatorComponents, 'logs' | 'externalCalls'>, urls: URLs) => TheGraphClient;
 
 // @public
-export const createValidator: (externalCalls: ExternalCalls, components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'theGraphClient'>) => Validator;
+export const createValidator: (components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'theGraphClient'>) => Validator;
 
 // @public
 export type DeploymentToValidate = {
     entity: Entity;
-    files: Map<ContentFileHash, Uint8Array>;
+    files: Map<string, Uint8Array>;
     auditInfo: LocalDeploymentAuditInfo;
 };
 
@@ -61,15 +58,15 @@ export type Errors = string[];
 
 // @public
 export type ExternalCalls = {
-    isContentStoredAlready: (hashes: ContentFileHash[]) => Promise<Map<ContentFileHash, boolean>>;
+    isContentStoredAlready: (hashes: string[]) => Promise<Map<string, boolean>>;
     fetchContentFileSize: (hash: string) => Promise<number | undefined>;
-    validateSignature: (entityId: EntityId, auditInfo: LocalDeploymentAuditInfo, timestamp: number) => Promise<{
+    validateSignature: (entityId: string, auditInfo: LocalDeploymentAuditInfo, timestamp: number) => Promise<{
         ok: boolean;
         message?: string;
     }>;
     ownerAddress: (auditInfo: LocalDeploymentAuditInfo) => string;
     isAddressOwnedByDecentraland: (address: string) => boolean;
-    queryGraph: Fetcher['queryGraph'];
+    queryGraph: QueryGraph;
     subgraphs: {
         L1: {
             landManager: string;
@@ -92,10 +89,15 @@ export const fromErrors: (...errors: Errors) => ValidationResponse;
 export const LEGACY_CONTENT_MIGRATION_TIMESTAMP = 1582167600000;
 
 // @public (undocumented)
-export type LocalDeploymentAuditInfo = Pick<AuditInfo, 'authChain'>;
+export type LocalDeploymentAuditInfo = {
+    authChain: AuthChain;
+};
 
 // @public (undocumented)
 export const OK: ValidationResponse;
+
+// @public
+export type QueryGraph = <T = any>(url: string, query: string, variables: Record<string, any>) => Promise<T>;
 
 // @public
 export const statefulValidations: readonly [Validation, Validation, Validation, Validation, Validation, Validation];
@@ -147,7 +149,7 @@ export const validateInRow: (deployment: DeploymentToValidate, components: Conte
 
 // @public (undocumented)
 export type Validation = {
-    validate: (deployment: DeploymentToValidate, components: ContentValidatorComponents) => ValidationResponse | Promise<ValidationResponse>;
+    validate: (components: ContentValidatorComponents, deployment: DeploymentToValidate) => ValidationResponse | Promise<ValidationResponse>;
 };
 
 // @public (undocumented)
@@ -178,10 +180,10 @@ export type Warnings = string[];
 
 // Warnings were encountered during analysis:
 //
-// src/types.ts:191:3 - (ae-forgotten-export) The symbol "WearablesFilters" needs to be exported by the entry point index.d.ts
-// src/types.ts:191:3 - (ae-forgotten-export) The symbol "WearableId" needs to be exported by the entry point index.d.ts
-// src/types.ts:200:3 - (ae-forgotten-export) The symbol "ThirdPartyIntegration" needs to be exported by the entry point index.d.ts
-// src/types.ts:209:3 - (ae-incompatible-release-tags) The symbol "theGraphClient" is marked as @public, but its signature references "TheGraphClient" which is marked as @internal
+// src/types.ts:196:3 - (ae-forgotten-export) The symbol "WearablesFilters" needs to be exported by the entry point index.d.ts
+// src/types.ts:196:3 - (ae-forgotten-export) The symbol "WearableId" needs to be exported by the entry point index.d.ts
+// src/types.ts:205:3 - (ae-forgotten-export) The symbol "ThirdPartyIntegration" needs to be exported by the entry point index.d.ts
+// src/types.ts:214:3 - (ae-incompatible-release-tags) The symbol "theGraphClient" is marked as @public, but its signature references "TheGraphClient" which is marked as @internal
 
 // (No @packageDocumentation comment for this package)
 

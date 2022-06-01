@@ -1,8 +1,5 @@
 import { signature } from '../../../src/validations/signature'
-import {
-  buildDeployment,
-  buildProfileDeployment
-} from '../../setup/deployments'
+import { buildDeployment } from '../../setup/deployments'
 import { buildComponents, buildExternalCalls } from '../../setup/mock'
 
 describe('Signature', () => {
@@ -15,8 +12,8 @@ describe('Signature', () => {
     })
 
     const result = await signature.validate(
-      deployment,
-      buildComponents({ externalCalls })
+      buildComponents({ externalCalls }),
+      deployment
     )
 
     expect(result.ok).toBeFalsy()
@@ -30,8 +27,8 @@ describe('Signature', () => {
     })
 
     const result = await signature.validate(
-      deployment,
-      buildComponents({ externalCalls })
+      buildComponents({ externalCalls }),
+      deployment
     )
 
     expect(result.ok).toBeTruthy()

@@ -1,8 +1,8 @@
 import { EthAddress } from '@dcl/schemas'
-import { retry, Timestamp } from 'dcl-catalyst-commons'
 import ms from 'ms'
 import { ExternalCalls, fromErrors, Validation } from '../../types'
 
+type Timestamp = number
 type AddressSnapshot = {
   address: string
 }
@@ -37,7 +37,7 @@ type Authorization = {
  * @public
  */
 export const scenes: Validation = {
-  validate: async (deployment, { externalCalls, logs }) => {
+  validate: async ({ externalCalls, logs }, deployment) => {
     const logger = logs.getLogger('scenes access validator')
     const getAuthorizations = async (
       owner: EthAddress,
@@ -290,7 +290,7 @@ export const scenes: Validation = {
       y: number,
       timestamp: Timestamp,
       ethAddress: EthAddress,
-      externalCalls: ExternalCalls
+      _externalCalls: ExternalCalls
     ): Promise<boolean> => {
       /* You get direct access if you were the:
        *   - owner
@@ -401,4 +401,31 @@ export const scenes: Validation = {
 
     return fromErrors(...errors)
   }
+}
+
+/** @internal */
+async function retry<T>(
+  execution: () => Promise<T>,
+  attempts: number,
+  waitTime: string = '1s',
+  failedAttemptCallback?: (attemptsLeft: number) => void
+): Promise<T> {
+  while (attempts > 0) {
+    try {
+      return await execution()
+      //     ^^^^^ never remove this "await" keyword, otherwise this function won't
+      //           catch the exception and perform the retries
+    } catch (error) {
+      attempts--
+      if (attempts > 0) {
+        if (failedAttemptCallback) {
+          failedAttemptCallback(attempts)
+        }
+        await new Promise<void>((res) => setTimeout(res, ms(waitTime)))
+      } else {
+        throw error
+      }
+    }
+  }
+  throw new Error('Please specify more than one attempt for the retry function')
 }

@@ -1,5 +1,5 @@
 import { verifyProof } from '@dcl/content-hash-tree'
-import { keccak256Hash } from '@dcl/hashing'
+import { hashV0, hashV1, keccak256Hash } from '@dcl/hashing'
 import { EthAddress, MerkleProof, ThirdPartyWearable } from '@dcl/schemas'
 import {
   BlockchainCollectionThirdParty,
@@ -8,14 +8,13 @@ import {
   OffChainAsset,
   parseUrn
 } from '@dcl/urn-resolver'
-import { Hashing, Timestamp } from 'dcl-catalyst-commons'
 import ms from 'ms'
 import {
-  ContentValidatorComponents,
   EntityWithEthAddress,
-  validationFailed
-} from '../..'
-import { OK, Validation } from '../../types'
+  validationFailed,
+  OK,
+  Validation
+} from '../../types'
 
 const L1_NETWORKS = ['mainnet', 'ropsten', 'kovan', 'rinkeby', 'goerli']
 const L2_NETWORKS = ['matic', 'mumbai']
@@ -134,7 +133,7 @@ const getThirdPartyId = (urn: BlockchainCollectionThirdParty): string =>
  * @public
  */
 export const wearables: Validation = {
-  validate: async (deployment, { externalCalls, logs }) => {
+  validate: async ({ externalCalls, logs }, deployment) => {
     const logger = logs.getLogger('wearables access validator')
 
     const hasPermission = async (
@@ -170,10 +169,7 @@ export const wearables: Validation = {
             const buffer = Buffer.from(
               JSON.stringify({ content: contentAsJson, metadata })
             )
-            return Promise.all([
-              Hashing.calculateBufferHash(buffer),
-              Hashing.calculateIPFSHash(buffer)
-            ])
+            return Promise.all([hashV0(buffer), hashV1(buffer)])
           }
           return (
             deployedByCommittee &&
@@ -250,7 +246,7 @@ export const wearables: Validation = {
     }
 
     const getWindowFromTimestamp = (
-      timestamp: Timestamp
+      timestamp: number
     ): {
       max: number
       min: number
@@ -265,7 +261,7 @@ export const wearables: Validation = {
 
     const findBlocksForTimestamp = async (
       blocksSubgraphUrl: string,
-      timestamp: Timestamp
+      timestamp: number
     ): Promise<{
       blockNumberAtDeployment: number | undefined
       blockNumberFiveMinBeforeDeployment: number | undefined

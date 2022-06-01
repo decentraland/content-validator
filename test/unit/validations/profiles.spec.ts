@@ -1,4 +1,4 @@
-import { EntityType } from 'dcl-catalyst-commons'
+import { EntityType } from '@dcl/schemas'
 import sharp from 'sharp'
 import {
   ADR_45_TIMESTAMP,
@@ -53,8 +53,8 @@ describe('Profiles', () => {
       const deployment = buildDeployment({ entity, files })
 
       const result: ValidationResponse = await faceThumbnail.validate(
-        deployment,
-        components
+        components,
+        deployment
       )
 
       expect(result.ok).toBeFalsy()
@@ -74,7 +74,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await faceThumbnail.validate(deployment, components)
+      const result = await faceThumbnail.validate(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `Couldn't find thumbnail file with hash: ${hash}`
@@ -92,7 +92,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await faceThumbnail.validate(deployment, components)
+      const result = await faceThumbnail.validate(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `Couldn't parse face256 thumbnail, please check image format.`
@@ -110,7 +110,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await faceThumbnail.validate(deployment, components)
+      const result = await faceThumbnail.validate(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `Invalid face256 thumbnail image size (width = 1 / height = 1)`
@@ -129,7 +129,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await faceThumbnail.validate(deployment, components)
+      const result = await faceThumbnail.validate(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `Invalid or unknown image format. Only 'PNG' format is accepted.`
@@ -147,7 +147,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await faceThumbnail.validate(deployment, components)
+      const result = await faceThumbnail.validate(components, deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -167,8 +167,8 @@ describe('Profiles', () => {
       })
 
       const result = await faceThumbnail.validate(
-        deployment,
-        buildComponents({ externalCalls })
+        buildComponents({ externalCalls }),
+        deployment
       )
 
       expect(result.ok).toBeTruthy()
@@ -184,7 +184,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await wearableUrns.validate(deployment, components)
+      const result = await wearableUrns.validate(components, deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -207,7 +207,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await wearableUrns.validate(deployment, components)
+      const result = await wearableUrns.validate(components, deployment)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(

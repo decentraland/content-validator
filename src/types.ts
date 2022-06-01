@@ -1,13 +1,6 @@
+import { AuthChain, Entity, EthAddress } from '@dcl/schemas'
 import { ILoggerComponent } from '@well-known-components/interfaces'
-import {
-  AuditInfo,
-  ContentFileHash,
-  Entity,
-  EntityId,
-  Fetcher
-} from 'dcl-catalyst-commons'
 
-import { EthAddress } from 'dcl-crypto'
 import {
   ThirdPartyIntegration,
   WearableId,
@@ -17,7 +10,7 @@ import {
 /**
  * @public
  */
-export type LocalDeploymentAuditInfo = Pick<AuditInfo, 'authChain'>
+export type LocalDeploymentAuditInfo = { authChain: AuthChain }
 
 /**
  * @public
@@ -42,27 +35,35 @@ export type EntityWithEthAddress = Entity & {
  */
 export type DeploymentToValidate = {
   entity: Entity
-  files: Map<ContentFileHash, Uint8Array>
+  files: Map<string, Uint8Array>
   auditInfo: LocalDeploymentAuditInfo
 }
+
+/**
+ * Function used to fetch TheGraph
+ * @public
+ */
+export type QueryGraph = <T = any>(
+  url: string,
+  query: string,
+  variables: Record<string, any>
+) => Promise<T>
 
 /**
  * External calls interface to be provided by the servers.
  * @public
  */
 export type ExternalCalls = {
-  isContentStoredAlready: (
-    hashes: ContentFileHash[]
-  ) => Promise<Map<ContentFileHash, boolean>>
+  isContentStoredAlready: (hashes: string[]) => Promise<Map<string, boolean>>
   fetchContentFileSize: (hash: string) => Promise<number | undefined>
   validateSignature: (
-    entityId: EntityId,
+    entityId: string,
     auditInfo: LocalDeploymentAuditInfo,
     timestamp: number
   ) => Promise<{ ok: boolean; message?: string }>
   ownerAddress: (auditInfo: LocalDeploymentAuditInfo) => string
   isAddressOwnedByDecentraland: (address: string) => boolean
-  queryGraph: Fetcher['queryGraph']
+  queryGraph: QueryGraph
   subgraphs: {
     L1: {
       landManager: string
@@ -106,8 +107,8 @@ export type ValidationResponse = {
  */
 export type Validation = {
   validate: (
-    deployment: DeploymentToValidate,
-    components: ContentValidatorComponents
+    components: ContentValidatorComponents,
+    deployment: DeploymentToValidate
   ) => ValidationResponse | Promise<ValidationResponse>
 }
 
@@ -116,6 +117,7 @@ export type Validation = {
  */
 export type ConditionalValidation = {
   predicate: (
+    components: ContentValidatorComponents,
     deployment: DeploymentToValidate
   ) => ValidationResponse | Promise<ValidationResponse>
 }
@@ -139,9 +141,12 @@ export const validationFailed = (...error: string[]): ValidationResponse => ({
 export const conditionalValidation = (
   condition: ConditionalValidation
 ): Validation => ({
-  validate: async (args) => {
+  validate: async (
+    components: ContentValidatorComponents,
+    deployment: DeploymentToValidate
+  ) => {
     try {
-      return await condition.predicate(args)
+      return await condition.predicate(components, deployment)
       //     ^^^^^ never remove this await, it exists to ensure try {} catch
     } catch (err: any) {
       return validationFailed(`Validation failed: ${err}`)

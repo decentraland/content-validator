@@ -1,5 +1,4 @@
-import { Avatar, Profile } from '@dcl/schemas'
-import { EntityType } from 'dcl-catalyst-commons'
+import { Avatar, Profile, EntityType } from '@dcl/schemas'
 import { ADR_45_TIMESTAMP } from '.'
 import { fromErrors, Validation } from '../types'
 
@@ -23,7 +22,7 @@ const correspondsToASnapshot = (
  * @public
  */
 export const content: Validation = {
-  validate: async (deployment, { externalCalls }) => {
+  validate: async ({ externalCalls }, deployment) => {
     const { entity, files } = deployment
     const errors: string[] = []
     if (entity.content) {

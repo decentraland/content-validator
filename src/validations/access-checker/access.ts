@@ -1,4 +1,4 @@
-import { Entity, EntityType } from 'dcl-catalyst-commons'
+import { Entity, EntityType } from '@dcl/schemas'
 import { LEGACY_CONTENT_MIGRATION_TIMESTAMP } from '..'
 import {
   DeploymentToValidate,
@@ -23,7 +23,7 @@ const accessCheckers: Record<EntityType, Validation> = {
  * @public
  */
 export const access: Validation = {
-  validate: async (deployment: DeploymentToValidate, components) => {
+  validate: async (components, deployment: DeploymentToValidate) => {
     const { externalCalls } = components
     const deployedBeforeDCLLaunch =
       deployment.entity.timestamp <= LEGACY_CONTENT_MIGRATION_TIMESTAMP
@@ -43,8 +43,8 @@ export const access: Validation = {
       return OK
 
     return accessCheckers[deployment.entity.type].validate(
-      deployment,
-      components
+      components,
+      deployment
     )
   }
 }

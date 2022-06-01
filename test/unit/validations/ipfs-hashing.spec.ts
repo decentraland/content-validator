@@ -1,4 +1,4 @@
-import { Hashing } from 'dcl-catalyst-commons'
+import { hashV1 } from '@dcl/hashing'
 import { ADR_45_TIMESTAMP } from '../../../src'
 import { ipfsHashing } from '../../../src/validations/ipfs-hashing'
 import { buildDeployment } from '../../setup/deployments'
@@ -15,7 +15,7 @@ describe('IPFS hashing', () => {
     })
     const deployment = buildDeployment({ entity })
 
-    const result = await ipfsHashing.validate(deployment, components)
+    const result = await ipfsHashing.validate(components, deployment)
 
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain(
@@ -33,7 +33,7 @@ describe('IPFS hashing', () => {
     const entity = buildEntity({ timestamp, content })
     const deployment = buildDeployment({ entity })
 
-    const result = await ipfsHashing.validate(deployment, components)
+    const result = await ipfsHashing.validate(components, deployment)
 
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain(
@@ -42,7 +42,7 @@ describe('IPFS hashing', () => {
   })
 
   it(`when all entity's hashes are ipfs, then no errors are reported`, async () => {
-    const someHash = await Hashing.calculateIPFSHash(Buffer.from('some file'))
+    const someHash = await hashV1(Buffer.from('some file'))
     const entity = buildEntity({
       content: [{ file: 'someFile.png', hash: someHash }],
       timestamp
@@ -50,7 +50,7 @@ describe('IPFS hashing', () => {
 
     const deployment = buildDeployment({ entity })
 
-    const result = await ipfsHashing.validate(deployment, components)
+    const result = await ipfsHashing.validate(components, deployment)
     expect(result.ok).toBeTruthy()
   })
 
@@ -64,7 +64,7 @@ describe('IPFS hashing', () => {
     const entity = buildEntity({ content, timestamp: ADR_45_TIMESTAMP - 1 })
     const deployment = buildDeployment({ entity })
 
-    const result = await ipfsHashing.validate(deployment, components)
+    const result = await ipfsHashing.validate(components, deployment)
 
     expect(result.ok).toBeTruthy()
   })

@@ -1,5 +1,4 @@
-import { isAddress } from '@ethersproject/address'
-import { Entity, Pointer } from 'dcl-catalyst-commons'
+import { EthAddress, Entity } from '@dcl/schemas'
 import { OK, Validation, validationFailed } from '../../types'
 import { parseUrn } from '@dcl/urn-resolver'
 import { Avatar } from '@dcl/schemas'
@@ -10,7 +9,7 @@ import { ADR_XXX_TIMESTAMP } from '../index'
  * @public
  */
 export const profiles: Validation = {
-  validate: async (deployment, { externalCalls, theGraphClient, logs }) => {
+  validate: async ({ externalCalls, logs, theGraphClient }, deployment) => {
     const pointers = deployment.entity.pointers
     const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
 
@@ -19,14 +18,14 @@ export const profiles: Validation = {
         `Only one pointer is allowed when you create a Profile. Received: ${pointers}`
       )
 
-    const pointer: Pointer = pointers[0].toLowerCase()
+    const pointer: string = pointers[0].toLowerCase()
 
     if (pointer.startsWith('default')) {
       if (!externalCalls.isAddressOwnedByDecentraland(ethAddress))
         return validationFailed(
           `Only Decentraland can add or modify default profiles`
         )
-    } else if (!isAddress(pointer)) {
+    } else if (!EthAddress.validate(pointer)) {
       return validationFailed(
         `The given pointer is not a valid ethereum address.`
       )

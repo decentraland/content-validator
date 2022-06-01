@@ -4,7 +4,6 @@ import {
   ExternalCalls,
   OK,
   Validation,
-  ValidationArgs,
   ValidationResponse
 } from '../types'
 import { access } from './access-checker/access'
@@ -26,7 +25,7 @@ export const validateInRow = async (
   ...validations: Validation[]
 ): Promise<ValidationResponse> => {
   for (const validation of validations) {
-    const response = await validation.validate(deployment, components)
+    const response = await validation.validate(components, deployment)
     if (!response.ok) return response
   }
   return OK

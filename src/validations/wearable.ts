@@ -1,5 +1,5 @@
-import { Wearable } from '@dcl/schemas'
-import { entityParameters, EntityType } from 'dcl-catalyst-commons'
+import { EntityType, Wearable } from '@dcl/schemas'
+import { entityParameters } from './ADR51'
 import sharp from 'sharp'
 import { ADR_45_TIMESTAMP, calculateDeploymentSize, validateInRow } from '.'
 import {
@@ -13,7 +13,7 @@ const wearableSizeLimitInMB = 2
 
 /** Validate wearable representations are referencing valid content */
 export const wearableRepresentationContent: Validation = {
-  validate: async (deployment) => {
+  validate: async (components: ContentValidatorComponents, deployment) => {
     const { entity } = deployment
     const wearableMetadata = entity.metadata as Wearable
     const representations = wearableMetadata?.data?.representations
@@ -40,10 +40,10 @@ export const wearableRepresentationContent: Validation = {
 
 /** Validate wearable files size, excluding thumbnail, is less than expected */
 export const wearableSize: Validation = {
-  validate: async (deployment, { externalCalls }) => {
+  validate: async ({ externalCalls }, deployment) => {
     const entity = deployment.entity
     if (entity.timestamp < ADR_45_TIMESTAMP) return OK
-    const maxSizeInMB = entityParameters[EntityType.WEARABLE].maxSizeInMB
+    const maxSizeInMB = entityParameters[EntityType.WEARABLE]?.maxSizeInMB
     if (!maxSizeInMB)
       return validationFailed(
         `Type ${EntityType.WEARABLE} is not supported yet`
@@ -76,7 +76,7 @@ export const wearableSize: Validation = {
 /** Validate that given wearable deployment includes a thumbnail with valid format and size */
 const maxThumbnailSize = 1024
 export const wearableThumbnail: Validation = {
-  validate: async (deployment, { externalCalls, logs }) => {
+  validate: async ({ externalCalls, logs }, deployment) => {
     const logger = logs.getLogger('wearable validator')
 
     if (deployment.entity.timestamp < ADR_45_TIMESTAMP) return OK
@@ -135,7 +135,7 @@ export const wearableThumbnail: Validation = {
  * * @public
  */
 export const wearable: Validation = {
-  validate: async (deployment, components) => {
+  validate: async (components, deployment) => {
     if (deployment.entity.type !== EntityType.WEARABLE) return OK
     return validateInRow(
       deployment,

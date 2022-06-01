@@ -1,11 +1,16 @@
-import { OK, Validation, validationFailed } from '../types'
+import {
+  ContentValidatorComponents,
+  OK,
+  Validation,
+  validationFailed
+} from '../types'
 
 /**
  * Validate that entity is actually ok
  * @public
  */
 export const entityStructure: Validation = {
-  validate: async (deployment) => {
+  validate: async (components: ContentValidatorComponents, deployment) => {
     const { entity } = deployment
     if (new Set(entity.pointers).size != entity.pointers.length) {
       return validationFailed('There are repeated pointers in your request.')

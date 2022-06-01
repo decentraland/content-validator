@@ -1,4 +1,4 @@
-import { EntityType } from 'dcl-catalyst-commons'
+import { EntityType } from '@dcl/schemas'
 import sharp from 'sharp'
 import { ADR_45_TIMESTAMP, ADR_XXX_TIMESTAMP, validateInRow } from '.'
 import { OK, Validation, validationFailed } from '../types'
@@ -7,7 +7,7 @@ import { parseUrn } from '@dcl/urn-resolver'
 /** Validate that given profile deployment includes a face256 thumbnail with valid size */
 const defaultThumbnailSize = 256
 export const faceThumbnail: Validation = {
-  validate: async (deployment, { externalCalls }) => {
+  validate: async ({ externalCalls }, deployment) => {
     if (deployment.entity.timestamp < ADR_45_TIMESTAMP) return OK
 
     const errors: string[] = []
@@ -60,7 +60,7 @@ export const faceThumbnail: Validation = {
 }
 
 export const wearableUrns: Validation = {
-  validate: async (deployment) => {
+  validate: async (components, deployment) => {
     if (deployment.entity.timestamp < ADR_XXX_TIMESTAMP) return OK
 
     const allAvatars: any[] = deployment.entity.metadata?.avatars ?? []
@@ -82,7 +82,7 @@ export const wearableUrns: Validation = {
  * * @public
  */
 export const profile: Validation = {
-  validate: async (deployment, components) => {
+  validate: async (components, deployment) => {
     if (deployment.entity.type !== EntityType.PROFILE) return OK
 
     return validateInRow(deployment, components, faceThumbnail, wearableUrns)

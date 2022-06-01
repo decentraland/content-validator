@@ -5,7 +5,7 @@ import {
 } from '../../setup/deployments'
 import { buildComponents, buildExternalCalls } from '../../setup/mock'
 import { buildEntity } from '../../setup/entity'
-import { EntityType } from 'dcl-catalyst-commons'
+import { EntityType } from '@dcl/schemas'
 import { VALID_PROFILE_METADATA } from '../../setup/profiles'
 import { ADR_45_TIMESTAMP } from '../../../src'
 
@@ -15,8 +15,8 @@ describe('Access: profiles', () => {
     const externalCalls = buildExternalCalls()
 
     const response = await profiles.validate(
-      deployment,
-      buildComponents({ externalCalls })
+      buildComponents({ externalCalls }),
+      deployment
     )
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
@@ -33,8 +33,8 @@ describe('Access: profiles', () => {
     })
 
     const response = await profiles.validate(
-      deployment,
-      buildComponents({ externalCalls })
+      buildComponents({ externalCalls }),
+      deployment
     )
     expect(response.ok).toBeTruthy()
   })
@@ -47,8 +47,8 @@ describe('Access: profiles', () => {
     })
 
     const response = await profiles.validate(
-      deployment,
-      buildComponents({ externalCalls })
+      buildComponents({ externalCalls }),
+      deployment
     )
     expect(response.ok).toBeTruthy()
   })
@@ -61,8 +61,8 @@ describe('Access: profiles', () => {
     })
 
     const response = await profiles.validate(
-      deployment,
-      buildComponents({ externalCalls })
+      buildComponents({ externalCalls }),
+      deployment
     )
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
@@ -80,8 +80,8 @@ describe('Access: profiles', () => {
     })
 
     const response = await profiles.validate(
-      deployment,
-      buildComponents({ externalCalls })
+      buildComponents({ externalCalls }),
+      deployment
     )
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
@@ -99,8 +99,8 @@ describe('Access: profiles', () => {
     })
 
     const response = await profiles.validate(
-      deployment,
-      buildComponents({ externalCalls })
+      buildComponents({ externalCalls }),
+      deployment
     )
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
@@ -124,8 +124,8 @@ describe('Access: profiles', () => {
     })
 
     const response = await profiles.validate(
-      deployment,
-      buildComponents({ externalCalls })
+      buildComponents({ externalCalls }),
+      deployment
     )
     expect(response.ok).toBeTruthy()
   })
