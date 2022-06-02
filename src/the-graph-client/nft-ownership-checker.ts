@@ -1,5 +1,4 @@
-import { parseUrn } from '@dcl/urn-resolver'
-import { Avatar, Entity, EthAddress } from '@dcl/schemas'
+import { EthAddress } from '@dcl/schemas'
 import { ContentValidatorComponents, NftOwnershipChecker } from '../types'
 
 /**

@@ -6,8 +6,7 @@ import {
 import {
   buildComponents,
   buildExternalCalls,
-  fetcherWithWearablesOwnership,
-  realQueryGraph
+  fetcherWithWearablesOwnership
 } from '../../setup/mock'
 import { buildEntity } from '../../setup/entity'
 import { EntityType } from '@dcl/schemas'
@@ -138,6 +137,39 @@ describe('Access: profiles', () => {
     expect(response.ok).toBeTruthy()
   })
 
+  it('When a profile has claimed names and at least one is not owned by the address, then validation must fail with the correct message', async () => {
+    const someAddress = '0x862f109696d7121438642a78b3caa38f476db08b'
+
+    const entity = buildEntity({
+      type: EntityType.PROFILE,
+      metadata: VALID_PROFILE_METADATA,
+      timestamp: ADR_XXX_TIMESTAMP + 1,
+      pointers: [someAddress]
+    })
+    const deployment = buildDeployment({ entity })
+
+    const externalCalls = buildExternalCalls({
+      ownerAddress: () => someAddress,
+      queryGraph: fetcherWithWearablesOwnership(
+        '0x862f109696d7121438642a78b3caa38f476db08b',
+        [
+          {
+            name: "Someone else's name"
+          }
+        ]
+      )
+    })
+
+    const response = await profiles.validate(
+      buildComponents({ externalCalls }),
+      deployment
+    )
+    expect(response.ok).toBeFalsy()
+    expect(response.errors).toContain(
+      'The following names (Some Name) are not owned by the address 0x862f109696d7121438642a78b3caa38f476db08b).'
+    )
+  })
+
   it('When a profile has wearables and at least one is not owned by the address, then validation must fail with the correct message', async () => {
     const someAddress = '0x862f109696d7121438642a78b3caa38f476db08b'
 
@@ -151,9 +183,9 @@ describe('Access: profiles', () => {
 
     const externalCalls = buildExternalCalls({
       ownerAddress: () => someAddress,
-      // queryGraph: realQueryGraph
       queryGraph: fetcherWithWearablesOwnership(
         '0x862f109696d7121438642a78b3caa38f476db08b',
+        undefined,
         undefined,
         [
           {

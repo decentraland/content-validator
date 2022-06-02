@@ -3,7 +3,6 @@ import { OK, Validation, validationFailed } from '../../types'
 import { parseUrn } from '@dcl/urn-resolver'
 import { Avatar } from '@dcl/schemas'
 import { ADR_XXX_TIMESTAMP } from '../index'
-import { wearable } from '../wearable'
 
 /**
  * Validate that the pointers are valid, and that the Ethereum address has write access to them
@@ -42,20 +41,33 @@ export const profiles: Validation = {
     if (deployment.entity.timestamp < ADR_XXX_TIMESTAMP) return OK
 
     const names = allNames(deployment.entity)
-    const wearableUrns = await allWearablesUrns(deployment.entity)
-    const ownedWearables = await nftOwnershipChecker.checkForWearablesOwnership(
-      ethAddress,
-      wearableUrns
-    )
-    const notOwned = wearableUrns.filter(
-      (wearable) => !ownedWearables.has(wearable)
-    )
-    if (notOwned.length > 0)
-      return validationFailed(
-        `The following wearables (${notOwned}) are not owned by the address ${ethAddress.toLowerCase()}).`
+    if (names.length > 0) {
+      const ownedNames = await nftOwnershipChecker.checkForNameOwnership(
+        ethAddress,
+        names
       )
+      const notOwnedNames = names.filter((name) => !ownedNames.has(name))
+      if (notOwnedNames.length > 0)
+        return validationFailed(
+          `The following names (${notOwnedNames}) are not owned by the address ${ethAddress.toLowerCase()}).`
+        )
+    }
 
-    console.log(ownedWearables)
+    const wearableUrns = await allWearablesUrns(deployment.entity)
+    if (wearableUrns.length > 0) {
+      const ownedWearables =
+        await nftOwnershipChecker.checkForWearablesOwnership(
+          ethAddress,
+          wearableUrns
+        )
+      const notOwned = wearableUrns.filter(
+        (wearable) => !ownedWearables.has(wearable)
+      )
+      if (notOwned.length > 0)
+        return validationFailed(
+          `The following wearables (${notOwned}) are not owned by the address ${ethAddress.toLowerCase()}).`
+        )
+    }
 
     return OK
   }

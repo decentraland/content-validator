@@ -65,21 +65,21 @@ type Subgraphs = ExternalCalls['subgraphs']
 const defaultSubgraphs: Subgraphs = {
   L1: {
     collections:
-      'https://api.thegraph.com/subgraphs/name/decentraland/collections-ethereum-mainnet',
+      'https://api.thegraph.com/subgraphs/name/decentraland/collections-ethereum-ropsten',
     blocks:
-      'https://api.thegraph.com/subgraphs/name/decentraland/blocks-ethereum-mainnet',
+      'https://api.thegraph.com/subgraphs/name/decentraland/blocks-ethereum-ropsten',
     landManager:
-      'https://api.thegraph.com/subgraphs/name/decentraland/land-manager-mainnet',
+      'https://api.thegraph.com/subgraphs/name/decentraland/land-manager-ropsten',
     ensOwner:
-      'https://api.thegraph.com/subgraphs/name/decentraland/marketplace-mainnet'
+      'https://api.thegraph.com/subgraphs/name/decentraland/marketplace-ropsten'
   },
   L2: {
     collections:
-      'https://api.thegraph.com/subgraphs/name/decentraland/collections-matic-mainnet',
+      'https://api.thegraph.com/subgraphs/name/decentraland/collections-matic-mumbai',
     blocks:
-      'https://api.thegraph.com/subgraphs/name/decentraland/blocks-matic-mainnet',
+      'https://api.thegraph.com/subgraphs/name/decentraland/blocks-matic-mumbai',
     thirdPartyRegistry:
-      'https://api.thegraph.com/subgraphs/name/decentraland/tpr-matic-mainnet'
+      'https://api.thegraph.com/subgraphs/name/decentraland/tpr-matic-mumbai'
   }
 }
 
@@ -274,9 +274,15 @@ export const fetcherWithThirdPartyEmptyMerkleRoots = () => {
 
 export const fetcherWithWearablesOwnership = (
   address: string,
+  ens?: { name: string }[],
   ethereum?: { urn: string }[],
   matic?: { urn: string }[]
 ) => {
+  const defaultEns = [
+    {
+      name: 'Some Name'
+    }
+  ]
   const defaultEthereum = [
     {
       urn: 'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet'
@@ -299,9 +305,14 @@ export const fetcherWithWearablesOwnership = (
       urn: 'urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:2'
     }
   ]
+
   return mockedQueryGraph().mockImplementation(
     async (url, _query, _variables) => {
-      if (url.includes('ethereum')) {
+      if (url.includes('marketplace')) {
+        return Promise.resolve({
+          [`P${address}`]: ens ?? defaultEns
+        })
+      } else if (url.includes('ethereum')) {
         return Promise.resolve({
           [`P${address}`]: ethereum ?? defaultEthereum
         })
