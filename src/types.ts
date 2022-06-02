@@ -205,6 +205,18 @@ export type TheGraphClient = {
   getThirdPartyIntegrations: () => Promise<ThirdPartyIntegration[]>
 }
 
+export type NftOwnershipChecker = {
+  checkForNameOwnership: (
+    address: EthAddress,
+    nfts: string[]
+  ) => Promise<Set<string>>
+
+  checkForWearablesOwnership: (
+    address: EthAddress,
+    nfts: string[]
+  ) => Promise<Set<string>>
+}
+
 /**
  * Components that can be used to validate deployments.
  * @public
@@ -212,5 +224,6 @@ export type TheGraphClient = {
 export type ContentValidatorComponents = {
   logs: ILoggerComponent
   theGraphClient: TheGraphClient
+  nftOwnershipChecker: NftOwnershipChecker
   externalCalls: ExternalCalls
 }

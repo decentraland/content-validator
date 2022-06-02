@@ -6,6 +6,7 @@ import {
 import {
   buildComponents,
   buildExternalCalls,
+  fetcherWithWearablesOwnership,
   realQueryGraph
 } from '../../setup/mock'
 import { buildEntity } from '../../setup/entity'
@@ -113,7 +114,7 @@ describe('Access: profiles', () => {
   })
 
   it('When a profile has wearables, then all wearables must be owned by the ETH address', async () => {
-    const someAddress = '0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c'
+    const someAddress = '0x862f109696d7121438642a78b3caa38f476db08b'
 
     const entity = buildEntity({
       type: EntityType.PROFILE,
@@ -125,7 +126,9 @@ describe('Access: profiles', () => {
 
     const externalCalls = buildExternalCalls({
       ownerAddress: () => someAddress,
-      queryGraph: realQueryGraph
+      queryGraph: fetcherWithWearablesOwnership(
+        '0x862f109696d7121438642a78b3caa38f476db08b'
+      )
     })
 
     const response = await profiles.validate(
@@ -133,5 +136,43 @@ describe('Access: profiles', () => {
       deployment
     )
     expect(response.ok).toBeTruthy()
+  })
+
+  it('When a profile has wearables and at least one is not owned by the address, then validation must fail with the correct message', async () => {
+    const someAddress = '0x862f109696d7121438642a78b3caa38f476db08b'
+
+    const entity = buildEntity({
+      type: EntityType.PROFILE,
+      metadata: VALID_PROFILE_METADATA,
+      timestamp: ADR_XXX_TIMESTAMP + 1,
+      pointers: [someAddress]
+    })
+    const deployment = buildDeployment({ entity })
+
+    const externalCalls = buildExternalCalls({
+      ownerAddress: () => someAddress,
+      // queryGraph: realQueryGraph
+      queryGraph: fetcherWithWearablesOwnership(
+        '0x862f109696d7121438642a78b3caa38f476db08b',
+        undefined,
+        [
+          {
+            urn: 'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
+          },
+          {
+            urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa4:0'
+          }
+        ]
+      )
+    })
+
+    const response = await profiles.validate(
+      buildComponents({ externalCalls }),
+      deployment
+    )
+    expect(response.ok).toBeFalsy()
+    expect(response.errors).toContain(
+      'The following wearables (urn:decentraland:matic:collections-v2:0xf6f601efee04e74cecac02c8c5bdc8cc0fc1c721:0,urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:2,urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:19) are not owned by the address 0x862f109696d7121438642a78b3caa38f476db08b).'
+    )
   })
 })

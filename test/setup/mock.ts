@@ -8,6 +8,7 @@ import { createTheGraphClient } from '../../src'
 import { IFetchComponent } from '@well-known-components/http-server'
 import * as nodeFetch from 'node-fetch'
 import { ILoggerComponent } from '@well-known-components/interfaces'
+import { createNftOwnershipChecker } from '../../src/the-graph-client/nft-ownership-checker'
 
 export const buildComponents = (
   components?: Partial<ContentValidatorComponents>
@@ -24,10 +25,15 @@ export const buildComponents = (
     components?.theGraphClient ??
     createTheGraphClient({ logs, externalCalls, ...components }, urls)
 
+  const nftOwnershipChecker =
+    components?.nftOwnershipChecker ??
+    createNftOwnershipChecker({ logs, theGraphClient })
+
   return {
     externalCalls,
     logs,
-    theGraphClient
+    theGraphClient,
+    nftOwnershipChecker
   }
 }
 
@@ -59,21 +65,21 @@ type Subgraphs = ExternalCalls['subgraphs']
 const defaultSubgraphs: Subgraphs = {
   L1: {
     collections:
-      'https://api.thegraph.com/subgraphs/name/decentraland/collections-ethereum-ropsten',
+      'https://api.thegraph.com/subgraphs/name/decentraland/collections-ethereum-mainnet',
     blocks:
-      'https://api.thegraph.com/subgraphs/name/decentraland/blocks-ethereum-ropsten',
+      'https://api.thegraph.com/subgraphs/name/decentraland/blocks-ethereum-mainnet',
     landManager:
-      'https://api.thegraph.com/subgraphs/name/decentraland/land-manager-ropsten',
+      'https://api.thegraph.com/subgraphs/name/decentraland/land-manager-mainnet',
     ensOwner:
-      'https://api.thegraph.com/subgraphs/name/decentraland/marketplace-ropsten'
+      'https://api.thegraph.com/subgraphs/name/decentraland/marketplace-mainnet'
   },
   L2: {
     collections:
-      'https://api.thegraph.com/subgraphs/name/decentraland/collections-matic-mumbai',
+      'https://api.thegraph.com/subgraphs/name/decentraland/collections-matic-mainnet',
     blocks:
-      'https://api.thegraph.com/subgraphs/name/decentraland/blocks-matic-mumbai',
+      'https://api.thegraph.com/subgraphs/name/decentraland/blocks-matic-mainnet',
     thirdPartyRegistry:
-      'https://api.thegraph.com/subgraphs/name/decentraland/tpr-matic-mumbai'
+      'https://api.thegraph.com/subgraphs/name/decentraland/tpr-matic-mainnet'
   }
 }
 
@@ -98,14 +104,19 @@ export async function realQueryGraph<T = any>(
   query: string,
   variables: Record<string, any>
 ): Promise<T> {
-  console.log(url, query, variables)
   const response = await createFetchComponent().fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ query, variables })
   })
   const responseBody = await response.json()
-  console.log('response', responseBody)
+  console.log(
+    url,
+    query,
+    variables,
+    'response',
+    JSON.stringify(responseBody, null, 2)
+  )
   if (!response.ok) {
     throw new Error(
       `Error querying graph. Reasons: ${JSON.stringify(responseBody)}`
@@ -254,6 +265,49 @@ export const fetcherWithThirdPartyEmptyMerkleRoots = () => {
         return Promise.resolve({
           after: [{ number: 10 }],
           fiveMinAfter: [{ number: 5 }]
+        })
+      }
+      return Promise.resolve('')
+    }
+  )
+}
+
+export const fetcherWithWearablesOwnership = (
+  address: string,
+  ethereum?: { urn: string }[],
+  matic?: { urn: string }[]
+) => {
+  const defaultEthereum = [
+    {
+      urn: 'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet'
+    }
+  ]
+  const defaultMatic = [
+    {
+      urn: 'urn:decentraland:matic:collections-v2:0xf6f601efee04e74cecac02c8c5bdc8cc0fc1c721:0'
+    },
+    {
+      urn: 'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
+    },
+    {
+      urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa4:0'
+    },
+    {
+      urn: 'urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:19'
+    },
+    {
+      urn: 'urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:2'
+    }
+  ]
+  return mockedQueryGraph().mockImplementation(
+    async (url, _query, _variables) => {
+      if (url.includes('ethereum')) {
+        return Promise.resolve({
+          [`P${address}`]: ethereum ?? defaultEthereum
+        })
+      } else if (url.includes('matic')) {
+        return Promise.resolve({
+          [`P${address}`]: matic ?? defaultMatic
         })
       }
       return Promise.resolve('')
