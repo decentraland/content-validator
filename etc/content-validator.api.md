@@ -30,6 +30,7 @@ export const conditionalValidation: (condition: ConditionalValidation) => Valida
 export type ContentValidatorComponents = {
     logs: ILoggerComponent;
     theGraphClient: TheGraphClient;
+    nftOwnershipChecker: NftOwnershipChecker;
     externalCalls: ExternalCalls;
 };
 
@@ -39,7 +40,7 @@ export type ContentValidatorComponents = {
 export const createTheGraphClient: (components: Pick<ContentValidatorComponents, 'logs' | 'externalCalls'>, urls: URLs) => TheGraphClient;
 
 // @public
-export const createValidator: (components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'theGraphClient'>) => Validator;
+export const createValidator: (components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'theGraphClient' | 'nftOwnershipChecker'>) => Validator;
 
 // @public
 export type DeploymentToValidate = {
@@ -91,6 +92,12 @@ export const LEGACY_CONTENT_MIGRATION_TIMESTAMP = 1582167600000;
 // @public (undocumented)
 export type LocalDeploymentAuditInfo = {
     authChain: AuthChain;
+};
+
+// @public (undocumented)
+export type NftOwnershipChecker = {
+    checkForNameOwnership: (address: EthAddress, nfts: string[]) => Promise<Set<string>>;
+    checkForWearablesOwnership: (address: EthAddress, nfts: string[]) => Promise<Set<string>>;
 };
 
 // @public (undocumented)
@@ -183,7 +190,7 @@ export type Warnings = string[];
 // src/types.ts:196:3 - (ae-forgotten-export) The symbol "WearablesFilters" needs to be exported by the entry point index.d.ts
 // src/types.ts:196:3 - (ae-forgotten-export) The symbol "WearableId" needs to be exported by the entry point index.d.ts
 // src/types.ts:205:3 - (ae-forgotten-export) The symbol "ThirdPartyIntegration" needs to be exported by the entry point index.d.ts
-// src/types.ts:214:3 - (ae-incompatible-release-tags) The symbol "theGraphClient" is marked as @public, but its signature references "TheGraphClient" which is marked as @internal
+// src/types.ts:226:3 - (ae-incompatible-release-tags) The symbol "theGraphClient" is marked as @public, but its signature references "TheGraphClient" which is marked as @internal
 
 // (No @packageDocumentation comment for this package)
 
