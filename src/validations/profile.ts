@@ -7,7 +7,7 @@ import { parseUrn } from '@dcl/urn-resolver'
 /** Validate that given profile deployment includes a face256 thumbnail with valid size */
 const defaultThumbnailSize = 256
 
-const urnWhiteList = new Set([
+const allowList = new Set([
   'fistpump',
   'wave',
   'robot',
@@ -88,7 +88,7 @@ export const wearableUrns: Validation = {
     const allAvatars: any[] = deployment.entity.metadata?.avatars ?? []
     for (const avatar of allAvatars) {
       for (const pointer of avatar.avatar.wearables) {
-        if (urnWhiteList.has(pointer)) {
+        if (allowList.has(pointer)) {
           continue
         }
         const parsed = await parseUrn(pointer)
