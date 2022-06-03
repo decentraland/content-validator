@@ -94,7 +94,9 @@ export type LocalDeploymentAuditInfo = {
     authChain: AuthChain;
 };
 
-// @public (undocumented)
+// Warning: (ae-internal-missing-underscore) The name "NftOwnershipChecker" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
 export type NftOwnershipChecker = {
     checkForNameOwnership: (address: EthAddress, nfts: string[]) => Promise<Set<string>>;
     checkForWearablesOwnership: (address: EthAddress, nfts: string[]) => Promise<Set<string>>;
@@ -190,7 +192,8 @@ export type Warnings = string[];
 // src/types.ts:196:3 - (ae-forgotten-export) The symbol "WearablesFilters" needs to be exported by the entry point index.d.ts
 // src/types.ts:196:3 - (ae-forgotten-export) The symbol "WearableId" needs to be exported by the entry point index.d.ts
 // src/types.ts:205:3 - (ae-forgotten-export) The symbol "ThirdPartyIntegration" needs to be exported by the entry point index.d.ts
-// src/types.ts:226:3 - (ae-incompatible-release-tags) The symbol "theGraphClient" is marked as @public, but its signature references "TheGraphClient" which is marked as @internal
+// src/types.ts:229:3 - (ae-incompatible-release-tags) The symbol "theGraphClient" is marked as @public, but its signature references "TheGraphClient" which is marked as @internal
+// src/types.ts:230:3 - (ae-incompatible-release-tags) The symbol "nftOwnershipChecker" is marked as @public, but its signature references "NftOwnershipChecker" which is marked as @internal
 
 // (No @packageDocumentation comment for this package)
 

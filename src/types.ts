@@ -205,6 +205,9 @@ export type TheGraphClient = {
   getThirdPartyIntegrations: () => Promise<ThirdPartyIntegration[]>
 }
 
+/**
+ * @internal
+ */
 export type NftOwnershipChecker = {
   checkForNameOwnership: (
     address: EthAddress,
