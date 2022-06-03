@@ -189,6 +189,27 @@ describe('Profiles', () => {
       expect(result.ok).toBeTruthy()
     })
 
+    it('When wearable using a base emote, should return no errors', async () => {
+      const entity = buildEntity({
+        type: EntityType.PROFILE,
+        metadata: {
+          avatars: [
+            {
+              avatar: {
+                wearables: ['raiseHand']
+              }
+            }
+          ]
+        },
+        timestamp: ADR_XXX_TIMESTAMP + 1
+      })
+      const deployment = buildDeployment({ entity })
+
+      const result = await wearableUrns.validate(components, deployment)
+
+      expect(result.ok).toBeTruthy()
+    })
+
     it('When wearable urn is wrong, should return the correct error', async () => {
       const entity = buildEntity({
         type: EntityType.PROFILE,

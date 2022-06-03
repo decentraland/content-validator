@@ -6,6 +6,28 @@ import { parseUrn } from '@dcl/urn-resolver'
 
 /** Validate that given profile deployment includes a face256 thumbnail with valid size */
 const defaultThumbnailSize = 256
+
+const urnWhiteList = new Set([
+  'fistpump',
+  'wave',
+  'robot',
+  'raiseHand',
+  'clap',
+  'money',
+  'kiss',
+  'hammer',
+  'hohoho',
+  'snowfall',
+  'dance',
+  'shrug',
+  'tik',
+  'tektonik',
+  'dontsee',
+  'dab',
+  'handsair',
+  'disco'
+])
+
 export const faceThumbnail: Validation = {
   validate: async ({ externalCalls }, deployment) => {
     if (deployment.entity.timestamp < ADR_45_TIMESTAMP) return OK
@@ -66,6 +88,9 @@ export const wearableUrns: Validation = {
     const allAvatars: any[] = deployment.entity.metadata?.avatars ?? []
     for (const avatar of allAvatars) {
       for (const pointer of avatar.avatar.wearables) {
+        if (urnWhiteList.has(pointer)) {
+          continue
+        }
         const parsed = await parseUrn(pointer)
         if (!parsed)
           return validationFailed(
