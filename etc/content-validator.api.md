@@ -28,7 +28,7 @@ export type ContentValidatorComponents = {
 };
 
 // @public
-export const createValidator: (externalCalls: ExternalCalls, components?: Pick<ContentValidatorComponents, "logs"> | undefined) => Validator;
+export const createValidator: (externalCalls: ExternalCalls, components?: Pick<ContentValidatorComponents, 'logs'>) => Validator;
 
 // @public
 export type DeploymentToValidate = {
