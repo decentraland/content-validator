@@ -110,6 +110,6 @@ export const profile: Validation = {
   validate: async (components, deployment) => {
     if (deployment.entity.type !== EntityType.PROFILE) return OK
 
-    return validateInRow(deployment, components, faceThumbnail, wearableUrns)
+    return validateInRow(components, deployment, faceThumbnail, wearableUrns)
   }
 }

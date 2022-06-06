@@ -29,9 +29,9 @@ export const conditionalValidation: (condition: ConditionalValidation) => Valida
 // @public
 export type ContentValidatorComponents = {
     logs: ILoggerComponent;
+    externalCalls: ExternalCalls;
     theGraphClient: TheGraphClient;
     nftOwnershipChecker: NftOwnershipChecker;
-    externalCalls: ExternalCalls;
 };
 
 // Warning: (ae-internal-missing-underscore) The name "createTheGraphClient" should be prefixed with an underscore because the declaration is marked as @internal

@@ -47,6 +47,19 @@ export const buildLogger = (): ILoggerComponent => ({
   })
 })
 
+export const buildComponents = (
+  components?: Partial<ContentValidatorComponents>
+): ContentValidatorComponents => {
+  const externalCalls = buildExternalCalls()
+  const logs = { getLogger: () => console }
+
+  return {
+    externalCalls,
+    logs: logs,
+    ...components
+  }
+}
+
 export const buildExternalCalls = (
   externalCalls?: Partial<ExternalCalls>
 ): ExternalCalls => ({
