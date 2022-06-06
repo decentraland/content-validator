@@ -4,11 +4,12 @@ import { ADR_45_TIMESTAMP, ValidationResponse } from '../../../src'
 import { faceThumbnail } from '../../../src/validations/profile'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
-import { buildExternalCalls } from '../../setup/mock'
+import { buildComponents, buildExternalCalls } from '../../setup/mock'
 import { VALID_PROFILE_METADATA } from '../../setup/profiles'
 
 describe('Profiles', () => {
   const timestamp = ADR_45_TIMESTAMP + 1
+  const components = buildComponents()
   describe('Thumbnail face256:', () => {
     let validThumbnailBuffer: Buffer
     let invalidThumbnailBuffer: Buffer
@@ -37,7 +38,7 @@ describe('Profiles', () => {
       validThumbnailBuffer = await createImage(256)
       invalidThumbnailBuffer = await createImage(1)
     })
-    const externalCalls = buildExternalCalls()
+
     it('When there is no hash for given thumbnail file name, it should return an error', async () => {
       const files = new Map([['invalidHash', validThumbnailBuffer]])
       const entity = buildEntity({
@@ -47,10 +48,10 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result: ValidationResponse = await faceThumbnail.validate({
-        deployment,
-        externalCalls
-      })
+      const result: ValidationResponse = await faceThumbnail.validate(
+        components,
+        deployment
+      )
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
@@ -69,7 +70,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await faceThumbnail.validate({ deployment, externalCalls })
+      const result = await faceThumbnail.validate(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `Couldn't find thumbnail file with hash: ${hash}`
@@ -87,7 +88,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await faceThumbnail.validate({ deployment, externalCalls })
+      const result = await faceThumbnail.validate(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `Couldn't parse face256 thumbnail, please check image format.`
@@ -105,7 +106,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await faceThumbnail.validate({ deployment, externalCalls })
+      const result = await faceThumbnail.validate(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `Invalid face256 thumbnail image size (width = 1 / height = 1)`
@@ -124,7 +125,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await faceThumbnail.validate({ deployment, externalCalls })
+      const result = await faceThumbnail.validate(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `Invalid or unknown image format. Only 'PNG' format is accepted.`
@@ -142,7 +143,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await faceThumbnail.validate({ deployment, externalCalls })
+      const result = await faceThumbnail.validate(components, deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -160,7 +161,10 @@ describe('Profiles', () => {
         isContentStoredAlready: async () => new Map([[hash, true]])
       })
 
-      const result = await faceThumbnail.validate({ deployment, externalCalls })
+      const result = await faceThumbnail.validate(
+        buildComponents({ externalCalls }),
+        deployment
+      )
 
       expect(result.ok).toBeTruthy()
     })

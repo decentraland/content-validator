@@ -2,7 +2,7 @@ import { ADR_45_TIMESTAMP } from '../../../src'
 import { content } from '../../../src/validations/content'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
-import { buildExternalCalls } from '../../setup/mock'
+import { buildComponents, buildExternalCalls } from '../../setup/mock'
 import { VALID_PROFILE_METADATA } from '../../setup/profiles'
 
 const notAvailableHashMessage = (hash: string) => {
@@ -14,7 +14,7 @@ const notReferencedHashMessage = (hash: string) => {
 }
 
 describe('Content', () => {
-  const externalCalls = buildExternalCalls()
+  const components = buildComponents()
   it(`When a hash that was not uploaded and not present is referenced, it is reported`, async () => {
     const entity = buildEntity({
       content: [{ file: 'name', hash: 'hash' }]
@@ -22,7 +22,7 @@ describe('Content', () => {
 
     const deployment = buildDeployment({ entity })
 
-    const result = await content.validate({ deployment, externalCalls })
+    const result = await content.validate(components, deployment)
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain(notAvailableHashMessage('hash'))
   })
@@ -47,7 +47,10 @@ describe('Content', () => {
       isContentStoredAlready: () => Promise.resolve(new Map([['hash', true]]))
     })
 
-    const result = await content.validate({ deployment, externalCalls })
+    const result = await content.validate(
+      buildComponents({ externalCalls }),
+      deployment
+    )
     expect(result.ok).toBeTruthy()
   })
 
@@ -58,7 +61,7 @@ describe('Content', () => {
     const files = new Map([['hash', Buffer.from([])]])
     const deployment = buildDeployment({ entity, files })
 
-    const result = await content.validate({ deployment, externalCalls })
+    const result = await content.validate(components, deployment)
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain(
       "This file is not expected: 'name' or its hash is invalid: 'hash'. Please, include only valid snapshot files."
@@ -76,7 +79,7 @@ describe('Content', () => {
     ])
     const deployment = buildDeployment({ entity, files })
 
-    const result = await content.validate({ deployment, externalCalls })
+    const result = await content.validate(components, deployment)
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain(notReferencedHashMessage('hash-2'))
   })
@@ -95,7 +98,7 @@ describe('Content', () => {
       })
 
       const deployment = buildDeployment({ entity, files })
-      const result = await content.validate({ deployment, externalCalls })
+      const result = await content.validate(components, deployment)
       expect(result.ok).toBeTruthy()
     })
 
@@ -112,10 +115,7 @@ describe('Content', () => {
       })
 
       const deployment = buildDeployment({ entity, files })
-      const result = await content.validate({
-        deployment,
-        externalCalls: buildExternalCalls()
-      })
+      const result = await content.validate(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `This file is not expected: '${expectedFile}' or its hash is invalid: '${invalidHash}'. Please, include only valid snapshot files.`
@@ -135,7 +135,7 @@ describe('Content', () => {
       })
 
       const deployment = buildDeployment({ entity, files })
-      const result = await content.validate({ deployment, externalCalls })
+      const result = await content.validate(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `This file is not expected: '${unexpectedFile}' or its hash is invalid: '${hash}'. Please, include only valid snapshot files.`

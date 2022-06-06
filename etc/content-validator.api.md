@@ -16,7 +16,7 @@ export const calculateDeploymentSize: (deployment: DeploymentToValidate, externa
 
 // @public (undocumented)
 export type ConditionalValidation = {
-    predicate: (args: ValidationArgs) => ValidationResponse | Promise<ValidationResponse>;
+    predicate: (components: ContentValidatorComponents, deployment: DeploymentToValidate) => ValidationResponse | Promise<ValidationResponse>;
 };
 
 // @public (undocumented)
@@ -25,10 +25,11 @@ export const conditionalValidation: (condition: ConditionalValidation) => Valida
 // @public
 export type ContentValidatorComponents = {
     logs: ILoggerComponent;
+    externalCalls: ExternalCalls;
 };
 
 // @public
-export const createValidator: (externalCalls: ExternalCalls, components?: Pick<ContentValidatorComponents, 'logs'>) => Validator;
+export const createValidator: (components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs'>) => Validator;
 
 // @public
 export type DeploymentToValidate = {
@@ -94,17 +95,16 @@ export const statefulValidations: readonly [Validation, Validation, Validation, 
 export const statelessValidations: readonly [Validation, Validation, Validation];
 
 // @public (undocumented)
-export const validateInRow: (validationArgs: ValidationArgs, ...validations: Validation[]) => Promise<ValidationResponse>;
+export const validateInRow: (deployment: DeploymentToValidate, components: ContentValidatorComponents, ...validations: Validation[]) => Promise<ValidationResponse>;
 
 // @public (undocumented)
 export type Validation = {
-    validate: (args: ValidationArgs, logs?: ILoggerComponent.ILogger) => ValidationResponse | Promise<ValidationResponse>;
+    validate: (components: ContentValidatorComponents, deployment: DeploymentToValidate) => ValidationResponse | Promise<ValidationResponse>;
 };
 
 // @public (undocumented)
 export type ValidationArgs = {
     deployment: DeploymentToValidate;
-    externalCalls: ExternalCalls;
 };
 
 // @public (undocumented)

@@ -1,6 +1,6 @@
 import { IPFSv2 } from '@dcl/schemas'
 import { ADR_45_TIMESTAMP } from '.'
-import { OK } from '..'
+import { ContentValidatorComponents, OK } from '..'
 import { fromErrors, Validation } from '../types'
 
 /**
@@ -8,7 +8,7 @@ import { fromErrors, Validation } from '../types'
  * @public
  */
 export const ipfsHashing: Validation = {
-  validate: ({ deployment }) => {
+  validate: (components: ContentValidatorComponents, deployment) => {
     const { entity } = deployment
 
     if (entity.timestamp < ADR_45_TIMESTAMP) return OK

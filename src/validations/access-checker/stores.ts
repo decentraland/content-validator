@@ -16,7 +16,7 @@ const parseUrnNoFail = async (
  * @public
  */
 export const stores: Validation = {
-  validate: async ({ deployment, externalCalls }) => {
+  validate: async ({ externalCalls }, deployment) => {
     const pointers = deployment.entity.pointers
     const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
 

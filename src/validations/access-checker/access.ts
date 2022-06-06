@@ -1,6 +1,11 @@
 import { Entity, EntityType } from '@dcl/schemas'
 import { LEGACY_CONTENT_MIGRATION_TIMESTAMP } from '..'
-import { OK, Validation, validationFailed } from '../../types'
+import {
+  DeploymentToValidate,
+  OK,
+  Validation,
+  validationFailed
+} from '../../types'
 import { profiles } from './profiles'
 import { scenes } from './scenes'
 import { stores } from './stores'
@@ -18,8 +23,8 @@ const accessCheckers: Record<EntityType, Validation> = {
  * @public
  */
 export const access: Validation = {
-  validate: async (args) => {
-    const { deployment, externalCalls } = args
+  validate: async (components, deployment: DeploymentToValidate) => {
+    const { externalCalls } = components
     const deployedBeforeDCLLaunch =
       deployment.entity.timestamp <= LEGACY_CONTENT_MIGRATION_TIMESTAMP
     const address = externalCalls.ownerAddress(deployment.auditInfo)
@@ -37,7 +42,10 @@ export const access: Validation = {
     )
       return OK
 
-    return accessCheckers[deployment.entity.type].validate(args)
+    return accessCheckers[deployment.entity.type].validate(
+      components,
+      deployment
+    )
   }
 }
 

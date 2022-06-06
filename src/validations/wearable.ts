@@ -2,13 +2,18 @@ import { EntityType, Wearable } from '@dcl/schemas'
 import { entityParameters } from './ADR51'
 import sharp from 'sharp'
 import { ADR_45_TIMESTAMP, calculateDeploymentSize, validateInRow } from '.'
-import { OK, Validation, validationFailed } from '../types'
+import {
+  ContentValidatorComponents,
+  OK,
+  Validation,
+  validationFailed
+} from '../types'
 
 const wearableSizeLimitInMB = 2
 
 /** Validate wearable representations are referencing valid content */
 export const wearableRepresentationContent: Validation = {
-  validate: async ({ deployment }) => {
+  validate: async (components: ContentValidatorComponents, deployment) => {
     const { entity } = deployment
     const wearableMetadata = entity.metadata as Wearable
     const representations = wearableMetadata?.data?.representations
@@ -35,7 +40,7 @@ export const wearableRepresentationContent: Validation = {
 
 /** Validate wearable files size, excluding thumbnail, is less than expected */
 export const wearableSize: Validation = {
-  validate: async ({ deployment, externalCalls }) => {
+  validate: async ({ externalCalls }, deployment) => {
     const entity = deployment.entity
     if (entity.timestamp < ADR_45_TIMESTAMP) return OK
     const maxSizeInMB = entityParameters[EntityType.WEARABLE]?.maxSizeInMB
@@ -71,7 +76,9 @@ export const wearableSize: Validation = {
 /** Validate that given wearable deployment includes a thumbnail with valid format and size */
 const maxThumbnailSize = 1024
 export const wearableThumbnail: Validation = {
-  validate: async ({ deployment, externalCalls }, log) => {
+  validate: async ({ externalCalls, logs }, deployment) => {
+    const logger = logs.getLogger('wearable validator')
+
     if (deployment.entity.timestamp < ADR_45_TIMESTAMP) return OK
     // read thumbnail field from metadata
     const metadata = deployment.entity.metadata as Wearable
@@ -96,7 +103,7 @@ export const wearableThumbnail: Validation = {
         )
       }
       // otherwise, thumbnail was already uploaded and won't be validated again
-      log?.debug(
+      logger.debug(
         `Thumbnail file with hash: ${hash} is not in the deployment, but it is already stored`
       )
       return OK
@@ -128,10 +135,11 @@ export const wearableThumbnail: Validation = {
  * * @public
  */
 export const wearable: Validation = {
-  validate: async (args) => {
-    if (args.deployment.entity.type !== EntityType.WEARABLE) return OK
+  validate: async (components, deployment) => {
+    if (deployment.entity.type !== EntityType.WEARABLE) return OK
     return validateInRow(
-      args,
+      deployment,
+      components,
       wearableRepresentationContent,
       wearableThumbnail,
       wearableSize

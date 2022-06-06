@@ -1,13 +1,18 @@
 import { entityParameters } from './ADR51'
 import { ADR_45_TIMESTAMP } from '.'
-import { conditionalValidation, OK, validationFailed } from '../types'
+import {
+  conditionalValidation,
+  ContentValidatorComponents,
+  OK,
+  validationFailed
+} from '../types'
 
 /**
  * Validate entities metadata against its corresponding schema
  * @public
  */
 export const metadata = conditionalValidation({
-  async predicate({ deployment }) {
+  async predicate(components: ContentValidatorComponents, deployment) {
     if (deployment.entity.timestamp <= ADR_45_TIMESTAMP) return OK
 
     const { type, metadata } = deployment.entity

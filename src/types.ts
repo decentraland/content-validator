@@ -85,7 +85,6 @@ export interface Validator {
  */
 export type ValidationArgs = {
   deployment: DeploymentToValidate
-  externalCalls: ExternalCalls
 }
 
 /**
@@ -101,8 +100,8 @@ export type ValidationResponse = {
  */
 export type Validation = {
   validate: (
-    args: ValidationArgs,
-    logs?: ILoggerComponent.ILogger
+    components: ContentValidatorComponents,
+    deployment: DeploymentToValidate
   ) => ValidationResponse | Promise<ValidationResponse>
 }
 
@@ -111,7 +110,8 @@ export type Validation = {
  */
 export type ConditionalValidation = {
   predicate: (
-    args: ValidationArgs
+    components: ContentValidatorComponents,
+    deployment: DeploymentToValidate
   ) => ValidationResponse | Promise<ValidationResponse>
 }
 
@@ -134,9 +134,12 @@ export const validationFailed = (...error: string[]): ValidationResponse => ({
 export const conditionalValidation = (
   condition: ConditionalValidation
 ): Validation => ({
-  validate: async (args) => {
+  validate: async (
+    components: ContentValidatorComponents,
+    deployment: DeploymentToValidate
+  ) => {
     try {
-      return await condition.predicate(args)
+      return await condition.predicate(components, deployment)
       //     ^^^^^ never remove this await, it exists to ensure try {} catch
     } catch (err: any) {
       return validationFailed(`Validation failed: ${err}`)
@@ -158,4 +161,5 @@ export const fromErrors = (...errors: Errors): ValidationResponse => ({
  */
 export type ContentValidatorComponents = {
   logs: ILoggerComponent
+  externalCalls: ExternalCalls
 }

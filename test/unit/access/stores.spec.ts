@@ -1,10 +1,6 @@
-import { profiles } from '../../../src/validations/access-checker/profiles'
 import { stores } from '../../../src/validations/access-checker/stores'
-import {
-  buildProfileDeployment,
-  buildStoreDeployment
-} from '../../setup/deployments'
-import { buildExternalCalls } from '../../setup/mock'
+import { buildStoreDeployment } from '../../setup/deployments'
+import { buildComponents, buildExternalCalls } from '../../setup/mock'
 
 describe('Access: stores', () => {
   it('When a user store is created by its own address, then it is valid', async () => {
@@ -16,7 +12,10 @@ describe('Access: stores', () => {
       ownerAddress: () => someAddress
     })
 
-    const response = await stores.validate({ deployment, externalCalls })
+    const response = await stores.validate(
+      buildComponents({ externalCalls }),
+      deployment
+    )
     expect(response.ok).toBeTruthy()
   })
 
@@ -27,7 +26,10 @@ describe('Access: stores', () => {
       ownerAddress: () => 'some-address'
     })
 
-    const response = await stores.validate({ deployment, externalCalls })
+    const response = await stores.validate(
+      buildComponents({ externalCalls }),
+      deployment
+    )
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       `Only one pointer is allowed when you create a Store. Received: ${addresses}`
@@ -45,7 +47,10 @@ describe('Access: stores', () => {
       ownerAddress: () => address
     })
 
-    const response = await stores.validate({ deployment, externalCalls })
+    const response = await stores.validate(
+      buildComponents({ externalCalls }),
+      deployment
+    )
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       `You can only alter your own store. The pointer address and the signer address are different (address:${otherAddress} signer: ${address}).`

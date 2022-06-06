@@ -3,10 +3,10 @@ import { ADR_45_TIMESTAMP } from '../../../src'
 import { ipfsHashing } from '../../../src/validations/ipfs-hashing'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
-import { buildExternalCalls } from '../../setup/mock'
+import { buildComponents } from '../../setup/mock'
 
 describe('IPFS hashing', () => {
-  const externalCalls = buildExternalCalls()
+  const components = buildComponents()
   const timestamp = ADR_45_TIMESTAMP + 1
   it(`When an entity's id is not an ipfs hash, then it fails`, async () => {
     const entity = buildEntity({
@@ -15,7 +15,7 @@ describe('IPFS hashing', () => {
     })
     const deployment = buildDeployment({ entity })
 
-    const result = await ipfsHashing.validate({ deployment, externalCalls })
+    const result = await ipfsHashing.validate(components, deployment)
 
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain(
@@ -33,7 +33,7 @@ describe('IPFS hashing', () => {
     const entity = buildEntity({ timestamp, content })
     const deployment = buildDeployment({ entity })
 
-    const result = await ipfsHashing.validate({ deployment, externalCalls })
+    const result = await ipfsHashing.validate(components, deployment)
 
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain(
@@ -50,7 +50,7 @@ describe('IPFS hashing', () => {
 
     const deployment = buildDeployment({ entity })
 
-    const result = await ipfsHashing.validate({ deployment, externalCalls })
+    const result = await ipfsHashing.validate(components, deployment)
     expect(result.ok).toBeTruthy()
   })
 
@@ -64,7 +64,7 @@ describe('IPFS hashing', () => {
     const entity = buildEntity({ content, timestamp: ADR_45_TIMESTAMP - 1 })
     const deployment = buildDeployment({ entity })
 
-    const result = await ipfsHashing.validate({ deployment, externalCalls })
+    const result = await ipfsHashing.validate(components, deployment)
 
     expect(result.ok).toBeTruthy()
   })

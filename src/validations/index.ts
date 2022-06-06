@@ -1,9 +1,9 @@
 import {
+  ContentValidatorComponents,
   DeploymentToValidate,
   ExternalCalls,
   OK,
   Validation,
-  ValidationArgs,
   ValidationResponse
 } from '../types'
 import { access } from './access-checker/access'
@@ -20,11 +20,12 @@ import { wearable } from './wearable'
  * @public
  */
 export const validateInRow = async (
-  validationArgs: ValidationArgs,
+  deployment: DeploymentToValidate,
+  components: ContentValidatorComponents,
   ...validations: Validation[]
 ): Promise<ValidationResponse> => {
   for (const validation of validations) {
-    const response = await validation.validate(validationArgs)
+    const response = await validation.validate(components, deployment)
     if (!response.ok) return response
   }
   return OK
