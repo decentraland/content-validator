@@ -146,7 +146,7 @@ export const createTheGraphClient = (
   ): Promise<{ owner: EthAddress; urns: string[] }[]> {
     try {
       return getOwnersByWearable(wearableIdsToCheck, subgraph)
-    } catch (error) {
+    } catch (error: any) {
       logger.error(error)
       return []
     }
@@ -471,7 +471,7 @@ export const createTheGraphClient = (
         variables
       )
       return query.mapper(response)
-    } catch (error) {
+    } catch (error: any) {
       logger.error(
         `Failed to execute the following query to the subgraph ${
           urls[query.subgraph]

@@ -29,9 +29,9 @@ export const conditionalValidation: (condition: ConditionalValidation) => Valida
 // @public
 export type ContentValidatorComponents = {
     logs: ILoggerComponent;
-    externalCalls: ExternalCalls;
     theGraphClient: TheGraphClient;
     nftOwnershipChecker: NftOwnershipChecker;
+    externalCalls: ExternalCalls;
 };
 
 // Warning: (ae-internal-missing-underscore) The name "createTheGraphClient" should be prefixed with an underscore because the declaration is marked as @internal
@@ -154,7 +154,7 @@ export type URLs = {
 };
 
 // @public (undocumented)
-export const validateInRow: (deployment: DeploymentToValidate, components: ContentValidatorComponents, ...validations: Validation[]) => Promise<ValidationResponse>;
+export const validateInRow: (components: ContentValidatorComponents, deployment: DeploymentToValidate, ...validations: Validation[]) => Promise<ValidationResponse>;
 
 // @public (undocumented)
 export type Validation = {

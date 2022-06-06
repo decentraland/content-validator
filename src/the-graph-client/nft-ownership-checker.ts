@@ -24,8 +24,8 @@ export const createNftOwnershipChecker = (
       try {
         const queryResult = await theGraphCheck(address, slice)
         queryResult.forEach((res) => result.add(res))
-      } catch (error) {
-        logger.warn(error)
+      } catch (error: any) {
+        logger.error(error)
       } finally {
         offset += NFT_FRAGMENTS_PER_QUERY
       }

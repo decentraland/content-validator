@@ -20,8 +20,8 @@ import { wearable } from './wearable'
  * @public
  */
 export const validateInRow = async (
-  deployment: DeploymentToValidate,
   components: ContentValidatorComponents,
+  deployment: DeploymentToValidate,
   ...validations: Validation[]
 ): Promise<ValidationResponse> => {
   for (const validation of validations) {
