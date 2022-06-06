@@ -9,10 +9,7 @@ import { ADR_XXX_TIMESTAMP } from '../index'
  * @public
  */
 export const profiles: Validation = {
-  validate: async (
-    { externalCalls, logs, nftOwnershipChecker },
-    deployment
-  ) => {
+  validate: async ({ externalCalls, nftOwnershipChecker }, deployment) => {
     const pointers = deployment.entity.pointers
     const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
 

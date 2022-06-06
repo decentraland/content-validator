@@ -10,6 +10,16 @@ import * as nodeFetch from 'node-fetch'
 import { ILoggerComponent } from '@well-known-components/interfaces'
 import { createNftOwnershipChecker } from '../../src/the-graph-client/nft-ownership-checker'
 
+export const buildLogger = (): ILoggerComponent => ({
+  getLogger: () => ({
+    debug() {},
+    info() {},
+    warn() {},
+    error() {},
+    log() {}
+  })
+})
+
 export const buildComponents = (
   components?: Partial<ContentValidatorComponents>
 ): ContentValidatorComponents => {
@@ -34,29 +44,6 @@ export const buildComponents = (
     logs,
     theGraphClient,
     nftOwnershipChecker
-  }
-}
-
-export const buildLogger = (): ILoggerComponent => ({
-  getLogger: () => ({
-    debug() {},
-    info() {},
-    warn() {},
-    error() {},
-    log() {}
-  })
-})
-
-export const buildComponents = (
-  components?: Partial<ContentValidatorComponents>
-): ContentValidatorComponents => {
-  const externalCalls = buildExternalCalls()
-  const logs = { getLogger: () => console }
-
-  return {
-    externalCalls,
-    logs: logs,
-    ...components
   }
 }
 
