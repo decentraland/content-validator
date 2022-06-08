@@ -50,6 +50,24 @@ export const createNftOwnershipChecker = (
     )
   }
 
+  const checkForNameOwnershipWithTimestamp = async (
+    address: EthAddress,
+    nfts: string[],
+    timestamp: number
+  ): Promise<Set<string>> => {
+    await theGraphClient.findBlocksForTimestamp('blocksSubgraph', timestamp)
+    return await checkForOwnership(
+      address,
+      nfts,
+      async (address: EthAddress, nfts: string[]) => {
+        const result = await theGraphClient.checkForNamesOwnership([
+          [address, nfts]
+        ])
+        return result.find((res) => res.owner === address)?.names ?? []
+      }
+    )
+  }
+
   const checkForWearablesOwnership = async (
     address: EthAddress,
     nfts: string[]
@@ -68,6 +86,7 @@ export const createNftOwnershipChecker = (
 
   return {
     checkForNameOwnership,
+    checkForNameOwnershipWithTimestamp,
     checkForWearablesOwnership
   }
 }

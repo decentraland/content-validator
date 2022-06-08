@@ -27,6 +27,7 @@ export const buildComponents = (
   const logs = components?.logs ?? buildLogger()
   const urls = {
     collectionsSubgraph: externalCalls.subgraphs.L1.collections,
+    blocksSubgraph: externalCalls.subgraphs.L1.blocks,
     ensSubgraph: externalCalls.subgraphs.L1.ensOwner,
     maticCollectionsSubgraph: externalCalls.subgraphs.L2.collections,
     thirdPartyRegistrySubgraph: externalCalls.subgraphs.L2.thirdPartyRegistry
@@ -310,7 +311,14 @@ export const fetcherWithWearablesOwnership = (
     async (url, _query, _variables) => {
       if (url.includes('marketplace')) {
         return Promise.resolve({
-          [`P${address}`]: ens ?? defaultEns
+          [`B123456`]: ens ?? defaultEns
+        })
+      } else if (url.includes('blocks')) {
+        return Promise.resolve({
+          before: [],
+          after: [{ number: 123456 }],
+          fiveMinBefore: [],
+          fiveMinAfter: []
         })
       } else if (url.includes('ethereum')) {
         return Promise.resolve({

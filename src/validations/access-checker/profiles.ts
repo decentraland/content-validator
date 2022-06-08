@@ -9,7 +9,10 @@ import { ADR_XXX_TIMESTAMP } from '../index'
  * @public
  */
 export const profiles: Validation = {
-  validate: async ({ externalCalls, nftOwnershipChecker }, deployment) => {
+  validate: async (
+    { externalCalls, nftOwnershipChecker, theGraphClient },
+    deployment
+  ) => {
     const pointers = deployment.entity.pointers
     const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
 
@@ -39,10 +42,12 @@ export const profiles: Validation = {
 
     const names = allNames(deployment.entity)
     if (names.length > 0) {
-      const ownedNames = await nftOwnershipChecker.checkForNameOwnership(
-        ethAddress,
-        names
-      )
+      const ownedNames =
+        await theGraphClient.checkForNamesOwnershipWithTimestamp(
+          ethAddress,
+          names,
+          deployment.entity.timestamp
+        )
       const notOwnedNames = names.filter((name) => !ownedNames.has(name))
       if (notOwnedNames.length > 0)
         return validationFailed(

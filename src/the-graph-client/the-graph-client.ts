@@ -2,6 +2,7 @@ import { parseUrn } from '@dcl/urn-resolver'
 import { EthAddress } from '@dcl/schemas'
 import { ThirdPartyIntegration, WearableId, WearablesFilters } from './types'
 import { ContentValidatorComponents, TheGraphClient, URLs } from '../types'
+import ms from 'ms'
 
 /**
  * @internal
@@ -33,9 +34,9 @@ export const createTheGraphClient = (
     }))
   }
 
-  async function checkForNamesOwnership(
+  const checkForNamesOwnership = async (
     namesToCheck: [EthAddress, string[]][]
-  ): Promise<{ owner: EthAddress; names: string[] }[]> {
+  ): Promise<{ owner: EthAddress; names: string[] }[]> => {
     const subgraphQuery =
       `{` +
       namesToCheck.map((query) => getNamesFragment(query)).join('\n') +
@@ -57,6 +58,47 @@ export const createTheGraphClient = (
     return runQuery(query, {})
   }
 
+  const checkForNamesOwnershipWithTimestamp = async (
+    ethAddress: EthAddress,
+    namesToCheck: string[],
+    timestamp: number
+  ): Promise<Set<string>> => {
+    const blocks = await findBlocksForTimestamp('blocksSubgraph', timestamp)
+
+    const blocksToCheck: number[] = [
+      blocks.blockNumberAtDeployment ?? -1,
+      blocks.blockNumberFiveMinBeforeDeployment ?? -1
+    ].filter((block) => block !== -1)
+
+    const namesQuery =
+      `{` +
+      blocksToCheck
+        .map((block) =>
+          getNamesForBlockFragment(block, ethAddress, namesToCheck)
+        )
+        .join('\n') +
+      `}`
+
+    const mapper = (response: {
+      [block: string]: { name: string }[]
+    }): Set<string> =>
+      Object.entries(response).reduce<Set<string>>(
+        (set: Set<string>, [, names]) => {
+          names.forEach(({ name }) => set.add(name))
+          return set
+        },
+        new Set<string>()
+      )
+
+    const query: Query<{ [block: string]: { name: string }[] }, Set<string>> = {
+      description: 'check for names ownership',
+      subgraph: 'ensSubgraph',
+      query: namesQuery,
+      mapper
+    }
+    return runQuery(query, {})
+  }
+
   function getNamesFragment([ethAddress, names]: [EthAddress, string[]]) {
     const nameList = names.map((name) => `"${name}"`).join(',')
     // We need to add a 'P' prefix, because the graph needs the fragment name to start with a letter
@@ -65,6 +107,22 @@ export const createTheGraphClient = (
         name
       }
     `
+  }
+
+  const getNamesForBlockFragment = (
+    block: number,
+    ethAddress: EthAddress,
+    names: string[]
+  ) => {
+    const nameList = names.map((name) => `"${name}"`).join(',')
+    return `
+  B${block}: nfts(
+    block: {number: ${block}}
+    where: {owner: "${ethAddress}", category: ens, name_in: [${nameList}]}
+    first: 1000
+  ) {
+    name
+  }`
   }
 
   /**
@@ -92,7 +150,9 @@ export const createTheGraphClient = (
     return concatWearables(ethereumWearablesOwners, maticWearablesOwners)
   }
 
-  async function getAllCollections(): Promise<{ name: string; urn: string }[]> {
+  const getAllCollections = async (): Promise<
+    { name: string; urn: string }[]
+  > => {
     const l1CollectionsPromise = getCollections('collectionsSubgraph')
     const l2CollectionsPromise = getCollections('maticCollectionsSubgraph')
 
@@ -103,7 +163,7 @@ export const createTheGraphClient = (
     return l1Collections.concat(l2Collections)
   }
 
-  async function getCollections(subgraph: keyof URLs) {
+  const getCollections = async (subgraph: keyof URLs) => {
     try {
       const query: Query<
         { collections: { name: string; urn: string }[] },
@@ -120,10 +180,10 @@ export const createTheGraphClient = (
     }
   }
 
-  function concatWearables(
+  const concatWearables = (
     ethereumWearablesOwners: { owner: EthAddress; urns: string[] }[],
     maticWearablesOwners: { owner: EthAddress; urns: string[] }[]
-  ) {
+  ) => {
     const allWearables: Map<string, string[]> = new Map<string, string[]>()
 
     ethereumWearablesOwners.forEach((a) => {
@@ -155,7 +215,9 @@ export const createTheGraphClient = (
   /**
    * This method returns the list of third party integrations as well as collections
    */
-  async function getThirdPartyIntegrations(): Promise<ThirdPartyIntegration[]> {
+  const getThirdPartyIntegrations = async (): Promise<
+    ThirdPartyIntegration[]
+  > => {
     const query: Query<
       {
         thirdParties: {
@@ -181,10 +243,10 @@ export const createTheGraphClient = (
    * This method returns the third party resolver API to be used to query assets from any collection
    * of given third party integration
    */
-  async function findThirdPartyResolver(
+  const findThirdPartyResolver = async (
     subgraph: keyof URLs,
     id: string
-  ): Promise<string | undefined> {
+  ): Promise<string | undefined> => {
     const query: Query<
       { thirdParties: [{ resolver: string }] },
       string | undefined
@@ -197,10 +259,10 @@ export const createTheGraphClient = (
     return await runQuery(query, { id })
   }
 
-  function getOwnersByWearable(
+  const getOwnersByWearable = (
     wearableIdsToCheck: [string, string[]][],
     subgraph: keyof URLs
-  ): Promise<{ owner: EthAddress; urns: string[] }[]> {
+  ): Promise<{ owner: EthAddress; urns: string[] }[]> => {
     const subgraphQuery =
       `{` +
       wearableIdsToCheck
@@ -224,10 +286,10 @@ export const createTheGraphClient = (
     return runQuery(query, {})
   }
 
-  function getWearablesFragment([ethAddress, wearableIds]: [
+  const getWearablesFragment = ([ethAddress, wearableIds]: [
     EthAddress,
     string[]
-  ]) {
+  ]) => {
     const urnList = wearableIds.map((wearableId) => `"${wearableId}"`).join(',')
     // We need to add a 'P' prefix, because the graph needs the fragment name to start with a letter
     return `
@@ -241,9 +303,9 @@ export const createTheGraphClient = (
    * Given an ethereum address, this method returns all wearables from ethereum and matic that are asociated to it.
    * @param owner
    */
-  async function findWearablesByOwner(
+  const findWearablesByOwner = async (
     owner: EthAddress
-  ): Promise<WearableId[]> {
+  ): Promise<WearableId[]> => {
     const ethereumWearablesPromise = getWearablesByOwner(
       'collectionsSubgraph',
       owner
@@ -260,7 +322,10 @@ export const createTheGraphClient = (
     return ethereumWearables.concat(maticWearables)
   }
 
-  async function getWearablesByOwner(subgraph: keyof URLs, owner: string) {
+  const getWearablesByOwner = async (
+    subgraph: keyof URLs,
+    owner: string
+  ): Promise<string[]> => {
     const query: Query<
       { nfts: { urn: string; collection: { isApproved: boolean } }[] },
       { id: WearableId; isApproved: boolean }[]
@@ -282,10 +347,10 @@ export const createTheGraphClient = (
       .map((wearable) => wearable.id)
   }
 
-  async function findWearablesByFilters(
+  const findWearablesByFilters = async (
     filters: WearablesFilters,
     pagination: { limit: number; lastId: string | undefined }
-  ): Promise<WearableId[]> {
+  ): Promise<WearableId[]> => {
     // Order will be L1 > L2
     const L1_NETWORKS = ['mainnet', 'ropsten', 'kovan', 'rinkeby', 'goerli']
     const L2_NETWORKS = ['matic', 'mumbai']
@@ -322,7 +387,7 @@ export const createTheGraphClient = (
     return result
   }
 
-  async function getProtocol(urn: string) {
+  const getProtocol = async (urn: string) => {
     const parsed = await parseUrn(urn)
     return parsed?.type === 'blockchain-collection-v1-asset' ||
       parsed?.type === 'blockchain-collection-v2-asset'
@@ -330,11 +395,11 @@ export const createTheGraphClient = (
       : undefined
   }
 
-  function findWearablesByFiltersInSubgraph(
+  const findWearablesByFiltersInSubgraph = (
     subgraph: keyof URLs,
     filters: WearablesFilters & { lastId?: string },
     limit: number
-  ): Promise<WearableId[]> {
+  ): Promise<WearableId[]> => {
     const subgraphQuery = buildFilterQuery(filters)
     let mapper: (response: any) => WearableId[]
     if (filters.collectionIds) {
@@ -361,9 +426,9 @@ export const createTheGraphClient = (
     })
   }
 
-  function buildFilterQuery(
+  const buildFilterQuery = (
     filters: WearablesFilters & { lastId?: string }
-  ): string {
+  ): string => {
     const whereClause: string[] = [
       `searchItemType_in: ["wearable_v1", "wearable_v2", "smart_wearable_v1", "emote_v1"]`
     ]
@@ -409,10 +474,10 @@ export const createTheGraphClient = (
   }
 
   /** This method takes a query that could be paginated and performs the pagination internally */
-  async function paginatableQuery<QueryResult, ReturnType extends Array<any>>(
+  const paginatableQuery = async <QueryResult, ReturnType extends Array<any>>(
     query: Query<QueryResult, ReturnType>,
     variables: Record<string, any>
-  ): Promise<ReturnType> {
+  ): Promise<ReturnType> => {
     let result: ReturnType | undefined = undefined
     let shouldContinue = true
     let offset = 0
@@ -437,14 +502,14 @@ export const createTheGraphClient = (
    * This method takes a query that has an array input variable, and makes multiple queries if necessary.
    * This is so that the input doesn't exceed the maximum limit
    */
-  async function splitQueryVariablesIntoSlices<
+  const splitQueryVariablesIntoSlices = async <
     QueryResult,
     ReturnType extends Array<any>
   >(
     query: Query<QueryResult, ReturnType>,
     input: string[],
     inputToVariables: (input: string[]) => Record<string, any>
-  ): Promise<ReturnType | []> {
+  ): Promise<ReturnType | []> => {
     let result: ReturnType | undefined = undefined
     let offset = 0
     while (offset < input.length) {
@@ -460,10 +525,10 @@ export const createTheGraphClient = (
     return result ?? []
   }
 
-  async function runQuery<QueryResult, ReturnType>(
+  const runQuery = async <QueryResult, ReturnType>(
     query: Query<QueryResult, ReturnType>,
     variables: Record<string, any>
-  ): Promise<ReturnType> {
+  ): Promise<ReturnType> => {
     try {
       const response = await components.externalCalls.queryGraph<QueryResult>(
         urls[query.subgraph],
@@ -481,9 +546,101 @@ export const createTheGraphClient = (
       throw new Error('Internal server error')
     }
   }
+
+  // When we want to find a block for a specific timestamp, we define an access window. This means that
+  // we will place will try to find the closes block to the timestamp, but only if it's within the window
+  const ACCESS_WINDOW_IN_SECONDS = ms('15s') / 1000
+
+  const getWindowFromTimestamp = (
+    timestamp: number
+  ): {
+    max: number
+    min: number
+  } => {
+    const windowMin = timestamp - Math.floor(ACCESS_WINDOW_IN_SECONDS / 2)
+    const windowMax = timestamp + Math.ceil(ACCESS_WINDOW_IN_SECONDS / 2)
+    return {
+      max: windowMax,
+      min: windowMin
+    }
+  }
+
+  const findBlocksForTimestamp = async (
+    subgraph: keyof URLs,
+    timestamp: number
+  ): Promise<{
+    blockNumberAtDeployment: number | undefined
+    blockNumberFiveMinBeforeDeployment: number | undefined
+  }> => {
+    const query: Query<
+      {
+        before: { number: string }[]
+        after: { number: string }[]
+        fiveMinBefore: { number: string }[]
+        fiveMinAfter: { number: string }[]
+      },
+      {
+        blockNumberAtDeployment: number | undefined
+        blockNumberFiveMinBeforeDeployment: number | undefined
+      }
+    > = {
+      description: 'fetch blocks for timestamp',
+      subgraph: subgraph,
+      query: QUERY_BLOCKS_FOR_TIMESTAMP,
+      mapper: (response) => {
+        // To get the deployment's block number, we check the one immediately after the entity's timestamp. Since it could not exist, we default to the one immediately before.
+        const blockNumberAtDeployment =
+          response.after[0]?.number ?? response.before[0]?.number
+        const blockNumberFiveMinBeforeDeployment =
+          response.fiveMinAfter[0]?.number ?? response.fiveMinBefore[0]?.number
+        if (
+          blockNumberAtDeployment === undefined &&
+          blockNumberFiveMinBeforeDeployment === undefined
+        ) {
+          throw new Error(`Failed to find blocks for the specific timestamp`)
+        }
+
+        return {
+          blockNumberAtDeployment: !!blockNumberAtDeployment
+            ? parseInt(blockNumberAtDeployment)
+            : undefined,
+          blockNumberFiveMinBeforeDeployment:
+            !!blockNumberFiveMinBeforeDeployment
+              ? parseInt(blockNumberFiveMinBeforeDeployment)
+              : undefined
+        }
+      }
+    }
+
+    const timestampSec = Math.ceil(timestamp / 1000)
+    const timestamp5MinAgo = timestampSec - 60 * 5
+    const window = getWindowFromTimestamp(timestampSec)
+    const window5MinAgo = getWindowFromTimestamp(timestamp5MinAgo)
+
+    try {
+      return await runQuery(query, {
+        timestamp: timestampSec,
+        timestampMax: window.max,
+        timestampMin: window.min,
+        timestamp5Min: timestamp5MinAgo,
+        timestamp5MinMax: window5MinAgo.max,
+        timestamp5MinMin: window5MinAgo.min
+      })
+    } catch (e) {
+      const error = (e as any)?.message
+      logger.error(`Error fetching the block number for timestamp`, {
+        timestamp,
+        error
+      })
+      throw error
+    }
+  }
+
   return {
     checkForNamesOwnership,
+    checkForNamesOwnershipWithTimestamp,
     checkForWearablesOwnership,
+    findBlocksForTimestamp,
     findOwnersByName,
     findThirdPartyResolver,
     findWearablesByFilters,
@@ -549,6 +706,42 @@ const QUERY_COLLECTIONS = `
       name,
     }
   }`
+
+const QUERY_BLOCKS_FOR_TIMESTAMP = `
+query getBlockForTimestamp($timestamp: Int!, $timestampMin: Int!, $timestampMax: Int!, $timestamp5Min: Int!, $timestamp5MinMax: Int!, $timestamp5MinMin: Int!) {
+  before: blocks(
+    where: {timestamp_lte: $timestamp, timestamp_gte: $timestampMin}
+    first: 1
+    orderBy: timestamp
+    orderDirection: desc
+  ) {
+    number
+  }
+  after: blocks(
+    where: {timestamp_gte: $timestamp, timestamp_lte: $timestampMax}
+    first: 1
+    orderBy: timestamp
+    orderDirection: asc
+  ) {
+    number
+  }
+  fiveMinBefore: blocks(
+    where: {timestamp_lte: $timestamp5Min, timestamp_gte: $timestamp5MinMin}
+    first: 1
+    orderBy: timestamp
+    orderDirection: desc
+  ) {
+    number
+  }
+  fiveMinAfter: blocks(
+    where: {timestamp_gte: $timestamp5Min, timestamp_lte: $timestamp5MinMax}
+    first: 1
+    orderBy: timestamp
+    orderDirection: asc
+  ) {
+    number
+  }
+}`
 
 type Query<QueryResult, ReturnType> = {
   description: string

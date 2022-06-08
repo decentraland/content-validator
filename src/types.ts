@@ -167,6 +167,7 @@ export const fromErrors = (...errors: Errors): ValidationResponse => ({
  */
 export type URLs = {
   ensSubgraph: string
+  blocksSubgraph: string
   collectionsSubgraph: string
   maticCollectionsSubgraph: string
   thirdPartyRegistrySubgraph: string
@@ -180,9 +181,23 @@ export type TheGraphClient = {
     namesToCheck: [EthAddress, string[]][]
   ) => Promise<{ owner: EthAddress; names: string[] }[]>
 
+  checkForNamesOwnershipWithTimestamp: (
+    ethAddress: EthAddress,
+    namesToCheck: string[],
+    timestamp: number
+  ) => Promise<Set<string>>
+
   checkForWearablesOwnership: (
     wearableIdsToCheck: [EthAddress, string[]][]
   ) => Promise<{ owner: EthAddress; urns: string[] }[]>
+
+  findBlocksForTimestamp: (
+    subgraph: keyof URLs,
+    timestamp: number
+  ) => Promise<{
+    blockNumberAtDeployment: number | undefined
+    blockNumberFiveMinBeforeDeployment: number | undefined
+  }>
 
   findOwnersByName: (
     names: string[]
@@ -212,6 +227,12 @@ export type NftOwnershipChecker = {
   checkForNameOwnership: (
     address: EthAddress,
     nfts: string[]
+  ) => Promise<Set<string>>
+
+  checkForNameOwnershipWithTimestamp: (
+    address: EthAddress,
+    nfts: string[],
+    timestamp: number
   ) => Promise<Set<string>>
 
   checkForWearablesOwnership: (
