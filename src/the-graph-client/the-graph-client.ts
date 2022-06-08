@@ -8,30 +8,21 @@ import ms from 'ms'
  * @internal
  */
 export const createTheGraphClient = (
-  components: Pick<ContentValidatorComponents, 'logs' | 'externalCalls'>,
-  urls: URLs
+  components: Pick<ContentValidatorComponents, 'logs' | 'externalCalls'>
+  // urls: URLs
 ): TheGraphClient => {
   const MAX_PAGE_SIZE = 1000
 
   const logger = components.logs.getLogger('TheGraphClient')
 
-  const findOwnersByName = async (
-    names: string[]
-  ): Promise<{ name: string; owner: EthAddress }[]> => {
-    const query: Query<
-      { nfts: { name: string; owner: { address: EthAddress } }[] },
-      { name: string; owner: EthAddress }[]
-    > = {
-      description: 'fetch owners by name',
-      subgraph: 'ensSubgraph',
-      query: QUERY_OWNER_BY_NAME,
-      mapper: (response) =>
-        response.nfts.map(({ name, owner }) => ({ name, owner: owner.address }))
-    }
-
-    return splitQueryVariablesIntoSlices(query, names, (slicedNames) => ({
-      names: slicedNames
-    }))
+  const urls: URLs = {
+    collectionsSubgraph: components.externalCalls.subgraphs.L1.collections,
+    blocksSubgraph: components.externalCalls.subgraphs.L1.blocks,
+    maticBlocksSubgraph: components.externalCalls.subgraphs.L2.blocks,
+    ensSubgraph: components.externalCalls.subgraphs.L1.ensOwner,
+    maticCollectionsSubgraph: components.externalCalls.subgraphs.L2.collections,
+    thirdPartyRegistrySubgraph:
+      components.externalCalls.subgraphs.L2.thirdPartyRegistry
   }
 
   const checkForNamesOwnership = async (
@@ -730,7 +721,6 @@ export const createTheGraphClient = (
     checkForWearablesOwnership,
     checkForWearablesOwnershipWithTimestamp,
     findBlocksForTimestamp,
-    findOwnersByName,
     findThirdPartyResolver,
     findWearablesByFilters,
     findWearablesByOwner,

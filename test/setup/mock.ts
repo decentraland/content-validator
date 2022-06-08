@@ -1,15 +1,13 @@
 import {
   ContentValidatorComponents,
   ExternalCalls,
-  QueryGraph,
-  URLs
+  QueryGraph
 } from '../../src/types'
 import { WearableCollection } from '../../src/validations/access-checker/wearables'
 import { createTheGraphClient } from '../../src'
 import { IFetchComponent } from '@well-known-components/http-server'
 import * as nodeFetch from 'node-fetch'
 import { ILoggerComponent } from '@well-known-components/interfaces'
-import { createNftOwnershipChecker } from '../../src/the-graph-client/nft-ownership-checker'
 
 export const buildLogger = (): ILoggerComponent => ({
   getLogger: () => ({
@@ -25,28 +23,17 @@ export const buildComponents = (
   components?: Partial<ContentValidatorComponents>
 ): ContentValidatorComponents => {
   const externalCalls = components?.externalCalls ?? buildExternalCalls()
+
   const logs = components?.logs ?? buildLogger()
-  const urls: URLs = {
-    collectionsSubgraph: externalCalls.subgraphs.L1.collections,
-    blocksSubgraph: externalCalls.subgraphs.L1.blocks,
-    maticBlocksSubgraph: externalCalls.subgraphs.L2.blocks,
-    ensSubgraph: externalCalls.subgraphs.L1.ensOwner,
-    maticCollectionsSubgraph: externalCalls.subgraphs.L2.collections,
-    thirdPartyRegistrySubgraph: externalCalls.subgraphs.L2.thirdPartyRegistry
-  }
+
   const theGraphClient =
     components?.theGraphClient ??
-    createTheGraphClient({ logs, externalCalls, ...components }, urls)
-
-  const nftOwnershipChecker =
-    components?.nftOwnershipChecker ??
-    createNftOwnershipChecker({ logs, theGraphClient })
+    createTheGraphClient({ logs, externalCalls, ...components })
 
   return {
     externalCalls,
     logs,
-    theGraphClient,
-    nftOwnershipChecker
+    theGraphClient
   }
 }
 

@@ -206,10 +206,6 @@ export type TheGraphClient = {
     blockNumberFiveMinBeforeDeployment: number | undefined
   }>
 
-  findOwnersByName: (
-    names: string[]
-  ) => Promise<{ name: string; owner: EthAddress }[]>
-
   findThirdPartyResolver: (
     subgraph: keyof URLs,
     id: string
@@ -228,33 +224,11 @@ export type TheGraphClient = {
 }
 
 /**
- * @internal
- */
-export type NftOwnershipChecker = {
-  checkForNameOwnership: (
-    address: EthAddress,
-    nfts: string[]
-  ) => Promise<Set<string>>
-
-  checkForNameOwnershipWithTimestamp: (
-    address: EthAddress,
-    nfts: string[],
-    timestamp: number
-  ) => Promise<Set<string>>
-
-  checkForWearablesOwnership: (
-    address: EthAddress,
-    nfts: string[]
-  ) => Promise<Set<string>>
-}
-
-/**
  * Components that can be used to validate deployments.
  * @public
  */
 export type ContentValidatorComponents = {
   logs: ILoggerComponent
   theGraphClient: TheGraphClient
-  nftOwnershipChecker: NftOwnershipChecker
   externalCalls: ExternalCalls
 }

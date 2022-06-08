@@ -13,7 +13,7 @@ describe('TheGraphClient', () => {
     const { theGraphClient } = buildComponents({ externalCalls })
 
     await expect(
-      theGraphClient.findOwnersByName(['Some Name'])
+      theGraphClient.checkForNamesOwnership([['0x1', ['Some Name']]])
     ).rejects.toThrow('Internal server error')
   })
 })

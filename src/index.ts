@@ -11,7 +11,7 @@ export * from './validations'
 export const createValidator = (
   components: Pick<
     ContentValidatorComponents,
-    'externalCalls' | 'logs' | 'theGraphClient' | 'nftOwnershipChecker'
+    'externalCalls' | 'logs' | 'theGraphClient'
   >
 ): Validator => {
   const logs = components.logs.getLogger('ContentValidator')

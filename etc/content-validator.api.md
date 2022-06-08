@@ -30,17 +30,16 @@ export const conditionalValidation: (condition: ConditionalValidation) => Valida
 export type ContentValidatorComponents = {
     logs: ILoggerComponent;
     theGraphClient: TheGraphClient;
-    nftOwnershipChecker: NftOwnershipChecker;
     externalCalls: ExternalCalls;
 };
 
 // Warning: (ae-internal-missing-underscore) The name "createTheGraphClient" should be prefixed with an underscore because the declaration is marked as @internal
 //
 // @internal (undocumented)
-export const createTheGraphClient: (components: Pick<ContentValidatorComponents, 'logs' | 'externalCalls'>, urls: URLs) => TheGraphClient;
+export const createTheGraphClient: (components: Pick<ContentValidatorComponents, 'logs' | 'externalCalls'>) => TheGraphClient;
 
 // @public
-export const createValidator: (components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'theGraphClient' | 'nftOwnershipChecker'>) => Validator;
+export const createValidator: (components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'theGraphClient'>) => Validator;
 
 // @public
 export type DeploymentToValidate = {
@@ -94,14 +93,6 @@ export type LocalDeploymentAuditInfo = {
     authChain: AuthChain;
 };
 
-// Warning: (ae-internal-missing-underscore) The name "NftOwnershipChecker" should be prefixed with an underscore because the declaration is marked as @internal
-//
-// @internal (undocumented)
-export type NftOwnershipChecker = {
-    checkForNameOwnership: (address: EthAddress, nfts: string[]) => Promise<Set<string>>;
-    checkForWearablesOwnership: (address: EthAddress, nfts: string[]) => Promise<Set<string>>;
-};
-
 // @public (undocumented)
 export const OK: ValidationResponse;
 
@@ -122,14 +113,16 @@ export type TheGraphClient = {
         owner: EthAddress;
         names: string[];
     }[]>;
+    checkForNamesOwnershipWithTimestamp: (ethAddress: EthAddress, namesToCheck: string[], timestamp: number) => Promise<Set<string>>;
     checkForWearablesOwnership: (wearableIdsToCheck: [EthAddress, string[]][]) => Promise<{
         owner: EthAddress;
         urns: string[];
     }[]>;
-    findOwnersByName: (names: string[]) => Promise<{
-        name: string;
-        owner: EthAddress;
-    }[]>;
+    checkForWearablesOwnershipWithTimestamp: (ethAddress: EthAddress, wearableIdsToCheck: string[], timestamp: number) => Promise<Set<string>>;
+    findBlocksForTimestamp: (subgraph: keyof URLs, timestamp: number) => Promise<{
+        blockNumberAtDeployment: number | undefined;
+        blockNumberFiveMinBeforeDeployment: number | undefined;
+    }>;
     findThirdPartyResolver: (subgraph: keyof URLs, id: string) => Promise<string | undefined>;
     findWearablesByFilters: (filters: WearablesFilters, pagination: {
         limit: number;
@@ -148,6 +141,8 @@ export type TheGraphClient = {
 // @internal (undocumented)
 export type URLs = {
     ensSubgraph: string;
+    blocksSubgraph: string;
+    maticBlocksSubgraph: string;
     collectionsSubgraph: string;
     maticCollectionsSubgraph: string;
     thirdPartyRegistrySubgraph: string;
@@ -189,11 +184,10 @@ export type Warnings = string[];
 
 // Warnings were encountered during analysis:
 //
-// src/types.ts:196:3 - (ae-forgotten-export) The symbol "WearablesFilters" needs to be exported by the entry point index.d.ts
-// src/types.ts:196:3 - (ae-forgotten-export) The symbol "WearableId" needs to be exported by the entry point index.d.ts
-// src/types.ts:205:3 - (ae-forgotten-export) The symbol "ThirdPartyIntegration" needs to be exported by the entry point index.d.ts
-// src/types.ts:229:3 - (ae-incompatible-release-tags) The symbol "theGraphClient" is marked as @public, but its signature references "TheGraphClient" which is marked as @internal
-// src/types.ts:230:3 - (ae-incompatible-release-tags) The symbol "nftOwnershipChecker" is marked as @public, but its signature references "NftOwnershipChecker" which is marked as @internal
+// src/types.ts:214:3 - (ae-forgotten-export) The symbol "WearablesFilters" needs to be exported by the entry point index.d.ts
+// src/types.ts:214:3 - (ae-forgotten-export) The symbol "WearableId" needs to be exported by the entry point index.d.ts
+// src/types.ts:223:3 - (ae-forgotten-export) The symbol "ThirdPartyIntegration" needs to be exported by the entry point index.d.ts
+// src/types.ts:232:3 - (ae-incompatible-release-tags) The symbol "theGraphClient" is marked as @public, but its signature references "TheGraphClient" which is marked as @internal
 
 // (No @packageDocumentation comment for this package)
 
