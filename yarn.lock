@@ -479,10 +479,10 @@
   dependencies:
     ethers "^5.6.8"
 
-"@dcl/eslint-config@1.0.3":
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/@dcl/eslint-config/-/eslint-config-1.0.3.tgz#dda729f67908c83320f440a2a8383dd535eca95f"
-  integrity sha512-yFYeP2ESuEhd+UCuTILMc84DvIA9raWxxOe0sFhN+9BF4nuYApV8y/AsOKYN6lvFV5c5Pkd/XWgcnNJzMarjZQ==
+"@dcl/eslint-config@1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@dcl/eslint-config/-/eslint-config-1.0.4.tgz#49c8c9599d54646d0c5c0bdb6dd2d3c5c7a99895"
+  integrity sha512-JTSSdOofunT9k8DSNsQjKtyVgPJ6xXbMOXhqc4o1nDo58kQks55w1Gzn4nrJq+jPtKT8jcFpm6Vzhz6VTfNDVA==
 
 "@dcl/hashing@1.1.0":
   version "1.1.0"

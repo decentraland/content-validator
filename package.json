@@ -31,7 +31,7 @@
   },
   "homepage": "https://github.com/decentraland/content-validator#readme",
   "devDependencies": {
-    "@dcl/eslint-config": "1.0.3",
+    "@dcl/eslint-config": "1.0.4",
     "@microsoft/api-extractor": "^7.24.2",
     "@types/jest": "^28.1.1",
     "@types/ms": "0.7.31",
