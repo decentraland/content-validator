@@ -1,6 +1,7 @@
 import {
   buildComponents,
   buildExternalCalls,
+  fetcherWithWearablesOwnership,
   mockedQueryGraph
 } from '../../setup/mock'
 
@@ -13,7 +14,34 @@ describe('TheGraphClient', () => {
     const { theGraphClient } = buildComponents({ externalCalls })
 
     await expect(
-      theGraphClient.checkForNamesOwnership([['0x1', ['Some Name']]])
+      theGraphClient.checkForNamesOwnershipWithTimestamp(
+        '0x1',
+        ['Some Name'],
+        10
+      )
+    ).rejects.toThrow('Internal server error')
+  })
+
+  it('When invoking findBlocksForTimestamp, it may happen that no block matches and exception is thrown', async () => {
+    const externalCalls = buildExternalCalls({
+      queryGraph: fetcherWithWearablesOwnership(
+        '0x862f109696d7121438642a78b3caa38f476db08b',
+        undefined,
+        undefined,
+        undefined,
+        {
+          before: [],
+          after: [],
+          fiveMinBefore: [],
+          fiveMinAfter: []
+        }
+      )
+    })
+
+    const { theGraphClient } = buildComponents({ externalCalls })
+
+    await expect(
+      theGraphClient.findBlocksForTimestamp('blocksSubgraph', 10)
     ).rejects.toThrow('Internal server error')
   })
 })

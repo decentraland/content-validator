@@ -1,12 +1,6 @@
 import { AuthChain, Entity, EthAddress } from '@dcl/schemas'
 import { ILoggerComponent } from '@well-known-components/interfaces'
 
-import {
-  ThirdPartyIntegration,
-  WearableId,
-  WearablesFilters
-} from './the-graph-client/types'
-
 /**
  * @public
  */
@@ -178,19 +172,11 @@ export type URLs = {
  * @internal
  */
 export type TheGraphClient = {
-  checkForNamesOwnership: (
-    namesToCheck: [EthAddress, string[]][]
-  ) => Promise<{ owner: EthAddress; names: string[] }[]>
-
   checkForNamesOwnershipWithTimestamp: (
     ethAddress: EthAddress,
     namesToCheck: string[],
     timestamp: number
   ) => Promise<Set<string>>
-
-  checkForWearablesOwnership: (
-    wearableIdsToCheck: [EthAddress, string[]][]
-  ) => Promise<{ owner: EthAddress; urns: string[] }[]>
 
   checkForWearablesOwnershipWithTimestamp: (
     ethAddress: EthAddress,
@@ -205,22 +191,6 @@ export type TheGraphClient = {
     blockNumberAtDeployment: number | undefined
     blockNumberFiveMinBeforeDeployment: number | undefined
   }>
-
-  findThirdPartyResolver: (
-    subgraph: keyof URLs,
-    id: string
-  ) => Promise<string | undefined>
-
-  findWearablesByFilters: (
-    filters: WearablesFilters,
-    pagination: { limit: number; lastId: string | undefined }
-  ) => Promise<WearableId[]>
-
-  findWearablesByOwner: (owner: EthAddress) => Promise<WearableId[]>
-
-  getAllCollections: () => Promise<{ name: string; urn: string }[]>
-
-  getThirdPartyIntegrations: () => Promise<ThirdPartyIntegration[]>
 }
 
 /**

@@ -266,7 +266,13 @@ export const fetcherWithWearablesOwnership = (
   address: string,
   ens?: { name: string }[],
   ethereum?: { urn: string }[],
-  matic?: { urn: string }[]
+  matic?: { urn: string }[],
+  blocks?: {
+    before: { number: number }[]
+    after: { number: number }[]
+    fiveMinBefore: { number: number }[]
+    fiveMinAfter: { number: number }[]
+  }
 ) => {
   const defaultEns = [
     {
@@ -295,6 +301,12 @@ export const fetcherWithWearablesOwnership = (
       urn: 'urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:2'
     }
   ]
+  const defaultBlocks = {
+    before: [],
+    after: [{ number: 123400 }],
+    fiveMinBefore: [],
+    fiveMinAfter: [{ number: 123500 }]
+  }
 
   return mockedQueryGraph().mockImplementation(
     async (url, _query, _variables) => {
@@ -303,12 +315,7 @@ export const fetcherWithWearablesOwnership = (
           [`B123456`]: ens ?? defaultEns
         })
       } else if (url.includes('blocks')) {
-        return Promise.resolve({
-          before: [],
-          after: [{ number: 123400 }],
-          fiveMinBefore: [],
-          fiveMinAfter: [{ number: 123500 }]
-        })
+        return Promise.resolve(blocks ?? defaultBlocks)
       } else if (url.includes('ethereum')) {
         return Promise.resolve({
           [`P${address}`]: ethereum ?? defaultEthereum
