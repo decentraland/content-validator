@@ -9,10 +9,7 @@ import { ADR_XXX_TIMESTAMP } from '../index'
  * @public
  */
 export const profiles: Validation = {
-  validate: async (
-    { externalCalls, nftOwnershipChecker, theGraphClient },
-    deployment
-  ) => {
+  validate: async ({ externalCalls, theGraphClient }, deployment) => {
     const pointers = deployment.entity.pointers
     const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
 
@@ -58,9 +55,10 @@ export const profiles: Validation = {
     const wearableUrns = await allWearablesUrns(deployment.entity)
     if (wearableUrns.length > 0) {
       const ownedWearables =
-        await nftOwnershipChecker.checkForWearablesOwnership(
+        await theGraphClient.checkForWearablesOwnershipWithTimestamp(
           ethAddress,
-          wearableUrns
+          wearableUrns,
+          deployment.entity.timestamp
         )
       const notOwned = wearableUrns.filter(
         (wearable) => !ownedWearables.has(wearable)

@@ -117,8 +117,8 @@ export const createTheGraphClient = (
     const nameList = names.map((name) => `"${name}"`).join(',')
     return `
   B${block}: nfts(
-    block: {number: ${block}}
-    where: {owner: "${ethAddress}", category: ens, name_in: [${nameList}]}
+    block: { number: ${block} }
+    where: { owner: "${ethAddress}", category: ens, name_in: [${nameList}] }
     first: 1000
   ) {
     name
@@ -148,6 +148,34 @@ export const createTheGraphClient = (
     ])
 
     return concatWearables(ethereumWearablesOwners, maticWearablesOwners)
+  }
+
+  const checkForWearablesOwnershipWithTimestamp = async (
+    ethAddress: EthAddress,
+    wearableIdsToCheck: string[],
+    timestamp: number
+  ): Promise<Set<string>> => {
+    const ethereumWearablesOwnersPromise = getOwnersByWearableWithTimestamp(
+      ethAddress,
+      wearableIdsToCheck,
+      timestamp,
+      'blocksSubgraph',
+      'collectionsSubgraph'
+    )
+    const maticWearablesOwnersPromise = getOwnersByWearableWithTimestamp(
+      ethAddress,
+      wearableIdsToCheck,
+      timestamp,
+      'maticBlocksSubgraph',
+      'maticCollectionsSubgraph'
+    )
+
+    const [ethereumWearablesOwners, maticWearablesOwners] = await Promise.all([
+      ethereumWearablesOwnersPromise,
+      maticWearablesOwnersPromise
+    ])
+
+    return new Set([...ethereumWearablesOwners, ...maticWearablesOwners])
   }
 
   const getAllCollections = async (): Promise<
@@ -259,6 +287,46 @@ export const createTheGraphClient = (
     return await runQuery(query, { id })
   }
 
+  const getOwnersByWearableWithTimestamp = async (
+    ethAddress: EthAddress,
+    wearableIdsToCheck: string[],
+    timestamp: number,
+    blocksSubgraph: keyof URLs,
+    collectionsSubgraph: keyof URLs
+  ): Promise<Set<string>> => {
+    const blocks = await findBlocksForTimestamp(blocksSubgraph, timestamp)
+
+    const blocksToCheck: number[] = [
+      blocks.blockNumberAtDeployment ?? -1,
+      blocks.blockNumberFiveMinBeforeDeployment ?? -1
+    ].filter((block) => block !== -1)
+
+    const subgraphQuery =
+      `{` +
+      blocksToCheck
+        .map((block) =>
+          getWearablesForBlockFragment(block, ethAddress, wearableIdsToCheck)
+        )
+        .join('\n') +
+      `}`
+    console.log(subgraphQuery)
+    const mapper = (response: { [owner: string]: { urn: string }[] }) =>
+      Object.entries(response).reduce<Set<string>>(
+        (set: Set<string>, [, names]) => {
+          names.forEach(({ urn }) => set.add(urn))
+          return set
+        },
+        new Set<string>()
+      )
+    const query: Query<{ [block: string]: { urn: string }[] }, Set<string>> = {
+      description: 'check for wearables ownership',
+      subgraph: collectionsSubgraph,
+      query: subgraphQuery,
+      mapper
+    }
+    return runQuery(query, {})
+  }
+
   const getOwnersByWearable = (
     wearableIdsToCheck: [string, string[]][],
     subgraph: keyof URLs
@@ -297,6 +365,26 @@ export const createTheGraphClient = (
         urn
       }
     `
+  }
+
+  const getWearablesForBlockFragment = (
+    block: number,
+    ethAddress: EthAddress,
+    wearableIds: string[]
+  ) => {
+    const urnList = wearableIds.map((wearableId) => `"${wearableId}"`).join(',')
+    return `
+  B${block}: nfts(
+    block: {number: ${block}}
+    where: {
+      owner: "${ethAddress}",
+      searchItemType_in: ["wearable_v1", "wearable_v2", "smart_wearable_v1", "emote_v1"], 
+      urn_in: [${urnList}]
+    }
+    first: 1000
+  ) {
+    urn
+  }`
   }
 
   /**
@@ -640,6 +728,7 @@ export const createTheGraphClient = (
     checkForNamesOwnership,
     checkForNamesOwnershipWithTimestamp,
     checkForWearablesOwnership,
+    checkForWearablesOwnershipWithTimestamp,
     findBlocksForTimestamp,
     findOwnersByName,
     findThirdPartyResolver,

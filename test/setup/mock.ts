@@ -1,7 +1,8 @@
 import {
   ContentValidatorComponents,
   ExternalCalls,
-  QueryGraph
+  QueryGraph,
+  URLs
 } from '../../src/types'
 import { WearableCollection } from '../../src/validations/access-checker/wearables'
 import { createTheGraphClient } from '../../src'
@@ -25,9 +26,10 @@ export const buildComponents = (
 ): ContentValidatorComponents => {
   const externalCalls = components?.externalCalls ?? buildExternalCalls()
   const logs = components?.logs ?? buildLogger()
-  const urls = {
+  const urls: URLs = {
     collectionsSubgraph: externalCalls.subgraphs.L1.collections,
     blocksSubgraph: externalCalls.subgraphs.L1.blocks,
+    maticBlocksSubgraph: externalCalls.subgraphs.L2.blocks,
     ensSubgraph: externalCalls.subgraphs.L1.ensOwner,
     maticCollectionsSubgraph: externalCalls.subgraphs.L2.collections,
     thirdPartyRegistrySubgraph: externalCalls.subgraphs.L2.thirdPartyRegistry
@@ -316,9 +318,9 @@ export const fetcherWithWearablesOwnership = (
       } else if (url.includes('blocks')) {
         return Promise.resolve({
           before: [],
-          after: [{ number: 123456 }],
+          after: [{ number: 123400 }],
           fiveMinBefore: [],
-          fiveMinAfter: []
+          fiveMinAfter: [{ number: 123500 }]
         })
       } else if (url.includes('ethereum')) {
         return Promise.resolve({

@@ -168,6 +168,7 @@ export const fromErrors = (...errors: Errors): ValidationResponse => ({
 export type URLs = {
   ensSubgraph: string
   blocksSubgraph: string
+  maticBlocksSubgraph: string
   collectionsSubgraph: string
   maticCollectionsSubgraph: string
   thirdPartyRegistrySubgraph: string
@@ -190,6 +191,12 @@ export type TheGraphClient = {
   checkForWearablesOwnership: (
     wearableIdsToCheck: [EthAddress, string[]][]
   ) => Promise<{ owner: EthAddress; urns: string[] }[]>
+
+  checkForWearablesOwnershipWithTimestamp: (
+    ethAddress: EthAddress,
+    wearableIdsToCheck: string[],
+    timestamp: number
+  ) => Promise<Set<string>>
 
   findBlocksForTimestamp: (
     subgraph: keyof URLs,
