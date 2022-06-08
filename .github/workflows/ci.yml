@@ -27,9 +27,11 @@ jobs:
       - name: check code lint
         run:  yarn lint:check
       - name: build
-        run:  make build
+        run:  yarn build
+      - name: api-extractor
+        run:  yarn api-extractor-ci
       - name: test
-        run:  make test
+        run:  yarn test
       - name: Publish
         uses: menduz/oddish-action@master
         with:
