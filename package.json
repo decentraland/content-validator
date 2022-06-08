@@ -5,8 +5,14 @@
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
+    "clean-api-extractor": "rm -rf node_modules/@microsoft/api-extractor/node_modules/typescript || true",
+    "api-extractor": "yarn clean-api-extractor && api-extractor run --local --verbose --diagnostics --typescript-compiler-folder ./node_modules/typescript",
+    "api-extractor-ci": "yarn clean-api-extractor && api-extractor run --typescript-compiler-folder ./node_modules/typescript",
+    "build": "tsc -p tsconfig.json",
     "lint:check": "eslint '**/*.{js,ts}'",
-    "lint:fix": "eslint '**/*.{js,ts}' --fix"
+    "lint:fix": "eslint '**/*.{js,ts}' --fix",
+    "test": "jest --runInBand --detectOpenHandles --colors --coverage",
+    "test:watch": "jest --runInBand --detectOpenHandles --colors --watch"
   },
   "repository": {
     "type": "git",
