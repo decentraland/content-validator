@@ -5,8 +5,6 @@ import {
 } from '../../src/types'
 import { WearableCollection } from '../../src/validations/access-checker/wearables'
 import { createTheGraphClient } from '../../src'
-import { IFetchComponent } from '@well-known-components/http-server'
-import * as nodeFetch from 'node-fetch'
 import { ILoggerComponent } from '@well-known-components/interfaces'
 
 export const buildLogger = (): ILoggerComponent => ({
@@ -77,43 +75,6 @@ export const buildSubgraphs = (subgraphs?: Partial<Subgraphs>): Subgraphs => ({
   ...defaultSubgraphs,
   ...subgraphs
 })
-
-export function createFetchComponent(): IFetchComponent {
-  return {
-    async fetch(
-      url: nodeFetch.RequestInfo,
-      init?: nodeFetch.RequestInit
-    ): Promise<nodeFetch.Response> {
-      return nodeFetch.default(url, init)
-    }
-  }
-}
-
-export async function realQueryGraph<T = any>(
-  url: string,
-  query: string,
-  variables: Record<string, any>
-): Promise<T> {
-  const response = await createFetchComponent().fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query, variables })
-  })
-  const responseBody = await response.json()
-  console.log(
-    url,
-    query,
-    variables,
-    'response',
-    JSON.stringify(responseBody, null, 2)
-  )
-  if (!response.ok) {
-    throw new Error(
-      `Error querying graph. Reasons: ${JSON.stringify(responseBody)}`
-    )
-  }
-  return responseBody.data as T
-}
 
 export const mockedQueryGraph = () =>
   jest.fn() as jest.MockedFunction<QueryGraph>
