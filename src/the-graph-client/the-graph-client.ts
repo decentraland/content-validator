@@ -3,7 +3,7 @@ import { ContentValidatorComponents, TheGraphClient, URLs } from '../types'
 import ms from 'ms'
 
 /**
- * @internal
+ * @public
  */
 export const createTheGraphClient = (
   components: Pick<ContentValidatorComponents, 'logs' | 'externalCalls'>

@@ -33,9 +33,7 @@ export type ContentValidatorComponents = {
     externalCalls: ExternalCalls;
 };
 
-// Warning: (ae-internal-missing-underscore) The name "createTheGraphClient" should be prefixed with an underscore because the declaration is marked as @internal
-//
-// @internal (undocumented)
+// @public (undocumented)
 export const createTheGraphClient: (components: Pick<ContentValidatorComponents, 'logs' | 'externalCalls'>) => TheGraphClient;
 
 // @public
@@ -105,40 +103,17 @@ export const statefulValidations: readonly [Validation, Validation, Validation, 
 // @public
 export const statelessValidations: readonly [Validation, Validation, Validation];
 
-// Warning: (ae-internal-missing-underscore) The name "TheGraphClient" should be prefixed with an underscore because the declaration is marked as @internal
-//
-// @internal (undocumented)
+// @public (undocumented)
 export type TheGraphClient = {
-    checkForNamesOwnership: (namesToCheck: [EthAddress, string[]][]) => Promise<{
-        owner: EthAddress;
-        names: string[];
-    }[]>;
     checkForNamesOwnershipWithTimestamp: (ethAddress: EthAddress, namesToCheck: string[], timestamp: number) => Promise<Set<string>>;
-    checkForWearablesOwnership: (wearableIdsToCheck: [EthAddress, string[]][]) => Promise<{
-        owner: EthAddress;
-        urns: string[];
-    }[]>;
     checkForWearablesOwnershipWithTimestamp: (ethAddress: EthAddress, wearableIdsToCheck: string[], timestamp: number) => Promise<Set<string>>;
     findBlocksForTimestamp: (subgraph: keyof URLs, timestamp: number) => Promise<{
         blockNumberAtDeployment: number | undefined;
         blockNumberFiveMinBeforeDeployment: number | undefined;
     }>;
-    findThirdPartyResolver: (subgraph: keyof URLs, id: string) => Promise<string | undefined>;
-    findWearablesByFilters: (filters: WearablesFilters, pagination: {
-        limit: number;
-        lastId: string | undefined;
-    }) => Promise<WearableId[]>;
-    findWearablesByOwner: (owner: EthAddress) => Promise<WearableId[]>;
-    getAllCollections: () => Promise<{
-        name: string;
-        urn: string;
-    }[]>;
-    getThirdPartyIntegrations: () => Promise<ThirdPartyIntegration[]>;
 };
 
-// Warning: (ae-internal-missing-underscore) The name "URLs" should be prefixed with an underscore because the declaration is marked as @internal
-//
-// @internal (undocumented)
+// @public (undocumented)
 export type URLs = {
     ensSubgraph: string;
     blocksSubgraph: string;
@@ -181,13 +156,6 @@ export interface Validator {
 
 // @public (undocumented)
 export type Warnings = string[];
-
-// Warnings were encountered during analysis:
-//
-// src/types.ts:214:3 - (ae-forgotten-export) The symbol "WearablesFilters" needs to be exported by the entry point index.d.ts
-// src/types.ts:214:3 - (ae-forgotten-export) The symbol "WearableId" needs to be exported by the entry point index.d.ts
-// src/types.ts:223:3 - (ae-forgotten-export) The symbol "ThirdPartyIntegration" needs to be exported by the entry point index.d.ts
-// src/types.ts:232:3 - (ae-incompatible-release-tags) The symbol "theGraphClient" is marked as @public, but its signature references "TheGraphClient" which is marked as @internal
 
 // (No @packageDocumentation comment for this package)
 

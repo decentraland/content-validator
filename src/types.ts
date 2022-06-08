@@ -157,7 +157,7 @@ export const fromErrors = (...errors: Errors): ValidationResponse => ({
 })
 
 /**
- * @internal
+ * @public
  */
 export type URLs = {
   ensSubgraph: string
@@ -169,7 +169,7 @@ export type URLs = {
 }
 
 /**
- * @internal
+ * @public
  */
 export type TheGraphClient = {
   checkForNamesOwnershipWithTimestamp: (
