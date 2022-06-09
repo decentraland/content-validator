@@ -75,6 +75,7 @@ export const profiles: Validation = {
 
 const allNames = (entity: Entity): string[] =>
   entity.metadata.avatars
+    .filter((avatar: Avatar) => avatar.hasClaimedName)
     .map((avatar: Avatar) => avatar.name)
     .filter((name: string) => name && name.trim().length > 0)
 
