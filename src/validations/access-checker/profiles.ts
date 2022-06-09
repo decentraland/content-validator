@@ -3,6 +3,7 @@ import { OK, Validation, validationFailed } from '../../types'
 import { parseUrn } from '@dcl/urn-resolver'
 import { Avatar } from '@dcl/schemas'
 import { ADR_XXX_TIMESTAMP } from '../index'
+import { allowList } from '../profile'
 
 /**
  * Validate that the pointers are valid, and that the Ethereum address has write access to them
@@ -82,6 +83,8 @@ const allNames = (entity: Entity): string[] =>
 const isBaseAvatar = (wearable: string): boolean =>
   wearable.includes('base-avatars')
 
+const isOldEmote = (wearable: string): boolean => allowList.has(wearable)
+
 const translateWearablesIdFormat = async (
   wearableId: string
 ): Promise<string | undefined> => {
@@ -96,7 +99,7 @@ const allWearablesUrns = async (entity: Entity) => {
   const allWearablesInProfilePromises: Promise<string | undefined>[] = []
   for (const avatar of entity.metadata.avatars) {
     for (const wearableId of avatar.avatar.wearables) {
-      if (!isBaseAvatar(wearableId)) {
+      if (!isBaseAvatar(wearableId) && !isOldEmote(wearableId)) {
         allWearablesInProfilePromises.push(
           translateWearablesIdFormat(wearableId)
         )

@@ -7,7 +7,7 @@ import { parseUrn } from '@dcl/urn-resolver'
 /** Validate that given profile deployment includes a face256 thumbnail with valid size */
 const defaultThumbnailSize = 256
 
-const allowList = new Set([
+export const allowList = new Set([
   'fistpump',
   'wave',
   'robot',
