@@ -8,24 +8,25 @@ import { parseUrn } from '@dcl/urn-resolver'
 const defaultThumbnailSize = 256
 
 export const allowList = new Set([
-  'fistpump',
-  'wave',
-  'robot',
-  'raiseHand',
   'clap',
-  'money',
-  'kiss',
-  'hammer',
-  'hohoho',
-  'snowfall',
-  'dance',
-  'shrug',
-  'tik',
-  'tektonik',
-  'dontsee',
   'dab',
+  'dance',
+  'disco',
+  'dontsee',
+  'fistpump',
+  'hammer',
   'handsair',
-  'disco'
+  'headexplode',
+  'hohoho',
+  'kiss',
+  'money',
+  'raiseHand',
+  'robot',
+  'shrug',
+  'snowfall',
+  'tektonik',
+  'tik',
+  'wave'
 ])
 
 export const faceThumbnail: Validation = {
