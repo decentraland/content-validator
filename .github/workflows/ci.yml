@@ -1,14 +1,5 @@
 on:
-  push:
-    tags:
-      - '*'
-    branches:
-      - main
-  pull_request:
   workflow_dispatch:
-  release:
-    types:
-      - created
 
 name: CI
 jobs:
