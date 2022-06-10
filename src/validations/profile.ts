@@ -1,6 +1,6 @@
 import { EntityType } from '@dcl/schemas'
 import sharp from 'sharp'
-import { ADR_45_TIMESTAMP, ADR_XXX_TIMESTAMP, validateInRow } from '.'
+import { ADR_45_TIMESTAMP, ADR_75_TIMESTAMP, validateInRow } from '.'
 import { OK, Validation, validationFailed } from '../types'
 import { parseUrn } from '@dcl/urn-resolver'
 
@@ -84,7 +84,7 @@ export const faceThumbnail: Validation = {
 
 export const wearableUrns: Validation = {
   validate: async (components, deployment) => {
-    if (deployment.entity.timestamp < ADR_XXX_TIMESTAMP) return OK
+    if (deployment.entity.timestamp < ADR_75_TIMESTAMP) return OK
 
     const allAvatars: any[] = deployment.entity.metadata?.avatars ?? []
     for (const avatar of allAvatars) {

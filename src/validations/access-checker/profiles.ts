@@ -2,7 +2,7 @@ import { EthAddress, Entity } from '@dcl/schemas'
 import { OK, Validation, validationFailed } from '../../types'
 import { parseUrn } from '@dcl/urn-resolver'
 import { Avatar } from '@dcl/schemas'
-import { ADR_XXX_TIMESTAMP } from '../index'
+import { ADR_75_TIMESTAMP } from '../index'
 import { allowList } from '../profile'
 
 /**
@@ -36,7 +36,7 @@ export const profiles: Validation = {
       )
     }
 
-    if (deployment.entity.timestamp < ADR_XXX_TIMESTAMP) return OK
+    if (deployment.entity.timestamp < ADR_75_TIMESTAMP) return OK
 
     const names = allClaimedNames(deployment.entity)
     if (names.length > 0) {

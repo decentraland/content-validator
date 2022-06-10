@@ -13,7 +13,7 @@ import { ILoggerComponent } from '@well-known-components/interfaces';
 export const ADR_45_TIMESTAMP: number;
 
 // @public
-export const ADR_XXX_TIMESTAMP: number;
+export const ADR_75_TIMESTAMP: number;
 
 // @public (undocumented)
 export const calculateDeploymentSize: (deployment: DeploymentToValidate, externalCalls: ExternalCalls) => Promise<number | string>;
