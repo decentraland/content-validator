@@ -30,10 +30,8 @@ describe('TheGraphClient', () => {
         undefined,
         undefined,
         {
-          before: [],
-          after: [],
-          fiveMinBefore: [],
-          fiveMinAfter: []
+          max: [],
+          min: []
         }
       )
     })

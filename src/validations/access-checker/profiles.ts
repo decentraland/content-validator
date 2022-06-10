@@ -38,7 +38,7 @@ export const profiles: Validation = {
 
     if (deployment.entity.timestamp < ADR_XXX_TIMESTAMP) return OK
 
-    const names = allNames(deployment.entity)
+    const names = allClaimedNames(deployment.entity)
     if (names.length > 0) {
       const ownedNames =
         await theGraphClient.checkForNamesOwnershipWithTimestamp(
@@ -74,7 +74,7 @@ export const profiles: Validation = {
   }
 }
 
-const allNames = (entity: Entity): string[] =>
+const allClaimedNames = (entity: Entity): string[] =>
   entity.metadata.avatars
     .filter((avatar: Avatar) => avatar.hasClaimedName)
     .map((avatar: Avatar) => avatar.name)

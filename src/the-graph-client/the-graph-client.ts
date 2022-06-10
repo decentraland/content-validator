@@ -191,24 +191,6 @@ export const createTheGraphClient = (
     }
   }
 
-  // When we want to find a block for a specific timestamp, we define an access window. This means that
-  // we will place will try to find the closes block to the timestamp, but only if it's within the window
-  const ACCESS_WINDOW_IN_SECONDS = ms('15s') / 1000
-
-  const getWindowFromTimestamp = (
-    timestamp: number
-  ): {
-    max: number
-    min: number
-  } => {
-    const windowMin = timestamp - Math.floor(ACCESS_WINDOW_IN_SECONDS / 2)
-    const windowMax = timestamp + Math.ceil(ACCESS_WINDOW_IN_SECONDS / 2)
-    return {
-      max: windowMax,
-      min: windowMin
-    }
-  }
-
   const findBlocksForTimestamp = async (
     subgraph: keyof URLs,
     timestamp: number
@@ -218,10 +200,8 @@ export const createTheGraphClient = (
   }> => {
     const query: Query<
       {
-        before: { number: string }[]
-        after: { number: string }[]
-        fiveMinBefore: { number: string }[]
-        fiveMinAfter: { number: string }[]
+        min: { number: string }[]
+        max: { number: string }[]
       },
       {
         blockNumberAtDeployment: number | undefined
@@ -232,11 +212,8 @@ export const createTheGraphClient = (
       subgraph: subgraph,
       query: QUERY_BLOCKS_FOR_TIMESTAMP,
       mapper: (response) => {
-        // To get the deployment's block number, we check the one immediately after the entity's timestamp. Since it could not exist, we default to the one immediately before.
-        const blockNumberAtDeployment =
-          response.after[0]?.number ?? response.before[0]?.number
-        const blockNumberFiveMinBeforeDeployment =
-          response.fiveMinAfter[0]?.number ?? response.fiveMinBefore[0]?.number
+        const blockNumberAtDeployment = response.max[0].number
+        const blockNumberFiveMinBeforeDeployment = response.min[0].number
         if (
           blockNumberAtDeployment === undefined &&
           blockNumberFiveMinBeforeDeployment === undefined
@@ -258,25 +235,11 @@ export const createTheGraphClient = (
 
     const timestampSec = Math.ceil(timestamp / 1000)
     const timestamp5MinAgo = timestampSec - 60 * 5
-    const window = getWindowFromTimestamp(timestampSec)
-    const window5MinAgo = getWindowFromTimestamp(timestamp5MinAgo)
 
-    try {
-      return await runQuery(query, {
-        timestamp: timestampSec,
-        timestampMax: window.max,
-        timestampMin: window.min,
-        timestamp5Min: timestamp5MinAgo,
-        timestamp5MinMax: window5MinAgo.max,
-        timestamp5MinMin: window5MinAgo.min
-      })
-    } catch (e) {
-      logger.error(`Error fetching the block number for timestamp`, {
-        timestamp,
-        error: (e as any)?.message
-      })
-      throw e
-    }
+    return await runQuery(query, {
+      timestamp: timestampSec,
+      timestamp5Min: timestamp5MinAgo
+    })
   }
 
   return {
@@ -287,33 +250,17 @@ export const createTheGraphClient = (
 }
 
 const QUERY_BLOCKS_FOR_TIMESTAMP = `
-query getBlockForTimestamp($timestamp: Int!, $timestampMin: Int!, $timestampMax: Int!, $timestamp5Min: Int!, $timestamp5MinMax: Int!, $timestamp5MinMin: Int!) {
-  before: blocks(
-    where: {timestamp_lte: $timestamp, timestamp_gte: $timestampMin}
+query getBlockForTimestampRange($timestamp: Int!, $timestamp5Min: Int!) {
+  min: blocks(
+    where: {timestamp_gte: $timestamp5Min, timestamp_lte: $timestampMax}
     first: 1
     orderBy: timestamp
     orderDirection: desc
   ) {
     number
   }
-  after: blocks(
-    where: {timestamp_gte: $timestamp, timestamp_lte: $timestampMax}
-    first: 1
-    orderBy: timestamp
-    orderDirection: asc
-  ) {
-    number
-  }
-  fiveMinBefore: blocks(
-    where: {timestamp_lte: $timestamp5Min, timestamp_gte: $timestamp5MinMin}
-    first: 1
-    orderBy: timestamp
-    orderDirection: desc
-  ) {
-    number
-  }
-  fiveMinAfter: blocks(
-    where: {timestamp_gte: $timestamp5Min, timestamp_lte: $timestamp5MinMax}
+  max: blocks(
+    where: {timestamp_gte: $timestamp5Min, timestamp_lte: $timestampMax}
     first: 1
     orderBy: timestamp
     orderDirection: asc

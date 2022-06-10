@@ -105,6 +105,8 @@ export const buildMockedQueryGraph = (
     }
     if (url.includes('block')) {
       return Promise.resolve({
+        max: [{ number: 10 }],
+        min: [{ number: 5 }],
         after: [{ number: 10 }],
         fiveMinAfter: [{ number: 5 }]
       })
@@ -229,10 +231,8 @@ export const fetcherWithWearablesOwnership = (
   ethereum?: { urn: string }[],
   matic?: { urn: string }[],
   blocks?: {
-    before: { number: number }[]
-    after: { number: number }[]
-    fiveMinBefore: { number: number }[]
-    fiveMinAfter: { number: number }[]
+    min: { number: number }[]
+    max: { number: number }[]
   }
 ) => {
   const defaultEns = [
@@ -263,10 +263,8 @@ export const fetcherWithWearablesOwnership = (
     }
   ]
   const defaultBlocks = {
-    before: [],
-    after: [{ number: 123400 }],
-    fiveMinBefore: [],
-    fiveMinAfter: [{ number: 123500 }]
+    min: [{ number: 123400 }],
+    max: [{ number: 123500 }]
   }
 
   return mockedQueryGraph().mockImplementation(
