@@ -106,9 +106,7 @@ export const buildMockedQueryGraph = (
     if (url.includes('block')) {
       return Promise.resolve({
         max: [{ number: 10 }],
-        min: [{ number: 5 }],
-        after: [{ number: 10 }],
-        fiveMinAfter: [{ number: 5 }]
+        min: [{ number: 5 }]
       })
     } else {
       return Promise.resolve(withDefaults)
@@ -197,8 +195,8 @@ export const fetcherWithThirdPartyMerkleRoot = (root: string) => {
       }
       if (url.includes('block')) {
         return Promise.resolve({
-          after: [{ number: 10 }],
-          fiveMinAfter: [{ number: 5 }]
+          max: [{ number: 10 }],
+          min: [{ number: 5 }]
         })
       }
       return Promise.resolve('')
@@ -216,8 +214,8 @@ export const fetcherWithThirdPartyEmptyMerkleRoots = () => {
       }
       if (url.includes('block')) {
         return Promise.resolve({
-          after: [{ number: 10 }],
-          fiveMinAfter: [{ number: 5 }]
+          max: [{ number: 10 }],
+          min: [{ number: 5 }]
         })
       }
       return Promise.resolve('')

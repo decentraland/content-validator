@@ -1,6 +1,5 @@
 import { EthAddress } from '@dcl/schemas'
 import { ContentValidatorComponents, TheGraphClient, URLs } from '../types'
-import ms from 'ms'
 
 /**
  * @public
