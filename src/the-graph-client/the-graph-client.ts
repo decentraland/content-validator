@@ -176,15 +176,15 @@ export const createTheGraphClient = (
         variables
       )
       return query.mapper(response)
-    } catch (error: any) {
+    } catch (error) {
+      console.log(error)
       logger.error(
         `Failed to execute the following query to the subgraph ${
           urls[query.subgraph]
         } ${query.description}'.`,
         {
           query: query.query,
-          variables: JSON.stringify(variables),
-          error
+          variables: JSON.stringify(variables)
         }
       )
       throw new Error('Internal server error')
