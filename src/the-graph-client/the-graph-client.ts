@@ -252,7 +252,7 @@ export const createTheGraphClient = (
 const QUERY_BLOCKS_FOR_TIMESTAMP = `
 query getBlockForTimestampRange($timestamp: Int!, $timestamp5Min: Int!) {
   min: blocks(
-    where: {timestamp_gte: $timestamp5Min, timestamp_lte: $timestampMax}
+    where: {timestamp_gte: $timestamp5Min, timestamp_lte: $timestamp}
     first: 1
     orderBy: timestamp
     orderDirection: desc
@@ -260,7 +260,7 @@ query getBlockForTimestampRange($timestamp: Int!, $timestamp5Min: Int!) {
     number
   }
   max: blocks(
-    where: {timestamp_gte: $timestamp5Min, timestamp_lte: $timestampMax}
+    where: {timestamp_gte: $timestamp5Min, timestamp_lte: $timestamp}
     first: 1
     orderBy: timestamp
     orderDirection: asc
