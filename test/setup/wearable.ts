@@ -3,16 +3,16 @@ import { keccak256Hash } from '@dcl/hashing'
 import {
   Locale,
   Rarity,
-  ThirdPartyWearable,
+  ThirdPartyProps,
   Wearable,
-  WearableBodyShape,
   WearableCategory,
   WearableRepresentation
 } from '@dcl/schemas'
-import { MERKLE_PROOF_REQUIRED_KEYS } from '../../src/validations/access-checker/wearables'
+import { BodyShape } from '@dcl/schemas/dist/platform'
+import { MERKLE_PROOF_REQUIRED_KEYS } from '../../src/validations/access-checker/items/third-party-asset'
 
 const representation: WearableRepresentation = {
-  bodyShapes: [WearableBodyShape.FEMALE],
+  bodyShapes: [BodyShape.FEMALE],
   mainFile: 'file1',
   contents: ['file1', 'file2'],
   overrideHides: [],
@@ -43,7 +43,7 @@ export const VALID_WEARABLE_METADATA: Wearable = {
 }
 
 export const VALID_THIRD_PARTY_WEARABLE_BASE_METADATA: Pick<
-  ThirdPartyWearable,
+  Wearable & ThirdPartyProps,
   BaseKeys
 > = {
   id: 'urn:decentraland:mumbai:collections-thirdparty:jean-pier:someCollection:someItemId',
@@ -83,14 +83,14 @@ export const entityAndMerkleRoot = buildEntityMetadataWithMerkleProof(
 
 // Using the entity, the keys to be hashed and the other node hashes, build the merkle proof for the entity and return a new proofed entity.
 function buildEntityMetadataWithMerkleProof(
-  baseEntity: Pick<ThirdPartyWearable, BaseKeys>,
+  baseEntity: Pick<Wearable & ThirdPartyProps, BaseKeys>,
   otherNodeHashes: string[]
-): { root: string; entity: ThirdPartyWearable } {
+): { root: string; entity: Wearable & ThirdPartyProps } {
   const entityHash = keccak256Hash(baseEntity, [...MERKLE_PROOF_REQUIRED_KEYS])
   const sortedHashes = [...otherNodeHashes, entityHash].sort()
   const tree = generateTree(sortedHashes)
   const entityProof = tree.proofs[entityHash]
-  const thirdPartyWearable: ThirdPartyWearable = {
+  const thirdPartyWearable: Wearable & ThirdPartyProps = {
     ...baseEntity,
     merkleProof: {
       index: entityProof.index,

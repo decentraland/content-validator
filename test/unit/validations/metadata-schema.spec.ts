@@ -31,7 +31,9 @@ describe('Metadata Schema', () => {
       const entity = buildEntity({ type, metadata: invalidMetadata, timestamp })
       const deployment = buildDeployment({ entity })
       const result = await metadata.validate(buildComponents(), deployment)
-
+      if (type == 'scene') {
+        console.log(result.errors)
+      }
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `The metadata for this entity type (${type}) is not valid.`
@@ -55,7 +57,7 @@ describe('Metadata Schema', () => {
     }
     const invalidMetadata = {}
     testType(EntityType.SCENE, validMetadata, invalidMetadata, undefined, [
-      "should have required property 'main'"
+      "must have required property 'main'"
     ])
   })
 

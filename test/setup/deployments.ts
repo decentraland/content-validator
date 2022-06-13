@@ -1,4 +1,4 @@
-import { ThirdPartyWearable, Entity, EntityType } from '@dcl/schemas'
+import { Entity, EntityType, ThirdPartyProps } from '@dcl/schemas'
 import { DeploymentToValidate, LocalDeploymentAuditInfo } from '../../src/types'
 import {
   buildEntity,
@@ -48,9 +48,9 @@ export const buildWearableDeployment = (
   files: new Map()
 })
 
-export const buildThirdPartyWearableDeployment = (
+export const buildThirdPartyWearableDeployment = <T>(
   urn: string,
-  metadata: ThirdPartyWearable
+  metadata: T & ThirdPartyProps
 ): DeploymentToValidate => ({
   entity: buildWearableEntity({ pointers: [urn], metadata }),
   auditInfo: buildAuditInfo(),

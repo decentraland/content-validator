@@ -1,19 +1,19 @@
+import { ILoggerComponent } from '@well-known-components/interfaces'
+import { createTheGraphClient } from '../../src'
 import {
   ContentValidatorComponents,
   ExternalCalls,
   QueryGraph
 } from '../../src/types'
-import { WearableCollection } from '../../src/validations/access-checker/wearables'
-import { createTheGraphClient } from '../../src'
-import { ILoggerComponent } from '@well-known-components/interfaces'
+import { ItemCollection } from '../../src/validations/access-checker/items/collection-asset-validator'
 
 export const buildLogger = (): ILoggerComponent => ({
   getLogger: () => ({
-    debug() {},
-    info() {},
-    warn() {},
-    error() {},
-    log() {}
+    debug() { },
+    info() { },
+    warn() { },
+    error() { },
+    log() { }
   })
 })
 
@@ -81,7 +81,7 @@ export const mockedQueryGraph = () =>
 
 const COMMITTEE_MEMBER = '0xCOMMITEE_MEMBER'
 export const buildMockedQueryGraph = (
-  collection?: Partial<WearableCollection>,
+  collection?: Partial<ItemCollection>,
   _merkleRoot?: string
 ) =>
   mockedQueryGraph().mockImplementation(async (url, _query, _variables) => {
