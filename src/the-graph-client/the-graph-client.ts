@@ -24,56 +24,42 @@ export const createTheGraphClient = (
     namesToCheck: string[],
     timestamp: number
   ): Promise<Set<string>> => {
+    const ownedNamesOnBlock = async (blockNumber: number | undefined) => {
+      if (!blockNumber) {
+        return new Set<string>([])
+      }
+      const query: Query<{ names: { name: string }[] }, Set<string>> = {
+        description: 'check for names ownership',
+        subgraph: 'ensSubgraph',
+        query: QUERY_NAMES_FOR_ADDRESS_AT_BLOCK,
+        mapper: (response: { names: { name: string }[] }): Set<string> =>
+          new Set(response.names.map(({ name }) => name))
+      }
+      return runQuery(query, {})
+    }
+
     const blocks = await findBlocksForTimestamp('blocksSubgraph', timestamp)
 
-    const blocksToCheck: number[] = [
-      blocks.blockNumberAtDeployment ?? -1,
-      blocks.blockNumberFiveMinBeforeDeployment ?? -1
-    ].filter((block) => block !== -1)
-
-    const namesQuery =
-      `{` +
-      blocksToCheck
-        .map((block) =>
-          getNamesForBlockFragment(block, ethAddress, namesToCheck)
-        )
-        .join('\n') +
-      `}`
-
-    const mapper = (response: {
-      [block: string]: { name: string }[]
-    }): Set<string> =>
-      Object.entries(response).reduce<Set<string>>(
-        (set: Set<string>, [, names]) => {
-          names.forEach(({ name }) => set.add(name))
-          return set
-        },
-        new Set<string>()
+    try {
+      return await ownedNamesOnBlock(blocks.blockNumberAtDeployment)
+    } catch (error) {
+      logger.error(
+        `Error retrieving names owned by address ${ethAddress} at block ${blocks.blockNumberAtDeployment}`
       )
-
-    const query: Query<{ [block: string]: { name: string }[] }, Set<string>> = {
-      description: 'check for names ownership',
-      subgraph: 'ensSubgraph',
-      query: namesQuery,
-      mapper
+      console.log(error)
     }
-    return runQuery(query, {})
-  }
 
-  const getNamesForBlockFragment = (
-    block: number,
-    ethAddress: EthAddress,
-    names: string[]
-  ) => {
-    const nameList = names.map((name) => `"${name}"`).join(',')
-    return `
-  B${block}: nfts(
-    block: { number: ${block} }
-    where: { owner: "${ethAddress}", category: ens, name_in: [${nameList}] }
-    first: 1000
-  ) {
-    name
-  }`
+    try {
+      return await ownedNamesOnBlock(blocks.blockNumberFiveMinBeforeDeployment)
+    } catch (error) {
+      logger.error(
+        `Error retrieving names owned by address ${ethAddress} at block ${blocks.blockNumberFiveMinBeforeDeployment}`
+      )
+      console.log(error)
+    }
+    throw Error(
+      `Could not query names for ${ethAddress} at blocks ${blocks.blockNumberAtDeployment} nor ${blocks.blockNumberFiveMinBeforeDeployment}`
+    )
   }
 
   const checkForWearablesOwnershipWithTimestamp = async (
@@ -111,57 +97,44 @@ export const createTheGraphClient = (
     blocksSubgraph: keyof URLs,
     collectionsSubgraph: keyof URLs
   ): Promise<Set<string>> => {
+    const ownedWearablesOnBlock = async (blockNumber: number | undefined) => {
+      if (!blockNumber) {
+        return new Set<string>([])
+      }
+      const query: Query<{ wearables: { urn: string }[] }, Set<string>> = {
+        description: 'check for wearables ownership',
+        subgraph: collectionsSubgraph,
+        query: QUERY_WEARABLES_FOR_ADDRESS_AT_BLOCK,
+        mapper: (response: { wearables: { urn: string }[] }): Set<string> =>
+          new Set(response.wearables.map(({ urn }) => urn))
+      }
+      return runQuery(query, {})
+    }
+
     const blocks = await findBlocksForTimestamp(blocksSubgraph, timestamp)
 
-    const blocksToCheck: number[] = [
-      blocks.blockNumberAtDeployment ?? -1,
-      blocks.blockNumberFiveMinBeforeDeployment ?? -1
-    ].filter((block) => block !== -1)
-
-    const subgraphQuery =
-      `{` +
-      blocksToCheck
-        .map((block) =>
-          getWearablesForBlockFragment(block, ethAddress, wearableIdsToCheck)
-        )
-        .join('\n') +
-      `}`
-
-    const mapper = (response: { [owner: string]: { urn: string }[] }) =>
-      Object.entries(response).reduce<Set<string>>(
-        (set: Set<string>, [, names]) => {
-          names.forEach(({ urn }) => set.add(urn))
-          return set
-        },
-        new Set<string>()
+    try {
+      return await ownedWearablesOnBlock(blocks.blockNumberAtDeployment)
+    } catch (error) {
+      logger.error(
+        `Error retrieving wearables owned by address ${ethAddress} at block ${blocks.blockNumberAtDeployment}`
       )
-    const query: Query<{ [block: string]: { urn: string }[] }, Set<string>> = {
-      description: 'check for wearables ownership',
-      subgraph: collectionsSubgraph,
-      query: subgraphQuery,
-      mapper
+      console.log(error)
     }
-    return runQuery(query, {})
-  }
 
-  const getWearablesForBlockFragment = (
-    block: number,
-    ethAddress: EthAddress,
-    wearableIds: string[]
-  ) => {
-    const urnList = wearableIds.map((wearableId) => `"${wearableId}"`).join(',')
-    return `
-  B${block}: nfts(
-    block: {number: ${block}}
-    where: {
-      owner: "${ethAddress}",
-      searchItemType_in: ["wearable_v1", "wearable_v2", "smart_wearable_v1", "emote_v1"], 
-      urn_in: [${urnList}]
+    try {
+      return await ownedWearablesOnBlock(
+        blocks.blockNumberFiveMinBeforeDeployment
+      )
+    } catch (error) {
+      logger.error(
+        `Error retrieving wearables owned by address ${ethAddress} at block ${blocks.blockNumberFiveMinBeforeDeployment}`
+      )
+      console.log(error)
     }
-    first: 1000
-  ) {
-    urn
-  }`
+    throw Error(
+      `Could not query wearables for ${ethAddress} at blocks ${blocks.blockNumberAtDeployment} nor ${blocks.blockNumberFiveMinBeforeDeployment}`
+    )
   }
 
   const runQuery = async <QueryResult, ReturnType>(
@@ -265,6 +238,28 @@ query getBlockForTimestampRange($timestamp: Int!, $timestamp5Min: Int!) {
     orderDirection: asc
   ) {
     number
+  }
+}`
+
+const QUERY_NAMES_FOR_ADDRESS_AT_BLOCK = `
+query getNftNamesForBlock($names: string!, $block: Int!) {
+  names: nfts(
+    block: {number: $block}
+    where: {owner: $ethAddress, category: ens, name_in: $nameList}
+    first: 1000
+  ) {
+    name
+  }
+}`
+
+const QUERY_WEARABLES_FOR_ADDRESS_AT_BLOCK = `
+query getNftWearablesForBlock($block: Int!, $ethAddress: String!, $urnList: [String!]) {
+  wearables: nfts(
+    block: {number: $block}
+    where: {owner: $ethAddress, searchItemType_in: ["wearable_v1", "wearable_v2", "smart_wearable_v1", "emote_v1"] urn_in: $urnList}
+    first: 1000
+  ) {
+    urn
   }
 }`
 
