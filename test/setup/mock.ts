@@ -269,17 +269,17 @@ export const fetcherWithWearablesOwnership = (
     async (url, _query, _variables) => {
       if (url.includes('marketplace')) {
         return Promise.resolve({
-          [`B123456`]: ens ?? defaultEns
+          names: ens ?? defaultEns
         })
       } else if (url.includes('blocks')) {
         return Promise.resolve(blocks ?? defaultBlocks)
       } else if (url.includes('ethereum')) {
         return Promise.resolve({
-          [`P${address}`]: ethereum ?? defaultEthereum
+          wearables: ethereum ?? defaultEthereum
         })
       } else if (url.includes('matic')) {
         return Promise.resolve({
-          [`P${address}`]: matic ?? defaultMatic
+          wearables: matic ?? defaultMatic
         })
       }
       return Promise.resolve('')
