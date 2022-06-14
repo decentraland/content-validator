@@ -36,6 +36,6 @@ export const entityParameters: EntityParams = {
   },
   emote: {
     validate: Emote.validate,
-    maxSizeInMB: 10
+    maxSizeInMB: 5
   }
 }
