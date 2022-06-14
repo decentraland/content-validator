@@ -5,6 +5,7 @@ module.exports = {
     }
   },
   coverageDirectory: 'coverage',
+  collectCoverageFrom: ["./src/**"],
   verbose: true,
   moduleFileExtensions: ['ts', 'js'],
   transform: {

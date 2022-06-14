@@ -22,10 +22,7 @@ export const createTheGraphClient = (
     namesToCheck: string[],
     timestamp: number
   ): Promise<Set<string>> => {
-    const ownedNamesOnBlock = async (blockNumber: number | undefined) => {
-      if (!blockNumber) {
-        return new Set<string>([])
-      }
+    const ownedNamesOnBlock = async (blockNumber: number) => {
       const query: Query<{ names: { name: string }[] }, Set<string>> = {
         description: 'check for names ownership',
         subgraph: 'ensSubgraph',
@@ -33,13 +30,19 @@ export const createTheGraphClient = (
         mapper: (response: { names: { name: string }[] }): Set<string> =>
           new Set(response.names.map(({ name }) => name))
       }
-      return runQuery(query, {})
+      return runQuery(query, {
+        block: blockNumber,
+        ethAddress,
+        names: namesToCheck
+      })
     }
 
     const blocks = await findBlocksForTimestamp('blocksSubgraph', timestamp)
 
     try {
-      return await ownedNamesOnBlock(blocks.blockNumberAtDeployment)
+      if (blocks.blockNumberAtDeployment) {
+        return await ownedNamesOnBlock(blocks.blockNumberAtDeployment)
+      }
     } catch (error) {
       logger.error(
         `Error retrieving names owned by address ${ethAddress} at block ${blocks.blockNumberAtDeployment}`
@@ -47,7 +50,11 @@ export const createTheGraphClient = (
     }
 
     try {
-      return await ownedNamesOnBlock(blocks.blockNumberFiveMinBeforeDeployment)
+      if (blocks.blockNumberFiveMinBeforeDeployment) {
+        return await ownedNamesOnBlock(
+          blocks.blockNumberFiveMinBeforeDeployment
+        )
+      }
     } catch (error) {
       logger.error(
         `Error retrieving names owned by address ${ethAddress} at block ${blocks.blockNumberFiveMinBeforeDeployment}`
@@ -93,10 +100,7 @@ export const createTheGraphClient = (
     blocksSubgraph: keyof URLs,
     collectionsSubgraph: keyof URLs
   ): Promise<Set<string>> => {
-    const ownedWearablesOnBlock = async (blockNumber: number | undefined) => {
-      if (!blockNumber) {
-        return new Set<string>([])
-      }
+    const ownedWearablesOnBlock = async (blockNumber: number) => {
       const query: Query<{ wearables: { urn: string }[] }, Set<string>> = {
         description: 'check for wearables ownership',
         subgraph: collectionsSubgraph,
@@ -104,13 +108,19 @@ export const createTheGraphClient = (
         mapper: (response: { wearables: { urn: string }[] }): Set<string> =>
           new Set(response.wearables.map(({ urn }) => urn))
       }
-      return runQuery(query, {})
+      return runQuery(query, {
+        block: blockNumber,
+        ethAddress,
+        urnList: wearableIdsToCheck
+      })
     }
 
     const blocks = await findBlocksForTimestamp(blocksSubgraph, timestamp)
 
     try {
-      return await ownedWearablesOnBlock(blocks.blockNumberAtDeployment)
+      if (blocks.blockNumberAtDeployment) {
+        return await ownedWearablesOnBlock(blocks.blockNumberAtDeployment)
+      }
     } catch (error) {
       logger.error(
         `Error retrieving wearables owned by address ${ethAddress} at block ${blocks.blockNumberAtDeployment}`
@@ -118,9 +128,11 @@ export const createTheGraphClient = (
     }
 
     try {
-      return await ownedWearablesOnBlock(
-        blocks.blockNumberFiveMinBeforeDeployment
-      )
+      if (blocks.blockNumberFiveMinBeforeDeployment) {
+        return await ownedWearablesOnBlock(
+          blocks.blockNumberFiveMinBeforeDeployment
+        )
+      }
     } catch (error) {
       logger.error(
         `Error retrieving wearables owned by address ${ethAddress} at block ${blocks.blockNumberFiveMinBeforeDeployment}`
@@ -177,8 +189,8 @@ export const createTheGraphClient = (
       subgraph: subgraph,
       query: QUERY_BLOCKS_FOR_TIMESTAMP,
       mapper: (response) => {
-        const blockNumberAtDeployment = response.max[0].number
-        const blockNumberFiveMinBeforeDeployment = response.min[0].number
+        const blockNumberAtDeployment = response.max[0]?.number
+        const blockNumberFiveMinBeforeDeployment = response.min[0]?.number
         if (
           blockNumberAtDeployment === undefined &&
           blockNumberFiveMinBeforeDeployment === undefined
@@ -235,7 +247,7 @@ query getBlockForTimestampRange($timestamp: Int!, $timestamp5Min: Int!) {
 }`
 
 const QUERY_NAMES_FOR_ADDRESS_AT_BLOCK = `
-query getNftNamesForBlock($names: string!, $block: Int!) {
+query getNftNamesForBlock($block: Int!, $ethAddress: String!, $nameList: [string!]) {
   names: nfts(
     block: {number: $block}
     where: {owner: $ethAddress, category: ens, name_in: $nameList}

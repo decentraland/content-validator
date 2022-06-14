@@ -42,4 +42,235 @@ describe('TheGraphClient', () => {
       theGraphClient.findBlocksForTimestamp('blocksSubgraph', 10)
     ).rejects.toThrow('Internal server error')
   })
+
+  describe('Checks for name ownership', function () {
+    it('When no block current timestamp, it should continue and check the block from 5 minute before', async () => {
+      const externalCalls = buildExternalCalls({
+        queryGraph: mockedQueryGraph().mockImplementation(
+          async (url, _query, _variables) => {
+            if (url.includes('marketplace')) {
+              if (_variables['block'] === 123400) {
+                return Promise.resolve({
+                  names: [
+                    {
+                      name: 'Some Name'
+                    }
+                  ]
+                })
+              }
+            } else if (url.includes('blocks')) {
+              return Promise.resolve({
+                min: [{ number: 123400 }],
+                max: []
+              })
+            }
+          }
+        )
+      })
+      const { theGraphClient } = buildComponents({ externalCalls })
+
+      await expect(
+        theGraphClient.checkForNamesOwnershipWithTimestamp(
+          '0x1',
+          ['Some Name'],
+          10
+        )
+      ).resolves.toEqual(new Set(['Some Name']))
+    })
+
+    it('When current block that has not been indexed yet, it should continue and check the block from 5 minute before', async () => {
+      const externalCalls = buildExternalCalls({
+        queryGraph: mockedQueryGraph().mockImplementation(
+          async (url, _query, _variables) => {
+            if (url.includes('marketplace')) {
+              if (_variables['block'] === 123500) {
+                return Promise.reject('error')
+              } else
+                return Promise.resolve({
+                  names: [
+                    {
+                      name: 'Some Name'
+                    }
+                  ]
+                })
+            } else if (url.includes('blocks')) {
+              return Promise.resolve({
+                min: [{ number: 123400 }],
+                max: [{ number: 123500 }]
+              })
+            }
+          }
+        )
+      })
+      const { theGraphClient } = buildComponents({ externalCalls })
+
+      await expect(
+        theGraphClient.checkForNamesOwnershipWithTimestamp(
+          '0x1',
+          ['Some Name'],
+          10
+        )
+      ).resolves.toEqual(new Set(['Some Name']))
+    })
+
+    it('When both current and 5-min before blocks have not been indexed yet, it should report error', async () => {
+      const externalCalls = buildExternalCalls({
+        queryGraph: mockedQueryGraph().mockImplementation(
+          async (url, _query, _variables) => {
+            if (url.includes('marketplace')) {
+              return Promise.reject('error')
+            } else if (url.includes('blocks')) {
+              return Promise.resolve({
+                min: [{ number: 123400 }],
+                max: [{ number: 123500 }]
+              })
+            }
+          }
+        )
+      })
+      const { theGraphClient } = buildComponents({ externalCalls })
+
+      await expect(
+        theGraphClient.checkForNamesOwnershipWithTimestamp(
+          '0x1',
+          ['Some Name'],
+          10
+        )
+      ).rejects.toThrow(
+        'Could not query names for 0x1 at blocks 123500 nor 123400'
+      )
+    })
+  })
+
+  describe('Checks for wearables ownership', function () {
+    it('When no block current timestamp, it should continue and check the block from 5 minute before', async () => {
+      const externalCalls = buildExternalCalls({
+        queryGraph: mockedQueryGraph().mockImplementation(
+          async (url, _query, _variables) => {
+            if (url.includes('blocks')) {
+              return Promise.resolve({
+                min: [{ number: 123400 }],
+                max: []
+              })
+            } else if (url.includes('ethereum')) {
+              return Promise.resolve({
+                wearables: [
+                  {
+                    urn: 'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet'
+                  }
+                ]
+              })
+            } else if (url.includes('matic')) {
+              return Promise.resolve({
+                wearables: [
+                  {
+                    urn: 'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
+                  }
+                ]
+              })
+            }
+          }
+        )
+      })
+      const { theGraphClient } = buildComponents({ externalCalls })
+
+      await expect(
+        theGraphClient.checkForWearablesOwnershipWithTimestamp(
+          '0x1',
+          [
+            'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet',
+            'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
+          ],
+          10
+        )
+      ).resolves.toEqual(
+        new Set([
+          'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet',
+          'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
+        ])
+      )
+    })
+
+    it('When current block that has not been indexed yet, it should continue and check the block from 5 minute before', async () => {
+      const externalCalls = buildExternalCalls({
+        queryGraph: mockedQueryGraph().mockImplementation(
+          async (url, _query, _variables) => {
+            if (url.includes('blocks')) {
+              return Promise.resolve({
+                min: [{ number: 123400 }],
+                max: [{ number: 123500 }]
+              })
+            } else if (url.includes('ethereum')) {
+              if (_variables['block'] === 123500) {
+                return Promise.reject('error')
+              } else
+                return Promise.resolve({
+                  wearables: [
+                    {
+                      urn: 'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet'
+                    }
+                  ]
+                })
+            } else if (url.includes('matic')) {
+              return Promise.resolve({
+                wearables: [
+                  {
+                    urn: 'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
+                  }
+                ]
+              })
+            }
+          }
+        )
+      })
+      const { theGraphClient } = buildComponents({ externalCalls })
+
+      await expect(
+        theGraphClient.checkForWearablesOwnershipWithTimestamp(
+          '0x1',
+          [
+            'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet',
+            'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
+          ],
+          10
+        )
+      ).resolves.toEqual(
+        new Set([
+          'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet',
+          'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
+        ])
+      )
+    })
+
+    it('When both current and 5-min before blocks have not been indexed yet, it should report error', async () => {
+      const externalCalls = buildExternalCalls({
+        queryGraph: mockedQueryGraph().mockImplementation(
+          async (url, _query, _variables) => {
+            if (url.includes('marketplace')) {
+              return Promise.reject('error')
+            } else if (url.includes('blocks')) {
+              return Promise.resolve({
+                min: [{ number: 123400 }],
+                max: [{ number: 123500 }]
+              })
+            }
+          }
+        )
+      })
+      const { theGraphClient } = buildComponents({ externalCalls })
+
+      await expect(
+        theGraphClient.checkForWearablesOwnershipWithTimestamp(
+          '0x1',
+          [
+            'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet',
+            'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
+          ],
+          10
+        )
+      ).rejects.toThrow(
+        'Could not query wearables for 0x1 at blocks 123500 nor 123400'
+      )
+    })
+  })
 })
