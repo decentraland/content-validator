@@ -1,14 +1,12 @@
 import { generateTree } from '@dcl/content-hash-tree'
 import { keccak256Hash } from '@dcl/hashing'
 import {
-  Locale,
+  BodyShape, Locale,
   Rarity,
-  ThirdPartyProps,
-  Wearable,
+  ThirdPartyProps, Wearable,
   WearableCategory,
   WearableRepresentation
 } from '@dcl/schemas'
-import { BodyShape } from '@dcl/schemas/dist/platform'
 import { MERKLE_PROOF_REQUIRED_KEYS } from '../../src/validations/access-checker/items/third-party-asset'
 
 const representation: WearableRepresentation = {
