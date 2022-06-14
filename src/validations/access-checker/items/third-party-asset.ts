@@ -1,10 +1,15 @@
-import { verifyProof } from "@dcl/content-hash-tree"
-import { keccak256Hash } from "@dcl/hashing"
-import { isThirdParty, MerkleProof, ThirdPartyProps } from "@dcl/schemas"
-import { BlockchainCollectionThirdParty } from "@dcl/urn-resolver"
-import { ILoggerComponent } from "@well-known-components/interfaces"
-import { ContentValidatorComponents, DeploymentToValidate, OK, validationFailed } from "../../../types"
-import { AssetValidation } from "./items"
+import { verifyProof } from '@dcl/content-hash-tree'
+import { keccak256Hash } from '@dcl/hashing'
+import { isThirdParty, MerkleProof, ThirdPartyProps } from '@dcl/schemas'
+import { BlockchainCollectionThirdParty } from '@dcl/urn-resolver'
+import { ILoggerComponent } from '@well-known-components/interfaces'
+import {
+  ContentValidatorComponents,
+  DeploymentToValidate,
+  OK,
+  validationFailed
+} from '../../../types'
+import { AssetValidation } from './items'
 
 // These keys are required by the protocol to be a subset and present in the merkle proof hashing keys.
 // Note: deletions would not be a problem, but in case of adding a key here,
@@ -32,9 +37,7 @@ function toHexBuffer(value: string): Buffer {
   return Buffer.from(value, 'hex')
 }
 
-function getWindowFromTimestamp(
-  timestamp: number
-): {
+function getWindowFromTimestamp(timestamp: number): {
   max: number
   min: number
 } {
@@ -106,10 +109,9 @@ async function findBlocksForTimestamp(
       blockNumberAtDeployment: !!blockNumberAtDeployment
         ? parseInt(blockNumberAtDeployment)
         : undefined,
-      blockNumberFiveMinBeforeDeployment:
-        !!blockNumberFiveMinBeforeDeployment
-          ? parseInt(blockNumberFiveMinBeforeDeployment)
-          : undefined
+      blockNumberFiveMinBeforeDeployment: !!blockNumberFiveMinBeforeDeployment
+        ? parseInt(blockNumberFiveMinBeforeDeployment)
+        : undefined
     }
   } catch (e) {
     const error = (e as any)?.message
@@ -143,13 +145,10 @@ async function verifyHash<T>(
       merkleProof.hashingKeys.includes(key)
     )
   ) {
-    logger.debug(
-      `Merkle proof hashing keys don't satisfy the required keys`,
-      {
-        requiredKeys: JSON.stringify(MERKLE_PROOF_REQUIRED_KEYS),
-        hashingKeys: JSON.stringify(merkleProof.hashingKeys)
-      }
-    )
+    logger.debug(`Merkle proof hashing keys don't satisfy the required keys`, {
+      requiredKeys: JSON.stringify(MERKLE_PROOF_REQUIRED_KEYS),
+      hashingKeys: JSON.stringify(merkleProof.hashingKeys)
+    })
     return false
   }
   const generatedCrcHash = keccak256Hash(
@@ -169,9 +168,7 @@ async function verifyHash<T>(
   }
 
   // Verify if the entity belongs to the Merkle Tree.
-  const bufferedProofs = merkleProof.proof.map((value) =>
-    toHexBuffer(value)
-  )
+  const bufferedProofs = merkleProof.proof.map((value) => toHexBuffer(value))
   const bufferedMerkleRoot = toHexBuffer(merkleRoot)
   return verifyProof(
     merkleProof.index,
@@ -229,7 +226,11 @@ async function verifyMerkleProofedEntity(
   const hasPermissionOnBlock = async (blockNumber: number | undefined) => {
     try {
       if (!blockNumber) return false
-      const merkleRoot = await getMerkleRoot(components, blockNumber, thirdPartyId)
+      const merkleRoot = await getMerkleRoot(
+        components,
+        blockNumber,
+        thirdPartyId
+      )
       if (!merkleRoot) {
         logger.debug(
           `Merkle proof not found for given block and third party ID`,
@@ -265,12 +266,21 @@ async function verifyMerkleProofedEntity(
 }
 
 export const thirdPartyAssetValidation: AssetValidation = {
-  async validateAsset(components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs'>,
+  async validateAsset(
+    components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs'>,
     asset: BlockchainCollectionThirdParty,
-    deployment: DeploymentToValidate) {
-    const logger = components.logs.getLogger('collection asset access validation')
+    deployment: DeploymentToValidate
+  ) {
+    const logger = components.logs.getLogger(
+      'collection asset access validation'
+    )
     // Third Party wearables are validated doing merkle tree based verification proof
-    const verified = await verifyMerkleProofedEntity(components, asset, deployment, logger)
+    const verified = await verifyMerkleProofedEntity(
+      components,
+      asset,
+      deployment,
+      logger
+    )
     if (!verified) {
       return validationFailed(`Couldn't verify merkle proofed entity`)
     }

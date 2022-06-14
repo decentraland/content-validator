@@ -9,11 +9,11 @@ import { ItemCollection } from '../../src/validations/access-checker/items/colle
 
 export const buildLogger = (): ILoggerComponent => ({
   getLogger: () => ({
-    debug() { },
-    info() { },
-    warn() { },
-    error() { },
-    log() { }
+    debug() {},
+    info() {},
+    warn() {},
+    error() {},
+    log() {}
   })
 })
 

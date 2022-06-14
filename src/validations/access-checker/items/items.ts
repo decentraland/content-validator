@@ -1,19 +1,25 @@
 import {
-  BlockchainCollectionThirdParty, BlockchainCollectionV1Asset, BlockchainCollectionV2Asset, OffChainAsset, parseUrn
+  BlockchainCollectionThirdParty,
+  BlockchainCollectionV1Asset,
+  BlockchainCollectionV2Asset,
+  OffChainAsset,
+  parseUrn
 } from '@dcl/urn-resolver'
 import { DeploymentToValidate } from '../../..'
 import {
-  ContentValidatorComponents, validationFailed, ValidationResponse
+  ContentValidatorComponents,
+  validationFailed,
+  ValidationResponse
 } from '../../../types'
 import { v1andV2collectionAssetValidation } from './collection-asset'
 import { offChainAssetValidation } from './off-chain-asset'
 import { thirdPartyAssetValidation } from './third-party-asset'
 
 export type UrnType =
-  'off-chain' |
-  'blockchain-collection-v1-asset' |
-  'blockchain-collection-v2-asset' |
-  'blockchain-collection-third-party'
+  | 'off-chain'
+  | 'blockchain-collection-v1-asset'
+  | 'blockchain-collection-v2-asset'
+  | 'blockchain-collection-third-party'
 
 export type SupportedAsset =
   | BlockchainCollectionV1Asset
@@ -25,11 +31,16 @@ export type AssetValidation = {
   validateAsset(
     components: Pick<ContentValidatorComponents, 'externalCalls'>,
     asset: SupportedAsset,
-    deployment: DeploymentToValidate): ValidationResponse | Promise<ValidationResponse>
+    deployment: DeploymentToValidate
+  ): ValidationResponse | Promise<ValidationResponse>
   canValidate(asset: SupportedAsset): boolean
 }
 
-const assetValidations = [offChainAssetValidation, v1andV2collectionAssetValidation, thirdPartyAssetValidation]
+const assetValidations = [
+  offChainAssetValidation,
+  v1andV2collectionAssetValidation,
+  thirdPartyAssetValidation
+]
 
 function alreadySeen(
   resolvedPointers: SupportedAsset[],
@@ -66,14 +77,19 @@ async function parseUrnNoFail(urn: string): Promise<SupportedAsset | null> {
     if (parsed?.type === 'blockchain-collection-third-party') {
       return parsed
     }
-  } catch { }
+  } catch {}
   return null
 }
 
 export const itemsValidation = {
-  validate: async (components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'theGraphClient'>,
+  validate: async (
+    components: Pick<
+      ContentValidatorComponents,
+      'externalCalls' | 'logs' | 'theGraphClient'
+    >,
     deployment: DeploymentToValidate,
-    validUrnTypesForItem: UrnType[]) => {
+    validUrnTypesForItem: UrnType[]
+  ) => {
     const logger = components.logs.getLogger('wearables access validator')
 
     const { pointers } = deployment.entity
@@ -108,6 +124,8 @@ export const itemsValidation = {
         return validation.validateAsset(components, parsedAsset, deployment)
       }
     }
-    throw new Error('This should never happen. There is no validations for the asset.')
+    throw new Error(
+      'This should never happen. There is no validations for the asset.'
+    )
   }
 }

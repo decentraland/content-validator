@@ -1,9 +1,18 @@
-import { hashV0, hashV1 } from "@dcl/hashing"
-import { EthAddress } from "@dcl/schemas"
-import { BlockchainCollectionV1Asset, BlockchainCollectionV2Asset } from "@dcl/urn-resolver"
-import { ILoggerComponent } from "@well-known-components/interfaces"
-import { ContentValidatorComponents, DeploymentToValidate, EntityWithEthAddress, OK, validationFailed } from "../../../types"
-import { AssetValidation } from "./items"
+import { hashV0, hashV1 } from '@dcl/hashing'
+import { EthAddress } from '@dcl/schemas'
+import {
+  BlockchainCollectionV1Asset,
+  BlockchainCollectionV2Asset
+} from '@dcl/urn-resolver'
+import { ILoggerComponent } from '@well-known-components/interfaces'
+import {
+  ContentValidatorComponents,
+  DeploymentToValidate,
+  EntityWithEthAddress,
+  OK,
+  validationFailed
+} from '../../../types'
+import { AssetValidation } from './items'
 
 // When we want to find a block for a specific timestamp, we define an access window. This means that
 // we will place will try to find the closes block to the timestamp, but only if it's within the window
@@ -12,9 +21,7 @@ const ACCESS_WINDOW_IN_SECONDS = 15
 const L1_NETWORKS = ['mainnet', 'ropsten', 'kovan', 'rinkeby', 'goerli']
 const L2_NETWORKS = ['matic', 'mumbai']
 
-function getWindowFromTimestamp(
-  timestamp: number
-): {
+function getWindowFromTimestamp(timestamp: number): {
   max: number
   min: number
 } {
@@ -112,8 +119,13 @@ async function hasPermission(
 ): Promise<boolean> {
   try {
     const { content, metadata } = entity
-    const permissions: ItemPermissionsData =
-      await getCollectionItems(components, subgraphUrl, collection, itemId, block)
+    const permissions: ItemPermissionsData = await getCollectionItems(
+      components,
+      subgraphUrl,
+      collection,
+      itemId,
+      block
+    )
     const ethAddressLowercase = entity.ethAddress.toLowerCase()
 
     if (!!permissions.contentHash) {
@@ -226,10 +238,9 @@ async function findBlocksForTimestamp(
       blockNumberAtDeployment: !!blockNumberAtDeployment
         ? parseInt(blockNumberAtDeployment)
         : undefined,
-      blockNumberFiveMinBeforeDeployment:
-        !!blockNumberFiveMinBeforeDeployment
-          ? parseInt(blockNumberFiveMinBeforeDeployment)
-          : undefined
+      blockNumberFiveMinBeforeDeployment: !!blockNumberFiveMinBeforeDeployment
+        ? parseInt(blockNumberFiveMinBeforeDeployment)
+        : undefined
     }
   } catch (e) {
     const error = (e as any)?.message
@@ -253,7 +264,12 @@ async function checkCollectionAccess(
   const { timestamp } = entity
   try {
     const { blockNumberAtDeployment, blockNumberFiveMinBeforeDeployment } =
-      await findBlocksForTimestamp(components, blocksSubgraphUrl, timestamp, logger)
+      await findBlocksForTimestamp(
+        components,
+        blocksSubgraphUrl,
+        timestamp,
+        logger
+      )
     // It could happen that the subgraph hasn't synced yet, so someone who just lost access still managed to make a deployment. The problem would be that when other catalysts perform
     // the same check, the subgraph might have synced and the deployment is no longer valid. So, in order to prevent inconsistencies between catalysts, we will allow all deployments that
     // have access now, or had access 5 minutes ago.
@@ -282,12 +298,16 @@ async function checkCollectionAccess(
 }
 
 export const v1andV2collectionAssetValidation: AssetValidation = {
-  async validateAsset(components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs'>,
+  async validateAsset(
+    components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs'>,
     asset: BlockchainCollectionV1Asset | BlockchainCollectionV2Asset,
-    deployment: DeploymentToValidate) {
+    deployment: DeploymentToValidate
+  ) {
     const { externalCalls } = components
     const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
-    const logger = components.logs.getLogger('collection asset access validation')
+    const logger = components.logs.getLogger(
+      'collection asset access validation'
+    )
     // L1 or L2 so contractAddress is present
     const collection = asset.contractAddress!
     const network = asset.network
@@ -342,8 +362,12 @@ export const v1andV2collectionAssetValidation: AssetValidation = {
     }
     return OK
   },
-  canValidate(asset): asset is BlockchainCollectionV1Asset | BlockchainCollectionV2Asset {
-    return asset.type === 'blockchain-collection-v1-asset' ||
+  canValidate(
+    asset
+  ): asset is BlockchainCollectionV1Asset | BlockchainCollectionV2Asset {
+    return (
+      asset.type === 'blockchain-collection-v1-asset' ||
       asset.type === 'blockchain-collection-v2-asset'
+    )
   }
 }

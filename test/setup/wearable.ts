@@ -1,9 +1,11 @@
 import { generateTree } from '@dcl/content-hash-tree'
 import { keccak256Hash } from '@dcl/hashing'
 import {
-  BodyShape, Locale,
+  BodyShape,
+  Locale,
   Rarity,
-  ThirdPartyProps, Wearable,
+  ThirdPartyProps,
+  Wearable,
   WearableCategory,
   WearableRepresentation
 } from '@dcl/schemas'
