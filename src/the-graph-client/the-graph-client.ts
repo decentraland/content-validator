@@ -47,6 +47,7 @@ export const createTheGraphClient = (
       logger.error(
         `Error retrieving names owned by address ${ethAddress} at block ${blocks.blockNumberAtDeployment}`
       )
+      logger.error(error as any)
     }
 
     try {
@@ -59,6 +60,7 @@ export const createTheGraphClient = (
       logger.error(
         `Error retrieving names owned by address ${ethAddress} at block ${blocks.blockNumberFiveMinBeforeDeployment}`
       )
+      logger.error(error as any)
     }
     throw Error(
       `Could not query names for ${ethAddress} at blocks ${blocks.blockNumberAtDeployment} nor ${blocks.blockNumberFiveMinBeforeDeployment}`
@@ -125,6 +127,7 @@ export const createTheGraphClient = (
       logger.error(
         `Error retrieving wearables owned by address ${ethAddress} at block ${blocks.blockNumberAtDeployment}`
       )
+      logger.error(error as any)
     }
 
     try {
@@ -137,6 +140,7 @@ export const createTheGraphClient = (
       logger.error(
         `Error retrieving wearables owned by address ${ethAddress} at block ${blocks.blockNumberFiveMinBeforeDeployment}`
       )
+      logger.error(error as any)
     }
     throw Error(
       `Could not query wearables for ${ethAddress} at blocks ${blocks.blockNumberAtDeployment} nor ${blocks.blockNumberFiveMinBeforeDeployment}`
@@ -164,6 +168,7 @@ export const createTheGraphClient = (
           variables: JSON.stringify(variables)
         }
       )
+      logger.error(error as any)
       throw new Error('Internal server error')
     }
   }
