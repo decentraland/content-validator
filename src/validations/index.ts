@@ -32,6 +32,14 @@ export const validateInRow = async (
 }
 
 /**
+ * 1656633600000 = 2022-07-01T00:00:00Z
+ * @public
+ */
+export const ADR_74_TIMESTAMP = process.env.ADR_74_TIMESTAMP
+  ? parseInt(process.env.ADR_74_TIMESTAMP)
+  : 1656633600000
+
+/**
  * 1652191200000 = 2022-05-10T14:00:00Z
  * @public
  */
