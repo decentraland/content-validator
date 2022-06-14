@@ -8,12 +8,13 @@ import { AuthChain } from '@dcl/schemas';
 import { Entity } from '@dcl/schemas';
 import { EthAddress } from '@dcl/schemas';
 import { ILoggerComponent } from '@well-known-components/interfaces';
+import { WearableId } from '@dcl/schemas';
 
 // @public
 export const ADR_45_TIMESTAMP: number;
 
 // @public
-export const ADR_XXX_TIMESTAMP: number;
+export const ADR_75_TIMESTAMP: number;
 
 // @public (undocumented)
 export const calculateDeploymentSize: (deployment: DeploymentToValidate, externalCalls: ExternalCalls) => Promise<number | string>;
@@ -106,7 +107,7 @@ export const statelessValidations: readonly [Validation, Validation, Validation]
 // @public (undocumented)
 export type TheGraphClient = {
     checkForNamesOwnershipWithTimestamp: (ethAddress: EthAddress, namesToCheck: string[], timestamp: number) => Promise<Set<string>>;
-    checkForWearablesOwnershipWithTimestamp: (ethAddress: EthAddress, wearableIdsToCheck: string[], timestamp: number) => Promise<Set<string>>;
+    checkForWearablesOwnershipWithTimestamp: (ethAddress: EthAddress, wearableIdsToCheck: WearableId[], timestamp: number) => Promise<Set<string>>;
     findBlocksForTimestamp: (subgraph: keyof URLs, timestamp: number) => Promise<{
         blockNumberAtDeployment: number | undefined;
         blockNumberFiveMinBeforeDeployment: number | undefined;
@@ -120,7 +121,6 @@ export type URLs = {
     maticBlocksSubgraph: string;
     collectionsSubgraph: string;
     maticCollectionsSubgraph: string;
-    thirdPartyRegistrySubgraph: string;
 };
 
 // @public (undocumented)

@@ -26,101 +26,11 @@ export const MERKLE_PROOF_REQUIRED_KEYS = [
   'content'
 ] as const
 
-// When we want to find a block for a specific timestamp, we define an access window. This means that
-// we will place will try to find the closes block to the timestamp, but only if it's within the window
-const ACCESS_WINDOW_IN_SECONDS = 15
-
 function toHexBuffer(value: string): Buffer {
   if (value.startsWith('0x')) {
     return Buffer.from(value.substring(2), 'hex') // removing first 2 characters (0x)
   }
   return Buffer.from(value, 'hex')
-}
-
-function getWindowFromTimestamp(timestamp: number): {
-  max: number
-  min: number
-} {
-  const windowMin = timestamp - Math.floor(ACCESS_WINDOW_IN_SECONDS / 2)
-  const windowMax = timestamp + Math.ceil(ACCESS_WINDOW_IN_SECONDS / 2)
-  return {
-    max: windowMax,
-    min: windowMin
-  }
-}
-
-async function findBlocksForTimestamp(
-  components: Pick<ContentValidatorComponents, 'externalCalls'>,
-  blocksSubgraphUrl: string,
-  timestamp: number,
-  logger: ILoggerComponent.ILogger
-): Promise<{
-  blockNumberAtDeployment: number | undefined
-  blockNumberFiveMinBeforeDeployment: number | undefined
-}> {
-  const query = `
-    query getBlockForTimestamp($timestamp: Int!, $timestampMin: Int!, $timestampMax: Int!, $timestamp5Min: Int!, $timestamp5MinMax: Int!, $timestamp5MinMin: Int!) {
-      before: blocks(where: { timestamp_lte: $timestamp, timestamp_gte: $timestampMin  }, first: 1, orderBy: timestamp, orderDirection: desc) {
-        number
-      }
-      after: blocks(where: { timestamp_gte: $timestamp, timestamp_lte: $timestampMax }, first: 1, orderBy: timestamp, orderDirection: asc) {
-        number
-      }
-      fiveMinBefore: blocks(where: { timestamp_lte: $timestamp5Min, timestamp_gte: $timestamp5MinMin, }, first: 1, orderBy: timestamp, orderDirection: desc) {
-        number
-      }
-      fiveMinAfter: blocks(where: { timestamp_gte: $timestamp5Min, timestamp_lte: $timestamp5MinMax }, first: 1, orderBy: timestamp, orderDirection: asc) {
-        number
-      }
-    }
-    `
-  try {
-    const timestampSec = Math.ceil(timestamp / 1000)
-    const timestamp5MinAgo = timestampSec - 60 * 5
-    const window = getWindowFromTimestamp(timestampSec)
-    const window5MinAgo = getWindowFromTimestamp(timestamp5MinAgo)
-    const result = await components.externalCalls.queryGraph<{
-      before: { number: string }[]
-      after: { number: string }[]
-      fiveMinBefore: { number: string }[]
-      fiveMinAfter: { number: string }[]
-    }>(blocksSubgraphUrl, query, {
-      timestamp: timestampSec,
-      timestampMax: window.max,
-      timestampMin: window.min,
-      timestamp5Min: timestamp5MinAgo,
-      timestamp5MinMax: window5MinAgo.max,
-      timestamp5MinMin: window5MinAgo.min
-    })
-
-    // To get the deployment's block number, we check the one immediately after the entity's timestamp. Since it could not exist, we default to the one immediately before.
-    const blockNumberAtDeployment =
-      result.after[0]?.number ?? result.before[0]?.number
-    const blockNumberFiveMinBeforeDeployment =
-      result.fiveMinAfter[0]?.number ?? result.fiveMinBefore[0]?.number
-    if (
-      blockNumberAtDeployment === undefined &&
-      blockNumberFiveMinBeforeDeployment === undefined
-    ) {
-      throw new Error(`Failed to find blocks for the specific timestamp`)
-    }
-
-    return {
-      blockNumberAtDeployment: !!blockNumberAtDeployment
-        ? parseInt(blockNumberAtDeployment)
-        : undefined,
-      blockNumberFiveMinBeforeDeployment: !!blockNumberFiveMinBeforeDeployment
-        ? parseInt(blockNumberFiveMinBeforeDeployment)
-        : undefined
-    }
-  } catch (e) {
-    const error = (e as any)?.message
-    logger.error(`Error fetching the block number for timestamp`, {
-      timestamp,
-      error
-    })
-    throw error
-  }
 }
 
 function getThirdPartyId(urn: BlockchainCollectionThirdParty): string {
@@ -201,7 +111,7 @@ async function getMerkleRoot(
 }
 
 async function verifyMerkleProofedEntity(
-  components: Pick<ContentValidatorComponents, 'externalCalls'>,
+  components: Pick<ContentValidatorComponents, 'externalCalls' | 'theGraphClient'>,
   urn: BlockchainCollectionThirdParty,
   deployment: DeploymentToValidate,
   logger: ILoggerComponent.ILogger
@@ -215,11 +125,9 @@ async function verifyMerkleProofedEntity(
 
   const thirdPartyId = getThirdPartyId(urn)
   const { blockNumberAtDeployment, blockNumberFiveMinBeforeDeployment } =
-    await findBlocksForTimestamp(
-      components,
-      components.externalCalls.subgraphs.L2.blocks,
-      deployment.entity.timestamp,
-      logger
+    await components.theGraphClient.findBlocksForTimestamp(
+      'maticBlocksSubgraph',
+      deployment.entity.timestamp
     )
 
   const merkleRoots: string[] = []
@@ -267,7 +175,7 @@ async function verifyMerkleProofedEntity(
 
 export const thirdPartyAssetValidation: AssetValidation = {
   async validateAsset(
-    components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs'>,
+    components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'theGraphClient'>,
     asset: BlockchainCollectionThirdParty,
     deployment: DeploymentToValidate
   ) {

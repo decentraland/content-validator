@@ -2,7 +2,7 @@ import { EntityType } from '@dcl/schemas'
 import sharp from 'sharp'
 import {
   ADR_45_TIMESTAMP,
-  ADR_XXX_TIMESTAMP,
+  ADR_75_TIMESTAMP,
   ValidationResponse
 } from '../../../src'
 import { faceThumbnail, wearableUrns } from '../../../src/validations/profile'
@@ -201,7 +201,7 @@ describe('Profiles', () => {
             }
           ]
         },
-        timestamp: ADR_XXX_TIMESTAMP + 1
+        timestamp: ADR_75_TIMESTAMP + 1
       })
       const deployment = buildDeployment({ entity })
 
@@ -224,7 +224,7 @@ describe('Profiles', () => {
             }
           ]
         },
-        timestamp: ADR_XXX_TIMESTAMP + 1
+        timestamp: ADR_75_TIMESTAMP + 1
       })
       const deployment = buildDeployment({ entity })
 

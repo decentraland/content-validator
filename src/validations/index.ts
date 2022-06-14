@@ -51,8 +51,8 @@ export const ADR_45_TIMESTAMP = process.env.ADR_45_TIMESTAMP
  * 1655294400000 = 2022-06-15T12:00:00Z
  * @public
  */
-export const ADR_XXX_TIMESTAMP = process.env.ADR_XXX_TIMESTAMP
-  ? parseInt(process.env.ADR_XXX_TIMESTAMP)
+export const ADR_75_TIMESTAMP = process.env.ADR_75_TIMESTAMP
+  ? parseInt(process.env.ADR_75_TIMESTAMP)
   : 1655294400000
 
 /**

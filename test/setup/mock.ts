@@ -105,8 +105,8 @@ export const buildMockedQueryGraph = (
     }
     if (url.includes('block')) {
       return Promise.resolve({
-        after: [{ number: 10 }],
-        fiveMinAfter: [{ number: 5 }]
+        max: [{ number: 10 }],
+        min: [{ number: 5 }]
       })
     } else {
       return Promise.resolve(withDefaults)
@@ -195,8 +195,8 @@ export const fetcherWithThirdPartyMerkleRoot = (root: string) => {
       }
       if (url.includes('block')) {
         return Promise.resolve({
-          after: [{ number: 10 }],
-          fiveMinAfter: [{ number: 5 }]
+          max: [{ number: 10 }],
+          min: [{ number: 5 }]
         })
       }
       return Promise.resolve('')
@@ -214,8 +214,8 @@ export const fetcherWithThirdPartyEmptyMerkleRoots = () => {
       }
       if (url.includes('block')) {
         return Promise.resolve({
-          after: [{ number: 10 }],
-          fiveMinAfter: [{ number: 5 }]
+          max: [{ number: 10 }],
+          min: [{ number: 5 }]
         })
       }
       return Promise.resolve('')
@@ -229,10 +229,8 @@ export const fetcherWithWearablesOwnership = (
   ethereum?: { urn: string }[],
   matic?: { urn: string }[],
   blocks?: {
-    before: { number: number }[]
-    after: { number: number }[]
-    fiveMinBefore: { number: number }[]
-    fiveMinAfter: { number: number }[]
+    min: { number: number }[]
+    max: { number: number }[]
   }
 ) => {
   const defaultEns = [
@@ -263,27 +261,25 @@ export const fetcherWithWearablesOwnership = (
     }
   ]
   const defaultBlocks = {
-    before: [],
-    after: [{ number: 123400 }],
-    fiveMinBefore: [],
-    fiveMinAfter: [{ number: 123500 }]
+    min: [{ number: 123400 }],
+    max: [{ number: 123500 }]
   }
 
   return mockedQueryGraph().mockImplementation(
     async (url, _query, _variables) => {
       if (url.includes('marketplace')) {
         return Promise.resolve({
-          [`B123456`]: ens ?? defaultEns
+          names: ens ?? defaultEns
         })
       } else if (url.includes('blocks')) {
         return Promise.resolve(blocks ?? defaultBlocks)
       } else if (url.includes('ethereum')) {
         return Promise.resolve({
-          [`P${address}`]: ethereum ?? defaultEthereum
+          wearables: ethereum ?? defaultEthereum
         })
       } else if (url.includes('matic')) {
         return Promise.resolve({
-          [`P${address}`]: matic ?? defaultMatic
+          wearables: matic ?? defaultMatic
         })
       }
       return Promise.resolve('')
