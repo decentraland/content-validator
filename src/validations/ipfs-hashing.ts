@@ -1,17 +1,15 @@
 import { IPFSv2 } from '@dcl/schemas'
-import { ADR_45_TIMESTAMP } from '.'
-import { ContentValidatorComponents, OK } from '..'
+import { ContentValidatorComponents } from '..'
 import { fromErrors, Validation } from '../types'
+import { validationAfterADR45 } from './validations'
 
 /**
  * Validate that all hashes used by the entity were actually IPFS hashes
  * @public
  */
-export const ipfsHashing: Validation = {
+export const ipfsHashing: Validation = validationAfterADR45({
   validate: (components: ContentValidatorComponents, deployment) => {
     const { entity } = deployment
-
-    if (entity.timestamp < ADR_45_TIMESTAMP) return OK
 
     const hashesInContent = entity.content?.map(({ hash }) => hash) ?? []
     const allHashes = [entity.id, ...hashesInContent]
@@ -25,4 +23,4 @@ export const ipfsHashing: Validation = {
 
     return fromErrors(...errors)
   }
-}
+})
