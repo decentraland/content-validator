@@ -132,25 +132,6 @@ export const validationFailed = (...error: string[]): ValidationResponse => ({
 /**
  * @public
  */
-export const conditionalValidation = (
-  condition: ConditionalValidation
-): Validation => ({
-  validate: async (
-    components: ContentValidatorComponents,
-    deployment: DeploymentToValidate
-  ) => {
-    try {
-      return await condition.predicate(components, deployment)
-      //     ^^^^^ never remove this await, it exists to ensure try {} catch
-    } catch (err: any) {
-      return validationFailed(`Validation failed: ${err}`)
-    }
-  }
-})
-
-/**
- * @public
- */
 export const fromErrors = (...errors: Errors): ValidationResponse => ({
   ok: errors.length === 0,
   errors: errors.length > 0 ? errors : undefined
