@@ -1,4 +1,4 @@
-import { AuthChain, Entity, EthAddress } from '@dcl/schemas'
+import { AuthChain, Entity, EthAddress, WearableId } from '@dcl/schemas'
 import { ILoggerComponent } from '@well-known-components/interfaces'
 
 /**
@@ -165,7 +165,6 @@ export type URLs = {
   maticBlocksSubgraph: string
   collectionsSubgraph: string
   maticCollectionsSubgraph: string
-  thirdPartyRegistrySubgraph: string
 }
 
 /**
@@ -180,7 +179,7 @@ export type TheGraphClient = {
 
   checkForWearablesOwnershipWithTimestamp: (
     ethAddress: EthAddress,
-    wearableIdsToCheck: string[],
+    wearableIdsToCheck: WearableId[],
     timestamp: number
   ) => Promise<Set<string>>
 

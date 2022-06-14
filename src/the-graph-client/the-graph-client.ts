@@ -1,4 +1,4 @@
-import { EthAddress } from '@dcl/schemas'
+import { EthAddress, WearableId } from '@dcl/schemas'
 import { ContentValidatorComponents, TheGraphClient, URLs } from '../types'
 
 /**
@@ -14,9 +14,7 @@ export const createTheGraphClient = (
     blocksSubgraph: components.externalCalls.subgraphs.L1.blocks,
     maticBlocksSubgraph: components.externalCalls.subgraphs.L2.blocks,
     ensSubgraph: components.externalCalls.subgraphs.L1.ensOwner,
-    maticCollectionsSubgraph: components.externalCalls.subgraphs.L2.collections,
-    thirdPartyRegistrySubgraph:
-      components.externalCalls.subgraphs.L2.thirdPartyRegistry
+    maticCollectionsSubgraph: components.externalCalls.subgraphs.L2.collections
   }
 
   const checkForNamesOwnershipWithTimestamp = async (
@@ -46,7 +44,6 @@ export const createTheGraphClient = (
       logger.error(
         `Error retrieving names owned by address ${ethAddress} at block ${blocks.blockNumberAtDeployment}`
       )
-      console.log(error)
     }
 
     try {
@@ -55,7 +52,6 @@ export const createTheGraphClient = (
       logger.error(
         `Error retrieving names owned by address ${ethAddress} at block ${blocks.blockNumberFiveMinBeforeDeployment}`
       )
-      console.log(error)
     }
     throw Error(
       `Could not query names for ${ethAddress} at blocks ${blocks.blockNumberAtDeployment} nor ${blocks.blockNumberFiveMinBeforeDeployment}`
@@ -64,7 +60,7 @@ export const createTheGraphClient = (
 
   const checkForWearablesOwnershipWithTimestamp = async (
     ethAddress: EthAddress,
-    wearableIdsToCheck: string[],
+    wearableIdsToCheck: WearableId[],
     timestamp: number
   ): Promise<Set<string>> => {
     const ethereumWearablesOwnersPromise = getOwnersByWearableWithTimestamp(
@@ -92,7 +88,7 @@ export const createTheGraphClient = (
 
   const getOwnersByWearableWithTimestamp = async (
     ethAddress: EthAddress,
-    wearableIdsToCheck: string[],
+    wearableIdsToCheck: WearableId[],
     timestamp: number,
     blocksSubgraph: keyof URLs,
     collectionsSubgraph: keyof URLs
@@ -119,7 +115,6 @@ export const createTheGraphClient = (
       logger.error(
         `Error retrieving wearables owned by address ${ethAddress} at block ${blocks.blockNumberAtDeployment}`
       )
-      console.log(error)
     }
 
     try {
@@ -130,7 +125,6 @@ export const createTheGraphClient = (
       logger.error(
         `Error retrieving wearables owned by address ${ethAddress} at block ${blocks.blockNumberFiveMinBeforeDeployment}`
       )
-      console.log(error)
     }
     throw Error(
       `Could not query wearables for ${ethAddress} at blocks ${blocks.blockNumberAtDeployment} nor ${blocks.blockNumberFiveMinBeforeDeployment}`
@@ -149,7 +143,6 @@ export const createTheGraphClient = (
       )
       return query.mapper(response)
     } catch (error) {
-      console.log(error)
       logger.error(
         `Failed to execute the following query to the subgraph ${
           urls[query.subgraph]

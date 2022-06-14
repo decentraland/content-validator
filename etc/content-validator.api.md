@@ -120,7 +120,6 @@ export type URLs = {
     maticBlocksSubgraph: string;
     collectionsSubgraph: string;
     maticCollectionsSubgraph: string;
-    thirdPartyRegistrySubgraph: string;
 };
 
 // @public (undocumented)
