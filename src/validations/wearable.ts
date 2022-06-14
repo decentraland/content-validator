@@ -1,13 +1,14 @@
 import { EntityType, Wearable } from '@dcl/schemas'
-import { entityParameters } from './ADR51'
 import sharp from 'sharp'
-import { ADR_45_TIMESTAMP, calculateDeploymentSize, validateInRow } from '.'
+import { ADR_45_TIMESTAMP, calculateDeploymentSize } from '.'
 import {
   ContentValidatorComponents,
   OK,
   Validation,
   validationFailed
 } from '../types'
+import { entityParameters } from './ADR51'
+import { conditionalValidation, validationGroup } from './validations'
 
 const wearableSizeLimitInMB = 2
 
@@ -134,15 +135,11 @@ export const wearableThumbnail: Validation = {
  * Validate that given wearable deployment includes the thumbnail and doesn't exceed file sizes
  * * @public
  */
-export const wearable: Validation = {
-  validate: async (components, deployment) => {
-    if (deployment.entity.type !== EntityType.WEARABLE) return OK
-    return validateInRow(
-      components,
-      deployment,
-      wearableRepresentationContent,
-      wearableThumbnail,
-      wearableSize
-    )
-  }
-}
+export const wearable: Validation = conditionalValidation(
+  (components, deployment) => deployment.entity.type === EntityType.WEARABLE,
+  validationGroup(
+    wearableRepresentationContent,
+    wearableThumbnail,
+    wearableSize
+  )
+)
