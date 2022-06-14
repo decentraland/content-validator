@@ -8,6 +8,7 @@ import { AuthChain } from '@dcl/schemas';
 import { Entity } from '@dcl/schemas';
 import { EthAddress } from '@dcl/schemas';
 import { ILoggerComponent } from '@well-known-components/interfaces';
+import { WearableId } from '@dcl/schemas';
 
 // @public
 export const ADR_45_TIMESTAMP: number;
@@ -106,7 +107,7 @@ export const statelessValidations: readonly [Validation, Validation, Validation]
 // @public (undocumented)
 export type TheGraphClient = {
     checkForNamesOwnershipWithTimestamp: (ethAddress: EthAddress, namesToCheck: string[], timestamp: number) => Promise<Set<string>>;
-    checkForWearablesOwnershipWithTimestamp: (ethAddress: EthAddress, wearableIdsToCheck: string[], timestamp: number) => Promise<Set<string>>;
+    checkForWearablesOwnershipWithTimestamp: (ethAddress: EthAddress, wearableIdsToCheck: WearableId[], timestamp: number) => Promise<Set<string>>;
     findBlocksForTimestamp: (subgraph: keyof URLs, timestamp: number) => Promise<{
         blockNumberAtDeployment: number | undefined;
         blockNumberFiveMinBeforeDeployment: number | undefined;
