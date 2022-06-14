@@ -5,7 +5,7 @@ import { DeploymentToValidate } from '../../..'
 import {
   ContentValidatorComponents, validationFailed, ValidationResponse
 } from '../../../types'
-import { v1andV2collectionAssetValidation } from './collection-asset-validator'
+import { v1andV2collectionAssetValidation } from './collection-asset'
 import { offChainAssetValidation } from './off-chain-asset'
 import { thirdPartyAssetValidation } from './third-party-asset'
 

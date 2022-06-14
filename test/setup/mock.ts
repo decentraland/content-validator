@@ -5,7 +5,7 @@ import {
   ExternalCalls,
   QueryGraph
 } from '../../src/types'
-import { ItemCollection } from '../../src/validations/access-checker/items/collection-asset-validator'
+import { ItemCollection } from '../../src/validations/access-checker/items/collection-asset'
 
 export const buildLogger = (): ILoggerComponent => ({
   getLogger: () => ({
