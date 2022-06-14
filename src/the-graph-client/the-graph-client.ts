@@ -1,6 +1,11 @@
 import { EthAddress, WearableId } from '@dcl/schemas'
-import { BlockInformation, ContentValidatorComponents, TheGraphClient, URLs } from '../types'
+import {
+  BlockInformation,
+  ContentValidatorComponents,
+  TheGraphClient
+} from '../types'
 import { parseUrn } from '@dcl/urn-resolver'
+import { ISubgraphComponent } from '@well-known-components/thegraph-component'
 
 export type PermissionResult = {
   result: boolean
@@ -15,14 +20,6 @@ export const createTheGraphClient = (
 ): TheGraphClient => {
   const logger = components.logs.getLogger('TheGraphClient')
 
-  const urls: URLs = {
-    collectionsSubgraph: components.externalCalls.subgraphs.L1.collections,
-    blocksSubgraph: components.externalCalls.subgraphs.L1.blocks,
-    maticBlocksSubgraph: components.externalCalls.subgraphs.L2.blocks,
-    ensSubgraph: components.externalCalls.subgraphs.L1.ensOwner,
-    maticCollectionsSubgraph: components.externalCalls.subgraphs.L2.collections
-  }
-
   const L1_NETWORKS = ['mainnet', 'ropsten', 'kovan', 'rinkeby', 'goerli']
   const L2_NETWORKS = ['matic', 'mumbai']
 
@@ -35,9 +32,14 @@ export const createTheGraphClient = (
       return permissionOk()
     }
 
-    const blocks = await findBlocksForTimestamp('blocksSubgraph', timestamp)
+    const blocks = await findBlocksForTimestamp(
+      components.externalCalls.subgraphs.L1.blocks,
+      timestamp
+    )
 
-    const hasPermissionOnBlock = async (blockNumber: number | undefined): Promise<PermissionResult> => {
+    const hasPermissionOnBlock = async (
+      blockNumber: number | undefined
+    ): Promise<PermissionResult> => {
       if (!blockNumber) {
         return permissionError()
       }
@@ -45,7 +47,7 @@ export const createTheGraphClient = (
       const runOwnedNamesOnBlockQuery = async (blockNumber: number) => {
         const query: Query<{ names: { name: string }[] }, Set<string>> = {
           description: 'check for names ownership',
-          subgraph: 'ensSubgraph',
+          subgraph: components.externalCalls.subgraphs.L1.ensOwner,
           query: QUERY_NAMES_FOR_ADDRESS_AT_BLOCK,
           mapper: (response: { names: { name: string }[] }): Set<string> =>
             new Set(response.names.map(({ name }) => name))
@@ -62,12 +64,16 @@ export const createTheGraphClient = (
         const notOwned = namesToCheck.filter((name) => !ownedNames.has(name))
         return notOwned.length > 0 ? permissionError(notOwned) : permissionOk()
       } catch {
-        logger.error(`Error retrieving names owned by address ${ethAddress} at block ${blockNumber}`)
+        logger.error(
+          `Error retrieving names owned by address ${ethAddress} at block ${blockNumber}`
+        )
         return permissionError()
       }
     }
 
-    const permissionMostRecentBlock = await hasPermissionOnBlock(blocks.blockNumberAtDeployment)
+    const permissionMostRecentBlock = await hasPermissionOnBlock(
+      blocks.blockNumberAtDeployment
+    )
     if (permissionMostRecentBlock.result) {
       return permissionMostRecentBlock
     }
@@ -80,7 +86,9 @@ export const createTheGraphClient = (
     matic: WearableId[]
   }
 
-  const splitWearablesByNetwork = async (wearableIdsToCheck: WearableId[]): Promise<WearablesByNetwork> => {
+  const splitWearablesByNetwork = async (
+    wearableIdsToCheck: WearableId[]
+  ): Promise<WearablesByNetwork> => {
     const ethereum: WearableId[] = []
     const matic: WearableId[] = []
     for (const wearable of wearableIdsToCheck) {
@@ -88,7 +96,10 @@ export const createTheGraphClient = (
       if (
         parsed &&
         'network' in parsed &&
-        ['blockchain-collection-v1-asset', 'blockchain-collection-v2-asset'].includes(parsed.type)
+        [
+          'blockchain-collection-v1-asset',
+          'blockchain-collection-v2-asset'
+        ].includes(parsed.type)
       ) {
         if (L1_NETWORKS.includes(parsed.network)) {
           ethereum.push(wearable)
@@ -118,20 +129,22 @@ export const createTheGraphClient = (
       return permissionOk()
     }
 
-    const { ethereum, matic } = await splitWearablesByNetwork(wearableIdsToCheck)
+    const { ethereum, matic } = await splitWearablesByNetwork(
+      wearableIdsToCheck
+    )
     const ethereumWearablesOwnersPromise = getOwnersByWearableWithTimestamp(
       ethAddress,
       ethereum,
       timestamp,
-      'blocksSubgraph',
-      'collectionsSubgraph'
+      components.externalCalls.subgraphs.L1.blocks,
+      components.externalCalls.subgraphs.L1.collections
     )
     const maticWearablesOwnersPromise = getOwnersByWearableWithTimestamp(
       ethAddress,
       matic,
       timestamp,
-      'maticBlocksSubgraph',
-      'maticCollectionsSubgraph'
+      components.externalCalls.subgraphs.L2.blocks,
+      components.externalCalls.subgraphs.L2.collections
     )
 
     const [ethereumWearablesOwners, maticWearablesOwners] = await Promise.all([
@@ -139,9 +152,13 @@ export const createTheGraphClient = (
       maticWearablesOwnersPromise
     ])
 
-    if (ethereumWearablesOwners.result && maticWearablesOwners.result) return permissionOk()
+    if (ethereumWearablesOwners.result && maticWearablesOwners.result)
+      return permissionOk()
     else {
-      return permissionError([...(ethereumWearablesOwners.failing ?? []), ...(maticWearablesOwners.failing ?? [])])
+      return permissionError([
+        ...(ethereumWearablesOwners.failing ?? []),
+        ...(maticWearablesOwners.failing ?? [])
+      ])
     }
   }
 
@@ -149,8 +166,8 @@ export const createTheGraphClient = (
     ethAddress: EthAddress,
     wearableIdsToCheck: WearableId[],
     timestamp: number,
-    blocksSubgraph: keyof URLs,
-    collectionsSubgraph: keyof URLs
+    blocksSubgraph: ISubgraphComponent,
+    collectionsSubgraph: ISubgraphComponent
   ): Promise<PermissionResult> => {
     if (wearableIdsToCheck.length === 0) {
       return permissionOk()
@@ -158,7 +175,9 @@ export const createTheGraphClient = (
 
     const blocks = await findBlocksForTimestamp(blocksSubgraph, timestamp)
 
-    const hasPermissionOnBlock = async (blockNumber: number | undefined): Promise<PermissionResult> => {
+    const hasPermissionOnBlock = async (
+      blockNumber: number | undefined
+    ): Promise<PermissionResult> => {
       if (!blockNumber) {
         return permissionError()
       }
@@ -180,7 +199,9 @@ export const createTheGraphClient = (
 
       try {
         const ownedWearables = await runOwnedWearablesOnBlockQuery(blockNumber)
-        const notOwned = wearableIdsToCheck.filter((name) => !ownedWearables.has(name))
+        const notOwned = wearableIdsToCheck.filter(
+          (name) => !ownedWearables.has(name)
+        )
         return notOwned.length > 0 ? permissionError(notOwned) : permissionOk()
       } catch (error) {
         logger.error(
@@ -190,7 +211,9 @@ export const createTheGraphClient = (
       }
     }
 
-    const permissionMostRecentBlock = await hasPermissionOnBlock(blocks.blockNumberAtDeployment)
+    const permissionMostRecentBlock = await hasPermissionOnBlock(
+      blocks.blockNumberAtDeployment
+    )
     if (permissionMostRecentBlock.result) {
       return permissionMostRecentBlock
     }
@@ -203,22 +226,26 @@ export const createTheGraphClient = (
     variables: Record<string, any>
   ): Promise<ReturnType> => {
     try {
-      const response = await components.externalCalls.queryGraph<QueryResult>(
-        urls[query.subgraph],
+      const response = await query.subgraph.query<QueryResult>(
         query.query,
         variables
       )
       return query.mapper(response)
     } catch (error) {
       logger.error(
-        `Failed to execute the following query to the subgraph ${urls[query.subgraph]} ${query.description}'.`
+        `Failed to execute the following query to the subgraph ${
+          query.subgraph // TODO See if we can get the URL from the subgraph object
+        } ${query.description}'.`
       )
       logger.error(error as any)
       throw new Error('Internal server error')
     }
   }
 
-  const findBlocksForTimestamp = async (subgraph: keyof URLs, timestamp: number): Promise<BlockInformation> => {
+  const findBlocksForTimestamp = async (
+    subgraph: ISubgraphComponent,
+    timestamp: number
+  ): Promise<BlockInformation> => {
     const query: Query<
       {
         min: { number: string }[]
@@ -232,15 +259,21 @@ export const createTheGraphClient = (
       mapper: (response) => {
         const blockNumberAtDeployment = response.max[0]?.number
         const blockNumberFiveMinBeforeDeployment = response.min[0]?.number
-        if (blockNumberAtDeployment === undefined && blockNumberFiveMinBeforeDeployment === undefined) {
+        if (
+          blockNumberAtDeployment === undefined &&
+          blockNumberFiveMinBeforeDeployment === undefined
+        ) {
           throw new Error(`Failed to find blocks for the specific timestamp`)
         }
 
         return {
-          blockNumberAtDeployment: !!blockNumberAtDeployment ? parseInt(blockNumberAtDeployment) : undefined,
-          blockNumberFiveMinBeforeDeployment: !!blockNumberFiveMinBeforeDeployment
-            ? parseInt(blockNumberFiveMinBeforeDeployment)
-            : undefined
+          blockNumberAtDeployment: !!blockNumberAtDeployment
+            ? parseInt(blockNumberAtDeployment)
+            : undefined,
+          blockNumberFiveMinBeforeDeployment:
+            !!blockNumberFiveMinBeforeDeployment
+              ? parseInt(blockNumberFiveMinBeforeDeployment)
+              : undefined
         }
       }
     }
@@ -305,7 +338,7 @@ query getNftWearablesForBlock($block: Int!, $ethAddress: String!, $urnList: [Str
 
 type Query<QueryResult, ReturnType> = {
   description: string
-  subgraph: keyof URLs
+  subgraph: ISubgraphComponent
   query: string
   mapper: (queryResult: QueryResult) => ReturnType
 }

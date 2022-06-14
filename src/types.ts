@@ -1,6 +1,7 @@
 import { AuthChain, Entity, EthAddress, WearableId } from '@dcl/schemas'
 import { ILoggerComponent } from '@well-known-components/interfaces'
 import { PermissionResult } from './the-graph-client/the-graph-client'
+import { ISubgraphComponent } from '@well-known-components/thegraph-component'
 
 /**
  * @public
@@ -38,7 +39,11 @@ export type DeploymentToValidate = {
  * Function used to fetch TheGraph
  * @public
  */
-export type QueryGraph = <T = any>(url: string, query: string, variables: Record<string, any>) => Promise<T>
+export type QueryGraph = <T = any>(
+  url: string,
+  query: string,
+  variables: Record<string, any>
+) => Promise<T>
 
 /**
  * External calls interface to be provided by the servers.
@@ -57,15 +62,15 @@ export type ExternalCalls = {
   queryGraph: QueryGraph
   subgraphs: {
     L1: {
-      landManager: string
-      blocks: string
-      collections: string
-      ensOwner: string
+      landManager: ISubgraphComponent
+      blocks: ISubgraphComponent
+      collections: ISubgraphComponent
+      ensOwner: ISubgraphComponent
     }
     L2: {
-      blocks: string
-      collections: string
-      thirdPartyRegistry: string
+      blocks: ISubgraphComponent
+      collections: ISubgraphComponent
+      thirdPartyRegistry: ISubgraphComponent
     }
   }
 }
@@ -129,8 +134,13 @@ export const validationFailed = (...error: string[]): ValidationResponse => ({
 /**
  * @public
  */
-export const conditionalValidation = (condition: ConditionalValidation): Validation => ({
-  validate: async (components: ContentValidatorComponents, deployment: DeploymentToValidate) => {
+export const conditionalValidation = (
+  condition: ConditionalValidation
+): Validation => ({
+  validate: async (
+    components: ContentValidatorComponents,
+    deployment: DeploymentToValidate
+  ) => {
     try {
       return await condition.predicate(components, deployment)
       //     ^^^^^ never remove this await, it exists to ensure try {} catch
@@ -151,17 +161,6 @@ export const fromErrors = (...errors: Errors): ValidationResponse => ({
 /**
  * @public
  */
-export type URLs = {
-  ensSubgraph: string
-  blocksSubgraph: string
-  maticBlocksSubgraph: string
-  collectionsSubgraph: string
-  maticCollectionsSubgraph: string
-}
-
-/**
- * @public
- */
 export type TheGraphClient = {
   checkForNamesOwnershipWithTimestamp: (
     ethAddress: EthAddress,
@@ -175,7 +174,10 @@ export type TheGraphClient = {
     timestamp: number
   ) => Promise<PermissionResult>
 
-  findBlocksForTimestamp: (subgraph: keyof URLs, timestamp: number) => Promise<BlockInformation>
+  findBlocksForTimestamp: (
+    subgraph: ISubgraphComponent,
+    timestamp: number
+  ) => Promise<BlockInformation>
 }
 
 /**
