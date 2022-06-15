@@ -1,5 +1,6 @@
 import { EthAddress, WearableId } from '@dcl/schemas'
 import { ContentValidatorComponents, TheGraphClient, URLs } from '../types'
+import { parseUrn } from '@dcl/urn-resolver'
 
 /**
  * @public
@@ -16,6 +17,9 @@ export const createTheGraphClient = (
     ensSubgraph: components.externalCalls.subgraphs.L1.ensOwner,
     maticCollectionsSubgraph: components.externalCalls.subgraphs.L2.collections
   }
+
+  const L1_NETWORKS = ['mainnet', 'ropsten', 'kovan', 'rinkeby', 'goerli']
+  const L2_NETWORKS = ['matic', 'mumbai']
 
   const checkForNamesOwnershipWithTimestamp = async (
     ethAddress: EthAddress,
@@ -67,21 +71,50 @@ export const createTheGraphClient = (
     )
   }
 
+  type WearablesByNetwork = {
+    ethereum: WearableId[]
+    matic: WearableId[]
+  }
+
+  async function splitWearablesByNetwork(
+    wearableIdsToCheck: WearableId[]
+  ): Promise<WearablesByNetwork> {
+    const ethereum: WearableId[] = []
+    const matic: WearableId[] = []
+    for (const wearable of wearableIdsToCheck) {
+      const parsed = await parseUrn(wearable)
+      if (parsed && 'network' in parsed) {
+        if (L1_NETWORKS.includes(parsed.network)) {
+          ethereum.push(wearable)
+        } else if (L2_NETWORKS.includes(parsed.network)) {
+          matic.push(wearable)
+        }
+      }
+    }
+    return {
+      ethereum,
+      matic
+    }
+  }
+
   const checkForWearablesOwnershipWithTimestamp = async (
     ethAddress: EthAddress,
     wearableIdsToCheck: WearableId[],
     timestamp: number
   ): Promise<Set<string>> => {
+    const { ethereum, matic } = await splitWearablesByNetwork(
+      wearableIdsToCheck
+    )
     const ethereumWearablesOwnersPromise = getOwnersByWearableWithTimestamp(
       ethAddress,
-      wearableIdsToCheck,
+      ethereum,
       timestamp,
       'blocksSubgraph',
       'collectionsSubgraph'
     )
     const maticWearablesOwnersPromise = getOwnersByWearableWithTimestamp(
       ethAddress,
-      wearableIdsToCheck,
+      matic,
       timestamp,
       'maticBlocksSubgraph',
       'maticCollectionsSubgraph'
