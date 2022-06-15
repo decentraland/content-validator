@@ -39,19 +39,18 @@ export const profiles: Validation = {
     if (deployment.entity.timestamp < ADR_75_TIMESTAMP) return OK
 
     const names = allClaimedNames(deployment.entity)
-    if (names.length > 0) {
-      const ownedNames =
-        await theGraphClient.checkForNamesOwnershipWithTimestamp(
-          ethAddress,
-          names,
-          deployment.entity.timestamp
-        )
-      const notOwnedNames = names.filter((name) => !ownedNames.has(name))
-      if (notOwnedNames.length > 0)
-        return validationFailed(
-          `The following names (${notOwnedNames}) are not owned by the address ${ethAddress.toLowerCase()}).`
-        )
-    }
+    const checkResult =
+      await theGraphClient.checkForNamesOwnershipWithTimestamp(
+        ethAddress,
+        names,
+        deployment.entity.timestamp
+      )
+    if (!checkResult.result)
+      return validationFailed(
+        `The following names (${checkResult.failing?.join(
+          ', '
+        )}) are not owned by the address ${ethAddress.toLowerCase()}).`
+      )
 
     const wearableUrns = await allWearablesUrns(deployment.entity)
     if (wearableUrns.length > 0) {

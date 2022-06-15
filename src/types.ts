@@ -1,5 +1,6 @@
 import { AuthChain, Entity, EthAddress, WearableId } from '@dcl/schemas'
 import { ILoggerComponent } from '@well-known-components/interfaces'
+import { PermissionResult } from './the-graph-client/the-graph-client'
 
 /**
  * @public
@@ -175,7 +176,7 @@ export type TheGraphClient = {
     ethAddress: EthAddress,
     namesToCheck: string[],
     timestamp: number
-  ) => Promise<Set<string>>
+  ) => Promise<PermissionResult>
 
   checkForWearablesOwnershipWithTimestamp: (
     ethAddress: EthAddress,

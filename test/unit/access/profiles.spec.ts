@@ -28,7 +28,7 @@ describe('Access: profiles', () => {
     )
   })
 
-  it('When a decentraland address tries to deploy an default profile, then it is allowed', async () => {
+  it('When a decentraland address tries to deploy a default profile, then it is allowed', async () => {
     const someValidAddress = '0x71c7656ec7ab88b098defb751b7401b5f6d8976f'
     const deployment = buildProfileDeployment(['Default10'])
     const externalCalls = buildExternalCalls({

@@ -1,6 +1,11 @@
-import { EthAddress, WearableId } from '@dcl/schemas'
+import { EthAddress, Profile, ValidateFunction, WearableId } from '@dcl/schemas'
 import { ContentValidatorComponents, TheGraphClient, URLs } from '../types'
 import { parseUrn } from '@dcl/urn-resolver'
+
+export type PermissionResult = {
+  result: boolean
+  failing?: string[]
+}
 
 /**
  * @public
@@ -25,50 +30,29 @@ export const createTheGraphClient = (
     ethAddress: EthAddress,
     namesToCheck: string[],
     timestamp: number
-  ): Promise<Set<string>> => {
-    const ownedNamesOnBlock = async (blockNumber: number) => {
-      const query: Query<{ names: { name: string }[] }, Set<string>> = {
-        description: 'check for names ownership',
-        subgraph: 'ensSubgraph',
-        query: QUERY_NAMES_FOR_ADDRESS_AT_BLOCK,
-        mapper: (response: { names: { name: string }[] }): Set<string> =>
-          new Set(response.names.map(({ name }) => name))
-      }
-      return runQuery(query, {
-        block: blockNumber,
-        ethAddress,
-        nameList: namesToCheck
-      })
+  ): Promise<PermissionResult> => {
+    if (namesToCheck.length === 0) {
+      return permissionOk()
     }
 
     const blocks = await findBlocksForTimestamp('blocksSubgraph', timestamp)
 
-    try {
-      if (blocks.blockNumberAtDeployment) {
-        return await ownedNamesOnBlock(blocks.blockNumberAtDeployment)
-      }
-    } catch (error) {
-      logger.error(
-        `Error retrieving names owned by address ${ethAddress} at block ${blocks.blockNumberAtDeployment}`
-      )
-      logger.error(error as any)
+    const permissionMostRecentBlock = await hasPermissionOnBlock(
+      blocks.blockNumberAtDeployment,
+      ethAddress,
+      namesToCheck
+    )
+
+    if (permissionMostRecentBlock.result) {
+      return permissionMostRecentBlock
     }
 
-    try {
-      if (blocks.blockNumberFiveMinBeforeDeployment) {
-        return await ownedNamesOnBlock(
-          blocks.blockNumberFiveMinBeforeDeployment
-        )
-      }
-    } catch (error) {
-      logger.error(
-        `Error retrieving names owned by address ${ethAddress} at block ${blocks.blockNumberFiveMinBeforeDeployment}`
-      )
-      logger.error(error as any)
-    }
-    throw Error(
-      `Could not query names for ${ethAddress} at blocks ${blocks.blockNumberAtDeployment} nor ${blocks.blockNumberFiveMinBeforeDeployment}`
+    const permissionFiveMinsEarlier = await hasPermissionOnBlock(
+      blocks.blockNumberFiveMinBeforeDeployment,
+      ethAddress,
+      namesToCheck
     )
+    return permissionFiveMinsEarlier
   }
 
   type WearablesByNetwork = {
@@ -94,6 +78,48 @@ export const createTheGraphClient = (
     return {
       ethereum,
       matic
+    }
+  }
+
+  const permissionOk = (): PermissionResult => ({ result: true })
+  const permissionError = (failing?: string[]): PermissionResult => ({
+    result: false,
+    failing: failing
+  })
+
+  const hasPermissionOnBlock = async (
+    blockNumber: number | undefined,
+    ethAddress: EthAddress,
+    namesToCheck: string[]
+  ): Promise<PermissionResult> => {
+    if (!blockNumber) {
+      return permissionError()
+    }
+
+    const ownedNamesOnBlock = async (blockNumber: number) => {
+      const query: Query<{ names: { name: string }[] }, Set<string>> = {
+        description: 'check for names ownership',
+        subgraph: 'ensSubgraph',
+        query: QUERY_NAMES_FOR_ADDRESS_AT_BLOCK,
+        mapper: (response: { names: { name: string }[] }): Set<string> =>
+          new Set(response.names.map(({ name }) => name))
+      }
+      return runQuery(query, {
+        block: blockNumber,
+        ethAddress,
+        nameList: namesToCheck
+      })
+    }
+
+    try {
+      const ownedNames = await ownedNamesOnBlock(blockNumber)
+      const result = namesToCheck.filter((name) => !ownedNames.has(name))
+      return result.length > 0 ? permissionError(result) : permissionOk()
+    } catch {
+      logger.error(
+        `Error retrieving names owned by address ${ethAddress} at block ${blockNumber}`
+      )
+      return permissionError()
     }
   }
 
