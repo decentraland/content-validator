@@ -37,7 +37,7 @@ export const createTheGraphClient = (
       return runQuery(query, {
         block: blockNumber,
         ethAddress,
-        names: namesToCheck
+        nameList: namesToCheck
       })
     }
 
