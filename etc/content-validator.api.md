@@ -14,6 +14,9 @@ import { WearableId } from '@dcl/schemas';
 export const ADR_45_TIMESTAMP: number;
 
 // @public
+export const ADR_74_TIMESTAMP: number;
+
+// @public
 export const ADR_75_TIMESTAMP: number;
 
 // @public (undocumented)
@@ -23,9 +26,6 @@ export const calculateDeploymentSize: (deployment: DeploymentToValidate, externa
 export type ConditionalValidation = {
     predicate: (components: ContentValidatorComponents, deployment: DeploymentToValidate) => ValidationResponse | Promise<ValidationResponse>;
 };
-
-// @public (undocumented)
-export const conditionalValidation: (condition: ConditionalValidation) => Validation;
 
 // @public
 export type ContentValidatorComponents = {
@@ -122,9 +122,6 @@ export type URLs = {
     collectionsSubgraph: string;
     maticCollectionsSubgraph: string;
 };
-
-// @public (undocumented)
-export const validateInRow: (components: ContentValidatorComponents, deployment: DeploymentToValidate, ...validations: Validation[]) => Promise<ValidationResponse>;
 
 // @public (undocumented)
 export type Validation = {

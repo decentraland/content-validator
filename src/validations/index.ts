@@ -1,35 +1,17 @@
 import {
-  ContentValidatorComponents,
   DeploymentToValidate,
-  ExternalCalls,
-  OK,
-  Validation,
-  ValidationResponse
+  ExternalCalls
 } from '../types'
 import { access } from './access-checker/access'
 import { content } from './content'
 import { entityStructure } from './entity-structure'
 import { ipfsHashing } from './ipfs-hashing'
+import { items } from './items/items'
+// import { wearable } from './items/wearables'
 import { metadata } from './metadata-schema'
 import { profile } from './profile'
 import { signature } from './signature'
 import { size } from './size'
-import { wearable } from './wearable'
-
-/**
- * @public
- */
-export const validateInRow = async (
-  components: ContentValidatorComponents,
-  deployment: DeploymentToValidate,
-  ...validations: Validation[]
-): Promise<ValidationResponse> => {
-  for (const validation of validations) {
-    const response = await validation.validate(components, deployment)
-    if (!response.ok) return response
-  }
-  return OK
-}
 
 /**
  * 1656633600000 = 2022-07-01T00:00:00Z
@@ -93,9 +75,10 @@ export const statefulValidations = [
   signature,
   access,
   size,
-  wearable,
+  // wearable,
   profile,
-  content
+  content,
+  items
 ] as const
 
 /**

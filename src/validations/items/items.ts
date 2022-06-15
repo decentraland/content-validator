@@ -1,56 +1,25 @@
 import { EntityType, Wearable } from '@dcl/schemas'
 import sharp from 'sharp'
-import { ADR_45_TIMESTAMP, calculateDeploymentSize } from '.'
+import { calculateDeploymentSize } from '..'
 import {
-  ContentValidatorComponents,
   OK,
   Validation,
   validationFailed
-} from '../types'
-import { entityParameters } from './ADR51'
-import { validationForType, validationGroup } from './validations'
+} from '../../types'
+import { entityParameters } from '../ADR51'
+import { conditionalValidation, validationAfterADR45, validationGroup } from '../validations'
 
-const wearableSizeLimitInMB = 2
-
-/** Validate wearable representations are referencing valid content */
-export const wearableRepresentationContent: Validation = {
-  validate: async (components: ContentValidatorComponents, deployment) => {
-    const { entity } = deployment
-    const wearableMetadata = entity.metadata as Wearable
-    const representations = wearableMetadata?.data?.representations
-    if (!representations)
-      return validationFailed('No wearable representations found')
-    if (!entity.content) return validationFailed('No content found')
-
-    for (const representation of representations) {
-      for (const representationContent of representation.contents) {
-        if (
-          !entity.content.find(
-            (content) => content.file === representationContent
-          )
-        ) {
-          return validationFailed(
-            `Representation content: '${representationContent}' is not one of the content files`
-          )
-        }
-      }
-    }
-    return OK
-  }
-}
-
-/** Validate wearable files size, excluding thumbnail, is less than expected */
-export const wearableSize: Validation = {
+/** Validate item files size, excluding thumbnail, is less than expected */
+export const deploymentMaxSizeExcludingThumbnailIsNotExceeded: Validation = {
   validate: async ({ externalCalls }, deployment) => {
     const entity = deployment.entity
-    if (entity.timestamp < ADR_45_TIMESTAMP) return OK
     const maxSizeInMB = entityParameters[EntityType.WEARABLE]?.maxSizeInMB
     if (!maxSizeInMB)
       return validationFailed(
         `Type ${EntityType.WEARABLE} is not supported yet`
       )
 
-    const modelSizeInMB = wearableSizeLimitInMB
+    const modelSizeInMB = maxSizeInMB - (maxThumbnailSizeInB / 1024)
 
     const metadata = entity.metadata as Wearable
     const thumbnailHash = entity.content?.find(
@@ -59,11 +28,10 @@ export const wearableSize: Validation = {
     if (!thumbnailHash)
       return validationFailed("Couldn't find the thumbnail hash")
 
-    const result = await calculateDeploymentSize(deployment, externalCalls)
-    if (typeof result === 'string') return validationFailed(result)
-    const totalDeploymentSize = result
+    const totalDeploymentSizeInB = await calculateDeploymentSize(deployment, externalCalls)
+    if (typeof totalDeploymentSizeInB === 'string') return validationFailed(totalDeploymentSizeInB)
     const thumbnailSize = deployment.files.get(thumbnailHash)?.byteLength ?? 0
-    const modelSize = totalDeploymentSize - thumbnailSize
+    const modelSize = totalDeploymentSizeInB - thumbnailSize
     if (modelSize > modelSizeInMB * 1024 * 1024)
       return validationFailed(
         `The deployment is too big. The maximum allowed size for wearable model files is ${modelSizeInMB} MB. You can upload up to ${modelSizeInMB * 1024 * 1024
@@ -74,12 +42,10 @@ export const wearableSize: Validation = {
 }
 
 /** Validate that given wearable deployment includes a thumbnail with valid format and size */
-const maxThumbnailSize = 1024
-export const wearableThumbnail: Validation = {
+const maxThumbnailSizeInB = 1024
+export const thumbnailMaxSizeIsNotExceeded: Validation = {
   validate: async ({ externalCalls, logs }, deployment) => {
     const logger = logs.getLogger('wearable validator')
-
-    if (deployment.entity.timestamp < ADR_45_TIMESTAMP) return OK
     // read thumbnail field from metadata
     const metadata = deployment.entity.metadata as Wearable
 
@@ -118,7 +84,7 @@ export const wearableThumbnail: Validation = {
         errors.push(
           `Couldn't validate thumbnail size for file ${metadata.thumbnail}`
         )
-      } else if (width > maxThumbnailSize || height > maxThumbnailSize) {
+      } else if (width > maxThumbnailSizeInB || height > maxThumbnailSizeInB) {
         errors.push(
           `Invalid thumbnail image size (width = ${width} / height = ${height})`
         )
@@ -134,11 +100,10 @@ export const wearableThumbnail: Validation = {
  * Validate that given wearable deployment includes the thumbnail and doesn't exceed file sizes
  * * @public
  */
-export const wearable: Validation = validationForType(
-  EntityType.WEARABLE,
-  validationGroup(
-    wearableRepresentationContent,
-    wearableThumbnail,
-    wearableSize
-  )
+export const items: Validation = conditionalValidation(
+  (deployment) => deployment.entity.type === EntityType.WEARABLE || deployment.entity.type === EntityType.EMOTE,
+  validationAfterADR45(validationGroup(
+    thumbnailMaxSizeIsNotExceeded,
+    deploymentMaxSizeExcludingThumbnailIsNotExceeded
+  ))
 )
