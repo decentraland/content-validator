@@ -10,7 +10,7 @@ import { allowList } from '../profile'
  * @public
  */
 export const profiles: Validation = {
-  validate: async ({ logs, externalCalls, theGraphClient }, deployment) => {
+  validate: async ({ externalCalls, theGraphClient }, deployment) => {
     const pointers = deployment.entity.pointers
     const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
 
@@ -38,44 +38,39 @@ export const profiles: Validation = {
 
     if (deployment.entity.timestamp < ADR_75_TIMESTAMP) return OK
 
-    try {
-      const names = allClaimedNames(deployment.entity)
-      if (names.length > 0) {
-        const ownedNames =
-          await theGraphClient.checkForNamesOwnershipWithTimestamp(
-            ethAddress,
-            names,
-            deployment.entity.timestamp
-          )
-        const notOwnedNames = names.filter((name) => !ownedNames.has(name))
-        if (notOwnedNames.length > 0)
-          return validationFailed(
-            `The following names (${notOwnedNames}) are not owned by the address ${ethAddress.toLowerCase()}).`
-          )
-      }
-
-      const wearableUrns = await allWearablesUrns(deployment.entity)
-      if (wearableUrns.length > 0) {
-        const ownedWearables =
-          await theGraphClient.checkForWearablesOwnershipWithTimestamp(
-            ethAddress,
-            wearableUrns,
-            deployment.entity.timestamp
-          )
-        const notOwned = wearableUrns.filter(
-          (wearable) => !ownedWearables.has(wearable)
+    const names = allClaimedNames(deployment.entity)
+    if (names.length > 0) {
+      const ownedNames =
+        await theGraphClient.checkForNamesOwnershipWithTimestamp(
+          ethAddress,
+          names,
+          deployment.entity.timestamp
         )
-        if (notOwned.length > 0)
-          return validationFailed(
-            `The following wearables (${notOwned}) are not owned by the address ${ethAddress.toLowerCase()}).`
-          )
-      }
-
-      return OK
-    } catch (error) {
-      logs.getLogger('profiles access checker').error(JSON.stringify(error))
-      return validationFailed('Oops. Something went wrong')
+      const notOwnedNames = names.filter((name) => !ownedNames.has(name))
+      if (notOwnedNames.length > 0)
+        return validationFailed(
+          `The following names (${notOwnedNames}) are not owned by the address ${ethAddress.toLowerCase()}).`
+        )
     }
+
+    const wearableUrns = await allWearablesUrns(deployment.entity)
+    if (wearableUrns.length > 0) {
+      const ownedWearables =
+        await theGraphClient.checkForWearablesOwnershipWithTimestamp(
+          ethAddress,
+          wearableUrns,
+          deployment.entity.timestamp
+        )
+      const notOwned = wearableUrns.filter(
+        (wearable) => !ownedWearables.has(wearable)
+      )
+      if (notOwned.length > 0)
+        return validationFailed(
+          `The following wearables (${notOwned}) are not owned by the address ${ethAddress.toLowerCase()}).`
+        )
+    }
+
+    return OK
   }
 }
 
