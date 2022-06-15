@@ -39,34 +39,32 @@ export const profiles: Validation = {
     if (deployment.entity.timestamp < ADR_75_TIMESTAMP) return OK
 
     const names = allClaimedNames(deployment.entity)
-    const checkResult =
+    const namesCheckResult =
       await theGraphClient.checkForNamesOwnershipWithTimestamp(
         ethAddress,
         names,
         deployment.entity.timestamp
       )
-    if (!checkResult.result)
+    if (!namesCheckResult.result)
       return validationFailed(
-        `The following names (${checkResult.failing?.join(
+        `The following names (${namesCheckResult.failing?.join(
           ', '
         )}) are not owned by the address ${ethAddress.toLowerCase()}).`
       )
 
     const wearableUrns = await allWearablesUrns(deployment.entity)
-    if (wearableUrns.length > 0) {
-      const ownedWearables =
-        await theGraphClient.checkForWearablesOwnershipWithTimestamp(
-          ethAddress,
-          wearableUrns,
-          deployment.entity.timestamp
-        )
-      const notOwned = wearableUrns.filter(
-        (wearable) => !ownedWearables.has(wearable)
+    const wearablesCheckResult =
+      await theGraphClient.checkForWearablesOwnershipWithTimestamp(
+        ethAddress,
+        wearableUrns,
+        deployment.entity.timestamp
       )
-      if (notOwned.length > 0)
-        return validationFailed(
-          `The following wearables (${notOwned}) are not owned by the address ${ethAddress.toLowerCase()}).`
-        )
+    if (!wearablesCheckResult.result) {
+      return validationFailed(
+        `The following wearables (${wearablesCheckResult.failing?.join(
+          ', '
+        )}) are not owned by the address ${ethAddress.toLowerCase()}).`
+      )
     }
 
     return OK

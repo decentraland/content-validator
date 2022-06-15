@@ -181,12 +181,7 @@ describe('TheGraphClient', () => {
           ],
           10
         )
-      ).resolves.toEqual(
-        new Set([
-          'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet',
-          'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
-        ])
-      )
+      ).resolves.toEqual({ result: true })
     })
 
     it('When current block that has not been indexed yet, it should continue and check the block from 5 minute before', async () => {
@@ -232,12 +227,7 @@ describe('TheGraphClient', () => {
           ],
           10
         )
-      ).resolves.toEqual(
-        new Set([
-          'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet',
-          'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
-        ])
-      )
+      ).resolves.toEqual({ result: true })
     })
 
     it('When both current and 5-min before blocks have not been indexed yet, it should report error', async () => {
@@ -266,9 +256,7 @@ describe('TheGraphClient', () => {
           ],
           10
         )
-      ).rejects.toThrow(
-        'Could not query wearables for 0x1 at blocks 123500 nor 123400'
-      )
+      ).resolves.toEqual({ result: false, failing: [] })
     })
   })
 })

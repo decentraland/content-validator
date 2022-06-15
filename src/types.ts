@@ -182,7 +182,7 @@ export type TheGraphClient = {
     ethAddress: EthAddress,
     wearableIdsToCheck: WearableId[],
     timestamp: number
-  ) => Promise<Set<string>>
+  ) => Promise<PermissionResult>
 
   findBlocksForTimestamp: (
     subgraph: keyof URLs,

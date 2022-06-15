@@ -204,7 +204,7 @@ describe('Access: profiles', () => {
     )
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
-      'The following wearables (urn:decentraland:matic:collections-v2:0xf6f601efee04e74cecac02c8c5bdc8cc0fc1c721:0,urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:2,urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:19) are not owned by the address 0x862f109696d7121438642a78b3caa38f476db08b).'
+      'The following wearables (urn:decentraland:matic:collections-v2:0xf6f601efee04e74cecac02c8c5bdc8cc0fc1c721:0, urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:2, urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:19) are not owned by the address 0x862f109696d7121438642a78b3caa38f476db08b).'
     )
   })
 })
