@@ -37,7 +37,7 @@ export const createTheGraphClient = (
       return runQuery(query, {
         block: blockNumber,
         ethAddress,
-        names: namesToCheck
+        nameList: namesToCheck
       })
     }
 
@@ -285,7 +285,7 @@ query getBlockForTimestampRange($timestamp: Int!, $timestamp5Min: Int!) {
 }`
 
 const QUERY_NAMES_FOR_ADDRESS_AT_BLOCK = `
-query getNftNamesForBlock($block: Int!, $ethAddress: String!, $nameList: [string!]) {
+query getNftNamesForBlock($block: Int!, $ethAddress: String!, $nameList: [String!]) {
   names: nfts(
     block: {number: $block}
     where: {owner: $ethAddress, category: ens, name_in: $nameList}
