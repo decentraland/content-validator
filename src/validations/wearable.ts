@@ -8,7 +8,7 @@ import {
   validationFailed
 } from '../types'
 import { entityParameters } from './ADR51'
-import { conditionalValidation, validationGroup } from './validations'
+import { validationForType, validationGroup } from './validations'
 
 const wearableSizeLimitInMB = 2
 
@@ -66,8 +66,7 @@ export const wearableSize: Validation = {
     const modelSize = totalDeploymentSize - thumbnailSize
     if (modelSize > modelSizeInMB * 1024 * 1024)
       return validationFailed(
-        `The deployment is too big. The maximum allowed size for wearable model files is ${modelSizeInMB} MB. You can upload up to ${
-          modelSizeInMB * 1024 * 1024
+        `The deployment is too big. The maximum allowed size for wearable model files is ${modelSizeInMB} MB. You can upload up to ${modelSizeInMB * 1024 * 1024
         } bytes but you tried to upload ${modelSize}.`
       )
     return OK
@@ -135,8 +134,8 @@ export const wearableThumbnail: Validation = {
  * Validate that given wearable deployment includes the thumbnail and doesn't exceed file sizes
  * * @public
  */
-export const wearable: Validation = conditionalValidation(
-  (components, deployment) => deployment.entity.type === EntityType.WEARABLE,
+export const wearable: Validation = validationForType(
+  EntityType.WEARABLE,
   validationGroup(
     wearableRepresentationContent,
     wearableThumbnail,

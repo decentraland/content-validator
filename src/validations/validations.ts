@@ -1,4 +1,5 @@
-import { ADR_45_TIMESTAMP, ADR_75_TIMESTAMP } from '.'
+import { EntityType } from '@dcl/schemas'
+import { ADR_45_TIMESTAMP, ADR_74_TIMESTAMP, ADR_75_TIMESTAMP } from '.'
 import {
   ContentValidatorComponents,
   DeploymentToValidate,
@@ -6,27 +7,6 @@ import {
   Validation,
   ValidationResponse
 } from '../types'
-
-export function conditionalValidation(
-  condition: (
-    components: ContentValidatorComponents,
-    deployment: DeploymentToValidate
-  ) => boolean | Promise<boolean>,
-  validation: Validation
-): Validation {
-  return {
-    async validate(
-      components: ContentValidatorComponents,
-      deployment: DeploymentToValidate
-    ) {
-      const conditionIsMet = await condition(components, deployment)
-      if (conditionIsMet) {
-        return validation.validate(components, deployment)
-      }
-      return OK
-    }
-  }
-}
 
 export function validationGroup(...validations: Validation[]): Validation {
   return {
@@ -43,16 +23,48 @@ export function validationGroup(...validations: Validation[]): Validation {
   }
 }
 
+export function conditionalValidation(
+  condition: (deployment: DeploymentToValidate) => boolean | Promise<boolean>,
+  validation: Validation
+): Validation {
+  return {
+    async validate(
+      components: ContentValidatorComponents,
+      deployment: DeploymentToValidate
+    ) {
+      const conditionIsMet = await condition(deployment)
+      if (conditionIsMet) {
+        return validation.validate(components, deployment)
+      }
+      return OK
+    }
+  }
+}
+
 export function validationAfterADR45(validation: Validation): Validation {
   return conditionalValidation(
-    (components, deployment) => deployment.entity.timestamp > ADR_45_TIMESTAMP,
+    (deployment) => deployment.entity.timestamp > ADR_45_TIMESTAMP,
     validation
   )
 }
 
 export function validationAfterADR75(validation: Validation): Validation {
   return conditionalValidation(
-    (components, deployment) => deployment.entity.timestamp > ADR_75_TIMESTAMP,
+    (deployment) => deployment.entity.timestamp > ADR_75_TIMESTAMP,
+    validation
+  )
+}
+
+export function validationAfterADR74(validation: Validation): Validation {
+  return conditionalValidation(
+    (deployment) => deployment.entity.timestamp > ADR_74_TIMESTAMP,
+    validation
+  )
+}
+
+export function validationForType(entityType: EntityType, validation: Validation) {
+  return conditionalValidation(
+    (deployment) => deployment.entity.type === entityType,
     validation
   )
 }

@@ -2,7 +2,7 @@ import { EntityType } from '@dcl/schemas'
 import { parseUrn } from '@dcl/urn-resolver'
 import sharp from 'sharp'
 import { OK, Validation, validationFailed } from '../types'
-import { conditionalValidation, validationAfterADR45, validationAfterADR75, validationGroup } from './validations'
+import { validationAfterADR45, validationAfterADR75, validationForType, validationGroup } from './validations'
 
 /** Validate that given profile deployment includes a face256 thumbnail with valid size */
 const defaultThumbnailSize = 256
@@ -103,7 +103,5 @@ export const wearableUrns: Validation = validationAfterADR75({
  * Validate that given profile deployment includes the face256 file with the correct size
  * * @public
  */
-export const profile: Validation = conditionalValidation(
-  (components, deployment) => deployment.entity.type === EntityType.PROFILE,
-  validationGroup(faceThumbnail, wearableUrns)
-)
+export const profile: Validation =
+  validationForType(EntityType.PROFILE, validationGroup(faceThumbnail, wearableUrns))
