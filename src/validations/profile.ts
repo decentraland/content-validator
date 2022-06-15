@@ -1,8 +1,8 @@
 import { EntityType } from '@dcl/schemas'
-import sharp from 'sharp'
-import { ADR_45_TIMESTAMP, ADR_75_TIMESTAMP, validateInRow } from '.'
-import { OK, Validation, validationFailed } from '../types'
 import { parseUrn } from '@dcl/urn-resolver'
+import sharp from 'sharp'
+import { OK, Validation, validationFailed } from '../types'
+import { conditionalValidation, validationAfterADR45, validationAfterADR75, validationGroup } from './validations'
 
 /** Validate that given profile deployment includes a face256 thumbnail with valid size */
 const defaultThumbnailSize = 256
@@ -29,10 +29,8 @@ export const allowList = new Set([
   'wave'
 ])
 
-export const faceThumbnail: Validation = {
+export const faceThumbnail: Validation = validationAfterADR45({
   validate: async ({ externalCalls }, deployment) => {
-    if (deployment.entity.timestamp < ADR_45_TIMESTAMP) return OK
-
     const errors: string[] = []
     const allAvatars: any[] = deployment.entity.metadata?.avatars ?? []
 
@@ -80,12 +78,10 @@ export const faceThumbnail: Validation = {
     }
     return errors.length > 0 ? validationFailed(...errors) : OK
   }
-}
+})
 
-export const wearableUrns: Validation = {
+export const wearableUrns: Validation = validationAfterADR75({
   validate: async (components, deployment) => {
-    if (deployment.entity.timestamp < ADR_75_TIMESTAMP) return OK
-
     const allAvatars: any[] = deployment.entity.metadata?.avatars ?? []
     for (const avatar of allAvatars) {
       for (const pointer of avatar.avatar.wearables) {
@@ -101,16 +97,13 @@ export const wearableUrns: Validation = {
     }
     return OK
   }
-}
+})
 
 /**
  * Validate that given profile deployment includes the face256 file with the correct size
  * * @public
  */
-export const profile: Validation = {
-  validate: async (components, deployment) => {
-    if (deployment.entity.type !== EntityType.PROFILE) return OK
-
-    return validateInRow(components, deployment, faceThumbnail, wearableUrns)
-  }
-}
+export const profile: Validation = conditionalValidation(
+  (components, deployment) => deployment.entity.type === EntityType.PROFILE,
+  validationGroup(faceThumbnail, wearableUrns)
+)

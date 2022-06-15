@@ -1,4 +1,4 @@
-import { ADR_45_TIMESTAMP } from '.'
+import { ADR_45_TIMESTAMP, ADR_75_TIMESTAMP } from '.'
 import {
   ContentValidatorComponents,
   DeploymentToValidate,
@@ -46,6 +46,13 @@ export function validationGroup(...validations: Validation[]): Validation {
 export function validationAfterADR45(validation: Validation): Validation {
   return conditionalValidation(
     (components, deployment) => deployment.entity.timestamp > ADR_45_TIMESTAMP,
+    validation
+  )
+}
+
+export function validationAfterADR75(validation: Validation): Validation {
+  return conditionalValidation(
+    (components, deployment) => deployment.entity.timestamp > ADR_75_TIMESTAMP,
     validation
   )
 }

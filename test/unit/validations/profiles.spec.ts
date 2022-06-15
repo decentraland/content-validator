@@ -5,7 +5,7 @@ import {
   ADR_75_TIMESTAMP,
   ValidationResponse
 } from '../../../src'
-import { faceThumbnail, wearableUrns } from '../../../src/validations/profile'
+import { faceThumbnail, profile, wearableUrns } from '../../../src/validations/profile'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
 import { buildComponents, buildExternalCalls } from '../../setup/mock'
@@ -234,6 +234,21 @@ describe('Profiles', () => {
       expect(result.errors).toContain(
         'Wearable pointers should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (urn:decentraland:tucu-tucu:base-avatars:tall_front_01)'
       )
+    })
+  })
+
+  describe('Profile group', () => {
+    it('When entity type is not profile, should not return errors', async () => {
+      const entity = buildEntity({
+        type: EntityType.SCENE,
+        metadata: VALID_PROFILE_METADATA,
+        timestamp
+      })
+      const deployment = buildDeployment({ entity })
+
+      const result = await profile.validate(components, deployment)
+
+      expect(result.ok).toBeTruthy()
     })
   })
 })
