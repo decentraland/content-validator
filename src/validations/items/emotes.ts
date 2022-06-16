@@ -11,13 +11,13 @@ const wasCreatedAfterADR74: Validation = {
   }
 }
 
-export const representationContent: Validation = {
+export const emoteRepresentationContent: Validation = {
   validate: async (components: ContentValidatorComponents, deployment) => {
     const { entity } = deployment
-    const wearableMetadata = entity.metadata as Emote
-    const representations = wearableMetadata?.emoteDataADR74?.representations
+    const metadata = entity.metadata as Emote
+    const representations = metadata?.emoteDataADR74?.representations
     if (!representations)
-      return validationFailed('No wearable representations found')
+      return validationFailed('No emote representations found')
     if (!entity.content) return validationFailed('No content found')
 
     for (const representation of representations) {
@@ -39,5 +39,5 @@ export const representationContent: Validation = {
 
 export const emote: Validation = validationForType(
   EntityType.EMOTE,
-  validationGroup(wasCreatedAfterADR74, representationContent)
+  validationGroup(wasCreatedAfterADR74, emoteRepresentationContent)
 )
