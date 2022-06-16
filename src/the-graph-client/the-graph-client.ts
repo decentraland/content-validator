@@ -1,5 +1,10 @@
 import { EthAddress, WearableId } from '@dcl/schemas'
-import { ContentValidatorComponents, TheGraphClient, URLs } from '../types'
+import {
+  BlockInformation,
+  ContentValidatorComponents,
+  TheGraphClient,
+  URLs
+} from '../types'
 import { parseUrn } from '@dcl/urn-resolver'
 
 export type PermissionResult = {
@@ -246,19 +251,13 @@ export const createTheGraphClient = (
   const findBlocksForTimestamp = async (
     subgraph: keyof URLs,
     timestamp: number
-  ): Promise<{
-    blockNumberAtDeployment: number | undefined
-    blockNumberFiveMinBeforeDeployment: number | undefined
-  }> => {
+  ): Promise<BlockInformation> => {
     const query: Query<
       {
         min: { number: string }[]
         max: { number: string }[]
       },
-      {
-        blockNumberAtDeployment: number | undefined
-        blockNumberFiveMinBeforeDeployment: number | undefined
-      }
+      BlockInformation
     > = {
       description: 'fetch blocks for timestamp',
       subgraph: subgraph,
