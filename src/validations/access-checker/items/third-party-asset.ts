@@ -11,21 +11,6 @@ import {
 } from '../../../types'
 import { AssetValidation } from './items'
 
-// These keys are required by the protocol to be a subset and present in the merkle proof hashing keys.
-// Note: deletions would not be a problem, but in case of adding a key here,
-// you MUST review the validation in order to not break the sync between catalysts (aka failed deployments)
-// Esto podría ir en SCHEMAS
-export const MERKLE_PROOF_REQUIRED_KEYS = [
-  'id',
-  'name',
-  'description',
-  'i18n',
-  'image',
-  'thumbnail',
-  'data',
-  'content'
-] as const
-
 function toHexBuffer(value: string): Buffer {
   if (value.startsWith('0x')) {
     return Buffer.from(value.substring(2), 'hex') // removing first 2 characters (0x)
@@ -49,18 +34,6 @@ async function verifyHash<T>(
     return false
   }
   const merkleProof = metadata.merkleProof
-  // The keys used to create the hash MUST be present if they're required.
-  if (
-    !MERKLE_PROOF_REQUIRED_KEYS.every((key) =>
-      merkleProof.hashingKeys.includes(key)
-    )
-  ) {
-    logger.debug(`Merkle proof hashing keys don't satisfy the required keys`, {
-      requiredKeys: JSON.stringify(MERKLE_PROOF_REQUIRED_KEYS),
-      hashingKeys: JSON.stringify(merkleProof.hashingKeys)
-    })
-    return false
-  }
   const generatedCrcHash = keccak256Hash(
     metadata,
     metadata.merkleProof.hashingKeys
