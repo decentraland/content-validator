@@ -2,6 +2,11 @@ import { EthAddress, WearableId } from '@dcl/schemas'
 import { ContentValidatorComponents, TheGraphClient, URLs } from '../types'
 import { parseUrn } from '@dcl/urn-resolver'
 
+export type PermissionResult = {
+  result: boolean
+  failing?: string[]
+}
+
 /**
  * @public
  */
@@ -25,50 +30,55 @@ export const createTheGraphClient = (
     ethAddress: EthAddress,
     namesToCheck: string[],
     timestamp: number
-  ): Promise<Set<string>> => {
-    const ownedNamesOnBlock = async (blockNumber: number) => {
-      const query: Query<{ names: { name: string }[] }, Set<string>> = {
-        description: 'check for names ownership',
-        subgraph: 'ensSubgraph',
-        query: QUERY_NAMES_FOR_ADDRESS_AT_BLOCK,
-        mapper: (response: { names: { name: string }[] }): Set<string> =>
-          new Set(response.names.map(({ name }) => name))
-      }
-      return runQuery(query, {
-        block: blockNumber,
-        ethAddress,
-        nameList: namesToCheck
-      })
+  ): Promise<PermissionResult> => {
+    if (namesToCheck.length === 0) {
+      return permissionOk()
     }
 
     const blocks = await findBlocksForTimestamp('blocksSubgraph', timestamp)
 
-    try {
-      if (blocks.blockNumberAtDeployment) {
-        return await ownedNamesOnBlock(blocks.blockNumberAtDeployment)
+    const hasPermissionOnBlock = async (
+      blockNumber: number | undefined
+    ): Promise<PermissionResult> => {
+      if (!blockNumber) {
+        return permissionError()
       }
-    } catch (error) {
-      logger.error(
-        `Error retrieving names owned by address ${ethAddress} at block ${blocks.blockNumberAtDeployment}`
-      )
-      logger.error(error as any)
+
+      const runOwnedNamesOnBlockQuery = async (blockNumber: number) => {
+        const query: Query<{ names: { name: string }[] }, Set<string>> = {
+          description: 'check for names ownership',
+          subgraph: 'ensSubgraph',
+          query: QUERY_NAMES_FOR_ADDRESS_AT_BLOCK,
+          mapper: (response: { names: { name: string }[] }): Set<string> =>
+            new Set(response.names.map(({ name }) => name))
+        }
+        return runQuery(query, {
+          block: blockNumber,
+          ethAddress,
+          nameList: namesToCheck
+        })
+      }
+
+      try {
+        const ownedNames = await runOwnedNamesOnBlockQuery(blockNumber)
+        const notOwned = namesToCheck.filter((name) => !ownedNames.has(name))
+        return notOwned.length > 0 ? permissionError(notOwned) : permissionOk()
+      } catch {
+        logger.error(
+          `Error retrieving names owned by address ${ethAddress} at block ${blockNumber}`
+        )
+        return permissionError()
+      }
     }
 
-    try {
-      if (blocks.blockNumberFiveMinBeforeDeployment) {
-        return await ownedNamesOnBlock(
-          blocks.blockNumberFiveMinBeforeDeployment
-        )
-      }
-    } catch (error) {
-      logger.error(
-        `Error retrieving names owned by address ${ethAddress} at block ${blocks.blockNumberFiveMinBeforeDeployment}`
-      )
-      logger.error(error as any)
-    }
-    throw Error(
-      `Could not query names for ${ethAddress} at blocks ${blocks.blockNumberAtDeployment} nor ${blocks.blockNumberFiveMinBeforeDeployment}`
+    const permissionMostRecentBlock = await hasPermissionOnBlock(
+      blocks.blockNumberAtDeployment
     )
+    if (permissionMostRecentBlock.result) {
+      return permissionMostRecentBlock
+    }
+
+    return await hasPermissionOnBlock(blocks.blockNumberFiveMinBeforeDeployment)
   }
 
   type WearablesByNetwork = {
@@ -76,14 +86,21 @@ export const createTheGraphClient = (
     matic: WearableId[]
   }
 
-  async function splitWearablesByNetwork(
+  const splitWearablesByNetwork = async (
     wearableIdsToCheck: WearableId[]
-  ): Promise<WearablesByNetwork> {
+  ): Promise<WearablesByNetwork> => {
     const ethereum: WearableId[] = []
     const matic: WearableId[] = []
     for (const wearable of wearableIdsToCheck) {
       const parsed = await parseUrn(wearable)
-      if (parsed && 'network' in parsed) {
+      if (
+        parsed &&
+        'network' in parsed &&
+        [
+          'blockchain-collection-v1-asset',
+          'blockchain-collection-v2-asset'
+        ].includes(parsed.type)
+      ) {
         if (L1_NETWORKS.includes(parsed.network)) {
           ethereum.push(wearable)
         } else if (L2_NETWORKS.includes(parsed.network)) {
@@ -97,11 +114,21 @@ export const createTheGraphClient = (
     }
   }
 
+  const permissionOk = (): PermissionResult => ({ result: true })
+  const permissionError = (failing?: string[]): PermissionResult => ({
+    result: false,
+    failing: failing
+  })
+
   const checkForWearablesOwnershipWithTimestamp = async (
     ethAddress: EthAddress,
     wearableIdsToCheck: WearableId[],
     timestamp: number
-  ): Promise<Set<string>> => {
+  ): Promise<PermissionResult> => {
+    if (wearableIdsToCheck.length === 0) {
+      return permissionOk()
+    }
+
     const { ethereum, matic } = await splitWearablesByNetwork(
       wearableIdsToCheck
     )
@@ -125,7 +152,14 @@ export const createTheGraphClient = (
       maticWearablesOwnersPromise
     ])
 
-    return new Set([...ethereumWearablesOwners, ...maticWearablesOwners])
+    if (ethereumWearablesOwners.result && maticWearablesOwners.result)
+      return permissionOk()
+    else {
+      return permissionError([
+        ...(ethereumWearablesOwners.failing ?? []),
+        ...(maticWearablesOwners.failing ?? [])
+      ])
+    }
   }
 
   const getOwnersByWearableWithTimestamp = async (
@@ -134,50 +168,57 @@ export const createTheGraphClient = (
     timestamp: number,
     blocksSubgraph: keyof URLs,
     collectionsSubgraph: keyof URLs
-  ): Promise<Set<string>> => {
-    const ownedWearablesOnBlock = async (blockNumber: number) => {
-      const query: Query<{ wearables: { urn: string }[] }, Set<string>> = {
-        description: 'check for wearables ownership',
-        subgraph: collectionsSubgraph,
-        query: QUERY_WEARABLES_FOR_ADDRESS_AT_BLOCK,
-        mapper: (response: { wearables: { urn: string }[] }): Set<string> =>
-          new Set(response.wearables.map(({ urn }) => urn))
-      }
-      return runQuery(query, {
-        block: blockNumber,
-        ethAddress,
-        urnList: wearableIdsToCheck
-      })
+  ): Promise<PermissionResult> => {
+    if (wearableIdsToCheck.length === 0) {
+      return permissionOk()
     }
 
     const blocks = await findBlocksForTimestamp(blocksSubgraph, timestamp)
 
-    try {
-      if (blocks.blockNumberAtDeployment) {
-        return await ownedWearablesOnBlock(blocks.blockNumberAtDeployment)
+    const hasPermissionOnBlock = async (
+      blockNumber: number | undefined
+    ): Promise<PermissionResult> => {
+      if (!blockNumber) {
+        return permissionError()
       }
-    } catch (error) {
-      logger.error(
-        `Error retrieving wearables owned by address ${ethAddress} at block ${blocks.blockNumberAtDeployment}`
-      )
-      logger.error(error as any)
+
+      const runOwnedWearablesOnBlockQuery = async (blockNumber: number) => {
+        const query: Query<{ wearables: { urn: string }[] }, Set<string>> = {
+          description: 'check for wearables ownership',
+          subgraph: collectionsSubgraph,
+          query: QUERY_WEARABLES_FOR_ADDRESS_AT_BLOCK,
+          mapper: (response: { wearables: { urn: string }[] }): Set<string> =>
+            new Set(response.wearables.map(({ urn }) => urn))
+        }
+        return runQuery(query, {
+          block: blockNumber,
+          ethAddress,
+          urnList: wearableIdsToCheck
+        })
+      }
+
+      try {
+        const ownedWearables = await runOwnedWearablesOnBlockQuery(blockNumber)
+        const notOwned = wearableIdsToCheck.filter(
+          (name) => !ownedWearables.has(name)
+        )
+        return notOwned.length > 0 ? permissionError(notOwned) : permissionOk()
+      } catch (error) {
+        logger.error(
+          `Error retrieving wearables owned by address ${ethAddress} at block ${blocks.blockNumberAtDeployment}`
+        )
+        return permissionError()
+      }
     }
 
-    try {
-      if (blocks.blockNumberFiveMinBeforeDeployment) {
-        return await ownedWearablesOnBlock(
-          blocks.blockNumberFiveMinBeforeDeployment
-        )
-      }
-    } catch (error) {
-      logger.error(
-        `Error retrieving wearables owned by address ${ethAddress} at block ${blocks.blockNumberFiveMinBeforeDeployment}`
-      )
-      logger.error(error as any)
-    }
-    throw Error(
-      `Could not query wearables for ${ethAddress} at blocks ${blocks.blockNumberAtDeployment} nor ${blocks.blockNumberFiveMinBeforeDeployment}`
+    const permissionMostRecentBlock = await hasPermissionOnBlock(
+      blocks.blockNumberAtDeployment
     )
+    if (permissionMostRecentBlock.result) {
+      return permissionMostRecentBlock
+    }
+
+    return await hasPermissionOnBlock(blocks.blockNumberFiveMinBeforeDeployment)
   }
 
   const runQuery = async <QueryResult, ReturnType>(
@@ -195,11 +236,7 @@ export const createTheGraphClient = (
       logger.error(
         `Failed to execute the following query to the subgraph ${
           urls[query.subgraph]
-        } ${query.description}'.`,
-        {
-          query: query.query,
-          variables: JSON.stringify(variables)
-        }
+        } ${query.description}'.`
       )
       logger.error(error as any)
       throw new Error('Internal server error')

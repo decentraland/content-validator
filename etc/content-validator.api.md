@@ -106,8 +106,8 @@ export const statelessValidations: readonly [Validation, Validation, Validation]
 
 // @public (undocumented)
 export type TheGraphClient = {
-    checkForNamesOwnershipWithTimestamp: (ethAddress: EthAddress, namesToCheck: string[], timestamp: number) => Promise<Set<string>>;
-    checkForWearablesOwnershipWithTimestamp: (ethAddress: EthAddress, wearableIdsToCheck: WearableId[], timestamp: number) => Promise<Set<string>>;
+    checkForNamesOwnershipWithTimestamp: (ethAddress: EthAddress, namesToCheck: string[], timestamp: number) => Promise<PermissionResult>;
+    checkForWearablesOwnershipWithTimestamp: (ethAddress: EthAddress, wearableIdsToCheck: WearableId[], timestamp: number) => Promise<PermissionResult>;
     findBlocksForTimestamp: (subgraph: keyof URLs, timestamp: number) => Promise<{
         blockNumberAtDeployment: number | undefined;
         blockNumberFiveMinBeforeDeployment: number | undefined;
@@ -153,6 +153,10 @@ export interface Validator {
 
 // @public (undocumented)
 export type Warnings = string[];
+
+// Warnings were encountered during analysis:
+//
+// src/types.ts:175:3 - (ae-forgotten-export) The symbol "PermissionResult" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 
