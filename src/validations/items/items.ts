@@ -13,7 +13,7 @@ import { conditionalValidation, validationAfterADR45, validationGroup } from '..
 export const deploymentMaxSizeExcludingThumbnailIsNotExceeded: Validation = {
   validate: async ({ externalCalls }, deployment) => {
     const entity = deployment.entity
-    const maxSizeInMB = entityParameters[EntityType.WEARABLE]?.maxSizeInMB
+    const maxSizeInMB = entityParameters[entity.type]?.maxSizeInMB
     if (!maxSizeInMB)
       return validationFailed(
         `Type ${EntityType.WEARABLE} is not supported yet`
@@ -34,18 +34,18 @@ export const deploymentMaxSizeExcludingThumbnailIsNotExceeded: Validation = {
     const modelSize = totalDeploymentSizeInB - thumbnailSize
     if (modelSize > modelSizeInMB * 1024 * 1024)
       return validationFailed(
-        `The deployment is too big. The maximum allowed size for wearable model files is ${modelSizeInMB} MB. You can upload up to ${modelSizeInMB * 1024 * 1024
+        `The deployment is too big. The maximum allowed size for ${entity.type} model files is ${modelSizeInMB} MB. You can upload up to ${modelSizeInMB * 1024 * 1024
         } bytes but you tried to upload ${modelSize}.`
       )
     return OK
   }
 }
 
-/** Validate that given wearable deployment includes a thumbnail with valid format and size */
+/** Validate that given item deployment includes a thumbnail with valid format and size */
 const maxThumbnailSizeInB = 1024
 export const thumbnailMaxSizeIsNotExceeded: Validation = {
   validate: async ({ externalCalls, logs }, deployment) => {
-    const logger = logs.getLogger('wearable validator')
+    const logger = logs.getLogger(`${deployment.entity.type} validator`)
     // read thumbnail field from metadata
     const metadata = deployment.entity.metadata as Wearable
 
@@ -97,11 +97,13 @@ export const thumbnailMaxSizeIsNotExceeded: Validation = {
 }
 
 /**
- * Validate that given wearable deployment includes the thumbnail and doesn't exceed file sizes
+ * Validate that given item deployment includes the thumbnail and doesn't exceed file sizes
  * * @public
  */
 export const items: Validation = conditionalValidation(
-  (deployment) => deployment.entity.type === EntityType.WEARABLE || deployment.entity.type === EntityType.EMOTE,
+  (deployment) =>
+    deployment.entity.type === EntityType.WEARABLE ||
+    deployment.entity.type === EntityType.EMOTE,
   validationAfterADR45(validationGroup(
     thumbnailMaxSizeIsNotExceeded,
     deploymentMaxSizeExcludingThumbnailIsNotExceeded
