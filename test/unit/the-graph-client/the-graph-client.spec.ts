@@ -44,7 +44,7 @@ describe('TheGraphClient', () => {
   })
 
   describe('Checks for name ownership', function () {
-    it('When no block current timestamp, it should continue and check the block from 5 minute before', async () => {
+    it('When no block for current timestamp, it should continue and check the block from 5 minute before', async () => {
       const externalCalls = buildExternalCalls({
         queryGraph: mockedQueryGraph().mockImplementation(
           async (url, _query, _variables) => {
@@ -78,7 +78,7 @@ describe('TheGraphClient', () => {
       ).resolves.toEqual({ result: true })
     })
 
-    it('When current block that has not been indexed yet, it should continue and check the block from 5 minute before', async () => {
+    it('When current block has not been indexed yet, it should continue and check the block from 5 minute before', async () => {
       const externalCalls = buildExternalCalls({
         queryGraph: mockedQueryGraph().mockImplementation(
           async (url, _query, _variables) => {
@@ -141,7 +141,7 @@ describe('TheGraphClient', () => {
   })
 
   describe('Checks for wearables ownership', function () {
-    it('When no block current timestamp, it should continue and check the block from 5 minute before', async () => {
+    it('When no block for current timestamp, it should continue and check the block from 5 minute before', async () => {
       const externalCalls = buildExternalCalls({
         queryGraph: mockedQueryGraph().mockImplementation(
           async (url, _query, _variables) => {
@@ -184,7 +184,7 @@ describe('TheGraphClient', () => {
       ).resolves.toEqual({ result: true })
     })
 
-    it('When current block that has not been indexed yet, it should continue and check the block from 5 minute before', async () => {
+    it('When current block has not been indexed yet, it should continue and check the block from 5 minute before', async () => {
       const externalCalls = buildExternalCalls({
         queryGraph: mockedQueryGraph().mockImplementation(
           async (url, _query, _variables) => {
