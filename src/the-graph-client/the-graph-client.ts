@@ -102,7 +102,14 @@ export const createTheGraphClient = (
     const matic: WearableId[] = []
     for (const wearable of wearableIdsToCheck) {
       const parsed = await parseUrn(wearable)
-      if (parsed && 'network' in parsed) {
+      if (
+        parsed &&
+        'network' in parsed &&
+        [
+          'blockchain-collection-v1-asset',
+          'blockchain-collection-v2-asset'
+        ].includes(parsed.type)
+      ) {
         if (L1_NETWORKS.includes(parsed.network)) {
           ethereum.push(wearable)
         } else if (L2_NETWORKS.includes(parsed.network)) {
