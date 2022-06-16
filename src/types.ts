@@ -190,6 +190,9 @@ export type TheGraphClient = {
   ) => Promise<BlockInformation>
 }
 
+/**
+ * @public
+ */
 export type BlockInformation = {
   blockNumberAtDeployment: number | undefined
   blockNumberFiveMinBeforeDeployment: number | undefined
