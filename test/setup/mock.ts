@@ -4,17 +4,34 @@ import {
   QueryGraph
 } from '../../src/types'
 import { WearableCollection } from '../../src/validations/access-checker/wearables'
+import { createTheGraphClient } from '../../src'
+import { ILoggerComponent } from '@well-known-components/interfaces'
+
+export const buildLogger = (): ILoggerComponent => ({
+  getLogger: () => ({
+    debug() {},
+    info() {},
+    warn() {},
+    error() {},
+    log() {}
+  })
+})
 
 export const buildComponents = (
   components?: Partial<ContentValidatorComponents>
 ): ContentValidatorComponents => {
-  const externalCalls = buildExternalCalls()
-  const logs = { getLogger: () => console }
+  const externalCalls = components?.externalCalls ?? buildExternalCalls()
+
+  const logs = components?.logs ?? buildLogger()
+
+  const theGraphClient =
+    components?.theGraphClient ??
+    createTheGraphClient({ logs, externalCalls, ...components })
 
   return {
     externalCalls,
-    logs: logs,
-    ...components
+    logs,
+    theGraphClient
   }
 }
 
@@ -26,7 +43,7 @@ export const buildExternalCalls = (
   validateSignature: () => Promise.resolve({ ok: true }),
   ownerAddress: () => '',
   isAddressOwnedByDecentraland: () => false,
-  queryGraph: jest.fn(),
+  queryGraph: mockedQueryGraph(),
   subgraphs: buildSubgraphs(),
   ...externalCalls
 })
@@ -35,16 +52,25 @@ type Subgraphs = ExternalCalls['subgraphs']
 
 const defaultSubgraphs: Subgraphs = {
   L1: {
-    landManager: '',
-    blocks: '',
-    collections: ''
+    collections:
+      'https://api.thegraph.com/subgraphs/name/decentraland/collections-ethereum-ropsten',
+    blocks:
+      'https://api.thegraph.com/subgraphs/name/decentraland/blocks-ethereum-ropsten',
+    landManager:
+      'https://api.thegraph.com/subgraphs/name/decentraland/land-manager-ropsten',
+    ensOwner:
+      'https://api.thegraph.com/subgraphs/name/decentraland/marketplace-ropsten'
   },
   L2: {
-    blocks: '',
-    collections: '',
-    thirdPartyRegistry: ''
+    collections:
+      'https://api.thegraph.com/subgraphs/name/decentraland/collections-matic-mumbai',
+    blocks:
+      'https://api.thegraph.com/subgraphs/name/decentraland/blocks-matic-mumbai',
+    thirdPartyRegistry:
+      'https://api.thegraph.com/subgraphs/name/decentraland/tpr-matic-mumbai'
   }
 }
+
 export const buildSubgraphs = (subgraphs?: Partial<Subgraphs>): Subgraphs => ({
   ...defaultSubgraphs,
   ...subgraphs
@@ -79,8 +105,8 @@ export const buildMockedQueryGraph = (
     }
     if (url.includes('block')) {
       return Promise.resolve({
-        after: [{ number: 10 }],
-        fiveMinAfter: [{ number: 5 }]
+        max: [{ number: 10 }],
+        min: [{ number: 5 }]
       })
     } else {
       return Promise.resolve(withDefaults)
@@ -169,8 +195,8 @@ export const fetcherWithThirdPartyMerkleRoot = (root: string) => {
       }
       if (url.includes('block')) {
         return Promise.resolve({
-          after: [{ number: 10 }],
-          fiveMinAfter: [{ number: 5 }]
+          max: [{ number: 10 }],
+          min: [{ number: 5 }]
         })
       }
       return Promise.resolve('')
@@ -188,8 +214,72 @@ export const fetcherWithThirdPartyEmptyMerkleRoots = () => {
       }
       if (url.includes('block')) {
         return Promise.resolve({
-          after: [{ number: 10 }],
-          fiveMinAfter: [{ number: 5 }]
+          max: [{ number: 10 }],
+          min: [{ number: 5 }]
+        })
+      }
+      return Promise.resolve('')
+    }
+  )
+}
+
+export const fetcherWithWearablesOwnership = (
+  address: string,
+  ens?: { name: string }[],
+  ethereum?: { urn: string }[],
+  matic?: { urn: string }[],
+  blocks?: {
+    min: { number: number }[]
+    max: { number: number }[]
+  }
+) => {
+  const defaultEns = [
+    {
+      name: 'Some Name'
+    }
+  ]
+  const defaultEthereum = [
+    {
+      urn: 'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet'
+    }
+  ]
+  const defaultMatic = [
+    {
+      urn: 'urn:decentraland:matic:collections-v2:0xf6f601efee04e74cecac02c8c5bdc8cc0fc1c721:0'
+    },
+    {
+      urn: 'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
+    },
+    {
+      urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa4:0'
+    },
+    {
+      urn: 'urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:19'
+    },
+    {
+      urn: 'urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:2'
+    }
+  ]
+  const defaultBlocks = {
+    min: [{ number: 123400 }],
+    max: [{ number: 123500 }]
+  }
+
+  return mockedQueryGraph().mockImplementation(
+    async (url, _query, _variables) => {
+      if (url.includes('marketplace')) {
+        return Promise.resolve({
+          names: ens ?? defaultEns
+        })
+      } else if (url.includes('blocks')) {
+        return Promise.resolve(blocks ?? defaultBlocks)
+      } else if (url.includes('ethereum')) {
+        return Promise.resolve({
+          wearables: ethereum ?? defaultEthereum
+        })
+      } else if (url.includes('matic')) {
+        return Promise.resolve({
+          wearables: matic ?? defaultMatic
         })
       }
       return Promise.resolve('')

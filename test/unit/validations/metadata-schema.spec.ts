@@ -3,7 +3,7 @@ import { ADR_45_TIMESTAMP } from '../../../src'
 import { metadata } from '../../../src/validations/metadata-schema'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
-import { buildComponents, buildExternalCalls } from '../../setup/mock'
+import { buildComponents } from '../../setup/mock'
 import { VALID_PROFILE_METADATA } from '../../setup/profiles'
 import {
   entityAndMerkleRoot,

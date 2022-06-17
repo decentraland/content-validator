@@ -6,10 +6,21 @@
 
 import { AuthChain } from '@dcl/schemas';
 import { Entity } from '@dcl/schemas';
+import { EthAddress } from '@dcl/schemas';
 import { ILoggerComponent } from '@well-known-components/interfaces';
+import { WearableId } from '@dcl/schemas';
 
 // @public
 export const ADR_45_TIMESTAMP: number;
+
+// @public
+export const ADR_75_TIMESTAMP: number;
+
+// @public (undocumented)
+export type BlockInformation = {
+    blockNumberAtDeployment: number | undefined;
+    blockNumberFiveMinBeforeDeployment: number | undefined;
+};
 
 // @public (undocumented)
 export const calculateDeploymentSize: (deployment: DeploymentToValidate, externalCalls: ExternalCalls) => Promise<number | string>;
@@ -25,11 +36,15 @@ export const conditionalValidation: (condition: ConditionalValidation) => Valida
 // @public
 export type ContentValidatorComponents = {
     logs: ILoggerComponent;
+    theGraphClient: TheGraphClient;
     externalCalls: ExternalCalls;
 };
 
+// @public (undocumented)
+export const createTheGraphClient: (components: Pick<ContentValidatorComponents, 'logs' | 'externalCalls'>) => TheGraphClient;
+
 // @public
-export const createValidator: (components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs'>) => Validator;
+export const createValidator: (components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'theGraphClient'>) => Validator;
 
 // @public
 export type DeploymentToValidate = {
@@ -62,6 +77,7 @@ export type ExternalCalls = {
             landManager: string;
             blocks: string;
             collections: string;
+            ensOwner: string;
         };
         L2: {
             blocks: string;
@@ -95,7 +111,23 @@ export const statefulValidations: readonly [Validation, Validation, Validation, 
 export const statelessValidations: readonly [Validation, Validation, Validation];
 
 // @public (undocumented)
-export const validateInRow: (deployment: DeploymentToValidate, components: ContentValidatorComponents, ...validations: Validation[]) => Promise<ValidationResponse>;
+export type TheGraphClient = {
+    checkForNamesOwnershipWithTimestamp: (ethAddress: EthAddress, namesToCheck: string[], timestamp: number) => Promise<PermissionResult>;
+    checkForWearablesOwnershipWithTimestamp: (ethAddress: EthAddress, wearableIdsToCheck: WearableId[], timestamp: number) => Promise<PermissionResult>;
+    findBlocksForTimestamp: (subgraph: keyof URLs, timestamp: number) => Promise<BlockInformation>;
+};
+
+// @public (undocumented)
+export type URLs = {
+    ensSubgraph: string;
+    blocksSubgraph: string;
+    maticBlocksSubgraph: string;
+    collectionsSubgraph: string;
+    maticCollectionsSubgraph: string;
+};
+
+// @public (undocumented)
+export const validateInRow: (components: ContentValidatorComponents, deployment: DeploymentToValidate, ...validations: Validation[]) => Promise<ValidationResponse>;
 
 // @public (undocumented)
 export type Validation = {
@@ -127,6 +159,10 @@ export interface Validator {
 
 // @public (undocumented)
 export type Warnings = string[];
+
+// Warnings were encountered during analysis:
+//
+// src/types.ts:175:3 - (ae-forgotten-export) The symbol "PermissionResult" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

@@ -138,8 +138,8 @@ export const wearable: Validation = {
   validate: async (components, deployment) => {
     if (deployment.entity.type !== EntityType.WEARABLE) return OK
     return validateInRow(
-      deployment,
       components,
+      deployment,
       wearableRepresentationContent,
       wearableThumbnail,
       wearableSize

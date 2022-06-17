@@ -20,8 +20,8 @@ import { wearable } from './wearable'
  * @public
  */
 export const validateInRow = async (
-  deployment: DeploymentToValidate,
   components: ContentValidatorComponents,
+  deployment: DeploymentToValidate,
   ...validations: Validation[]
 ): Promise<ValidationResponse> => {
   for (const validation of validations) {
@@ -38,6 +38,14 @@ export const validateInRow = async (
 export const ADR_45_TIMESTAMP = process.env.ADR_45_TIMESTAMP
   ? parseInt(process.env.ADR_45_TIMESTAMP)
   : 1652191200000
+
+/**
+ * 1658275200000 = 2022-07-20T00:00:00Z
+ * @public
+ */
+export const ADR_75_TIMESTAMP = process.env.ADR_75_TIMESTAMP
+  ? parseInt(process.env.ADR_75_TIMESTAMP)
+  : 1658275200000
 
 /**
  * DCL Launch Day

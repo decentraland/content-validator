@@ -9,7 +9,10 @@ export * from './validations'
  * @public
  */
 export const createValidator = (
-  components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs'>
+  components: Pick<
+    ContentValidatorComponents,
+    'externalCalls' | 'logs' | 'theGraphClient'
+  >
 ): Validator => {
   const logs = components.logs.getLogger('ContentValidator')
 
@@ -26,3 +29,5 @@ export const createValidator = (
     }
   }
 }
+
+export { createTheGraphClient } from './the-graph-client/the-graph-client'

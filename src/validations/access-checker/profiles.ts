@@ -1,12 +1,16 @@
-import { EthAddress } from '@dcl/schemas'
+import { EthAddress, Entity } from '@dcl/schemas'
 import { OK, Validation, validationFailed } from '../../types'
+import { parseUrn } from '@dcl/urn-resolver'
+import { Avatar } from '@dcl/schemas'
+import { ADR_75_TIMESTAMP } from '../index'
+import { isOldEmote } from '../profile'
 
 /**
  * Validate that the pointers are valid, and that the Ethereum address has write access to them
  * @public
  */
 export const profiles: Validation = {
-  validate: async ({ externalCalls }, deployment) => {
+  validate: async ({ externalCalls, theGraphClient }, deployment) => {
     const pointers = deployment.entity.pointers
     const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
 
@@ -32,6 +36,73 @@ export const profiles: Validation = {
       )
     }
 
+    if (deployment.entity.timestamp < ADR_75_TIMESTAMP) return OK
+
+    const names = allClaimedNames(deployment.entity)
+    const namesCheckResult =
+      await theGraphClient.checkForNamesOwnershipWithTimestamp(
+        ethAddress,
+        names,
+        deployment.entity.timestamp
+      )
+    if (!namesCheckResult.result)
+      return validationFailed(
+        `The following names (${namesCheckResult.failing?.join(
+          ', '
+        )}) are not owned by the address ${ethAddress.toLowerCase()}).`
+      )
+
+    const wearableUrns = await allWearablesUrns(deployment.entity)
+    const wearablesCheckResult =
+      await theGraphClient.checkForWearablesOwnershipWithTimestamp(
+        ethAddress,
+        wearableUrns,
+        deployment.entity.timestamp
+      )
+    if (!wearablesCheckResult.result) {
+      return validationFailed(
+        `The following wearables (${wearablesCheckResult.failing?.join(
+          ', '
+        )}) are not owned by the address ${ethAddress.toLowerCase()}).`
+      )
+    }
+
     return OK
   }
+}
+
+const allClaimedNames = (entity: Entity): string[] =>
+  entity.metadata.avatars
+    .filter((avatar: Avatar) => avatar.hasClaimedName)
+    .map((avatar: Avatar) => avatar.name)
+    .filter((name: string) => name && name.trim().length > 0)
+
+const isBaseAvatar = (wearable: string): boolean =>
+  wearable.includes('base-avatars')
+
+const translateWearablesIdFormat = async (
+  wearableId: string
+): Promise<string | undefined> => {
+  if (!wearableId.startsWith('dcl://')) {
+    return wearableId
+  }
+  const parsed = await parseUrn(wearableId)
+  return parsed?.uri?.toString()
+}
+
+const allWearablesUrns = async (entity: Entity) => {
+  const allWearablesInProfilePromises: Promise<string | undefined>[] = []
+  for (const avatar of entity.metadata.avatars) {
+    for (const wearableId of avatar.avatar.wearables) {
+      if (!isBaseAvatar(wearableId) && !isOldEmote(wearableId)) {
+        allWearablesInProfilePromises.push(
+          translateWearablesIdFormat(wearableId)
+        )
+      }
+    }
+  }
+
+  return (await Promise.all(allWearablesInProfilePromises)).filter(
+    (wearableId): wearableId is string => !!wearableId
+  )
 }

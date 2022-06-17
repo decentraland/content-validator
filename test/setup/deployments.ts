@@ -1,5 +1,5 @@
 import { ThirdPartyWearable, Entity, EntityType } from '@dcl/schemas'
-import { DeploymentToValidate, LocalDeploymentAuditInfo } from '../../src/types'
+import { DeploymentToValidate, LocalDeploymentAuditInfo } from '../../src'
 import {
   buildEntity,
   buildProfileEntity,
@@ -27,7 +27,12 @@ export const buildStoreDeployment = (
 export const buildProfileDeployment = (
   pointers: string[]
 ): DeploymentToValidate => ({
-  entity: buildProfileEntity({ pointers }),
+  entity: buildProfileEntity({
+    pointers,
+    metadata: {
+      avatars: []
+    }
+  }),
   auditInfo: buildAuditInfo(),
   files: new Map()
 })

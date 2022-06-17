@@ -1,10 +1,15 @@
 import { EntityType } from '@dcl/schemas'
 import sharp from 'sharp'
-import { ADR_45_TIMESTAMP } from '.'
+import { ADR_45_TIMESTAMP, ADR_75_TIMESTAMP, validateInRow } from '.'
 import { OK, Validation, validationFailed } from '../types'
+import { parseUrn } from '@dcl/urn-resolver'
 
 /** Validate that given profile deployment includes a face256 thumbnail with valid size */
 const defaultThumbnailSize = 256
+
+export const isOldEmote = (wearable: string): boolean =>
+  /^[a-z]+$/i.test(wearable)
+
 export const faceThumbnail: Validation = {
   validate: async ({ externalCalls }, deployment) => {
     if (deployment.entity.timestamp < ADR_45_TIMESTAMP) return OK
@@ -58,6 +63,26 @@ export const faceThumbnail: Validation = {
   }
 }
 
+export const wearableUrns: Validation = {
+  validate: async (components, deployment) => {
+    if (deployment.entity.timestamp < ADR_75_TIMESTAMP) return OK
+
+    const allAvatars: any[] = deployment.entity.metadata?.avatars ?? []
+    for (const avatar of allAvatars) {
+      for (const pointer of avatar.avatar.wearables) {
+        if (isOldEmote(pointer)) continue
+
+        const parsed = await parseUrn(pointer)
+        if (!parsed)
+          return validationFailed(
+            `Wearable pointers should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (${pointer})`
+          )
+      }
+    }
+    return OK
+  }
+}
+
 /**
  * Validate that given profile deployment includes the face256 file with the correct size
  * * @public
@@ -66,6 +91,6 @@ export const profile: Validation = {
   validate: async (components, deployment) => {
     if (deployment.entity.type !== EntityType.PROFILE) return OK
 
-    return faceThumbnail.validate(components, deployment)
+    return validateInRow(components, deployment, faceThumbnail, wearableUrns)
   }
 }

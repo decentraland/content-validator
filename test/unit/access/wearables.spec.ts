@@ -144,7 +144,8 @@ describe('Access: wearables', () => {
     L1: {
       landManager: 'landManager' + 'L1',
       collections: collectionsUrl + 'L1',
-      blocks: blocksUrl + 'L1'
+      blocks: blocksUrl + 'L1',
+      ensOwner: 'ENS'
     },
     L2: {
       collections: collectionsUrl + 'L2',

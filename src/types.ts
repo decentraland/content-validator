@@ -1,5 +1,6 @@
-import { AuthChain, Entity } from '@dcl/schemas'
+import { AuthChain, Entity, EthAddress, WearableId } from '@dcl/schemas'
 import { ILoggerComponent } from '@well-known-components/interfaces'
+import { PermissionResult } from './the-graph-client/the-graph-client'
 
 /**
  * @public
@@ -63,6 +64,7 @@ export type ExternalCalls = {
       landManager: string
       blocks: string
       collections: string
+      ensOwner: string
     }
     L2: {
       blocks: string
@@ -156,10 +158,52 @@ export const fromErrors = (...errors: Errors): ValidationResponse => ({
 })
 
 /**
+ * @public
+ */
+export type URLs = {
+  ensSubgraph: string
+  blocksSubgraph: string
+  maticBlocksSubgraph: string
+  collectionsSubgraph: string
+  maticCollectionsSubgraph: string
+}
+
+/**
+ * @public
+ */
+export type TheGraphClient = {
+  checkForNamesOwnershipWithTimestamp: (
+    ethAddress: EthAddress,
+    namesToCheck: string[],
+    timestamp: number
+  ) => Promise<PermissionResult>
+
+  checkForWearablesOwnershipWithTimestamp: (
+    ethAddress: EthAddress,
+    wearableIdsToCheck: WearableId[],
+    timestamp: number
+  ) => Promise<PermissionResult>
+
+  findBlocksForTimestamp: (
+    subgraph: keyof URLs,
+    timestamp: number
+  ) => Promise<BlockInformation>
+}
+
+/**
+ * @public
+ */
+export type BlockInformation = {
+  blockNumberAtDeployment: number | undefined
+  blockNumberFiveMinBeforeDeployment: number | undefined
+}
+
+/**
  * Components that can be used to validate deployments.
  * @public
  */
 export type ContentValidatorComponents = {
   logs: ILoggerComponent
+  theGraphClient: TheGraphClient
   externalCalls: ExternalCalls
 }

@@ -44,7 +44,6 @@ describe('Size', () => {
       files: new Map([[hash, files.get('body.png')!]]),
       entity
     })
-    const externalCalls = buildExternalCalls()
 
     const result = await size.validate(components, deployment)
     expect(result.ok).toBeFalsy()
@@ -80,7 +79,6 @@ describe('Size', () => {
       files: new Map([[hash, files.get('body.png')!]]),
       entity
     })
-    const externalCalls = buildExternalCalls()
 
     const result = await size.validate(components, deployment)
     expect(result.ok).toBeTruthy()
@@ -94,7 +92,6 @@ describe('Size', () => {
       const files = buildFiles(['C', 2.1])
 
       const deployment = buildDeployment({ entity, files })
-      const externalCalls = buildExternalCalls()
 
       const result = await size.validate(components, deployment)
       expect(result.ok).toBeFalsy()
@@ -157,7 +154,10 @@ describe('Size', () => {
         fetchContentFileSize: () => Promise.resolve(undefined)
       })
 
-      const response = await size.validate(components, deployment)
+      const response = await size.validate(
+        buildComponents({ externalCalls }),
+        deployment
+      )
       expect(response.ok).toBeFalsy()
       expect(response.errors).toContain(
         `Couldn't fetch content file with hash: A`
