@@ -1,7 +1,7 @@
 import { Avatar, Entity, EthAddress } from '@dcl/schemas'
 import { parseUrn } from '@dcl/urn-resolver'
 import { OK, Validation, validationFailed } from '../../types'
-import { allowList } from '../profile'
+import { isOldEmote } from '../profile'
 import { ADR_75_TIMESTAMP } from '../timestamps'
 
 /**
@@ -78,8 +78,6 @@ const allClaimedNames = (entity: Entity): string[] =>
 
 const isBaseAvatar = (wearable: string): boolean =>
   wearable.includes('base-avatars')
-
-const isOldEmote = (wearable: string): boolean => allowList.has(wearable)
 
 const translateWearablesIdFormat = async (
   wearableId: string

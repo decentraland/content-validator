@@ -168,10 +168,15 @@ export type TheGraphClient = {
   findBlocksForTimestamp: (
     subgraph: keyof URLs,
     timestamp: number
-  ) => Promise<{
-    blockNumberAtDeployment: number | undefined
-    blockNumberFiveMinBeforeDeployment: number | undefined
-  }>
+  ) => Promise<BlockInformation>
+}
+
+/**
+ * @public
+ */
+export type BlockInformation = {
+  blockNumberAtDeployment: number | undefined
+  blockNumberFiveMinBeforeDeployment: number | undefined
 }
 
 /**

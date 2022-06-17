@@ -20,6 +20,12 @@ export const ADR_74_TIMESTAMP: number;
 export const ADR_75_TIMESTAMP: number;
 
 // @public (undocumented)
+export type BlockInformation = {
+    blockNumberAtDeployment: number | undefined;
+    blockNumberFiveMinBeforeDeployment: number | undefined;
+};
+
+// @public (undocumented)
 export const calculateDeploymentSize: (deployment: DeploymentToValidate, externalCalls: ExternalCalls) => Promise<number | string>;
 
 // @public (undocumented)
@@ -108,10 +114,7 @@ export const statelessValidations: readonly [Validation, Validation, Validation]
 export type TheGraphClient = {
     checkForNamesOwnershipWithTimestamp: (ethAddress: EthAddress, namesToCheck: string[], timestamp: number) => Promise<PermissionResult>;
     checkForWearablesOwnershipWithTimestamp: (ethAddress: EthAddress, wearableIdsToCheck: WearableId[], timestamp: number) => Promise<PermissionResult>;
-    findBlocksForTimestamp: (subgraph: keyof URLs, timestamp: number) => Promise<{
-        blockNumberAtDeployment: number | undefined;
-        blockNumberFiveMinBeforeDeployment: number | undefined;
-    }>;
+    findBlocksForTimestamp: (subgraph: keyof URLs, timestamp: number) => Promise<BlockInformation>;
 };
 
 // @public (undocumented)

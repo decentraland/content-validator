@@ -7,27 +7,8 @@ import { validationAfterADR45, validationAfterADR75, validationForType, validati
 /** Validate that given profile deployment includes a face256 thumbnail with valid size */
 const defaultThumbnailSize = 256
 
-export const allowList = new Set([
-  'clap',
-  'dab',
-  'dance',
-  'disco',
-  'dontsee',
-  'fistpump',
-  'hammer',
-  'handsair',
-  'headexplode',
-  'hohoho',
-  'kiss',
-  'money',
-  'raiseHand',
-  'robot',
-  'shrug',
-  'snowfall',
-  'tektonik',
-  'tik',
-  'wave'
-])
+export const isOldEmote = (wearable: string): boolean =>
+  /^[a-z]+$/i.test(wearable)
 
 export const faceThumbnail: Validation = validationAfterADR45({
   validate: async ({ externalCalls }, deployment) => {
@@ -85,9 +66,8 @@ export const wearableUrns: Validation = validationAfterADR75({
     const allAvatars: any[] = deployment.entity.metadata?.avatars ?? []
     for (const avatar of allAvatars) {
       for (const pointer of avatar.avatar.wearables) {
-        if (allowList.has(pointer)) {
-          continue
-        }
+        if (isOldEmote(pointer)) continue
+
         const parsed = await parseUrn(pointer)
         if (!parsed)
           return validationFailed(
