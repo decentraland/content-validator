@@ -3,6 +3,7 @@ import { OK, Validation, validationFailed } from '../../types'
 import { parseUrn } from '@dcl/urn-resolver'
 import { Avatar } from '@dcl/schemas'
 import { ADR_75_TIMESTAMP } from '../index'
+import { isOldEmote } from '../profile'
 
 /**
  * Validate that the pointers are valid, and that the Ethereum address has write access to them
@@ -78,8 +79,6 @@ const allClaimedNames = (entity: Entity): string[] =>
 
 const isBaseAvatar = (wearable: string): boolean =>
   wearable.includes('base-avatars')
-
-const isOldEmote = (wearable: string): boolean => /^[a-z]+$/i.test(wearable)
 
 const translateWearablesIdFormat = async (
   wearableId: string
