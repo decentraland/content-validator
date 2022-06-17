@@ -1,6 +1,6 @@
 import { EntityType } from '@dcl/schemas'
 import sharp from 'sharp'
-import { ADR_45_TIMESTAMP, ValidationResponse } from '../../../../src'
+import { ValidationResponse } from '../../../../src'
 import {
   deploymentMaxSizeExcludingThumbnailIsNotExceeded,
   thumbnailMaxSizeIsNotExceeded
@@ -9,6 +9,7 @@ import {
   wearableRepresentationContent
 } from '../../../../src/validations/items/wearables'
 import { size } from '../../../../src/validations/size'
+import { ADR_45_TIMESTAMP } from '../../../../src/validations/timestamps'
 import { buildDeployment } from '../../../setup/deployments'
 import { buildEntity } from '../../../setup/entity'
 import { buildComponents, buildExternalCalls } from '../../../setup/mock'
@@ -304,6 +305,47 @@ describe('Wearables', () => {
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `Representation content: 'file1' is not one of the content files`
+      )
+    })
+
+    it('wearable validation without representation fails', async () => {
+      const { data, ...wearableWithoutData } = { ...VALID_WEARABLE_METADATA }
+      const entity = buildEntity({
+        type: EntityType.WEARABLE,
+        metadata: {
+          ...wearableWithoutData,
+          data: {
+            ...data,
+            representations: []
+          }
+        },
+        content: []
+      })
+      const deployment = buildDeployment({ entity })
+      const result = await wearableRepresentationContent.validate(
+        components,
+        deployment
+      )
+      expect(result.ok).toBeFalsy()
+      expect(result.errors).toContain(
+        `No wearable representations found`
+      )
+    })
+
+    it('emote validation without content fails', async () => {
+      const entity = buildEntity({
+        type: EntityType.WEARABLE,
+        metadata: VALID_WEARABLE_METADATA,
+        content: []
+      })
+      const deployment = buildDeployment({ entity })
+      const result = await wearableRepresentationContent.validate(
+        components,
+        deployment
+      )
+      expect(result.ok).toBeFalsy()
+      expect(result.errors).toContain(
+        `No content found`
       )
     })
   })

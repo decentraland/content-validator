@@ -1,5 +1,4 @@
 import { EntityType } from '@dcl/schemas'
-import { ADR_74_TIMESTAMP } from '.'
 import {
   ContentValidatorComponents,
   DeploymentToValidate,
@@ -8,7 +7,8 @@ import {
   validationFailed
 } from '../types'
 import { entityParameters } from './ADR51'
-import { validationAfterADR45, validationForType, validationGroup } from './validations'
+import { ADR_74_TIMESTAMP } from './timestamps'
+import { validationAfterADR45, validationAfterADR74, validationForType, validationGroup } from './validations'
 
 /**
  * Validate entities metadata against its corresponding schema
@@ -55,5 +55,5 @@ const metadataVersionIsCorrectForTimestamp: Validation = {
 
 export const metadata: Validation = validationGroup(
   validationAfterADR45(metadataSchemaIsValid),
-  validationForType(EntityType.EMOTE, metadataVersionIsCorrectForTimestamp)
+  validationAfterADR74(validationForType(EntityType.EMOTE, metadataVersionIsCorrectForTimestamp))
 )

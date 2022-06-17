@@ -1,8 +1,8 @@
-import { ADR_45_TIMESTAMP } from '../../../src'
 import {
   allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45, allHashesInUploadedFilesAreReportedInTheEntity,
   allHashesWereUploadedOrStored, content
 } from '../../../src/validations/content'
+import { ADR_45_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
 import { buildComponents, buildExternalCalls } from '../../setup/mock'

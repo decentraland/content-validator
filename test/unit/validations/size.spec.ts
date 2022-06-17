@@ -1,7 +1,7 @@
 import { hashV1 } from '@dcl/hashing'
 import { EntityType } from '@dcl/schemas'
-import { ADR_45_TIMESTAMP } from '../../../src'
 import { size } from '../../../src/validations/size'
+import { ADR_45_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
 import { buildComponents, buildExternalCalls } from '../../setup/mock'

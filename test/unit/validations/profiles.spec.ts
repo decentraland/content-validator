@@ -1,11 +1,8 @@
 import { EntityType } from '@dcl/schemas'
 import sharp from 'sharp'
-import {
-  ADR_45_TIMESTAMP,
-  ADR_75_TIMESTAMP,
-  ValidationResponse
-} from '../../../src'
+import { ValidationResponse } from '../../../src'
 import { faceThumbnail, profile, wearableUrns } from '../../../src/validations/profile'
+import { ADR_45_TIMESTAMP, ADR_75_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
 import { buildComponents, buildExternalCalls } from '../../setup/mock'

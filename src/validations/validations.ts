@@ -1,5 +1,4 @@
 import { EntityType } from '@dcl/schemas'
-import { ADR_45_TIMESTAMP, ADR_74_TIMESTAMP, ADR_75_TIMESTAMP } from '.'
 import {
   ContentValidatorComponents,
   DeploymentToValidate,
@@ -7,6 +6,7 @@ import {
   Validation,
   ValidationResponse
 } from '../types'
+import { ADR_45_TIMESTAMP, ADR_74_TIMESTAMP, ADR_75_TIMESTAMP } from './timestamps'
 
 export function validationGroup(...validations: Validation[]): Validation {
   return {
@@ -43,21 +43,21 @@ export function conditionalValidation(
 
 export function validationAfterADR45(validation: Validation): Validation {
   return conditionalValidation(
-    (deployment) => deployment.entity.timestamp > ADR_45_TIMESTAMP,
+    (deployment) => deployment.entity.timestamp >= ADR_45_TIMESTAMP,
     validation
   )
 }
 
 export function validationAfterADR75(validation: Validation): Validation {
   return conditionalValidation(
-    (deployment) => deployment.entity.timestamp > ADR_75_TIMESTAMP,
+    (deployment) => deployment.entity.timestamp >= ADR_75_TIMESTAMP,
     validation
   )
 }
 
 export function validationAfterADR74(validation: Validation): Validation {
   return conditionalValidation(
-    (deployment) => deployment.entity.timestamp > ADR_74_TIMESTAMP,
+    (deployment) => deployment.entity.timestamp >= ADR_74_TIMESTAMP,
     validation
   )
 }

@@ -12,7 +12,7 @@ import {
   fetcherWithThirdPartyMerkleRoot,
   fetcherWithValidCollectionAndCreator
 } from '../../setup/mock'
-import { entityAndMerkleRoot } from '../../setup/wearable'
+import { VALID_THIRD_PARTY_WEARABLE } from '../../setup/wearable'
 
 describe('Access: wearables', () => {
   it('When non-urns are used as pointers, then validation fails', async () => {
@@ -286,7 +286,7 @@ describe('Access: wearables', () => {
   })
 
   describe(`Merkle Proofed (Third Party) Wearable`, () => {
-    const { entity: metadata, root: merkleRoot } = entityAndMerkleRoot
+    const { entity: metadata, root: merkleRoot } = VALID_THIRD_PARTY_WEARABLE
 
     it(`When urn corresponds to a Third Party wearable and can verify merkle root with the proofs, validation pass`, async () => {
       const externalCalls = buildExternalCalls({

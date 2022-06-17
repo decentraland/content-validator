@@ -1,10 +1,7 @@
-import { entityParameters } from './ADR51'
-import {
-  ADR_45_TIMESTAMP,
-  calculateDeploymentSize,
-  LEGACY_CONTENT_MIGRATION_TIMESTAMP
-} from '.'
+import { calculateDeploymentSize } from '.'
 import { OK, Validation, validationFailed } from '../types'
+import { entityParameters } from './ADR51'
+import { ADR_45_TIMESTAMP, LEGACY_CONTENT_MIGRATION_TIMESTAMP } from './timestamps'
 
 /** Validate that the full request size is within limits
  *
@@ -36,10 +33,8 @@ export const size: Validation = {
     const sizePerPointer = totalSize / entity.pointers.length
     if (sizePerPointer > maxSizeInBytes) {
       errors = [
-        `The deployment is too big. The maximum allowed size per pointer is ${maxSizeInMB} MB for ${
-          entity.type
-        }. You can upload up to ${
-          entity.pointers.length * maxSizeInBytes
+        `The deployment is too big. The maximum allowed size per pointer is ${maxSizeInMB} MB for ${entity.type
+        }. You can upload up to ${entity.pointers.length * maxSizeInBytes
         } bytes but you tried to upload ${totalSize}.`
       ]
     }

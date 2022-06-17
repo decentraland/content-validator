@@ -7,10 +7,20 @@ import {
   EmoteRepresentationADR74,
   Locale,
   Rarity,
+  StandardProps,
   ThirdPartyProps
 } from '@dcl/schemas'
 
-const EMOTE_MERKLE_PROOF_REQUIRED_KEYS = ['content', 'id', 'name', 'description', 'i18n', 'image', 'thumbnail', 'data']
+const EMOTE_MERKLE_PROOF_REQUIRED_KEYS = [
+  'content',
+  'id',
+  'name',
+  'description',
+  'i18n',
+  'image',
+  'thumbnail',
+  'emoteDataADR74'
+]
 
 const representation: EmoteRepresentationADR74 = {
   bodyShapes: [BodyShape.FEMALE],
@@ -18,7 +28,7 @@ const representation: EmoteRepresentationADR74 = {
   contents: ['file1', 'file2']
 }
 
-export const VALID_EMOTE_METADATA: Emote = {
+export const VALID_STANDARD_EMOTE_METADATA: Emote & StandardProps = {
   id: 'some id',
   name: 'name',
   description: 'some description',
@@ -66,7 +76,7 @@ export const VALID_THIRD_PARTY_WEARABLE_BASE_METADATA: Omit<Emote & ThirdPartyPr
   }
 }
 
-export const entityAndMerkleRoot = buildEntityMetadataWithMerkleProof(
+export const VALID_THIRD_PARTY_EMOTE_METADATA_WITH_MERKLE_ROOT = buildEntityMetadataWithMerkleProof(
   VALID_THIRD_PARTY_WEARABLE_BASE_METADATA,
   ['someOtherHash1', 'someOtherHash2']
 )

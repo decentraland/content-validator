@@ -73,7 +73,7 @@ export const VALID_THIRD_PARTY_WEARABLE_BASE_METADATA: Omit<Wearable & ThirdPart
   }
 }
 
-export const entityAndMerkleRoot = buildEntityMetadataWithMerkleProof(
+export const VALID_THIRD_PARTY_WEARABLE = buildEntityMetadataWithMerkleProof(
   VALID_THIRD_PARTY_WEARABLE_BASE_METADATA,
   ['someOtherHash1', 'someOtherHash2']
 )

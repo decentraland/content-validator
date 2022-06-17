@@ -1,4 +1,5 @@
 import { EntityType, Wearable } from '@dcl/schemas'
+import { BaseItem } from '@dcl/schemas/dist/platform/item/base-item'
 import sharp from 'sharp'
 import { calculateDeploymentSize } from '..'
 import {
@@ -16,12 +17,12 @@ export const deploymentMaxSizeExcludingThumbnailIsNotExceeded: Validation = {
     const maxSizeInMB = entityParameters[entity.type]?.maxSizeInMB
     if (!maxSizeInMB)
       return validationFailed(
-        `Type ${EntityType.WEARABLE} is not supported yet`
+        `Type ${entity.type} is not supported yet`
       )
 
     const modelSizeInMB = maxSizeInMB - (maxThumbnailSizeInB / 1024)
 
-    const metadata = entity.metadata as Wearable
+    const metadata = entity.metadata as BaseItem
     const thumbnailHash = entity.content?.find(
       ({ file }) => file === metadata.thumbnail
     )?.hash

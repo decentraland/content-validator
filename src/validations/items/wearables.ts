@@ -13,9 +13,9 @@ export const wearableRepresentationContent: Validation = {
     const { entity } = deployment
     const wearableMetadata = entity.metadata as Wearable
     const representations = wearableMetadata?.data?.representations
-    if (!representations)
+    if (!representations || representations.length === 0)
       return validationFailed('No wearable representations found')
-    if (!entity.content) return validationFailed('No content found')
+    if (!entity.content || entity.content.length === 0) return validationFailed('No content found')
 
     for (const representation of representations) {
       for (const representationContent of representation.contents) {
