@@ -79,7 +79,7 @@ const allClaimedNames = (entity: Entity): string[] =>
 const isBaseAvatar = (wearable: string): boolean =>
   wearable.includes('base-avatars')
 
-const isOldEmote = (wearable: string): boolean => !wearable.startsWith('urn:')
+const isOldEmote = (wearable: string): boolean => /^[a-z]+$/i.test(wearable)
 
 const translateWearablesIdFormat = async (
   wearableId: string
