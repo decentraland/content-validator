@@ -3,31 +3,11 @@ import sharp from 'sharp'
 import { ADR_45_TIMESTAMP, ADR_75_TIMESTAMP, validateInRow } from '.'
 import { OK, Validation, validationFailed } from '../types'
 import { parseUrn } from '@dcl/urn-resolver'
+import { util } from 'prettier'
+import skip = util.skip
 
 /** Validate that given profile deployment includes a face256 thumbnail with valid size */
 const defaultThumbnailSize = 256
-
-export const allowList = new Set([
-  'clap',
-  'dab',
-  'dance',
-  'disco',
-  'dontsee',
-  'fistpump',
-  'hammer',
-  'handsair',
-  'headexplode',
-  'hohoho',
-  'kiss',
-  'money',
-  'raiseHand',
-  'robot',
-  'shrug',
-  'snowfall',
-  'tektonik',
-  'tik',
-  'wave'
-])
 
 export const faceThumbnail: Validation = {
   validate: async ({ externalCalls }, deployment) => {
@@ -86,12 +66,13 @@ export const wearableUrns: Validation = {
   validate: async (components, deployment) => {
     if (deployment.entity.timestamp < ADR_75_TIMESTAMP) return OK
 
+    const isOldEmote = (wearable: string): boolean =>
+      !wearable.startsWith('urn:')
+
     const allAvatars: any[] = deployment.entity.metadata?.avatars ?? []
     for (const avatar of allAvatars) {
       for (const pointer of avatar.avatar.wearables) {
-        if (allowList.has(pointer)) {
-          continue
-        }
+        if (isOldEmote(pointer)) continue
         const parsed = await parseUrn(pointer)
         if (!parsed)
           return validationFailed(
