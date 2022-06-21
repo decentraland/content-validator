@@ -208,7 +208,7 @@ describe('Profiles', () => {
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
-        'Each profile item pointers should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (urn:decentraland:tucu-tucu:base-avatars:tall_front_01)'
+        'Each profile pointer should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (urn:decentraland:tucu-tucu:base-avatars:tall_front_01)'
       )
     })
   })
