@@ -250,7 +250,7 @@ export const v1andV2collectionAssetValidation: AssetValidation = {
     if (!hasAccess) {
       if (isL2)
         return validationFailed(
-          `The provided Eth Address does not have access to the following wearable: (${asset.contractAddress}, ${asset.id})`
+          `The provided Eth Address does not have access to the following item: (${asset.contractAddress}, ${asset.id})`
         )
 
       // Some L1 collections are deployed by Decentraland Address
@@ -263,7 +263,7 @@ export const v1andV2collectionAssetValidation: AssetValidation = {
         !isAllowlistedCollection
       ) {
         return validationFailed(
-          `The provided Eth Address '${ethAddress}' does not have access to the following wearable: '${asset.uri}'`
+          `The provided Eth Address '${ethAddress}' does not have access to the following item: '${asset.uri}'`
         )
       }
     }

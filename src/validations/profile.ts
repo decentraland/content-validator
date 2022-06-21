@@ -71,7 +71,7 @@ export const wearableUrns: Validation = validationAfterADR75({
         const parsed = await parseUrn(pointer)
         if (!parsed)
           return validationFailed(
-            `Wearable pointers should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (${pointer})`
+            `Each profile item pointers should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (${pointer})`
           )
       }
     }

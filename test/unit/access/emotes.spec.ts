@@ -1,8 +1,8 @@
-import { wearables } from '../../../src/validations/access-checker/wearables'
+import { emotes } from '../../../src/validations/access-checker/emotes'
 import {
-  buildThirdPartyWearableDeployment,
-  buildWearableDeployment
+  buildEmoteDeployment, buildThirdPartyEmoteDeployment
 } from '../../setup/deployments'
+import { VALID_THIRD_PARTY_EMOTE_METADATA_WITH_MERKLE_ROOT } from '../../setup/emotes'
 import {
   buildComponents,
   buildExternalCalls,
@@ -12,15 +12,14 @@ import {
   fetcherWithThirdPartyMerkleRoot,
   fetcherWithValidCollectionAndCreator
 } from '../../setup/mock'
-import { VALID_THIRD_PARTY_WEARABLE } from '../../setup/wearable'
 
-describe('Access: wearables', () => {
+describe('Access: emotes', () => {
   it('When non-urns are used as pointers, then validation fails', async () => {
     const pointers = ['invalid-pointer']
-    const deployment = buildWearableDeployment(pointers)
+    const deployment = buildEmoteDeployment(pointers)
     const externalCalls = buildExternalCalls()
 
-    const response = await wearables.validate(
+    const response = await emotes.validate(
       buildComponents({ externalCalls }),
       deployment
     )
@@ -35,10 +34,10 @@ describe('Access: wearables', () => {
       'urn:decentraland:ethereum:collections-v1:atari_launch:a',
       'urn:decentraland:ethereum:collections-v1:atari_launch:b'
     ]
-    const deployment = buildWearableDeployment(pointers)
+    const deployment = buildEmoteDeployment(pointers)
     const externalCalls = buildExternalCalls()
 
-    const response = await wearables.validate(
+    const response = await emotes.validate(
       buildComponents({ externalCalls }),
       deployment
     )
@@ -50,91 +49,43 @@ describe('Access: wearables', () => {
 
   it('When several pointers resolve to the same URN then accept both but fail with the access', async () => {
     const pointers = [
-      'urn:decentraland:ethereum:collections-v1:atari_launch:atari_red_upper_body',
-      'urn:decentraland:ethereum:collections-v1:0x4c290f486bae507719c562b6b524bdb71a2570c9:atari_red_upper_body'
+      'urn:decentraland:ethereum:collections-v2:0x4c290f486bae507719c562b6b524bdb71a2570c9:1',
+      'urn:decentraland:ethereum:collections-v2:0x4c290f486bae507719c562b6b524bdb71a2570c9:1'
     ]
-    const deployment = buildWearableDeployment(pointers)
+    const deployment = buildEmoteDeployment(pointers)
     const externalCalls = buildExternalCalls({
       ownerAddress: () => 'some address'
     })
 
-    const response = await wearables.validate(
+    const response = await emotes.validate(
       buildComponents({ externalCalls }),
       deployment
     )
+    console.log(response.errors)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
-      `The provided Eth Address 'some address' does not have access to the following item: 'urn:decentraland:ethereum:collections-v1:atari_launch:atari_red_upper_body'`
+      `The provided Eth Address 'some address' does not have access to the following item: 'urn:decentraland:ethereum:collections-v2:0x4c290f486bae507719c562b6b524bdb71a2570c9:1'`
     )
   })
 
   it('When several pointers resolve to the same URN then accept both 2', async () => {
     const pointers = [
-      'urn:decentraland:ethereum:collections-v1:dgtble_headspace:dgtble_hoodi_linetang_upper_body',
-      'urn:decentraland:ethereum:collections-v1:0x574f64ac2e7215cba9752b85fc73030f35166bc0:dgtble_hoodi_linetang_upper_body'
+      'urn:decentraland:ethereum:collections-v2:0x4c290f486bae507719c562b6b524bdb71a2570c9:1',
+      'urn:decentraland:ethereum:collections-v2:0x4c290f486bae507719c562b6b524bdb71a2570c9:1'
     ]
-    const deployment = buildWearableDeployment(pointers)
+    const deployment = buildEmoteDeployment(pointers)
     const externalCalls = buildExternalCalls({
       ownerAddress: () => 'some address'
     })
 
-    const response = await wearables.validate(
+    const response = await emotes.validate(
       buildComponents({ externalCalls }),
       deployment
     )
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
-      `The provided Eth Address 'some address' does not have access to the following item: 'urn:decentraland:ethereum:collections-v1:dgtble_headspace:dgtble_hoodi_linetang_upper_body'`
+      `The provided Eth Address 'some address' does not have access to the following item: 'urn:decentraland:ethereum:collections-v2:0x4c290f486bae507719c562b6b524bdb71a2570c9:1'`
     )
-  })
-
-  it('When pointer resolves to L1 fails with invalid address', async () => {
-    const pointers = [
-      'urn:decentraland:ethereum:collections-v1:dgtble_headspace:dgtble_hoodi_linetang_upper_body'
-    ]
-    const deployment = buildWearableDeployment(pointers)
-    const externalCalls = buildExternalCalls({
-      ownerAddress: () => 'some address'
-    })
-
-    const response = await wearables.validate(
-      buildComponents({ externalCalls }),
-      deployment
-    )
-    expect(response.ok).toBeFalsy()
-    expect(response.errors).toContain(
-      `The provided Eth Address 'some address' does not have access to the following item: 'urn:decentraland:ethereum:collections-v1:dgtble_headspace:dgtble_hoodi_linetang_upper_body'`
-    )
-  })
-
-  it('When pointer resolves to L1 succeeds with valid address', async () => {
-    const pointers = [
-      'urn:decentraland:ethereum:collections-v1:dgtble_headspace:dgtble_hoodi_linetang_upper_body'
-    ]
-    const deployment = buildWearableDeployment(pointers)
-    const externalCalls = buildExternalCalls({
-      isAddressOwnedByDecentraland: () => true
-    })
-
-    const response = await wearables.validate(
-      buildComponents({ externalCalls }),
-      deployment
-    )
-    expect(response.ok).toBeTruthy()
-  })
-
-  it('When pointer resolves to base-avatar then it resolves okay only with decentraland address', async () => {
-    const pointers = ['urn:decentraland:off-chain:base-avatars:BaseFemale']
-    const deployment = buildWearableDeployment(pointers)
-    const externalCalls = buildExternalCalls({
-      isAddressOwnedByDecentraland: () => true
-    })
-
-    const response = await wearables.validate(
-      buildComponents({ externalCalls }),
-      deployment
-    )
-    expect(response.ok).toBeTruthy()
   })
 
   const collectionsUrl = 'http://someUrl'
@@ -163,11 +114,11 @@ describe('Access: wearables', () => {
       ownerAddress: () => ethAddress
     })
 
-    const deployment = buildWearableDeployment([
+    const deployment = buildEmoteDeployment([
       'urn:decentraland:mumbai:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
-    await wearables.validate(buildComponents({ externalCalls }), deployment)
+    await emotes.validate(buildComponents({ externalCalls }), deployment)
 
     expect(mockedQueryGraph).toHaveBeenNthCalledWith(
       1,
@@ -193,11 +144,11 @@ describe('Access: wearables', () => {
       ownerAddress: () => ethAddress
     })
 
-    const deployment = buildWearableDeployment([
+    const deployment = buildEmoteDeployment([
       'urn:decentraland:ethereum:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
-    await wearables.validate(buildComponents({ externalCalls }), deployment)
+    await emotes.validate(buildComponents({ externalCalls }), deployment)
 
     expect(mockedQueryGraph).toHaveBeenNthCalledWith(
       1,
@@ -222,11 +173,11 @@ describe('Access: wearables', () => {
       ownerAddress: () => ethAddress
     })
 
-    const deployment = buildWearableDeployment([
+    const deployment = buildEmoteDeployment([
       'urn:decentraland:mumbai:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
-    await wearables.validate(buildComponents({ externalCalls }), deployment)
+    await emotes.validate(buildComponents({ externalCalls }), deployment)
 
     expect(mockedQueryGraph).toBeCalledTimes(3)
     expect(mockedQueryGraph).toHaveBeenNthCalledWith(
@@ -258,11 +209,11 @@ describe('Access: wearables', () => {
       ownerAddress: () => ethAddress
     })
 
-    const deployment = buildWearableDeployment([
+    const deployment = buildEmoteDeployment([
       'urn:decentraland:ethereum:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
-    await wearables.validate(buildComponents({ externalCalls }), deployment)
+    await emotes.validate(buildComponents({ externalCalls }), deployment)
 
     expect(mockedQueryGraph).toBeCalledTimes(3)
     expect(mockedQueryGraph).toHaveBeenNthCalledWith(
@@ -285,58 +236,94 @@ describe('Access: wearables', () => {
     )
   })
 
-  describe(`Merkle Proofed (Third Party) Wearable`, () => {
-    const { entity: metadata, root: merkleRoot } = VALID_THIRD_PARTY_WEARABLE
+  it('When pointer resolves to L1 fails because collection v1 is not allowed', async () => {
+    const pointers = [
+      'urn:decentraland:ethereum:collections-v1:dgtble_headspace:dgtble_hoodi_linetang_upper_body'
+    ]
+    const deployment = buildEmoteDeployment(pointers)
+    const externalCalls = buildExternalCalls({
+      ownerAddress: () => 'some address'
+    })
 
-    it(`When urn corresponds to a Third Party wearable and can verify merkle root with the proofs, validation pass`, async () => {
+    const response = await emotes.validate(
+      buildComponents({ externalCalls }),
+      deployment
+    )
+    expect(response.ok).toBeFalsy()
+    expect(response.errors).toContain(
+      `For the entity type: emote, the asset with urn type: blockchain-collection-v1-asset is invalid. Valid urn types for this entity: blockchain-collection-v2-asset,blockchain-collection-third-party`
+    )
+  })
+
+  it('When pointer resolves to base asset then it fails because it is not allowed', async () => {
+    const pointers = ['urn:decentraland:off-chain:base-avatars:BaseFemale']
+    const deployment = buildEmoteDeployment(pointers)
+    const externalCalls = buildExternalCalls({
+      isAddressOwnedByDecentraland: () => true
+    })
+
+    const response = await emotes.validate(
+      buildComponents({ externalCalls }),
+      deployment
+    )
+    expect(response.ok).toBeFalsy()
+    expect(response.errors).toContain(
+      `For the entity type: emote, the asset with urn type: off-chain is invalid. Valid urn types for this entity: blockchain-collection-v2-asset,blockchain-collection-third-party`
+    )
+  })
+
+  describe(`Merkle Proofed (Third Party) Emote`, () => {
+    const { entity: metadata, root: merkleRoot } = VALID_THIRD_PARTY_EMOTE_METADATA_WITH_MERKLE_ROOT
+
+    it(`When urn corresponds to a Third Party emotes and can verify merkle root with the proofs, validation pass`, async () => {
       const externalCalls = buildExternalCalls({
         subgraphs,
         queryGraph: fetcherWithThirdPartyMerkleRoot(merkleRoot)
       })
 
-      const deployment = buildThirdPartyWearableDeployment(
+      const deployment = buildThirdPartyEmoteDeployment(
         metadata.id,
         metadata
       )
 
-      const response = await wearables.validate(
+      const response = await emotes.validate(
         buildComponents({ externalCalls }),
         deployment
       )
       expect(response.ok).toBeTruthy()
     })
 
-    it(`When urn corresponds to a Third Party wearable and metadata is modified, validation fails`, async () => {
+    it(`When urn corresponds to a Third Party emotes and metadata is modified, validation fails`, async () => {
       const externalCalls = buildExternalCalls({
         subgraphs,
         queryGraph: fetcherWithThirdPartyMerkleRoot(merkleRoot)
       })
 
-      const deployment = buildThirdPartyWearableDeployment(metadata.id, {
+      const deployment = buildThirdPartyEmoteDeployment(metadata.id, {
         ...metadata,
         content: {}
       })
 
-      const response = await wearables.validate(
+      const response = await emotes.validate(
         buildComponents({ externalCalls }),
         deployment
       )
       expect(response.ok).toBeFalsy()
     })
 
-    it(`When urn corresponds to a Third Party wearable, then L2 subgraph is used`, async () => {
+    it(`When urn corresponds to a Third Party emotes, then L2 subgraph is used`, async () => {
       const mockedQueryGraph = fetcherWithThirdPartyMerkleRoot(merkleRoot)
       const externalCalls = buildExternalCalls({
         subgraphs,
         queryGraph: mockedQueryGraph
       })
 
-      const deployment = buildThirdPartyWearableDeployment(
+      const deployment = buildThirdPartyEmoteDeployment(
         metadata.id,
         metadata
       )
 
-      await wearables.validate(buildComponents({ externalCalls }), deployment)
+      await emotes.validate(buildComponents({ externalCalls }), deployment)
 
       expect(mockedQueryGraph).toBeCalledTimes(2)
       expect(mockedQueryGraph).toHaveBeenNthCalledWith(
@@ -361,12 +348,12 @@ describe('Access: wearables', () => {
         queryGraph: mockedQueryGraph
       })
 
-      const deployment = buildThirdPartyWearableDeployment(
+      const deployment = buildThirdPartyEmoteDeployment(
         metadata.id,
         metadata
       )
 
-      const response = await wearables.validate(
+      const response = await emotes.validate(
         buildComponents({ externalCalls }),
         deployment
       )
@@ -380,12 +367,12 @@ describe('Access: wearables', () => {
         queryGraph: mockedQueryGraph
       })
 
-      const deployment = buildThirdPartyWearableDeployment(metadata.id, {
+      const deployment = buildThirdPartyEmoteDeployment(metadata.id, {
         ...metadata,
         merkleProof: { proof: [], index: 0, hashingKeys: [], entityHash: '' }
       })
 
-      const response = await wearables.validate(
+      const response = await emotes.validate(
         buildComponents({ externalCalls }),
         deployment
       )
@@ -399,7 +386,7 @@ describe('Access: wearables', () => {
         queryGraph: mockedQueryGraph
       })
 
-      const deployment = buildThirdPartyWearableDeployment(metadata.id, {
+      const deployment = buildThirdPartyEmoteDeployment(metadata.id, {
         ...metadata,
         merkleProof: {
           ...metadata.merkleProof,
@@ -407,7 +394,7 @@ describe('Access: wearables', () => {
         }
       })
 
-      const response = await wearables.validate(
+      const response = await emotes.validate(
         buildComponents({ externalCalls }),
         deployment
       )
@@ -421,12 +408,12 @@ describe('Access: wearables', () => {
         queryGraph: mockedQueryGraph
       })
 
-      const deployment = buildThirdPartyWearableDeployment(metadata.id, {
+      const deployment = buildThirdPartyEmoteDeployment(metadata.id, {
         ...metadata,
         merkleProof: { ...metadata.merkleProof, entityHash: 'someInvalidHash' }
       })
 
-      const response = await wearables.validate(
+      const response = await emotes.validate(
         buildComponents({ externalCalls }),
         deployment
       )

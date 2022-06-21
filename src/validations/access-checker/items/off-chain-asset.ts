@@ -14,7 +14,7 @@ export const offChainAssetValidation: AssetValidation = {
     )
     if (!components.externalCalls.isAddressOwnedByDecentraland(ethAddress))
       return validationFailed(
-        `The provided Eth Address '${ethAddress}' does not have access to the following wearable: '${asset.uri}'`
+        `The provided Eth Address '${ethAddress}' does not have access to the following item: '${asset.uri}'`
       )
     return OK
   },

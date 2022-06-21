@@ -77,7 +77,7 @@ async function parseUrnNoFail(urn: string): Promise<SupportedAsset | null> {
     if (parsed?.type === 'blockchain-collection-third-party') {
       return parsed
     }
-  } catch {}
+  } catch { }
   return null
 }
 
@@ -90,7 +90,7 @@ export const itemsValidation = {
     deployment: DeploymentToValidate,
     validUrnTypesForItem: UrnType[]
   ) => {
-    const logger = components.logs.getLogger('wearables access validator')
+    const logger = components.logs.getLogger('items access validator')
 
     const { pointers } = deployment.entity
 
@@ -100,7 +100,7 @@ export const itemsValidation = {
       const parsed = await parseUrnNoFail(pointer)
       if (!parsed)
         return validationFailed(
-          `Wearable pointers should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (${pointer})`
+          `Item pointers should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{id}). Invalid pointer: (${pointer})`
         )
 
       if (!alreadySeen(resolvedPointers, parsed)) resolvedPointers.push(parsed)
@@ -108,14 +108,14 @@ export const itemsValidation = {
 
     if (resolvedPointers.length > 1)
       return validationFailed(
-        `Only one pointer is allowed when you create a Wearable. Received: ${pointers}`
+        `Only one pointer is allowed when you create an item. Received: ${pointers}`
       )
 
     const parsedAsset = resolvedPointers[0]
 
     if (!validUrnTypesForItem.includes(parsedAsset.type)) {
       return validationFailed(
-        `Could not resolve the contractAddress of the urn ${parsedAsset}`
+        `For the entity type: ${deployment.entity.type}, the asset with urn type: ${parsedAsset.type} is invalid. Valid urn types for this entity: ${validUrnTypesForItem}`
       )
     }
 
