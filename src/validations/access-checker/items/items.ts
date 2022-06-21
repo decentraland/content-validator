@@ -61,7 +61,7 @@ async function parseUrnNoFail(urn: string): Promise<SupportedAsset | null> {
     if (parsed?.type === 'blockchain-collection-third-party') {
       return parsed
     }
-  } catch {}
+  } catch { }
   return null
 }
 
@@ -71,7 +71,6 @@ export const itemsValidation = {
     deployment: DeploymentToValidate,
     validUrnTypesForItem: UrnType[]
   ) => {
-    const logger = components.logs.getLogger('items access validator')
 
     const { pointers } = deployment.entity
 

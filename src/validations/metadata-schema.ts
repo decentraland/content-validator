@@ -41,8 +41,8 @@ const metadataVersionIsCorrectForTimestamp: Validation = {
     return `${expectedDataField}` in deployment.entity.metadata
       ? OK
       : validationFailed(
-        `'emoteData' field version is incorrect. It must be: '${expectedDataField} but it is: ${deployment.entity.metadata} `
-      )
+          `'emoteData' field version is incorrect. It must be: '${expectedDataField} but it is: ${deployment.entity.metadata} `
+        )
   }
 }
 
