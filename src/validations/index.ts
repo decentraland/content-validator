@@ -4,7 +4,6 @@ import { content } from './content'
 import { entityStructure } from './entity-structure'
 import { ipfsHashing } from './ipfs-hashing'
 import { emote } from './items/emotes'
-import { items } from './items/items'
 import { wearable } from './items/wearables'
 import { metadata } from './metadata-schema'
 import { profile } from './profile'
@@ -36,7 +35,7 @@ export const calculateDeploymentSize = async (
  * Stateful validations that are run on a deployment.
  * @public
  */
-export const statefulValidations = [signature, access, size, items, wearable, emote, profile, content] as const
+export const statefulValidations = [signature, access, size, wearable, emote, profile, content] as const
 
 /**
  * Stateless validations that are run on a deployment.

@@ -10,14 +10,11 @@ import { EthAddress } from '@dcl/schemas';
 import { ILoggerComponent } from '@well-known-components/interfaces';
 import { WearableId } from '@dcl/schemas';
 
-// @public
-export const ADR_45_TIMESTAMP: number;
-
-// @public
-export const ADR_74_TIMESTAMP: number;
-
-// @public
-export const ADR_75_TIMESTAMP: number;
+// @public (undocumented)
+export type BlockInformation = {
+    blockNumberAtDeployment: number | undefined;
+    blockNumberFiveMinBeforeDeployment: number | undefined;
+};
 
 // @public (undocumented)
 export const calculateDeploymentSize: (deployment: DeploymentToValidate, externalCalls: ExternalCalls) => Promise<number | string>;
@@ -84,9 +81,6 @@ export type ExternalCalls = {
 // @public (undocumented)
 export const fromErrors: (...errors: Errors) => ValidationResponse;
 
-// @public
-export const LEGACY_CONTENT_MIGRATION_TIMESTAMP = 1582167600000;
-
 // @public (undocumented)
 export type LocalDeploymentAuditInfo = {
     authChain: AuthChain;
@@ -99,7 +93,7 @@ export const OK: ValidationResponse;
 export type QueryGraph = <T = any>(url: string, query: string, variables: Record<string, any>) => Promise<T>;
 
 // @public
-export const statefulValidations: readonly [Validation, Validation, Validation, Validation, Validation, Validation];
+export const statefulValidations: readonly [Validation, Validation, Validation, Validation, Validation, Validation, Validation];
 
 // @public
 export const statelessValidations: readonly [Validation, Validation, Validation];
@@ -108,10 +102,7 @@ export const statelessValidations: readonly [Validation, Validation, Validation]
 export type TheGraphClient = {
     checkForNamesOwnershipWithTimestamp: (ethAddress: EthAddress, namesToCheck: string[], timestamp: number) => Promise<PermissionResult>;
     checkForWearablesOwnershipWithTimestamp: (ethAddress: EthAddress, wearableIdsToCheck: WearableId[], timestamp: number) => Promise<PermissionResult>;
-    findBlocksForTimestamp: (subgraph: keyof URLs, timestamp: number) => Promise<{
-        blockNumberAtDeployment: number | undefined;
-        blockNumberFiveMinBeforeDeployment: number | undefined;
-    }>;
+    findBlocksForTimestamp: (subgraph: keyof URLs, timestamp: number) => Promise<BlockInformation>;
 };
 
 // @public (undocumented)
@@ -143,7 +134,7 @@ export type ValidationResponse = {
 };
 
 // @public
-export const validations: readonly [Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation];
+export const validations: readonly [Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation];
 
 // @public
 export interface Validator {
@@ -156,7 +147,7 @@ export type Warnings = string[];
 
 // Warnings were encountered during analysis:
 //
-// src/types.ts:156:3 - (ae-forgotten-export) The symbol "PermissionResult" needs to be exported by the entry point index.d.ts
+// src/types.ts:152:3 - (ae-forgotten-export) The symbol "PermissionResult" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

@@ -30,8 +30,7 @@ export const size: Validation = {
     const sizePerPointer = totalSize / entity.pointers.length
     if (sizePerPointer > maxSizeInBytes) {
       errors = [
-        `The deployment is too big. The maximum allowed size per pointer is ${maxSizeInMB} MB for ${
-          entity.type
+        `The deployment is too big. The maximum allowed size per pointer is ${maxSizeInMB} MB for ${entity.type
         }. You can upload up to ${entity.pointers.length * maxSizeInBytes} bytes but you tried to upload ${totalSize}.`
       ]
     }

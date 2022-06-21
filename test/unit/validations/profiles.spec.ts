@@ -227,4 +227,64 @@ describe('Profiles', () => {
       expect(result.ok).toBeTruthy()
     })
   })
+
+  describe('Wearables urns', () => {
+    it('When wearable urn is correct, should return no errors', async () => {
+      const entity = buildEntity({
+        type: EntityType.PROFILE,
+        metadata: VALID_PROFILE_METADATA,
+        timestamp
+      })
+      const deployment = buildDeployment({ entity })
+
+      const result = await wearableUrns.validate(components, deployment)
+
+      expect(result.ok).toBeTruthy()
+    })
+
+    it('When wearable using a base emote, should return no errors', async () => {
+      const entity = buildEntity({
+        type: EntityType.PROFILE,
+        metadata: {
+          avatars: [
+            {
+              avatar: {
+                wearables: ['raiseHand']
+              }
+            }
+          ]
+        },
+        timestamp: ADR_75_TIMESTAMP + 1
+      })
+      const deployment = buildDeployment({ entity })
+
+      const result = await wearableUrns.validate(components, deployment)
+
+      expect(result.ok).toBeTruthy()
+    })
+
+    it('When wearable urn is wrong, should return the correct error', async () => {
+      const entity = buildEntity({
+        type: EntityType.PROFILE,
+        metadata: {
+          avatars: [
+            {
+              avatar: {
+                wearables: ['urn:decentraland:tucu-tucu:base-avatars:tall_front_01']
+              }
+            }
+          ]
+        },
+        timestamp: ADR_75_TIMESTAMP + 1
+      })
+      const deployment = buildDeployment({ entity })
+
+      const result = await wearableUrns.validate(components, deployment)
+
+      expect(result.ok).toBeFalsy()
+      expect(result.errors).toContain(
+        'Each profile item pointers should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (urn:decentraland:tucu-tucu:base-avatars:tall_front_01)'
+      )
+    })
+  })
 })
