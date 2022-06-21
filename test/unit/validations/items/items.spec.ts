@@ -1,12 +1,9 @@
-import { EntityType } from '@dcl/schemas';
-import {
-  deploymentMaxSizeExcludingThumbnailIsNotExceeded
-} from '../../../../src/validations/items/items';
-import { buildAuditInfo } from '../../../setup/deployments';
-import { buildComponents, buildExternalCalls } from '../../../setup/mock';
+import { EntityType } from '@dcl/schemas'
+import { deploymentMaxSizeExcludingThumbnailIsNotExceeded } from '../../../../src/validations/items/items'
+import { buildAuditInfo } from '../../../setup/deployments'
+import { buildComponents, buildExternalCalls } from '../../../setup/mock'
 
 describe('deploymentMaxSizeExcludingThumbnailIsNotExceeded', () => {
-
   const components = buildComponents()
 
   it('unsupported type', async () => {
@@ -69,8 +66,10 @@ describe('deploymentMaxSizeExcludingThumbnailIsNotExceeded', () => {
         fetchContentFileSize: () => Promise.resolve(undefined)
       })
     }
-    const result = await deploymentMaxSizeExcludingThumbnailIsNotExceeded
-      .validate(buildComponents(components), invalidDeployment as any)
+    const result = await deploymentMaxSizeExcludingThumbnailIsNotExceeded.validate(
+      buildComponents(components),
+      invalidDeployment as any
+    )
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain(`Couldn't fetch content file with hash: ${thumbnailHash}`)
   })

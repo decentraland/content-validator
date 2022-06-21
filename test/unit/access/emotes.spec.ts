@@ -1,7 +1,5 @@
 import { emotes } from '../../../src/validations/access-checker/emotes'
-import {
-  buildEmoteDeployment, buildThirdPartyEmoteDeployment
-} from '../../setup/deployments'
+import { buildEmoteDeployment, buildThirdPartyEmoteDeployment } from '../../setup/deployments'
 import { VALID_THIRD_PARTY_EMOTE_METADATA_WITH_MERKLE_ROOT } from '../../setup/emotes'
 import {
   buildComponents,
@@ -19,10 +17,7 @@ describe('Access: emotes', () => {
     const deployment = buildEmoteDeployment(pointers)
     const externalCalls = buildExternalCalls()
 
-    const response = await emotes.validate(
-      buildComponents({ externalCalls }),
-      deployment
-    )
+    const response = await emotes.validate(buildComponents({ externalCalls }), deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       'Item pointers should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{id}). Invalid pointer: (invalid-pointer)'
@@ -37,14 +32,9 @@ describe('Access: emotes', () => {
     const deployment = buildEmoteDeployment(pointers)
     const externalCalls = buildExternalCalls()
 
-    const response = await emotes.validate(
-      buildComponents({ externalCalls }),
-      deployment
-    )
+    const response = await emotes.validate(buildComponents({ externalCalls }), deployment)
     expect(response.ok).toBeFalsy()
-    expect(response.errors).toContain(
-      `Only one pointer is allowed when you create an item. Received: ${pointers}`
-    )
+    expect(response.errors).toContain(`Only one pointer is allowed when you create an item. Received: ${pointers}`)
   })
 
   it('When several pointers resolve to the same URN then accept both but fail with the access', async () => {
@@ -57,10 +47,7 @@ describe('Access: emotes', () => {
       ownerAddress: () => 'some address'
     })
 
-    const response = await emotes.validate(
-      buildComponents({ externalCalls }),
-      deployment
-    )
+    const response = await emotes.validate(buildComponents({ externalCalls }), deployment)
     console.log(response.errors)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
@@ -78,10 +65,7 @@ describe('Access: emotes', () => {
       ownerAddress: () => 'some address'
     })
 
-    const response = await emotes.validate(
-      buildComponents({ externalCalls }),
-      deployment
-    )
+    const response = await emotes.validate(buildComponents({ externalCalls }), deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       `The provided Eth Address 'some address' does not have access to the following item: 'urn:decentraland:ethereum:collections-v2:0x4c290f486bae507719c562b6b524bdb71a2570c9:1'`
@@ -120,18 +104,8 @@ describe('Access: emotes', () => {
 
     await emotes.validate(buildComponents({ externalCalls }), deployment)
 
-    expect(mockedQueryGraph).toHaveBeenNthCalledWith(
-      1,
-      subgraphs.L2.blocks,
-      expect.anything(),
-      expect.anything()
-    )
-    expect(mockedQueryGraph).toHaveBeenNthCalledWith(
-      2,
-      subgraphs.L2.collections,
-      expect.anything(),
-      expect.anything()
-    )
+    expect(mockedQueryGraph).toHaveBeenNthCalledWith(1, subgraphs.L2.blocks, expect.anything(), expect.anything())
+    expect(mockedQueryGraph).toHaveBeenNthCalledWith(2, subgraphs.L2.collections, expect.anything(), expect.anything())
     expect(mockedQueryGraph).toBeCalledTimes(2)
   })
 
@@ -150,18 +124,8 @@ describe('Access: emotes', () => {
 
     await emotes.validate(buildComponents({ externalCalls }), deployment)
 
-    expect(mockedQueryGraph).toHaveBeenNthCalledWith(
-      1,
-      subgraphs.L1.blocks,
-      expect.anything(),
-      expect.anything()
-    )
-    expect(mockedQueryGraph).toHaveBeenNthCalledWith(
-      2,
-      subgraphs.L1.collections,
-      expect.anything(),
-      expect.anything()
-    )
+    expect(mockedQueryGraph).toHaveBeenNthCalledWith(1, subgraphs.L1.blocks, expect.anything(), expect.anything())
+    expect(mockedQueryGraph).toHaveBeenNthCalledWith(2, subgraphs.L1.collections, expect.anything(), expect.anything())
   })
 
   it(`When urn network belongs to L2, and address doesn't have access, then L2 subgraph is used twice`, async () => {
@@ -180,24 +144,9 @@ describe('Access: emotes', () => {
     await emotes.validate(buildComponents({ externalCalls }), deployment)
 
     expect(mockedQueryGraph).toBeCalledTimes(3)
-    expect(mockedQueryGraph).toHaveBeenNthCalledWith(
-      1,
-      subgraphs.L2.blocks,
-      expect.anything(),
-      expect.anything()
-    )
-    expect(mockedQueryGraph).toHaveBeenNthCalledWith(
-      2,
-      subgraphs.L2.collections,
-      expect.anything(),
-      expect.anything()
-    )
-    expect(mockedQueryGraph).toHaveBeenNthCalledWith(
-      3,
-      subgraphs.L2.collections,
-      expect.anything(),
-      expect.anything()
-    )
+    expect(mockedQueryGraph).toHaveBeenNthCalledWith(1, subgraphs.L2.blocks, expect.anything(), expect.anything())
+    expect(mockedQueryGraph).toHaveBeenNthCalledWith(2, subgraphs.L2.collections, expect.anything(), expect.anything())
+    expect(mockedQueryGraph).toHaveBeenNthCalledWith(3, subgraphs.L2.collections, expect.anything(), expect.anything())
   })
 
   it(`When urn network belongs to L1, and address doesn't have access, then L1 subgraph is used twice`, async () => {
@@ -216,39 +165,19 @@ describe('Access: emotes', () => {
     await emotes.validate(buildComponents({ externalCalls }), deployment)
 
     expect(mockedQueryGraph).toBeCalledTimes(3)
-    expect(mockedQueryGraph).toHaveBeenNthCalledWith(
-      1,
-      subgraphs.L1.blocks,
-      expect.anything(),
-      expect.anything()
-    )
-    expect(mockedQueryGraph).toHaveBeenNthCalledWith(
-      2,
-      subgraphs.L1.collections,
-      expect.anything(),
-      expect.anything()
-    )
-    expect(mockedQueryGraph).toHaveBeenNthCalledWith(
-      3,
-      subgraphs.L1.collections,
-      expect.anything(),
-      expect.anything()
-    )
+    expect(mockedQueryGraph).toHaveBeenNthCalledWith(1, subgraphs.L1.blocks, expect.anything(), expect.anything())
+    expect(mockedQueryGraph).toHaveBeenNthCalledWith(2, subgraphs.L1.collections, expect.anything(), expect.anything())
+    expect(mockedQueryGraph).toHaveBeenNthCalledWith(3, subgraphs.L1.collections, expect.anything(), expect.anything())
   })
 
   it('When pointer resolves to L1 fails because collection v1 is not allowed', async () => {
-    const pointers = [
-      'urn:decentraland:ethereum:collections-v1:dgtble_headspace:dgtble_hoodi_linetang_upper_body'
-    ]
+    const pointers = ['urn:decentraland:ethereum:collections-v1:dgtble_headspace:dgtble_hoodi_linetang_upper_body']
     const deployment = buildEmoteDeployment(pointers)
     const externalCalls = buildExternalCalls({
       ownerAddress: () => 'some address'
     })
 
-    const response = await emotes.validate(
-      buildComponents({ externalCalls }),
-      deployment
-    )
+    const response = await emotes.validate(buildComponents({ externalCalls }), deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       `For the entity type: emote, the asset with urn type: blockchain-collection-v1-asset is invalid. Valid urn types for this entity: blockchain-collection-v2-asset,blockchain-collection-third-party`
@@ -262,10 +191,7 @@ describe('Access: emotes', () => {
       isAddressOwnedByDecentraland: () => true
     })
 
-    const response = await emotes.validate(
-      buildComponents({ externalCalls }),
-      deployment
-    )
+    const response = await emotes.validate(buildComponents({ externalCalls }), deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       `For the entity type: emote, the asset with urn type: off-chain is invalid. Valid urn types for this entity: blockchain-collection-v2-asset,blockchain-collection-third-party`
@@ -281,15 +207,9 @@ describe('Access: emotes', () => {
         queryGraph: fetcherWithThirdPartyMerkleRoot(merkleRoot)
       })
 
-      const deployment = buildThirdPartyEmoteDeployment(
-        metadata.id,
-        metadata
-      )
+      const deployment = buildThirdPartyEmoteDeployment(metadata.id, metadata)
 
-      const response = await emotes.validate(
-        buildComponents({ externalCalls }),
-        deployment
-      )
+      const response = await emotes.validate(buildComponents({ externalCalls }), deployment)
       expect(response.ok).toBeTruthy()
     })
 
@@ -304,10 +224,7 @@ describe('Access: emotes', () => {
         content: {}
       })
 
-      const response = await emotes.validate(
-        buildComponents({ externalCalls }),
-        deployment
-      )
+      const response = await emotes.validate(buildComponents({ externalCalls }), deployment)
       expect(response.ok).toBeFalsy()
     })
 
@@ -318,20 +235,12 @@ describe('Access: emotes', () => {
         queryGraph: mockedQueryGraph
       })
 
-      const deployment = buildThirdPartyEmoteDeployment(
-        metadata.id,
-        metadata
-      )
+      const deployment = buildThirdPartyEmoteDeployment(metadata.id, metadata)
 
       await emotes.validate(buildComponents({ externalCalls }), deployment)
 
       expect(mockedQueryGraph).toBeCalledTimes(2)
-      expect(mockedQueryGraph).toHaveBeenNthCalledWith(
-        1,
-        subgraphs.L2.blocks,
-        expect.anything(),
-        expect.anything()
-      )
+      expect(mockedQueryGraph).toHaveBeenNthCalledWith(1, subgraphs.L2.blocks, expect.anything(), expect.anything())
       expect(mockedQueryGraph).toHaveBeenNthCalledWith(
         2,
         subgraphs.L2.thirdPartyRegistry,
@@ -348,15 +257,9 @@ describe('Access: emotes', () => {
         queryGraph: mockedQueryGraph
       })
 
-      const deployment = buildThirdPartyEmoteDeployment(
-        metadata.id,
-        metadata
-      )
+      const deployment = buildThirdPartyEmoteDeployment(metadata.id, metadata)
 
-      const response = await emotes.validate(
-        buildComponents({ externalCalls }),
-        deployment
-      )
+      const response = await emotes.validate(buildComponents({ externalCalls }), deployment)
       expect(response.ok).toBeFalsy()
     })
 
@@ -372,10 +275,7 @@ describe('Access: emotes', () => {
         merkleProof: { proof: [], index: 0, hashingKeys: [], entityHash: '' }
       })
 
-      const response = await emotes.validate(
-        buildComponents({ externalCalls }),
-        deployment
-      )
+      const response = await emotes.validate(buildComponents({ externalCalls }), deployment)
       expect(response.ok).toBeFalsy()
     })
 
@@ -394,10 +294,7 @@ describe('Access: emotes', () => {
         }
       })
 
-      const response = await emotes.validate(
-        buildComponents({ externalCalls }),
-        deployment
-      )
+      const response = await emotes.validate(buildComponents({ externalCalls }), deployment)
       expect(response.ok).toBeFalsy()
     })
 
@@ -413,10 +310,7 @@ describe('Access: emotes', () => {
         merkleProof: { ...metadata.merkleProof, entityHash: 'someInvalidHash' }
       })
 
-      const response = await emotes.validate(
-        buildComponents({ externalCalls }),
-        deployment
-      )
+      const response = await emotes.validate(buildComponents({ externalCalls }), deployment)
       expect(response.ok).toBeFalsy()
     })
   })

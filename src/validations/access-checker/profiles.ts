@@ -14,21 +14,15 @@ export const profiles: Validation = {
     const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
 
     if (pointers.length !== 1)
-      return validationFailed(
-        `Only one pointer is allowed when you create a Profile. Received: ${pointers}`
-      )
+      return validationFailed(`Only one pointer is allowed when you create a Profile. Received: ${pointers}`)
 
     const pointer: string = pointers[0].toLowerCase()
 
     if (pointer.startsWith('default')) {
       if (!externalCalls.isAddressOwnedByDecentraland(ethAddress))
-        return validationFailed(
-          `Only Decentraland can add or modify default profiles`
-        )
+        return validationFailed(`Only Decentraland can add or modify default profiles`)
     } else if (!EthAddress.validate(pointer)) {
-      return validationFailed(
-        `The given pointer is not a valid ethereum address.`
-      )
+      return validationFailed(`The given pointer is not a valid ethereum address.`)
     } else if (pointer !== ethAddress.toLowerCase()) {
       return validationFailed(
         `You can only alter your own profile. The pointer address and the signer address are different (pointer:${pointer} signer: ${ethAddress.toLowerCase()}).`
@@ -38,12 +32,11 @@ export const profiles: Validation = {
     if (deployment.entity.timestamp < ADR_75_TIMESTAMP) return OK
 
     const names = allClaimedNames(deployment.entity)
-    const namesCheckResult =
-      await theGraphClient.checkForNamesOwnershipWithTimestamp(
-        ethAddress,
-        names,
-        deployment.entity.timestamp
-      )
+    const namesCheckResult = await theGraphClient.checkForNamesOwnershipWithTimestamp(
+      ethAddress,
+      names,
+      deployment.entity.timestamp
+    )
     if (!namesCheckResult.result)
       return validationFailed(
         `The following names (${namesCheckResult.failing?.join(
@@ -52,12 +45,11 @@ export const profiles: Validation = {
       )
 
     const wearableUrns = await allWearablesUrns(deployment.entity)
-    const wearablesCheckResult =
-      await theGraphClient.checkForWearablesOwnershipWithTimestamp(
-        ethAddress,
-        wearableUrns,
-        deployment.entity.timestamp
-      )
+    const wearablesCheckResult = await theGraphClient.checkForWearablesOwnershipWithTimestamp(
+      ethAddress,
+      wearableUrns,
+      deployment.entity.timestamp
+    )
     if (!wearablesCheckResult.result) {
       return validationFailed(
         `The following wearables (${wearablesCheckResult.failing?.join(
@@ -76,12 +68,9 @@ const allClaimedNames = (entity: Entity): string[] =>
     .map((avatar: Avatar) => avatar.name)
     .filter((name: string) => name && name.trim().length > 0)
 
-const isBaseAvatar = (wearable: string): boolean =>
-  wearable.includes('base-avatars')
+const isBaseAvatar = (wearable: string): boolean => wearable.includes('base-avatars')
 
-const translateWearablesIdFormat = async (
-  wearableId: string
-): Promise<string | undefined> => {
+const translateWearablesIdFormat = async (wearableId: string): Promise<string | undefined> => {
   if (!wearableId.startsWith('dcl://')) {
     return wearableId
   }
@@ -94,14 +83,10 @@ const allWearablesUrns = async (entity: Entity) => {
   for (const avatar of entity.metadata.avatars) {
     for (const wearableId of avatar.avatar.wearables) {
       if (!isBaseAvatar(wearableId) && !isOldEmote(wearableId)) {
-        allWearablesInProfilePromises.push(
-          translateWearablesIdFormat(wearableId)
-        )
+        allWearablesInProfilePromises.push(translateWearablesIdFormat(wearableId))
       }
     }
   }
 
-  return (await Promise.all(allWearablesInProfilePromises)).filter(
-    (wearableId): wearableId is string => !!wearableId
-  )
+  return (await Promise.all(allWearablesInProfilePromises)).filter((wearableId): wearableId is string => !!wearableId)
 }

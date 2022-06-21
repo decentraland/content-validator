@@ -1,10 +1,5 @@
 import { EthAddress, WearableId } from '@dcl/schemas'
-import {
-  BlockInformation,
-  ContentValidatorComponents,
-  TheGraphClient,
-  URLs
-} from '../types'
+import { BlockInformation, ContentValidatorComponents, TheGraphClient, URLs } from '../types'
 import { parseUrn } from '@dcl/urn-resolver'
 
 export type PermissionResult = {
@@ -42,9 +37,7 @@ export const createTheGraphClient = (
 
     const blocks = await findBlocksForTimestamp('blocksSubgraph', timestamp)
 
-    const hasPermissionOnBlock = async (
-      blockNumber: number | undefined
-    ): Promise<PermissionResult> => {
+    const hasPermissionOnBlock = async (blockNumber: number | undefined): Promise<PermissionResult> => {
       if (!blockNumber) {
         return permissionError()
       }
@@ -69,16 +62,12 @@ export const createTheGraphClient = (
         const notOwned = namesToCheck.filter((name) => !ownedNames.has(name))
         return notOwned.length > 0 ? permissionError(notOwned) : permissionOk()
       } catch {
-        logger.error(
-          `Error retrieving names owned by address ${ethAddress} at block ${blockNumber}`
-        )
+        logger.error(`Error retrieving names owned by address ${ethAddress} at block ${blockNumber}`)
         return permissionError()
       }
     }
 
-    const permissionMostRecentBlock = await hasPermissionOnBlock(
-      blocks.blockNumberAtDeployment
-    )
+    const permissionMostRecentBlock = await hasPermissionOnBlock(blocks.blockNumberAtDeployment)
     if (permissionMostRecentBlock.result) {
       return permissionMostRecentBlock
     }
@@ -91,9 +80,7 @@ export const createTheGraphClient = (
     matic: WearableId[]
   }
 
-  const splitWearablesByNetwork = async (
-    wearableIdsToCheck: WearableId[]
-  ): Promise<WearablesByNetwork> => {
+  const splitWearablesByNetwork = async (wearableIdsToCheck: WearableId[]): Promise<WearablesByNetwork> => {
     const ethereum: WearableId[] = []
     const matic: WearableId[] = []
     for (const wearable of wearableIdsToCheck) {
@@ -101,10 +88,7 @@ export const createTheGraphClient = (
       if (
         parsed &&
         'network' in parsed &&
-        [
-          'blockchain-collection-v1-asset',
-          'blockchain-collection-v2-asset'
-        ].includes(parsed.type)
+        ['blockchain-collection-v1-asset', 'blockchain-collection-v2-asset'].includes(parsed.type)
       ) {
         if (L1_NETWORKS.includes(parsed.network)) {
           ethereum.push(wearable)
@@ -134,9 +118,7 @@ export const createTheGraphClient = (
       return permissionOk()
     }
 
-    const { ethereum, matic } = await splitWearablesByNetwork(
-      wearableIdsToCheck
-    )
+    const { ethereum, matic } = await splitWearablesByNetwork(wearableIdsToCheck)
     const ethereumWearablesOwnersPromise = getOwnersByWearableWithTimestamp(
       ethAddress,
       ethereum,
@@ -157,13 +139,9 @@ export const createTheGraphClient = (
       maticWearablesOwnersPromise
     ])
 
-    if (ethereumWearablesOwners.result && maticWearablesOwners.result)
-      return permissionOk()
+    if (ethereumWearablesOwners.result && maticWearablesOwners.result) return permissionOk()
     else {
-      return permissionError([
-        ...(ethereumWearablesOwners.failing ?? []),
-        ...(maticWearablesOwners.failing ?? [])
-      ])
+      return permissionError([...(ethereumWearablesOwners.failing ?? []), ...(maticWearablesOwners.failing ?? [])])
     }
   }
 
@@ -180,9 +158,7 @@ export const createTheGraphClient = (
 
     const blocks = await findBlocksForTimestamp(blocksSubgraph, timestamp)
 
-    const hasPermissionOnBlock = async (
-      blockNumber: number | undefined
-    ): Promise<PermissionResult> => {
+    const hasPermissionOnBlock = async (blockNumber: number | undefined): Promise<PermissionResult> => {
       if (!blockNumber) {
         return permissionError()
       }
@@ -204,9 +180,7 @@ export const createTheGraphClient = (
 
       try {
         const ownedWearables = await runOwnedWearablesOnBlockQuery(blockNumber)
-        const notOwned = wearableIdsToCheck.filter(
-          (name) => !ownedWearables.has(name)
-        )
+        const notOwned = wearableIdsToCheck.filter((name) => !ownedWearables.has(name))
         return notOwned.length > 0 ? permissionError(notOwned) : permissionOk()
       } catch (error) {
         logger.error(
@@ -216,9 +190,7 @@ export const createTheGraphClient = (
       }
     }
 
-    const permissionMostRecentBlock = await hasPermissionOnBlock(
-      blocks.blockNumberAtDeployment
-    )
+    const permissionMostRecentBlock = await hasPermissionOnBlock(blocks.blockNumberAtDeployment)
     if (permissionMostRecentBlock.result) {
       return permissionMostRecentBlock
     }
@@ -239,19 +211,14 @@ export const createTheGraphClient = (
       return query.mapper(response)
     } catch (error) {
       logger.error(
-        `Failed to execute the following query to the subgraph ${
-          urls[query.subgraph]
-        } ${query.description}'.`
+        `Failed to execute the following query to the subgraph ${urls[query.subgraph]} ${query.description}'.`
       )
       logger.error(error as any)
       throw new Error('Internal server error')
     }
   }
 
-  const findBlocksForTimestamp = async (
-    subgraph: keyof URLs,
-    timestamp: number
-  ): Promise<BlockInformation> => {
+  const findBlocksForTimestamp = async (subgraph: keyof URLs, timestamp: number): Promise<BlockInformation> => {
     const query: Query<
       {
         min: { number: string }[]
@@ -265,21 +232,15 @@ export const createTheGraphClient = (
       mapper: (response) => {
         const blockNumberAtDeployment = response.max[0]?.number
         const blockNumberFiveMinBeforeDeployment = response.min[0]?.number
-        if (
-          blockNumberAtDeployment === undefined &&
-          blockNumberFiveMinBeforeDeployment === undefined
-        ) {
+        if (blockNumberAtDeployment === undefined && blockNumberFiveMinBeforeDeployment === undefined) {
           throw new Error(`Failed to find blocks for the specific timestamp`)
         }
 
         return {
-          blockNumberAtDeployment: !!blockNumberAtDeployment
-            ? parseInt(blockNumberAtDeployment)
-            : undefined,
-          blockNumberFiveMinBeforeDeployment:
-            !!blockNumberFiveMinBeforeDeployment
-              ? parseInt(blockNumberFiveMinBeforeDeployment)
-              : undefined
+          blockNumberAtDeployment: !!blockNumberAtDeployment ? parseInt(blockNumberAtDeployment) : undefined,
+          blockNumberFiveMinBeforeDeployment: !!blockNumberFiveMinBeforeDeployment
+            ? parseInt(blockNumberFiveMinBeforeDeployment)
+            : undefined
         }
       }
     }

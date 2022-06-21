@@ -1,9 +1,7 @@
 import { EntityType } from '@dcl/schemas'
 import sharp from 'sharp'
 import { ValidationResponse } from '../../../../src'
-import {
-  emoteRepresentationContent, wasCreatedAfterADR74
-} from '../../../../src/validations/items/emotes'
+import { emoteRepresentationContent, wasCreatedAfterADR74 } from '../../../../src/validations/items/emotes'
 import {
   deploymentMaxSizeExcludingThumbnailIsNotExceeded,
   thumbnailMaxSizeIsNotExceeded
@@ -24,10 +22,7 @@ describe('Emotes', () => {
     const fileName = 'thumbnail.png'
     const hash = 'thumbnail'
 
-    const createImage = async (
-      size: number,
-      format: 'png' | 'jpg' = 'png'
-    ): Promise<Buffer> => {
+    const createImage = async (size: number, format: 'png' | 'jpg' = 'png'): Promise<Buffer> => {
       let image = sharp({
         create: {
           width: size,
@@ -58,9 +53,7 @@ describe('Emotes', () => {
 
       const result = await thumbnailMaxSizeIsNotExceeded.validate(components, deployment)
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(
-        `Couldn't find hash for thumbnail file with name: ${fileName}`
-      )
+      expect(result.errors).toContain(`Couldn't find hash for thumbnail file with name: ${fileName}`)
     })
 
     it('When there is no file for given thumbnail file hash, it should return an error', async () => {
@@ -76,9 +69,7 @@ describe('Emotes', () => {
 
       const result = await thumbnailMaxSizeIsNotExceeded.validate(components, deployment)
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(
-        `Couldn't find thumbnail file with hash: ${hash}`
-      )
+      expect(result.errors).toContain(`Couldn't find thumbnail file with hash: ${hash}`)
     })
 
     it('When thumbnail image format is not valid, it should return an error', async () => {
@@ -94,9 +85,7 @@ describe('Emotes', () => {
 
       const result = await thumbnailMaxSizeIsNotExceeded.validate(components, deployment)
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(
-        `Couldn't parse thumbnail, please check image format.`
-      )
+      expect(result.errors).toContain(`Couldn't parse thumbnail, please check image format.`)
     })
 
     it('When thumbnail image size is invalid, it should return an error', async () => {
@@ -112,9 +101,7 @@ describe('Emotes', () => {
 
       const result = await thumbnailMaxSizeIsNotExceeded.validate(components, deployment)
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(
-        `Invalid thumbnail image size (width = 1025 / height = 1025)`
-      )
+      expect(result.errors).toContain(`Invalid thumbnail image size (width = 1025 / height = 1025)`)
     })
 
     it('When thumbnail image format is not png, it should return an error', async () => {
@@ -129,14 +116,9 @@ describe('Emotes', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result: ValidationResponse = await thumbnailMaxSizeIsNotExceeded.validate(
-        components,
-        deployment
-      )
+      const result: ValidationResponse = await thumbnailMaxSizeIsNotExceeded.validate(components, deployment)
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(
-        `Invalid or unknown image format. Only 'PNG' format is accepted.`
-      )
+      expect(result.errors).toContain(`Invalid or unknown image format. Only 'PNG' format is accepted.`)
     })
 
     it('When thumbnail image size is valid, should not return any error', async () => {
@@ -169,10 +151,7 @@ describe('Emotes', () => {
         isContentStoredAlready: async () => new Map([[hash, true]])
       })
 
-      const result = await thumbnailMaxSizeIsNotExceeded.validate(
-        buildComponents({ externalCalls }),
-        deployment
-      )
+      const result = await thumbnailMaxSizeIsNotExceeded.validate(buildComponents({ externalCalls }), deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -274,10 +253,7 @@ describe('Emotes', () => {
         content
       })
       const deployment = buildDeployment({ entity, files })
-      const result = await emoteRepresentationContent.validate(
-        components,
-        deployment
-      )
+      const result = await emoteRepresentationContent.validate(components, deployment)
       expect(result.ok).toBeTruthy()
     })
 
@@ -298,14 +274,9 @@ describe('Emotes', () => {
         content
       })
       const deployment = buildDeployment({ entity, files })
-      const result = await emoteRepresentationContent.validate(
-        components,
-        deployment
-      )
+      const result = await emoteRepresentationContent.validate(components, deployment)
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(
-        `Representation content: 'file1' is not one of the content files`
-      )
+      expect(result.errors).toContain(`Representation content: 'file1' is not one of the content files`)
     })
 
     it('emote validation without representation fails', async () => {
@@ -325,14 +296,9 @@ describe('Emotes', () => {
         ]
       })
       const deployment = buildDeployment({ entity })
-      const result = await emoteRepresentationContent.validate(
-        components,
-        deployment
-      )
+      const result = await emoteRepresentationContent.validate(components, deployment)
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(
-        `No emote representations found`
-      )
+      expect(result.errors).toContain(`No emote representations found`)
     })
 
     it('emote validation without content fails', async () => {
@@ -342,19 +308,13 @@ describe('Emotes', () => {
         content: []
       })
       const deployment = buildDeployment({ entity })
-      const result = await emoteRepresentationContent.validate(
-        components,
-        deployment
-      )
+      const result = await emoteRepresentationContent.validate(components, deployment)
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(
-        `No content found`
-      )
+      expect(result.errors).toContain(`No content found`)
     })
   })
 
   describe('ADR 74', () => {
-
     it('emote validation with timestamp after adr 74 passes', async () => {
       const entity = buildEntity({
         type: EntityType.EMOTE,
@@ -363,10 +323,7 @@ describe('Emotes', () => {
         timestamp: timestampAfterADR74
       })
       const deployment = buildDeployment({ entity })
-      const result = await wasCreatedAfterADR74.validate(
-        components,
-        deployment
-      )
+      const result = await wasCreatedAfterADR74.validate(components, deployment)
       expect(result.ok).toBeTruthy()
     })
     it('emote validation with timestamp before adr 74 fails', async () => {
@@ -377,10 +334,7 @@ describe('Emotes', () => {
         timestamp: ADR_74_TIMESTAMP - 1
       })
       const deployment = buildDeployment({ entity })
-      const result = await wasCreatedAfterADR74.validate(
-        components,
-        deployment
-      )
+      const result = await wasCreatedAfterADR74.validate(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `The emote timestamp ${ADR_74_TIMESTAMP - 1} is before ADR 74. Emotes did not exist before ADR 74.`

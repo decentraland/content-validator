@@ -9,9 +9,7 @@ export const offChainAssetValidation: AssetValidation = {
     asset: OffChainAsset,
     deployment: DeploymentToValidate
   ) {
-    const ethAddress = components.externalCalls.ownerAddress(
-      deployment.auditInfo
-    )
+    const ethAddress = components.externalCalls.ownerAddress(deployment.auditInfo)
     if (!components.externalCalls.isAddressOwnedByDecentraland(ethAddress))
       return validationFailed(
         `The provided Eth Address '${ethAddress}' does not have access to the following item: '${asset.uri}'`

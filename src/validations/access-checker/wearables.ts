@@ -3,10 +3,7 @@ import { itemsValidation } from './items/items'
 
 export const wearables: Validation = {
   validate: async (
-    components: Pick<
-      ContentValidatorComponents,
-      'externalCalls' | 'logs' | 'theGraphClient'
-    >,
+    components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'theGraphClient'>,
     deployment
   ) => {
     return itemsValidation.validate(components, deployment, [

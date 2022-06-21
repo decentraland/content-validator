@@ -6,10 +6,7 @@ import { VALID_STANDARD_EMOTE_METADATA, VALID_THIRD_PARTY_EMOTE_METADATA_WITH_ME
 import { buildEntity } from '../../setup/entity'
 import { buildComponents } from '../../setup/mock'
 import { VALID_PROFILE_METADATA } from '../../setup/profiles'
-import {
-  VALID_THIRD_PARTY_WEARABLE,
-  VALID_WEARABLE_METADATA
-} from '../../setup/wearable'
+import { VALID_THIRD_PARTY_WEARABLE, VALID_WEARABLE_METADATA } from '../../setup/wearable'
 
 describe('Metadata Schema', () => {
   const POST_ADR_45_TIMESTAMP = ADR_45_TIMESTAMP + 1
@@ -33,9 +30,7 @@ describe('Metadata Schema', () => {
       const deployment = buildDeployment({ entity })
       const result = await metadata.validate(buildComponents(), deployment)
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(
-        `The metadata for this entity type (${type}) is not valid.`
-      )
+      expect(result.errors).toContain(`The metadata for this entity type (${type}) is not valid.`)
       errors.forEach(($) => expect(result.errors).toContain($))
     })
   }
@@ -52,9 +47,7 @@ describe('Metadata Schema', () => {
         parcels: ['0,0']
       }
     }
-    testType(EntityType.SCENE, validMetadata, invalidMetadata, undefined, [
-      "must have required property 'main'"
-    ])
+    testType(EntityType.SCENE, validMetadata, invalidMetadata, undefined, ["must have required property 'main'"])
   })
 
   describe('WEARABLE: ', () => {
@@ -70,10 +63,12 @@ describe('Metadata Schema', () => {
   })
 
   describe('THIRD PARTY EMOTE: ', () => {
-    testType(EntityType.EMOTE,
+    testType(
+      EntityType.EMOTE,
       VALID_THIRD_PARTY_EMOTE_METADATA_WITH_MERKLE_ROOT.entity,
       invalidMetadata,
-      ADR_74_TIMESTAMP + 1)
+      ADR_74_TIMESTAMP + 1
+    )
   })
 
   it('When entity timestamp is previous to ADR_45, then validation does not run', async () => {

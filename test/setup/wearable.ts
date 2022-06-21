@@ -10,7 +10,16 @@ import {
   WearableRepresentation
 } from '@dcl/schemas'
 
-const WEARABLE_MERKLE_PROOF_REQUIRED_KEYS = ['content', 'id', 'name', 'description', 'i18n', 'image', 'thumbnail', 'data']
+const WEARABLE_MERKLE_PROOF_REQUIRED_KEYS = [
+  'content',
+  'id',
+  'name',
+  'description',
+  'i18n',
+  'image',
+  'thumbnail',
+  'data'
+]
 
 const representation: WearableRepresentation = {
   bodyShapes: [BodyShape.FEMALE],
@@ -43,8 +52,7 @@ export const VALID_WEARABLE_METADATA: Wearable = {
   image: 'image.png'
 }
 
-export const VALID_THIRD_PARTY_WEARABLE_BASE_METADATA: Omit<Wearable & ThirdPartyProps, 'merkleProof'>
-  = {
+export const VALID_THIRD_PARTY_WEARABLE_BASE_METADATA: Omit<Wearable & ThirdPartyProps, 'merkleProof'> = {
   id: 'urn:decentraland:mumbai:collections-thirdparty:jean-pier:someCollection:someItemId',
   name: 'name',
   description: 'some description',
@@ -65,25 +73,32 @@ export const VALID_THIRD_PARTY_WEARABLE_BASE_METADATA: Omit<Wearable & ThirdPart
   image: 'image.png',
   content: {
     ['image.png']: 'QmPEXLrQNEYVJfe5P2CbNuVpx4UabK37jQ6Hor1n9gw8dY',
-    ['female/M_3LAU_Hat_Blue.glb']:
-      'QmebRdUS12afshxzNtTb2h6UhSXjMrGTGeZWcwwtmhTJng',
-    ['male/M_3LAU_Hat_Blue.glb']:
-      'QmebRdUS12afshxzNtTb2h6UhSXjMrGTGeZWcwwtmhTJng',
+    ['female/M_3LAU_Hat_Blue.glb']: 'QmebRdUS12afshxzNtTb2h6UhSXjMrGTGeZWcwwtmhTJng',
+    ['male/M_3LAU_Hat_Blue.glb']: 'QmebRdUS12afshxzNtTb2h6UhSXjMrGTGeZWcwwtmhTJng',
     ['thumbnail.png']: 'QmPP232rkN2UDg8yGAyJ6hkHGsDFwXivcv9MXFfnW8r34y'
   }
 }
 
-export const VALID_THIRD_PARTY_WEARABLE = buildEntityMetadataWithMerkleProof(
-  VALID_THIRD_PARTY_WEARABLE_BASE_METADATA,
-  ['someOtherHash1', 'someOtherHash2']
-)
+export const VALID_THIRD_PARTY_WEARABLE = buildEntityMetadataWithMerkleProof(VALID_THIRD_PARTY_WEARABLE_BASE_METADATA, [
+  'someOtherHash1',
+  'someOtherHash2'
+])
 
 // Using the entity, the keys to be hashed and the other node hashes, build the merkle proof for the entity and return a new proofed entity.
 function buildEntityMetadataWithMerkleProof(
   baseEntity: Omit<Wearable & ThirdPartyProps, 'merkleProof'>,
   otherNodeHashes: string[]
 ): { root: string; entity: Wearable & ThirdPartyProps } {
-  const entityHash = keccak256Hash(baseEntity, ['content', 'id', 'name', 'description', 'i18n', 'image', 'thumbnail', 'data'])
+  const entityHash = keccak256Hash(baseEntity, [
+    'content',
+    'id',
+    'name',
+    'description',
+    'i18n',
+    'image',
+    'thumbnail',
+    'data'
+  ])
   const sortedHashes = [...otherNodeHashes, entityHash].sort()
   const tree = generateTree(sortedHashes)
   const entityProof = tree.proofs[entityHash]

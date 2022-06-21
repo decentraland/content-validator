@@ -1,10 +1,5 @@
 import { Entity, EntityType } from '@dcl/schemas'
-import {
-  DeploymentToValidate,
-  OK,
-  Validation,
-  validationFailed
-} from '../../types'
+import { DeploymentToValidate, OK, Validation, validationFailed } from '../../types'
 import { LEGACY_CONTENT_MIGRATION_TIMESTAMP } from '../timestamps'
 import { emotes } from './emotes'
 import { profiles } from './profiles'
@@ -27,8 +22,7 @@ const accessCheckers: Record<EntityType, Validation> = {
 export const access: Validation = {
   validate: async (components, deployment: DeploymentToValidate) => {
     const { externalCalls } = components
-    const deployedBeforeDCLLaunch =
-      deployment.entity.timestamp <= LEGACY_CONTENT_MIGRATION_TIMESTAMP
+    const deployedBeforeDCLLaunch = deployment.entity.timestamp <= LEGACY_CONTENT_MIGRATION_TIMESTAMP
     const address = externalCalls.ownerAddress(deployment.auditInfo)
 
     // Default scenes were removed from the Content Servers after https://github.com/decentraland/catalyst/issues/878
@@ -38,22 +32,12 @@ export const access: Validation = {
       )
     }
     // Legacy entities still need to be synchronized
-    if (
-      deployedBeforeDCLLaunch &&
-      externalCalls.isAddressOwnedByDecentraland(address)
-    )
-      return OK
+    if (deployedBeforeDCLLaunch && externalCalls.isAddressOwnedByDecentraland(address)) return OK
 
-    return accessCheckers[deployment.entity.type].validate(
-      components,
-      deployment
-    )
+    return accessCheckers[deployment.entity.type].validate(components, deployment)
   }
 }
 
 function isDefaultScene(entity: Entity) {
-  return (
-    entity.type === EntityType.SCENE &&
-    entity.pointers.some((p) => p.toLowerCase().startsWith('default'))
-  )
+  return entity.type === EntityType.SCENE && entity.pointers.some((p) => p.toLowerCase().startsWith('default'))
 }

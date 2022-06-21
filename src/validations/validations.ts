@@ -1,11 +1,5 @@
 import { EntityType } from '@dcl/schemas'
-import {
-  ContentValidatorComponents,
-  DeploymentToValidate,
-  OK,
-  Validation,
-  ValidationResponse
-} from '../types'
+import { ContentValidatorComponents, DeploymentToValidate, OK, Validation, ValidationResponse } from '../types'
 import { ADR_45_TIMESTAMP, ADR_74_TIMESTAMP, ADR_75_TIMESTAMP } from './timestamps'
 
 export function validationGroup(...validations: Validation[]): Validation {
@@ -28,10 +22,7 @@ export function conditionalValidation(
   validation: Validation
 ): Validation {
   return {
-    async validate(
-      components: ContentValidatorComponents,
-      deployment: DeploymentToValidate
-    ) {
+    async validate(components: ContentValidatorComponents, deployment: DeploymentToValidate) {
       const conditionIsMet = await condition(deployment)
       if (conditionIsMet) {
         return validation.validate(components, deployment)
@@ -42,29 +33,17 @@ export function conditionalValidation(
 }
 
 export function validationAfterADR45(validation: Validation): Validation {
-  return conditionalValidation(
-    (deployment) => deployment.entity.timestamp >= ADR_45_TIMESTAMP,
-    validation
-  )
+  return conditionalValidation((deployment) => deployment.entity.timestamp >= ADR_45_TIMESTAMP, validation)
 }
 
 export function validationAfterADR75(validation: Validation): Validation {
-  return conditionalValidation(
-    (deployment) => deployment.entity.timestamp >= ADR_75_TIMESTAMP,
-    validation
-  )
+  return conditionalValidation((deployment) => deployment.entity.timestamp >= ADR_75_TIMESTAMP, validation)
 }
 
 export function validationAfterADR74(validation: Validation): Validation {
-  return conditionalValidation(
-    (deployment) => deployment.entity.timestamp >= ADR_74_TIMESTAMP,
-    validation
-  )
+  return conditionalValidation((deployment) => deployment.entity.timestamp >= ADR_74_TIMESTAMP, validation)
 }
 
 export function validationForType(entityType: EntityType, validation: Validation) {
-  return conditionalValidation(
-    (deployment) => deployment.entity.type === entityType,
-    validation
-  )
+  return conditionalValidation((deployment) => deployment.entity.type === entityType, validation)
 }

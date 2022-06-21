@@ -68,10 +68,8 @@ export const VALID_THIRD_PARTY_WEARABLE_BASE_METADATA: Omit<Emote & ThirdPartyPr
   image: 'image.png',
   content: {
     ['image.png']: 'QmPEXLrQNEYVJfe5P2CbNuVpx4UabK37jQ6Hor1n9gw8dY',
-    ['female/M_3LAU_Hat_Blue.glb']:
-      'QmebRdUS12afshxzNtTb2h6UhSXjMrGTGeZWcwwtmhTJng',
-    ['male/M_3LAU_Hat_Blue.glb']:
-      'QmebRdUS12afshxzNtTb2h6UhSXjMrGTGeZWcwwtmhTJng',
+    ['female/M_3LAU_Hat_Blue.glb']: 'QmebRdUS12afshxzNtTb2h6UhSXjMrGTGeZWcwwtmhTJng',
+    ['male/M_3LAU_Hat_Blue.glb']: 'QmebRdUS12afshxzNtTb2h6UhSXjMrGTGeZWcwwtmhTJng',
     ['thumbnail.png']: 'QmPP232rkN2UDg8yGAyJ6hkHGsDFwXivcv9MXFfnW8r34y'
   }
 }

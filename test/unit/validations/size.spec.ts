@@ -6,12 +6,8 @@ import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
 import { buildComponents, buildExternalCalls } from '../../setup/mock'
 
-const buildFiles = (
-  ...files: [hash: string, sizeInMB: number][]
-): Map<string, Uint8Array> =>
-  new Map(
-    files?.map((file) => [file[0], Buffer.alloc(file[1] * 1024 * 1024)]) ?? []
-  )
+const buildFiles = (...files: [hash: string, sizeInMB: number][]): Map<string, Uint8Array> =>
+  new Map(files?.map((file) => [file[0], Buffer.alloc(file[1] * 1024 * 1024)]) ?? [])
 
 describe('Size', () => {
   const components = buildComponents()
@@ -121,14 +117,10 @@ describe('Size', () => {
 
       const deployment = buildDeployment({ entity, files })
       const externalCalls = buildExternalCalls({
-        fetchContentFileSize: (hash) =>
-          Promise.resolve(contentSizes.get(hash) ?? 0)
+        fetchContentFileSize: (hash) => Promise.resolve(contentSizes.get(hash) ?? 0)
       })
 
-      const response = await size.validate(
-        buildComponents({ externalCalls }),
-        deployment
-      )
+      const response = await size.validate(buildComponents({ externalCalls }), deployment)
       expect(response.ok).toBeFalsy()
       expect(response.errors).toContain(
         'The deployment is too big. The maximum allowed size per pointer is 15 MB for scene. You can upload up to 15728640 bytes but you tried to upload 16777216.'
@@ -154,14 +146,9 @@ describe('Size', () => {
         fetchContentFileSize: () => Promise.resolve(undefined)
       })
 
-      const response = await size.validate(
-        buildComponents({ externalCalls }),
-        deployment
-      )
+      const response = await size.validate(buildComponents({ externalCalls }), deployment)
       expect(response.ok).toBeFalsy()
-      expect(response.errors).toContain(
-        `Couldn't fetch content file with hash: A`
-      )
+      expect(response.errors).toContain(`Couldn't fetch content file with hash: A`)
     })
 
     it('When file has 0 size, it succeeds', async () => {
@@ -183,10 +170,7 @@ describe('Size', () => {
         fetchContentFileSize: () => Promise.resolve(0)
       })
 
-      const response = await size.validate(
-        buildComponents({ externalCalls }),
-        deployment
-      )
+      const response = await size.validate(buildComponents({ externalCalls }), deployment)
       expect(response.ok).toBeTruthy()
     })
 
@@ -208,14 +192,10 @@ describe('Size', () => {
 
       const deployment = buildDeployment({ entity, files })
       const externalCalls = buildExternalCalls({
-        fetchContentFileSize: (hash) =>
-          Promise.resolve(contentSizes.get(hash) ?? 0)
+        fetchContentFileSize: (hash) => Promise.resolve(contentSizes.get(hash) ?? 0)
       })
 
-      const response = await size.validate(
-        buildComponents({ externalCalls }),
-        deployment
-      )
+      const response = await size.validate(buildComponents({ externalCalls }), deployment)
       expect(response.ok).toBeTruthy()
     })
   })

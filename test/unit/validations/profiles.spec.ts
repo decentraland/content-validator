@@ -17,10 +17,7 @@ describe('Profiles', () => {
     const fileName = 'face256.png'
     const hash = 'bafybeiasb5vpmaounyilfuxbd3lryvosl4yefqrfahsb2esg46q6tu6y5s'
 
-    const createImage = async (
-      size: number,
-      format: 'png' | 'jpg' = 'png'
-    ): Promise<Buffer> => {
+    const createImage = async (size: number, format: 'png' | 'jpg' = 'png'): Promise<Buffer> => {
       let image = sharp({
         create: {
           width: size,
@@ -49,15 +46,10 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result: ValidationResponse = await faceThumbnail.validate(
-        components,
-        deployment
-      )
+      const result: ValidationResponse = await faceThumbnail.validate(components, deployment)
 
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(
-        `Couldn't find thumbnail file with hash: ${hash}`
-      )
+      expect(result.errors).toContain(`Couldn't find thumbnail file with hash: ${hash}`)
     })
 
     it('When there is no file for given thumbnail file hash, it should return an error', async () => {
@@ -73,9 +65,7 @@ describe('Profiles', () => {
 
       const result = await faceThumbnail.validate(components, deployment)
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(
-        `Couldn't find thumbnail file with hash: ${hash}`
-      )
+      expect(result.errors).toContain(`Couldn't find thumbnail file with hash: ${hash}`)
     })
 
     it('When thumbnail image format is not valid, it should return an error', async () => {
@@ -91,9 +81,7 @@ describe('Profiles', () => {
 
       const result = await faceThumbnail.validate(components, deployment)
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(
-        `Couldn't parse face256 thumbnail, please check image format.`
-      )
+      expect(result.errors).toContain(`Couldn't parse face256 thumbnail, please check image format.`)
     })
 
     it('When thumbnail image size is invalid, it should return an error', async () => {
@@ -109,9 +97,7 @@ describe('Profiles', () => {
 
       const result = await faceThumbnail.validate(components, deployment)
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(
-        `Invalid face256 thumbnail image size (width = 1 / height = 1)`
-      )
+      expect(result.errors).toContain(`Invalid face256 thumbnail image size (width = 1 / height = 1)`)
     })
 
     it('When thumbnail image format is not png, it should return an error', async () => {
@@ -128,9 +114,7 @@ describe('Profiles', () => {
 
       const result = await faceThumbnail.validate(components, deployment)
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(
-        `Invalid or unknown image format. Only 'PNG' format is accepted.`
-      )
+      expect(result.errors).toContain(`Invalid or unknown image format. Only 'PNG' format is accepted.`)
     })
 
     it('When thumbnail image size is valid, should not return any error', async () => {
@@ -163,10 +147,7 @@ describe('Profiles', () => {
         isContentStoredAlready: async () => new Map([[hash, true]])
       })
 
-      const result = await faceThumbnail.validate(
-        buildComponents({ externalCalls }),
-        deployment
-      )
+      const result = await faceThumbnail.validate(buildComponents({ externalCalls }), deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -214,9 +195,7 @@ describe('Profiles', () => {
           avatars: [
             {
               avatar: {
-                wearables: [
-                  'urn:decentraland:tucu-tucu:base-avatars:tall_front_01'
-                ]
+                wearables: ['urn:decentraland:tucu-tucu:base-avatars:tall_front_01']
               }
             }
           ]

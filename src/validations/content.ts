@@ -2,18 +2,12 @@ import { Avatar, EntityType, Profile } from '@dcl/schemas'
 import { fromErrors, Validation } from '../types'
 import { validationAfterADR45, validationGroup } from './validations'
 
-const correspondsToASnapshot = (
-  fileName: string,
-  hash: string,
-  metadata: Profile
-) => {
+const correspondsToASnapshot = (fileName: string, hash: string, metadata: Profile) => {
   const fileNameWithoutExtension = fileName.replace(/.[^/.]+$/, '')
 
   if (!metadata || !metadata.avatars) return false
   return metadata.avatars.some((avatar: Avatar) =>
-    Object.entries(avatar.avatar.snapshots).some(
-      (key) => key[0] === fileNameWithoutExtension && key[1] === hash
-    )
+    Object.entries(avatar.avatar.snapshots).some((key) => key[0] === fileNameWithoutExtension && key[1] === hash)
   )
 }
 
@@ -29,9 +23,7 @@ export const allHashesWereUploadedOrStored: Validation = {
       for (const { hash } of entity.content) {
         // Validate that all hashes in entity were uploaded, or were already stored on the service
         if (!(files.has(hash) || alreadyStoredHashes.get(hash))) {
-          errors.push(
-            `This hash is referenced in the entity but was not uploaded or previously available: ${hash}`
-          )
+          errors.push(`This hash is referenced in the entity but was not uploaded or previously available: ${hash}`)
         }
       }
     }
@@ -47,9 +39,7 @@ export const allHashesInUploadedFilesAreReportedInTheEntity: Validation = {
     const entityHashes = new Set(entity.content?.map(({ hash }) => hash) ?? [])
     for (const [hash] of files) {
       if (!entityHashes.has(hash) && hash !== entity.id) {
-        errors.push(
-          `This hash was uploaded but is not referenced in the entity: ${hash}`
-        )
+        errors.push(`This hash was uploaded but is not referenced in the entity: ${hash}`)
       }
     }
     return fromErrors(...errors)
@@ -73,7 +63,6 @@ export const allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45: Vali
     return fromErrors(...errors)
   }
 })
-
 
 /**
  * Validate that uploaded and reported hashes are corrects and files corresponds to snapshots

@@ -1,6 +1,8 @@
 import {
-  allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45, allHashesInUploadedFilesAreReportedInTheEntity,
-  allHashesWereUploadedOrStored, content
+  allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45,
+  allHashesInUploadedFilesAreReportedInTheEntity,
+  allHashesWereUploadedOrStored,
+  content
 } from '../../../src/validations/content'
 import { ADR_45_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment } from '../../setup/deployments'
@@ -50,10 +52,7 @@ describe('Content', () => {
       isContentStoredAlready: () => Promise.resolve(new Map([['hash', true]]))
     })
 
-    const result = await content.validate(
-      buildComponents({ externalCalls }),
-      deployment
-    )
+    const result = await content.validate(buildComponents({ externalCalls }), deployment)
     expect(result.ok).toBeTruthy()
   })
 
@@ -118,7 +117,10 @@ describe('Content', () => {
       })
 
       const deployment = buildDeployment({ entity, files })
-      const result = await allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45.validate(components, deployment)
+      const result = await allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45.validate(
+        components,
+        deployment
+      )
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `This file is not expected: '${expectedFile}' or its hash is invalid: '${invalidHash}'. Please, include only valid snapshot files.`
@@ -138,7 +140,10 @@ describe('Content', () => {
       })
 
       const deployment = buildDeployment({ entity, files })
-      const result = await allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45.validate(components, deployment)
+      const result = await allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45.validate(
+        components,
+        deployment
+      )
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `This file is not expected: '${unexpectedFile}' or its hash is invalid: '${hash}'. Please, include only valid snapshot files.`
@@ -158,7 +163,10 @@ describe('Content', () => {
       })
 
       const deployment = buildDeployment({ entity, files })
-      const result = await allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45.validate(components, deployment)
+      const result = await allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45.validate(
+        components,
+        deployment
+      )
       expect(result.ok).toBeTruthy()
     })
   })

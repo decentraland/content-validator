@@ -6,11 +6,7 @@ import {
   parseUrn
 } from '@dcl/urn-resolver'
 import { DeploymentToValidate } from '../../..'
-import {
-  ContentValidatorComponents,
-  validationFailed,
-  ValidationResponse
-} from '../../../types'
+import { ContentValidatorComponents, validationFailed, ValidationResponse } from '../../../types'
 import { v1andV2collectionAssetValidation } from './collection-asset'
 import { offChainAssetValidation } from './off-chain-asset'
 import { thirdPartyAssetValidation } from './third-party-asset'
@@ -36,25 +32,13 @@ export type AssetValidation = {
   canValidate(asset: SupportedAsset): boolean
 }
 
-const assetValidations = [
-  offChainAssetValidation,
-  v1andV2collectionAssetValidation,
-  thirdPartyAssetValidation
-]
+const assetValidations = [offChainAssetValidation, v1andV2collectionAssetValidation, thirdPartyAssetValidation]
 
-function alreadySeen(
-  resolvedPointers: SupportedAsset[],
-  parsed: SupportedAsset
-): boolean {
-  return resolvedPointers.some((alreadyResolved) =>
-    resolveSameUrn(alreadyResolved, parsed)
-  )
+function alreadySeen(resolvedPointers: SupportedAsset[], parsed: SupportedAsset): boolean {
+  return resolvedPointers.some((alreadyResolved) => resolveSameUrn(alreadyResolved, parsed))
 }
 
-function resolveSameUrn(
-  alreadyParsed: SupportedAsset,
-  parsed: SupportedAsset
-): boolean {
+function resolveSameUrn(alreadyParsed: SupportedAsset, parsed: SupportedAsset): boolean {
   const alreadyParsedCopy = Object.assign({}, alreadyParsed)
   const parsedCopy = Object.assign({}, parsed)
   alreadyParsedCopy.uri = new URL('urn:same')
@@ -77,16 +61,13 @@ async function parseUrnNoFail(urn: string): Promise<SupportedAsset | null> {
     if (parsed?.type === 'blockchain-collection-third-party') {
       return parsed
     }
-  } catch { }
+  } catch {}
   return null
 }
 
 export const itemsValidation = {
   validate: async (
-    components: Pick<
-      ContentValidatorComponents,
-      'externalCalls' | 'logs' | 'theGraphClient'
-    >,
+    components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'theGraphClient'>,
     deployment: DeploymentToValidate,
     validUrnTypesForItem: UrnType[]
   ) => {
@@ -107,9 +88,7 @@ export const itemsValidation = {
     }
 
     if (resolvedPointers.length > 1)
-      return validationFailed(
-        `Only one pointer is allowed when you create an item. Received: ${pointers}`
-      )
+      return validationFailed(`Only one pointer is allowed when you create an item. Received: ${pointers}`)
 
     const parsedAsset = resolvedPointers[0]
 
@@ -124,8 +103,6 @@ export const itemsValidation = {
         return validation.validateAsset(components, parsedAsset, deployment)
       }
     }
-    throw new Error(
-      'This should never happen. There is no validations for the asset.'
-    )
+    throw new Error('This should never happen. There is no validations for the asset.')
   }
 }

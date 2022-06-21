@@ -1,11 +1,5 @@
 import { EntityType } from '@dcl/schemas'
-import {
-  ContentValidatorComponents,
-  DeploymentToValidate,
-  OK,
-  Validation,
-  validationFailed
-} from '../types'
+import { ContentValidatorComponents, DeploymentToValidate, OK, Validation, validationFailed } from '../types'
 import { entityParameters } from './ADR51'
 import { ADR_74_TIMESTAMP } from './timestamps'
 import { validationAfterADR45, validationAfterADR74, validationForType, validationGroup } from './validations'
@@ -22,15 +16,12 @@ const metadataSchemaIsValid: Validation = {
       return OK
     }
     const errors = validator.errors?.map(($) => '' + $.message) || []
-    return validationFailed(
-      `The metadata for this entity type (${deployment.entity.type}) is not valid.`,
-      ...errors
-    )
+    return validationFailed(`The metadata for this entity type (${deployment.entity.type}) is not valid.`, ...errors)
   }
 }
 
 type ADR = {
-  number: number,
+  number: number
   timestamp: number
 }
 
@@ -45,11 +36,13 @@ const ADRMetadataVersionTimelines: Record<EntityType, ADR[]> = {
 const metadataVersionIsCorrectForTimestamp: Validation = {
   validate(components: ContentValidatorComponents, deployment: DeploymentToValidate) {
     const entity = deployment.entity
-    const adrNumber = ADRMetadataVersionTimelines[entity.type].find(v => v.timestamp < entity.timestamp)?.number
+    const adrNumber = ADRMetadataVersionTimelines[entity.type].find((v) => v.timestamp < entity.timestamp)?.number
     const expectedDataField = `${entity.type}DataADR${adrNumber}`
-    return (`${expectedDataField}` in deployment.entity.metadata)
+    return `${expectedDataField}` in deployment.entity.metadata
       ? OK
-      : validationFailed(`'emoteData' field version is incorrect. It must be: '${expectedDataField} but it is: ${deployment.entity.metadata} `)
+      : validationFailed(
+          `'emoteData' field version is incorrect. It must be: '${expectedDataField} but it is: ${deployment.entity.metadata} `
+        )
   }
 }
 

@@ -1,12 +1,4 @@
-import {
-  Emote,
-  EntityType,
-  Profile,
-  Scene,
-  Store,
-  ValidateFunction,
-  Wearable
-} from '@dcl/schemas'
+import { Emote, EntityType, Profile, Scene, Store, ValidateFunction, Wearable } from '@dcl/schemas'
 
 type Params = {
   validate: ValidateFunction<Scene | Profile | Wearable | Store | Emote>

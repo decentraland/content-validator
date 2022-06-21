@@ -25,17 +25,14 @@ export const size: Validation = {
       if (typeof result === 'string') return validationFailed(result)
       totalSize = result
     } else {
-      totalSize = Array.from(deployment.files.values()).reduce(
-        (acc, file) => acc + file.byteLength,
-        0
-      )
+      totalSize = Array.from(deployment.files.values()).reduce((acc, file) => acc + file.byteLength, 0)
     }
     const sizePerPointer = totalSize / entity.pointers.length
     if (sizePerPointer > maxSizeInBytes) {
       errors = [
-        `The deployment is too big. The maximum allowed size per pointer is ${maxSizeInMB} MB for ${entity.type
-        }. You can upload up to ${entity.pointers.length * maxSizeInBytes
-        } bytes but you tried to upload ${totalSize}.`
+        `The deployment is too big. The maximum allowed size per pointer is ${maxSizeInMB} MB for ${
+          entity.type
+        }. You can upload up to ${entity.pointers.length * maxSizeInBytes} bytes but you tried to upload ${totalSize}.`
       ]
     }
     return errors.length > 0 ? validationFailed(...errors) : OK

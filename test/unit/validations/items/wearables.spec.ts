@@ -5,9 +5,7 @@ import {
   deploymentMaxSizeExcludingThumbnailIsNotExceeded,
   thumbnailMaxSizeIsNotExceeded
 } from '../../../../src/validations/items/items'
-import {
-  wearableRepresentationContent
-} from '../../../../src/validations/items/wearables'
+import { wearableRepresentationContent } from '../../../../src/validations/items/wearables'
 import { size } from '../../../../src/validations/size'
 import { ADR_45_TIMESTAMP } from '../../../../src/validations/timestamps'
 import { buildDeployment } from '../../../setup/deployments'
@@ -24,10 +22,7 @@ describe('Wearables', () => {
     const fileName = 'thumbnail.png'
     const hash = 'thumbnail'
 
-    const createImage = async (
-      size: number,
-      format: 'png' | 'jpg' = 'png'
-    ): Promise<Buffer> => {
+    const createImage = async (size: number, format: 'png' | 'jpg' = 'png'): Promise<Buffer> => {
       let image = sharp({
         create: {
           width: size,
@@ -58,9 +53,7 @@ describe('Wearables', () => {
 
       const result = await thumbnailMaxSizeIsNotExceeded.validate(components, deployment)
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(
-        `Couldn't find hash for thumbnail file with name: ${fileName}`
-      )
+      expect(result.errors).toContain(`Couldn't find hash for thumbnail file with name: ${fileName}`)
     })
 
     it('When there is no file for given thumbnail file hash, it should return an error', async () => {
@@ -76,9 +69,7 @@ describe('Wearables', () => {
 
       const result = await thumbnailMaxSizeIsNotExceeded.validate(components, deployment)
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(
-        `Couldn't find thumbnail file with hash: ${hash}`
-      )
+      expect(result.errors).toContain(`Couldn't find thumbnail file with hash: ${hash}`)
     })
 
     it('When thumbnail image format is not valid, it should return an error', async () => {
@@ -94,9 +85,7 @@ describe('Wearables', () => {
 
       const result = await thumbnailMaxSizeIsNotExceeded.validate(components, deployment)
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(
-        `Couldn't parse thumbnail, please check image format.`
-      )
+      expect(result.errors).toContain(`Couldn't parse thumbnail, please check image format.`)
     })
 
     it('When thumbnail image size is invalid, it should return an error', async () => {
@@ -112,9 +101,7 @@ describe('Wearables', () => {
 
       const result = await thumbnailMaxSizeIsNotExceeded.validate(components, deployment)
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(
-        `Invalid thumbnail image size (width = 1025 / height = 1025)`
-      )
+      expect(result.errors).toContain(`Invalid thumbnail image size (width = 1025 / height = 1025)`)
     })
 
     it('When thumbnail image format is not png, it should return an error', async () => {
@@ -129,14 +116,9 @@ describe('Wearables', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result: ValidationResponse = await thumbnailMaxSizeIsNotExceeded.validate(
-        components,
-        deployment
-      )
+      const result: ValidationResponse = await thumbnailMaxSizeIsNotExceeded.validate(components, deployment)
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(
-        `Invalid or unknown image format. Only 'PNG' format is accepted.`
-      )
+      expect(result.errors).toContain(`Invalid or unknown image format. Only 'PNG' format is accepted.`)
     })
 
     it('When thumbnail image size is valid, should not return any error', async () => {
@@ -169,10 +151,7 @@ describe('Wearables', () => {
         isContentStoredAlready: async () => new Map([[hash, true]])
       })
 
-      const result = await thumbnailMaxSizeIsNotExceeded.validate(
-        buildComponents({ externalCalls }),
-        deployment
-      )
+      const result = await thumbnailMaxSizeIsNotExceeded.validate(buildComponents({ externalCalls }), deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -273,10 +252,7 @@ describe('Wearables', () => {
         content
       })
       const deployment = buildDeployment({ entity, files })
-      const result = await wearableRepresentationContent.validate(
-        components,
-        deployment
-      )
+      const result = await wearableRepresentationContent.validate(components, deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -298,14 +274,9 @@ describe('Wearables', () => {
         content
       })
       const deployment = buildDeployment({ entity, files })
-      const result = await wearableRepresentationContent.validate(
-        components,
-        deployment
-      )
+      const result = await wearableRepresentationContent.validate(components, deployment)
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(
-        `Representation content: 'file1' is not one of the content files`
-      )
+      expect(result.errors).toContain(`Representation content: 'file1' is not one of the content files`)
     })
 
     it('wearable validation without representation fails', async () => {
@@ -322,14 +293,9 @@ describe('Wearables', () => {
         content: []
       })
       const deployment = buildDeployment({ entity })
-      const result = await wearableRepresentationContent.validate(
-        components,
-        deployment
-      )
+      const result = await wearableRepresentationContent.validate(components, deployment)
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(
-        `No wearable representations found`
-      )
+      expect(result.errors).toContain(`No wearable representations found`)
     })
 
     it('emote validation without content fails', async () => {
@@ -339,14 +305,9 @@ describe('Wearables', () => {
         content: []
       })
       const deployment = buildDeployment({ entity })
-      const result = await wearableRepresentationContent.validate(
-        components,
-        deployment
-      )
+      const result = await wearableRepresentationContent.validate(components, deployment)
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(
-        `No content found`
-      )
+      expect(result.errors).toContain(`No content found`)
     })
   })
 })
