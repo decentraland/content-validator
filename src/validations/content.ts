@@ -2,18 +2,12 @@ import { Avatar, Profile, EntityType } from '@dcl/schemas'
 import { ADR_45_TIMESTAMP } from '.'
 import { fromErrors, Validation } from '../types'
 
-const correspondsToASnapshot = (
-  fileName: string,
-  hash: string,
-  metadata: Profile
-) => {
+const correspondsToASnapshot = (fileName: string, hash: string, metadata: Profile) => {
   const fileNameWithoutExtension = fileName.replace(/.[^/.]+$/, '')
 
   if (!metadata || !metadata.avatars) return false
   return metadata.avatars.some((avatar: Avatar) =>
-    Object.entries(avatar.avatar.snapshots).some(
-      (key) => key[0] === fileNameWithoutExtension && key[1] === hash
-    )
+    Object.entries(avatar.avatar.snapshots).some((key) => key[0] === fileNameWithoutExtension && key[1] === hash)
   )
 }
 
@@ -33,9 +27,7 @@ export const content: Validation = {
       for (const { hash } of entity.content) {
         // Validate that all hashes in entity were uploaded, or were already stored on the service
         if (!(files.has(hash) || alreadyStoredHashes.get(hash))) {
-          errors.push(
-            `This hash is referenced in the entity but was not uploaded or previously available: ${hash}`
-          )
+          errors.push(`This hash is referenced in the entity but was not uploaded or previously available: ${hash}`)
         }
       }
     }
@@ -44,9 +36,7 @@ export const content: Validation = {
     const entityHashes = new Set(entity.content?.map(({ hash }) => hash) ?? [])
     for (const [hash] of files) {
       if (!entityHashes.has(hash) && hash !== entity.id) {
-        errors.push(
-          `This hash was uploaded but is not referenced in the entity: ${hash}`
-        )
+        errors.push(`This hash was uploaded but is not referenced in the entity: ${hash}`)
       }
     }
 

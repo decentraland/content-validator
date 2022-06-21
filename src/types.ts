@@ -38,11 +38,7 @@ export type DeploymentToValidate = {
  * Function used to fetch TheGraph
  * @public
  */
-export type QueryGraph = <T = any>(
-  url: string,
-  query: string,
-  variables: Record<string, any>
-) => Promise<T>
+export type QueryGraph = <T = any>(url: string, query: string, variables: Record<string, any>) => Promise<T>
 
 /**
  * External calls interface to be provided by the servers.
@@ -133,13 +129,8 @@ export const validationFailed = (...error: string[]): ValidationResponse => ({
 /**
  * @public
  */
-export const conditionalValidation = (
-  condition: ConditionalValidation
-): Validation => ({
-  validate: async (
-    components: ContentValidatorComponents,
-    deployment: DeploymentToValidate
-  ) => {
+export const conditionalValidation = (condition: ConditionalValidation): Validation => ({
+  validate: async (components: ContentValidatorComponents, deployment: DeploymentToValidate) => {
     try {
       return await condition.predicate(components, deployment)
       //     ^^^^^ never remove this await, it exists to ensure try {} catch
@@ -184,10 +175,7 @@ export type TheGraphClient = {
     timestamp: number
   ) => Promise<PermissionResult>
 
-  findBlocksForTimestamp: (
-    subgraph: keyof URLs,
-    timestamp: number
-  ) => Promise<BlockInformation>
+  findBlocksForTimestamp: (subgraph: keyof URLs, timestamp: number) => Promise<BlockInformation>
 }
 
 /**

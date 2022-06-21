@@ -1,11 +1,6 @@
 import { entityParameters } from './ADR51'
 import { ADR_45_TIMESTAMP } from '.'
-import {
-  conditionalValidation,
-  ContentValidatorComponents,
-  OK,
-  validationFailed
-} from '../types'
+import { conditionalValidation, ContentValidatorComponents, OK, validationFailed } from '../types'
 
 /**
  * Validate entities metadata against its corresponding schema
@@ -21,9 +16,6 @@ export const metadata = conditionalValidation({
       return OK
     }
     const errors = validator.errors?.map(($) => '' + $.message) || []
-    return validationFailed(
-      `The metadata for this entity type (${deployment.entity.type}) is not valid.`,
-      ...errors
-    )
+    return validationFailed(`The metadata for this entity type (${deployment.entity.type}) is not valid.`, ...errors)
   }
 })

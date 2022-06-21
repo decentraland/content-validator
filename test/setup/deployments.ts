@@ -1,22 +1,13 @@
 import { ThirdPartyWearable, Entity, EntityType } from '@dcl/schemas'
 import { DeploymentToValidate, LocalDeploymentAuditInfo } from '../../src'
-import {
-  buildEntity,
-  buildProfileEntity,
-  buildSceneEntity,
-  buildWearableEntity
-} from './entity'
+import { buildEntity, buildProfileEntity, buildSceneEntity, buildWearableEntity } from './entity'
 
-export const buildAuditInfo = (
-  auditInfo?: Partial<LocalDeploymentAuditInfo>
-): LocalDeploymentAuditInfo => ({
+export const buildAuditInfo = (auditInfo?: Partial<LocalDeploymentAuditInfo>): LocalDeploymentAuditInfo => ({
   authChain: [],
   ...auditInfo
 })
 
-export const buildStoreDeployment = (
-  pointers: string[]
-): DeploymentToValidate => {
+export const buildStoreDeployment = (pointers: string[]): DeploymentToValidate => {
   const entity = buildEntity({ type: EntityType.STORE, pointers })
   const files = new Map()
   const auditInfo = buildAuditInfo()
@@ -24,9 +15,7 @@ export const buildStoreDeployment = (
   return { entity, files, auditInfo }
 }
 
-export const buildProfileDeployment = (
-  pointers: string[]
-): DeploymentToValidate => ({
+export const buildProfileDeployment = (pointers: string[]): DeploymentToValidate => ({
   entity: buildProfileEntity({
     pointers,
     metadata: {
@@ -37,35 +26,25 @@ export const buildProfileDeployment = (
   files: new Map()
 })
 
-export const buildSceneDeployment = (
-  pointers: string[]
-): DeploymentToValidate => ({
+export const buildSceneDeployment = (pointers: string[]): DeploymentToValidate => ({
   entity: buildSceneEntity({ pointers }),
   auditInfo: buildAuditInfo(),
   files: new Map()
 })
 
-export const buildWearableDeployment = (
-  pointers: string[]
-): DeploymentToValidate => ({
+export const buildWearableDeployment = (pointers: string[]): DeploymentToValidate => ({
   entity: buildWearableEntity({ pointers }),
   auditInfo: buildAuditInfo(),
   files: new Map()
 })
 
-export const buildThirdPartyWearableDeployment = (
-  urn: string,
-  metadata: ThirdPartyWearable
-): DeploymentToValidate => ({
+export const buildThirdPartyWearableDeployment = (urn: string, metadata: ThirdPartyWearable): DeploymentToValidate => ({
   entity: buildWearableEntity({ pointers: [urn], metadata }),
   auditInfo: buildAuditInfo(),
   files: new Map()
 })
 
-export const buildDeployment = (args?: {
-  entity?: Entity
-  files?: Map<string, Uint8Array>
-}): DeploymentToValidate => ({
+export const buildDeployment = (args?: { entity?: Entity; files?: Map<string, Uint8Array> }): DeploymentToValidate => ({
   entity: args?.entity ?? buildEntity(),
   auditInfo: buildAuditInfo(),
   files: args?.files ?? new Map()
