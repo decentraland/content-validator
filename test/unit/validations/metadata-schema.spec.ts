@@ -5,10 +5,7 @@ import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
 import { buildComponents } from '../../setup/mock'
 import { VALID_PROFILE_METADATA } from '../../setup/profiles'
-import {
-  entityAndMerkleRoot,
-  VALID_WEARABLE_METADATA
-} from '../../setup/wearable'
+import { entityAndMerkleRoot, VALID_WEARABLE_METADATA } from '../../setup/wearable'
 
 describe('Metadata Schema', () => {
   const POST_ADR_45_TIMESTAMP = ADR_45_TIMESTAMP + 1
@@ -33,9 +30,7 @@ describe('Metadata Schema', () => {
       const result = await metadata.validate(buildComponents(), deployment)
 
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(
-        `The metadata for this entity type (${type}) is not valid.`
-      )
+      expect(result.errors).toContain(`The metadata for this entity type (${type}) is not valid.`)
       errors.forEach(($) => expect(result.errors).toContain($))
     })
   }
@@ -54,9 +49,7 @@ describe('Metadata Schema', () => {
       }
     }
     const invalidMetadata = {}
-    testType(EntityType.SCENE, validMetadata, invalidMetadata, undefined, [
-      "should have required property 'main'"
-    ])
+    testType(EntityType.SCENE, validMetadata, invalidMetadata, undefined, ["should have required property 'main'"])
   })
 
   describe('WEARABLE: ', () => {

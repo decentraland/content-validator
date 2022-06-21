@@ -8,15 +8,7 @@ export const signature: Validation = {
   // todo: should we include signature result message?
   validate: async ({ externalCalls }, deployment) => {
     const { entity, auditInfo } = deployment
-    const validationResult = await externalCalls.validateSignature(
-      entity.id,
-      auditInfo,
-      entity.timestamp
-    )
-    return !validationResult.ok
-      ? validationFailed(
-          'The signature is invalid. ' + validationResult.message
-        )
-      : OK
+    const validationResult = await externalCalls.validateSignature(entity.id, auditInfo, entity.timestamp)
+    return !validationResult.ok ? validationFailed('The signature is invalid. ' + validationResult.message) : OK
   }
 }

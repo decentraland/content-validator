@@ -18,10 +18,7 @@ export const ipfsHashing: Validation = {
 
     const errors = allHashes
       .filter((hash) => !IPFSv2.validate(hash))
-      .map(
-        (hash) =>
-          `This hash '${hash}' is not valid. It should be IPFS v2 format.`
-      )
+      .map((hash) => `This hash '${hash}' is not valid. It should be IPFS v2 format.`)
 
     return fromErrors(...errors)
   }

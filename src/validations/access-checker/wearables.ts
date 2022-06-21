@@ -8,13 +8,7 @@ import {
   OffChainAsset,
   parseUrn
 } from '@dcl/urn-resolver'
-import {
-  EntityWithEthAddress,
-  validationFailed,
-  OK,
-  Validation,
-  URLs
-} from '../../types'
+import { EntityWithEthAddress, validationFailed, OK, Validation, URLs } from '../../types'
 
 const L1_NETWORKS = ['mainnet', 'ropsten', 'kovan', 'rinkeby', 'goerli']
 const L2_NETWORKS = ['matic', 'mumbai']
@@ -74,19 +68,11 @@ type WearableCollectionItem = {
   contentHash: string
 }
 
-const alreadySeen = (
-  resolvedPointers: SupportedAssets[],
-  parsed: SupportedAssets
-): boolean => {
-  return resolvedPointers.some((alreadyResolved) =>
-    resolveSameUrn(alreadyResolved, parsed)
-  )
+const alreadySeen = (resolvedPointers: SupportedAssets[], parsed: SupportedAssets): boolean => {
+  return resolvedPointers.some((alreadyResolved) => resolveSameUrn(alreadyResolved, parsed))
 }
 
-const resolveSameUrn = (
-  alreadyParsed: SupportedAssets,
-  parsed: SupportedAssets
-): boolean => {
+const resolveSameUrn = (alreadyParsed: SupportedAssets, parsed: SupportedAssets): boolean => {
   const alreadyParsedCopy = Object.assign({}, alreadyParsed)
   const parsedCopy = Object.assign({}, parsed)
   alreadyParsedCopy.uri = new URL('urn:same')
@@ -141,56 +127,43 @@ export const wearables: Validation = {
     ): Promise<boolean> => {
       try {
         const { content, metadata } = entity
-        const permissions: WearableItemPermissionsData =
-          await getCollectionItems(subgraphUrl, collection, itemId, block)
+        const permissions: WearableItemPermissionsData = await getCollectionItems(
+          subgraphUrl,
+          collection,
+          itemId,
+          block
+        )
         const ethAddressLowercase = entity.ethAddress.toLowerCase()
 
         if (!!permissions.contentHash) {
-          const deployedByCommittee =
-            permissions.committee.includes(ethAddressLowercase)
+          const deployedByCommittee = permissions.committee.includes(ethAddressLowercase)
           const calculateHashes = () => {
             // Compare both by key and hash
-            const compare = (
-              a: { key: string; hash: string },
-              b: { key: string; hash: string }
-            ) => {
+            const compare = (a: { key: string; hash: string }, b: { key: string; hash: string }) => {
               if (a.hash > b.hash) return 1
               else if (a.hash < b.hash) return -1
               else return a.key > b.key ? 1 : -1
             }
 
-            const contentAsJson = (content ?? [])
-              .map(({ file, hash }) => ({ key: file, hash }))
-              .sort(compare)
-            const buffer = Buffer.from(
-              JSON.stringify({ content: contentAsJson, metadata })
-            )
+            const contentAsJson = (content ?? []).map(({ file, hash }) => ({ key: file, hash })).sort(compare)
+            const buffer = Buffer.from(JSON.stringify({ content: contentAsJson, metadata }))
             return Promise.all([hashV0(buffer), hashV1(buffer)])
           }
-          return (
-            deployedByCommittee &&
-            (await calculateHashes()).includes(permissions.contentHash)
-          )
+          return deployedByCommittee && (await calculateHashes()).includes(permissions.contentHash)
         } else {
           const addressHasAccess =
-            (permissions.collectionCreator &&
-              permissions.collectionCreator === ethAddressLowercase) ||
-            (permissions.collectionManagers &&
-              permissions.collectionManagers.includes(ethAddressLowercase)) ||
-            (permissions.itemManagers &&
-              permissions.itemManagers.includes(ethAddressLowercase))
+            (permissions.collectionCreator && permissions.collectionCreator === ethAddressLowercase) ||
+            (permissions.collectionManagers && permissions.collectionManagers.includes(ethAddressLowercase)) ||
+            (permissions.itemManagers && permissions.itemManagers.includes(ethAddressLowercase))
 
           // Deployments to the content server are made after the collection is completed, so that the committee can then approve it.
           // That's why isCompleted must be true, but isApproved must be false. After the committee approves the wearable, there can't be any more changes
-          const isCollectionValid =
-            !permissions.isApproved && permissions.isCompleted
+          const isCollectionValid = !permissions.isApproved && permissions.isCompleted
 
           return addressHasAccess && isCollectionValid
         }
       } catch (error) {
-        logger.error(
-          `Error checking permission for (${collection}-${itemId}) at block ${block}`
-        )
+        logger.error(`Error checking permission for (${collection}-${itemId}) at block ${block}`)
         return false
       }
     }
@@ -219,15 +192,11 @@ export const wearables: Validation = {
                 }
             }`
 
-      const result = await externalCalls.queryGraph<WearableCollections>(
-        subgraphUrl,
-        query,
-        {
-          collection,
-          itemId: `${collection}-${itemId}`,
-          block
-        }
-      )
+      const result = await externalCalls.queryGraph<WearableCollections>(subgraphUrl, query, {
+        collection,
+        itemId: `${collection}-${itemId}`,
+        block
+      })
       const collectionResult = result.collections[0]
       const itemResult = collectionResult?.items[0]
       return {
@@ -251,23 +220,13 @@ export const wearables: Validation = {
       const { timestamp } = entity
       try {
         const { blockNumberAtDeployment, blockNumberFiveMinBeforeDeployment } =
-          await theGraphClient.findBlocksForTimestamp(
-            blocksSubgraphUrl,
-            timestamp
-          )
+          await theGraphClient.findBlocksForTimestamp(blocksSubgraphUrl, timestamp)
         // It could happen that the subgraph hasn't synced yet, so someone who just lost access still managed to make a deployment. The problem would be that when other catalysts perform
         // the same check, the subgraph might have synced and the deployment is no longer valid. So, in order to prevent inconsistencies between catalysts, we will allow all deployments that
         // have access now, or had access 5 minutes ago.
 
         const hasPermissionOnBlock = async (blockNumber: number | undefined) =>
-          !!blockNumber &&
-          (await hasPermission(
-            collectionsSubgraphUrl,
-            collection,
-            itemId,
-            blockNumber,
-            entity
-          ))
+          !!blockNumber && (await hasPermission(collectionsSubgraphUrl, collection, itemId, blockNumber, entity))
         return (
           (await hasPermissionOnBlock(blockNumberAtDeployment)) ||
           (await hasPermissionOnBlock(blockNumberFiveMinBeforeDeployment))
@@ -304,10 +263,7 @@ export const wearables: Validation = {
       return result.thirdParties[0]?.root
     }
 
-    const verifyHash = async (
-      metadata: ThirdPartyWearable,
-      merkleRoot: string
-    ): Promise<boolean> => {
+    const verifyHash = async (metadata: ThirdPartyWearable, merkleRoot: string): Promise<boolean> => {
       // Validate merkle proof data is valid
       if (!MerkleProof.validate(metadata.merkleProof)) {
         logger.debug('Merkle proof is not valid', {
@@ -317,47 +273,27 @@ export const wearables: Validation = {
       }
       const merkleProof = metadata.merkleProof
       // The keys used to create the hash MUST be present if they're required.
-      if (
-        !MERKLE_PROOF_REQUIRED_KEYS.every((key) =>
-          merkleProof.hashingKeys.includes(key)
-        )
-      ) {
-        logger.debug(
-          `Merkle proof hashing keys don't satisfy the required keys`,
-          {
-            requiredKeys: JSON.stringify(MERKLE_PROOF_REQUIRED_KEYS),
-            hashingKeys: JSON.stringify(merkleProof.hashingKeys)
-          }
-        )
+      if (!MERKLE_PROOF_REQUIRED_KEYS.every((key) => merkleProof.hashingKeys.includes(key))) {
+        logger.debug(`Merkle proof hashing keys don't satisfy the required keys`, {
+          requiredKeys: JSON.stringify(MERKLE_PROOF_REQUIRED_KEYS),
+          hashingKeys: JSON.stringify(merkleProof.hashingKeys)
+        })
         return false
       }
-      const generatedCrcHash = keccak256Hash(
-        metadata,
-        metadata.merkleProof.hashingKeys
-      )
+      const generatedCrcHash = keccak256Hash(metadata, metadata.merkleProof.hashingKeys)
       // The hash provided in the merkleProof for the entity MUST match the hash generated by the validator.
       if (metadata.merkleProof.entityHash !== generatedCrcHash) {
-        logger.debug(
-          `The hash provided in the merkleProof doesn't match with the generated by the validator`,
-          {
-            generatedCrcHash,
-            entityHash: metadata.merkleProof.entityHash
-          }
-        )
+        logger.debug(`The hash provided in the merkleProof doesn't match with the generated by the validator`, {
+          generatedCrcHash,
+          entityHash: metadata.merkleProof.entityHash
+        })
         return false
       }
 
       // Verify if the entity belongs to the Merkle Tree.
-      const bufferedProofs = merkleProof.proof.map((value) =>
-        toHexBuffer(value)
-      )
+      const bufferedProofs = merkleProof.proof.map((value) => toHexBuffer(value))
       const bufferedMerkleRoot = toHexBuffer(merkleRoot)
-      return verifyProof(
-        merkleProof.index,
-        merkleProof.entityHash,
-        bufferedProofs,
-        bufferedMerkleRoot
-      )
+      return verifyProof(merkleProof.index, merkleProof.entityHash, bufferedProofs, bufferedMerkleRoot)
     }
 
     /**
@@ -368,17 +304,12 @@ export const wearables: Validation = {
      *
      * This checks are verified using blocks in a 5 minutes window from the deployment timestamp
      */
-    const verifyMerkleProofedEntity = async (
-      urn: BlockchainCollectionThirdParty
-    ): Promise<boolean> => {
+    const verifyMerkleProofedEntity = async (urn: BlockchainCollectionThirdParty): Promise<boolean> => {
       // do merkle proofed entity validation, required keys are defined by the Catalyst and must be a subset of the hashingKeys from the MerkleProof to succeed
       const metadata = deployment.entity.metadata as ThirdPartyWearable
       const thirdPartyId = getThirdPartyId(urn)
       const { blockNumberAtDeployment, blockNumberFiveMinBeforeDeployment } =
-        await theGraphClient.findBlocksForTimestamp(
-          'maticBlocksSubgraph',
-          deployment.entity.timestamp
-        )
+        await theGraphClient.findBlocksForTimestamp('maticBlocksSubgraph', deployment.entity.timestamp)
 
       const merkleRoots: string[] = []
       const hasPermissionOnBlock = async (blockNumber: number | undefined) => {
@@ -389,10 +320,7 @@ export const wearables: Validation = {
             thirdPartyId
           })
           if (!merkleRoot) {
-            logger.debug(
-              `Merkle proof not found for given block and third party ID`,
-              { blockNumber, thirdPartyId }
-            )
+            logger.debug(`Merkle proof not found for given block and third party ID`, { blockNumber, thirdPartyId })
             return false
           }
           merkleRoots.push(merkleRoot)
@@ -412,10 +340,7 @@ export const wearables: Validation = {
         logger.debug(`Merkle Tree based verifications failed:`, {
           merkleProof: JSON.stringify(metadata.merkleProof),
           merkleRoots: JSON.stringify(merkleRoots),
-          blocks: JSON.stringify([
-            blockNumberAtDeployment,
-            blockNumberFiveMinBeforeDeployment
-          ])
+          blocks: JSON.stringify([blockNumberAtDeployment, blockNumberFiveMinBeforeDeployment])
         })
       }
 
@@ -438,16 +363,12 @@ export const wearables: Validation = {
     }
 
     if (resolvedPointers.length > 1)
-      return validationFailed(
-        `Only one pointer is allowed when you create a Wearable. Received: ${pointers}`
-      )
+      return validationFailed(`Only one pointer is allowed when you create a Wearable. Received: ${pointers}`)
 
     const parsed = resolvedPointers[0]
 
     if (!validUrnTypes.includes(parsed.type)) {
-      return validationFailed(
-        `Could not resolve the contractAddress of the urn ${parsed}`
-      )
+      return validationFailed(`Could not resolve the contractAddress of the urn ${parsed}`)
     }
 
     if (parsed.type === 'off-chain') {
@@ -456,20 +377,14 @@ export const wearables: Validation = {
         return validationFailed(
           `The provided Eth Address '${ethAddress}' does not have access to the following wearable: '${parsed.uri}'`
         )
-    } else if (
-      parsed?.type === 'blockchain-collection-v1-asset' ||
-      parsed?.type === 'blockchain-collection-v2-asset'
-    ) {
+    } else if (parsed?.type === 'blockchain-collection-v1-asset' || parsed?.type === 'blockchain-collection-v2-asset') {
       // L1 or L2 so contractAddress is present
       const collection = parsed.contractAddress!
       const network = parsed.network
 
       const isL1 = L1_NETWORKS.includes(network)
       const isL2 = L2_NETWORKS.includes(network)
-      if (!isL1 && !isL2)
-        return validationFailed(
-          `Found an unknown network on the urn '${network}'`
-        )
+      if (!isL1 && !isL2) return validationFailed(`Found an unknown network on the urn '${network}'`)
 
       const blocksSubgraphUrl = isL1 ? 'blocksSubgraph' : 'maticBlocksSubgraph'
 
@@ -477,16 +392,10 @@ export const wearables: Validation = {
         ? externalCalls.subgraphs.L1.collections
         : externalCalls.subgraphs.L2.collections
 
-      const hasAccess = await checkCollectionAccess(
-        blocksSubgraphUrl,
-        collectionsSubgraphUrl,
-        collection,
-        parsed.id,
-        {
-          ...deployment.entity,
-          ethAddress
-        }
-      )
+      const hasAccess = await checkCollectionAccess(blocksSubgraphUrl, collectionsSubgraphUrl, collection, parsed.id, {
+        ...deployment.entity,
+        ethAddress
+      })
 
       if (!hasAccess) {
         if (isL2)
@@ -496,13 +405,8 @@ export const wearables: Validation = {
 
         // Some L1 collections are deployed by Decentraland Address
         // Maybe this is not necessary as we already know that it's a 'blockchain-collection-v1-asset'
-        const isAllowlistedCollection = parsed.uri
-          .toString()
-          .startsWith('urn:decentraland:ethereum:collections-v1')
-        if (
-          !externalCalls.isAddressOwnedByDecentraland(ethAddress) ||
-          !isAllowlistedCollection
-        ) {
+        const isAllowlistedCollection = parsed.uri.toString().startsWith('urn:decentraland:ethereum:collections-v1')
+        if (!externalCalls.isAddressOwnedByDecentraland(ethAddress) || !isAllowlistedCollection) {
           return validationFailed(
             `The provided Eth Address '${ethAddress}' does not have access to the following wearable: '${parsed.uri}'`
           )
