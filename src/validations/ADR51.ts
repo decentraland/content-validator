@@ -24,6 +24,6 @@ export const entityParameters: Record<EntityType, Params> = {
   },
   emote: {
     validate: Emote.validate,
-    maxSizeInMB: 5
+    maxSizeInMB: 3
   }
 }

@@ -166,8 +166,8 @@ describe('Emotes', () => {
         { file: 'thumbnail.png', hash: 'thumbnail' }
       ]
       const files = new Map([
-        ['A', withSize(2)],
-        ['C', withSize(2.5)],
+        ['A', withSize(1)],
+        ['C', withSize(1.5)],
         ['thumbnail', Buffer.alloc(1)]
       ])
       const entity = buildEntity({
@@ -181,7 +181,7 @@ describe('Emotes', () => {
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
-        'The deployment is too big. The maximum allowed size for emote model files is 4 MB. You can upload up to 4194304 bytes but you tried to upload 4718592.'
+        'The deployment is too big. The maximum allowed size for emote model files is 2 MB. You can upload up to 2097152 bytes but you tried to upload 2621440.'
       )
     })
     it(`When an emote is deployed and thumbnail is too big, then it fails`, async () => {
@@ -192,8 +192,8 @@ describe('Emotes', () => {
         { file: 'thumbnail.png', hash: 'thumbnail' }
       ]
       const files = new Map([
-        ['A', withSize(2)],
-        ['C', withSize(2)],
+        ['A', withSize(1)],
+        ['C', withSize(1)],
         ['thumbnail', withSize(2)]
       ])
       const entity = buildEntity({
@@ -207,7 +207,7 @@ describe('Emotes', () => {
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
-        'The deployment is too big. The maximum allowed size per pointer is 5 MB for emote. You can upload up to 5242880 bytes but you tried to upload 6291456.'
+        'The deployment is too big. The maximum allowed size per pointer is 3 MB for emote. You can upload up to 3145728 bytes but you tried to upload 4194304.'
       )
     })
     it(`when an emote is deployed and sizes are correct, then it is ok`, async () => {
