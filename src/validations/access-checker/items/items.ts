@@ -44,11 +44,9 @@ function alreadySeen(resolvedPointers: SupportedAsset[], parsed: SupportedAsset)
  * in the uri but reference the same asset.
  */
 function resolveSameUrn(alreadyParsed: SupportedAsset, parsed: SupportedAsset): boolean {
-  const alreadyParsedCopy = Object.assign({}, alreadyParsed)
-  const parsedCopy = Object.assign({}, parsed)
-  alreadyParsedCopy.uri = new URL('urn:same')
-  parsedCopy.uri = new URL('urn:same')
-  return JSON.stringify(alreadyParsedCopy) == JSON.stringify(parsedCopy)
+  const { ['uri']: uri1, ...alreadyParsedWithoutUri } = alreadyParsed
+  const { ['uri']: uri2, ...parsedWithoutUri } = parsed
+  return JSON.stringify(parsedWithoutUri) == JSON.stringify(alreadyParsedWithoutUri)
 }
 
 async function parseUrnNoFail(urn: string): Promise<SupportedAsset | null> {
@@ -66,7 +64,7 @@ async function parseUrnNoFail(urn: string): Promise<SupportedAsset | null> {
     if (parsed?.type === 'blockchain-collection-third-party') {
       return parsed
     }
-  } catch { }
+  } catch {}
   return null
 }
 
