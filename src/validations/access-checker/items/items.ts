@@ -38,6 +38,11 @@ function alreadySeen(resolvedPointers: SupportedAsset[], parsed: SupportedAsset)
   return resolvedPointers.some((alreadyResolved) => resolveSameUrn(alreadyResolved, parsed))
 }
 
+/**
+ * This method returns true if the two assets are the same except for its uri.
+ * For example, urns for collection v1 wearables can have a 'contractAddress' OR 'collectionName'
+ * in the uri but reference the same asset.
+ */
 function resolveSameUrn(alreadyParsed: SupportedAsset, parsed: SupportedAsset): boolean {
   const alreadyParsedCopy = Object.assign({}, alreadyParsed)
   const parsedCopy = Object.assign({}, parsed)
@@ -61,7 +66,7 @@ async function parseUrnNoFail(urn: string): Promise<SupportedAsset | null> {
     if (parsed?.type === 'blockchain-collection-third-party') {
       return parsed
     }
-  } catch {}
+  } catch { }
   return null
 }
 
