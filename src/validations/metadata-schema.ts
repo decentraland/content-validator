@@ -25,6 +25,15 @@ type ADR = {
   timestamp: number
 }
 
+/**
+ * This map contains one ADR timeline per entity type. In a timeline, each element has
+ * a number and a timestamp. The number corresponds to the number of an ADR and the timestamp
+ * to the creation of that ADR. Each timeline is sorted by timestamp.
+ * The idea behind this is the ability to version schemas over the time, but run validations
+ * according with the deployment original time. (Imagining starting a Content Server from scratch,
+ * it will have to sync deployments since the launcha date).
+ * See ADR 74 for more details of schema versioning.
+ */
 const ADRMetadataVersionTimelines: Record<EntityType, ADR[]> = {
   emote: [{ number: 74, timestamp: ADR_74_TIMESTAMP }].sort((v1, v2) => v1.timestamp - v2.timestamp),
   scene: [],
@@ -33,6 +42,9 @@ const ADRMetadataVersionTimelines: Record<EntityType, ADR[]> = {
   store: []
 }
 
+/**
+ * This validation is being ran only for emotes  currently
+ */
 const metadataVersionIsCorrectForTimestamp: Validation = {
   validate(components: ContentValidatorComponents, deployment: DeploymentToValidate) {
     const entity = deployment.entity
