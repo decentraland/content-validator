@@ -90,40 +90,74 @@ const COMMITTEE_MEMBER = '0xCOMMITEE_MEMBER'
 export const buildMockedQueryGraph = (
   collection?: Partial<WearableCollection>,
   _merkleRoot?: string
-) =>
-  mockedQueryGraph().mockImplementation(async (_query, _variables) => {
-    const withDefaults = {
-      collections: [
-        {
-          creator: '',
-          managers: [],
-          isApproved: false,
-          isCompleted: false,
-          items: [
+): Subgraphs =>
+  buildSubgraphs({
+    L1: {
+      collections: createMockSubgraphComponent(
+        jest.fn().mockResolvedValueOnce({
+          collections: [
             {
+              creator: '',
               managers: [],
-              contentHash: ''
+              isApproved: false,
+              isCompleted: false,
+              items: [
+                {
+                  managers: [],
+                  contentHash: ''
+                }
+              ],
+              ...collection
             }
           ],
-          ...collection
-        }
-      ],
-      accounts: [{ id: COMMITTEE_MEMBER }]
-    }
-    if (_query.includes('block')) {
-      // TODO UNDO
-      return Promise.resolve({
-        max: [{ number: 10 }],
-        min: [{ number: 5 }]
-      })
-    } else {
-      return Promise.resolve(withDefaults)
+          accounts: [{ id: COMMITTEE_MEMBER }]
+        })
+      ),
+      blocks: createMockSubgraphComponent(
+        jest.fn().mockResolvedValueOnce({
+          min: [{ number: 5 }],
+          max: [{ number: 10 }]
+        })
+      ),
+      landManager: createMockSubgraphComponent(),
+      ensOwner: createMockSubgraphComponent()
+    },
+    L2: {
+      thirdPartyRegistry: createMockSubgraphComponent(),
+      blocks: createMockSubgraphComponent(
+        jest.fn().mockResolvedValueOnce({
+          min: [{ number: 5 }],
+          max: [{ number: 10 }]
+        })
+      ),
+      collections: createMockSubgraphComponent(
+        jest.fn().mockResolvedValueOnce({
+          collections: [
+            {
+              creator: '',
+              managers: [],
+              isApproved: false,
+              isCompleted: false,
+              items: [
+                {
+                  managers: [],
+                  contentHash: ''
+                }
+              ],
+              ...collection
+            }
+          ],
+          accounts: [{ id: COMMITTEE_MEMBER }]
+        })
+      )
     }
   })
 
 export const fetcherWithoutAccess = () => buildMockedQueryGraph()
 
-export const fetcherWithValidCollectionAndCreator = (address: string) =>
+export const fetcherWithValidCollectionAndCreator = (
+  address: string
+): Subgraphs =>
   buildMockedQueryGraph({
     creator: address.toLowerCase(),
     isCompleted: true,
@@ -189,47 +223,67 @@ export const fetcherWithInvalidCollectionAndContentHash = (
     isApproved: true
   })
 
-export const fetcherWithThirdPartyMerkleRoot = (root: string) => {
-  return mockedQueryGraph().mockImplementation(
-    async (url, _query, _variables) => {
-      if (url.includes('thirdParty')) {
-        return Promise.resolve({
+export const fetcherWithThirdPartyMerkleRoot = (root: string): Subgraphs =>
+  buildSubgraphs({
+    L1: {
+      collections: createMockSubgraphComponent(),
+      blocks: createMockSubgraphComponent(
+        jest.fn().mockResolvedValueOnce({
+          min: [{ number: 5 }],
+          max: [{ number: 10 }]
+        })
+      ),
+      landManager: createMockSubgraphComponent(),
+      ensOwner: createMockSubgraphComponent()
+    },
+    L2: {
+      thirdPartyRegistry: createMockSubgraphComponent(
+        jest.fn().mockResolvedValueOnce({
           thirdParties: [
             {
               root
             }
           ]
         })
-      }
-      if (url.includes('block')) {
-        return Promise.resolve({
-          max: [{ number: 10 }],
-          min: [{ number: 5 }]
+      ),
+      blocks: createMockSubgraphComponent(
+        jest.fn().mockResolvedValueOnce({
+          min: [{ number: 5 }],
+          max: [{ number: 10 }]
         })
-      }
-      return Promise.resolve('')
+      ),
+      collections: createMockSubgraphComponent()
     }
-  )
-}
+  })
 
-export const fetcherWithThirdPartyEmptyMerkleRoots = () => {
-  return mockedQueryGraph().mockImplementation(
-    async (url, _query, _variables) => {
-      if (url.includes('thirdParty')) {
-        return Promise.resolve({
+export const fetcherWithThirdPartyEmptyMerkleRoots = (): Subgraphs =>
+  buildSubgraphs({
+    L1: {
+      collections: createMockSubgraphComponent(),
+      blocks: createMockSubgraphComponent(
+        jest.fn().mockResolvedValueOnce({
+          min: [{ number: 5 }],
+          max: [{ number: 10 }]
+        })
+      ),
+      landManager: createMockSubgraphComponent(),
+      ensOwner: createMockSubgraphComponent()
+    },
+    L2: {
+      thirdPartyRegistry: createMockSubgraphComponent(
+        jest.fn().mockResolvedValueOnce({
           thirdParties: []
         })
-      }
-      if (url.includes('block')) {
-        return Promise.resolve({
-          max: [{ number: 10 }],
-          min: [{ number: 5 }]
+      ),
+      blocks: createMockSubgraphComponent(
+        jest.fn().mockResolvedValueOnce({
+          min: [{ number: 5 }],
+          max: [{ number: 10 }]
         })
-      }
-      return Promise.resolve('')
+      ),
+      collections: createMockSubgraphComponent()
     }
-  )
-}
+  })
 
 export const fetcherWithWearablesOwnership = (
   address: string,
