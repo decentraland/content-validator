@@ -2,6 +2,7 @@ import { AuthChain, Entity, EthAddress, WearableId } from '@dcl/schemas'
 import { ILoggerComponent } from '@well-known-components/interfaces'
 import { PermissionResult } from './the-graph-client/the-graph-client'
 import { ISubgraphComponent } from '@well-known-components/thegraph-component'
+import { Variables } from '@well-known-components/thegraph-component'
 
 /**
  * @public
@@ -40,9 +41,9 @@ export type DeploymentToValidate = {
  * @public
  */
 export type QueryGraph = <T = any>(
-  url: string,
   query: string,
-  variables: Record<string, any>
+  variables?: Variables,
+  remainingAttempts?: number
 ) => Promise<T>
 
 /**

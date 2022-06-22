@@ -1,7 +1,12 @@
-import { ContentValidatorComponents, ExternalCalls, QueryGraph } from '../../src/types'
+import {
+  ContentValidatorComponents,
+  ExternalCalls,
+  QueryGraph
+} from '../../src/types'
 import { WearableCollection } from '../../src/validations/access-checker/wearables'
 import { createTheGraphClient } from '../../src'
 import { ILoggerComponent } from '@well-known-components/interfaces'
+import { ISubgraphComponent } from '@well-known-components/thegraph-component'
 
 export const buildLogger = (): ILoggerComponent => ({
   getLogger: () => ({
@@ -13,12 +18,16 @@ export const buildLogger = (): ILoggerComponent => ({
   })
 })
 
-export const buildComponents = (components?: Partial<ContentValidatorComponents>): ContentValidatorComponents => {
+export const buildComponents = (
+  components?: Partial<ContentValidatorComponents>
+): ContentValidatorComponents => {
   const externalCalls = components?.externalCalls ?? buildExternalCalls()
 
   const logs = components?.logs ?? buildLogger()
 
-  const theGraphClient = components?.theGraphClient ?? createTheGraphClient({ logs, externalCalls, ...components })
+  const theGraphClient =
+    components?.theGraphClient ??
+    createTheGraphClient({ logs, externalCalls, ...components })
 
   return {
     externalCalls,
@@ -27,7 +36,9 @@ export const buildComponents = (components?: Partial<ContentValidatorComponents>
   }
 }
 
-export const buildExternalCalls = (externalCalls?: Partial<ExternalCalls>): ExternalCalls => ({
+export const buildExternalCalls = (
+  externalCalls?: Partial<ExternalCalls>
+): ExternalCalls => ({
   isContentStoredAlready: () => Promise.resolve(new Map()),
   fetchContentFileSize: () => Promise.resolve(undefined),
   validateSignature: () => Promise.resolve({ ok: true }),
@@ -38,19 +49,35 @@ export const buildExternalCalls = (externalCalls?: Partial<ExternalCalls>): Exte
   ...externalCalls
 })
 
+export const mockedQueryGraph = () =>
+  jest.fn() as jest.MockedFunction<QueryGraph>
+
 type Subgraphs = ExternalCalls['subgraphs']
+
+export const createMockSubgraphComponent = (
+  mock?: QueryGraph
+): ISubgraphComponent => ({
+  query: mock ?? (jest.fn() as jest.MockedFunction<QueryGraph>)
+})
 
 const defaultSubgraphs: Subgraphs = {
   L1: {
-    collections: 'https://api.thegraph.com/subgraphs/name/decentraland/collections-ethereum-ropsten',
-    blocks: 'https://api.thegraph.com/subgraphs/name/decentraland/blocks-ethereum-ropsten',
-    landManager: 'https://api.thegraph.com/subgraphs/name/decentraland/land-manager-ropsten',
-    ensOwner: 'https://api.thegraph.com/subgraphs/name/decentraland/marketplace-ropsten'
+    // 'https://api.thegraph.com/subgraphs/name/decentraland/collections-ethereum-ropsten'
+    collections: createMockSubgraphComponent(),
+    // 'https://api.thegraph.com/subgraphs/name/decentraland/blocks-ethereum-ropsten'
+    blocks: createMockSubgraphComponent(),
+    // 'https://api.thegraph.com/subgraphs/name/decentraland/land-manager-ropsten'
+    landManager: createMockSubgraphComponent(),
+    // 'https://api.thegraph.com/subgraphs/name/decentraland/marketplace-ropsten'
+    ensOwner: createMockSubgraphComponent()
   },
   L2: {
-    collections: 'https://api.thegraph.com/subgraphs/name/decentraland/collections-matic-mumbai',
-    blocks: 'https://api.thegraph.com/subgraphs/name/decentraland/blocks-matic-mumbai',
-    thirdPartyRegistry: 'https://api.thegraph.com/subgraphs/name/decentraland/tpr-matic-mumbai'
+    // 'https://api.thegraph.com/subgraphs/name/decentraland/collections-matic-mumbai'
+    collections: createMockSubgraphComponent(),
+    // 'https://api.thegraph.com/subgraphs/name/decentraland/blocks-matic-mumbai'
+    blocks: createMockSubgraphComponent(),
+    // 'https://api.thegraph.com/subgraphs/name/decentraland/tpr-matic-mumbai'
+    thirdPartyRegistry: createMockSubgraphComponent()
   }
 }
 
@@ -59,11 +86,12 @@ export const buildSubgraphs = (subgraphs?: Partial<Subgraphs>): Subgraphs => ({
   ...subgraphs
 })
 
-export const mockedQueryGraph = () => jest.fn() as jest.MockedFunction<QueryGraph>
-
 const COMMITTEE_MEMBER = '0xCOMMITEE_MEMBER'
-export const buildMockedQueryGraph = (collection?: Partial<WearableCollection>, _merkleRoot?: string) =>
-  mockedQueryGraph().mockImplementation(async (url, _query, _variables) => {
+export const buildMockedQueryGraph = (
+  collection?: Partial<WearableCollection>,
+  _merkleRoot?: string
+) =>
+  mockedQueryGraph().mockImplementation(async (_query, _variables) => {
     const withDefaults = {
       collections: [
         {
@@ -82,7 +110,8 @@ export const buildMockedQueryGraph = (collection?: Partial<WearableCollection>, 
       ],
       accounts: [{ id: COMMITTEE_MEMBER }]
     }
-    if (url.includes('block')) {
+    if (_query.includes('block')) {
+      // TODO UNDO
       return Promise.resolve({
         max: [{ number: 10 }],
         min: [{ number: 5 }]
@@ -101,7 +130,9 @@ export const fetcherWithValidCollectionAndCreator = (address: string) =>
     isApproved: false
   })
 
-export const fetcherWithValidCollectionAndCollectionManager = (address: string) =>
+export const fetcherWithValidCollectionAndCollectionManager = (
+  address: string
+) =>
   buildMockedQueryGraph({
     managers: [address.toLowerCase()],
     isCompleted: true,
@@ -115,7 +146,10 @@ export const fetcherWithValidCollectionAndItemManager = (address: string) =>
     isApproved: false
   })
 
-export const fetcherWithValidCollectionAndCreatorAndContentHash = (address: string, contentHash: string) =>
+export const fetcherWithValidCollectionAndCreatorAndContentHash = (
+  address: string,
+  contentHash: string
+) =>
   buildMockedQueryGraph({
     creator: address.toLowerCase(),
     isCompleted: true,
@@ -130,7 +164,9 @@ export const fetcherWithInvalidCollectionAndCreator = (address: string) =>
     isApproved: true
   })
 
-export const fetcherWithInvalidCollectionAndCollectionManager = (address: string) =>
+export const fetcherWithInvalidCollectionAndCollectionManager = (
+  address: string
+) =>
   buildMockedQueryGraph({
     managers: [address.toLowerCase()],
     isCompleted: true,
@@ -144,7 +180,9 @@ export const fetcherWithInvalidCollectionAndItemManager = (address: string) =>
     isApproved: true
   })
 
-export const fetcherWithInvalidCollectionAndContentHash = (contentHash: string) =>
+export const fetcherWithInvalidCollectionAndContentHash = (
+  contentHash: string
+) =>
   buildMockedQueryGraph({
     items: [{ managers: [], contentHash }],
     isCompleted: true,
@@ -152,41 +190,45 @@ export const fetcherWithInvalidCollectionAndContentHash = (contentHash: string) 
   })
 
 export const fetcherWithThirdPartyMerkleRoot = (root: string) => {
-  return mockedQueryGraph().mockImplementation(async (url, _query, _variables) => {
-    if (url.includes('thirdParty')) {
-      return Promise.resolve({
-        thirdParties: [
-          {
-            root
-          }
-        ]
-      })
+  return mockedQueryGraph().mockImplementation(
+    async (url, _query, _variables) => {
+      if (url.includes('thirdParty')) {
+        return Promise.resolve({
+          thirdParties: [
+            {
+              root
+            }
+          ]
+        })
+      }
+      if (url.includes('block')) {
+        return Promise.resolve({
+          max: [{ number: 10 }],
+          min: [{ number: 5 }]
+        })
+      }
+      return Promise.resolve('')
     }
-    if (url.includes('block')) {
-      return Promise.resolve({
-        max: [{ number: 10 }],
-        min: [{ number: 5 }]
-      })
-    }
-    return Promise.resolve('')
-  })
+  )
 }
 
 export const fetcherWithThirdPartyEmptyMerkleRoots = () => {
-  return mockedQueryGraph().mockImplementation(async (url, _query, _variables) => {
-    if (url.includes('thirdParty')) {
-      return Promise.resolve({
-        thirdParties: []
-      })
+  return mockedQueryGraph().mockImplementation(
+    async (url, _query, _variables) => {
+      if (url.includes('thirdParty')) {
+        return Promise.resolve({
+          thirdParties: []
+        })
+      }
+      if (url.includes('block')) {
+        return Promise.resolve({
+          max: [{ number: 10 }],
+          min: [{ number: 5 }]
+        })
+      }
+      return Promise.resolve('')
     }
-    if (url.includes('block')) {
-      return Promise.resolve({
-        max: [{ number: 10 }],
-        min: [{ number: 5 }]
-      })
-    }
-    return Promise.resolve('')
-  })
+  )
 }
 
 export const fetcherWithWearablesOwnership = (
@@ -231,22 +273,24 @@ export const fetcherWithWearablesOwnership = (
     max: [{ number: 123500 }]
   }
 
-  return mockedQueryGraph().mockImplementation(async (url, _query, _variables) => {
-    if (url.includes('marketplace')) {
-      return Promise.resolve({
-        names: ens ?? defaultEns
-      })
-    } else if (url.includes('blocks')) {
-      return Promise.resolve(blocks ?? defaultBlocks)
-    } else if (url.includes('ethereum')) {
-      return Promise.resolve({
-        wearables: ethereum ?? defaultEthereum
-      })
-    } else if (url.includes('matic')) {
-      return Promise.resolve({
-        wearables: matic ?? defaultMatic
-      })
+  return mockedQueryGraph().mockImplementation(
+    async (url, _query, _variables) => {
+      if (url.includes('marketplace')) {
+        return Promise.resolve({
+          names: ens ?? defaultEns
+        })
+      } else if (url.includes('blocks')) {
+        return Promise.resolve(blocks ?? defaultBlocks)
+      } else if (url.includes('ethereum')) {
+        return Promise.resolve({
+          wearables: ethereum ?? defaultEthereum
+        })
+      } else if (url.includes('matic')) {
+        return Promise.resolve({
+          wearables: matic ?? defaultMatic
+        })
+      }
+      return Promise.resolve('')
     }
-    return Promise.resolve('')
-  })
+  )
 }
