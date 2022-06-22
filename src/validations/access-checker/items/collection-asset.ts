@@ -213,8 +213,7 @@ export const v1andV2collectionAssetValidation: AssetValidation = {
           `The provided Eth Address does not have access to the following item: (${asset.contractAddress}, ${asset.id})`
         )
 
-      // Some L1 collections are deployed by Decentraland Address
-      // Maybe this is not necessary as we already know that it's a 'blockchain-collection-v1-asset'
+      // L1 collections are deployed by Decentraland Address
       const isAllowlistedCollection = asset.uri.toString().startsWith('urn:decentraland:ethereum:collections-v1')
       if (!externalCalls.isAddressOwnedByDecentraland(ethAddress) || !isAllowlistedCollection) {
         return validationFailed(
