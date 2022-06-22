@@ -1,6 +1,6 @@
 import { hashV1 } from '@dcl/hashing'
-import { ADR_45_TIMESTAMP } from '../../../src'
 import { ipfsHashing } from '../../../src/validations/ipfs-hashing'
+import { ADR_45_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
 import { buildComponents } from '../../setup/mock'

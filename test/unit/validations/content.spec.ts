@@ -1,5 +1,10 @@
-import { ADR_45_TIMESTAMP } from '../../../src'
-import { content } from '../../../src/validations/content'
+import {
+  allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45,
+  allHashesInUploadedFilesAreReportedInTheEntity,
+  allHashesWereUploadedOrStored,
+  content
+} from '../../../src/validations/content'
+import { ADR_45_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
 import { buildComponents, buildExternalCalls } from '../../setup/mock'
@@ -22,7 +27,7 @@ describe('Content', () => {
 
     const deployment = buildDeployment({ entity })
 
-    const result = await content.validate(components, deployment)
+    const result = await allHashesWereUploadedOrStored.validate(components, deployment)
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain(notAvailableHashMessage('hash'))
   })
@@ -58,7 +63,7 @@ describe('Content', () => {
     const files = new Map([['hash', Buffer.from([])]])
     const deployment = buildDeployment({ entity, files })
 
-    const result = await content.validate(components, deployment)
+    const result = await allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45.validate(components, deployment)
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain(
       "This file is not expected: 'name' or its hash is invalid: 'hash'. Please, include only valid snapshot files."
@@ -76,7 +81,7 @@ describe('Content', () => {
     ])
     const deployment = buildDeployment({ entity, files })
 
-    const result = await content.validate(components, deployment)
+    const result = await allHashesInUploadedFilesAreReportedInTheEntity.validate(components, deployment)
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain(notReferencedHashMessage('hash-2'))
   })
@@ -112,7 +117,10 @@ describe('Content', () => {
       })
 
       const deployment = buildDeployment({ entity, files })
-      const result = await content.validate(components, deployment)
+      const result = await allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45.validate(
+        components,
+        deployment
+      )
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `This file is not expected: '${expectedFile}' or its hash is invalid: '${invalidHash}'. Please, include only valid snapshot files.`
@@ -132,11 +140,34 @@ describe('Content', () => {
       })
 
       const deployment = buildDeployment({ entity, files })
-      const result = await content.validate(components, deployment)
+      const result = await allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45.validate(
+        components,
+        deployment
+      )
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `This file is not expected: '${unexpectedFile}' or its hash is invalid: '${hash}'. Please, include only valid snapshot files.`
       )
+    })
+
+    it(`When profile content files don't correspond to any shapshot before ADR 45, it is not reported`, async () => {
+      const unexpectedFile = 'unexpected-file.png'
+      const hash = 'bafybeiasb5vpmaounyilfuxbd3lryvosl4yefqrfahsb2esg46q6tu6y5q'
+
+      const contentItems = [{ file: unexpectedFile, hash }]
+      const files = new Map([[hash, Buffer.from([])]])
+      const entity = buildEntity({
+        metadata: VALID_PROFILE_METADATA,
+        content: contentItems,
+        timestamp: ADR_45_TIMESTAMP - 1
+      })
+
+      const deployment = buildDeployment({ entity, files })
+      const result = await allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45.validate(
+        components,
+        deployment
+      )
+      expect(result.ok).toBeTruthy()
     })
   })
 })

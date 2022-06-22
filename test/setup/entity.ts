@@ -17,7 +17,14 @@ export const buildSceneEntity = (entity?: Partial<Entity>): Entity =>
 export const buildWearableEntity = (entity?: Partial<Entity>): Entity =>
   buildEntity({
     version: 'v3',
-    type: EntityType.SCENE,
+    type: EntityType.WEARABLE,
+    ...entity
+  })
+
+export const buildEmoteEntity = (entity?: Partial<Entity>): Entity =>
+  buildEntity({
+    version: 'v3',
+    type: EntityType.EMOTE,
     ...entity
   })
 

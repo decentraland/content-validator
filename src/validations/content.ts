@@ -1,6 +1,6 @@
-import { Avatar, Profile, EntityType } from '@dcl/schemas'
-import { ADR_45_TIMESTAMP } from '.'
+import { Avatar, EntityType, Profile } from '@dcl/schemas'
 import { fromErrors, Validation } from '../types'
+import { validationAfterADR45, validationGroup } from './validations'
 
 const correspondsToASnapshot = (fileName: string, hash: string, metadata: Profile) => {
   const fileNameWithoutExtension = fileName.replace(/.[^/.]+$/, '')
@@ -11,16 +11,12 @@ const correspondsToASnapshot = (fileName: string, hash: string, metadata: Profil
   )
 }
 
-/**
- * Validate that uploaded and reported hashes are corrects and files corresponds to snapshots
- * @public
- */
-export const content: Validation = {
-  validate: async ({ externalCalls }, deployment) => {
+export const allHashesWereUploadedOrStored: Validation = {
+  async validate(components, deployment) {
     const { entity, files } = deployment
     const errors: string[] = []
     if (entity.content) {
-      const alreadyStoredHashes = await externalCalls.isContentStoredAlready(
+      const alreadyStoredHashes = await components.externalCalls.isContentStoredAlready(
         entity.content?.map((file) => file.hash) ?? []
       )
 
@@ -31,7 +27,14 @@ export const content: Validation = {
         }
       }
     }
+    return fromErrors(...errors)
+  }
+}
 
+export const allHashesInUploadedFilesAreReportedInTheEntity: Validation = {
+  async validate(components, deployment) {
+    const { entity, files } = deployment
+    const errors: string[] = []
     // Validate that all hashes that belong to uploaded files are actually reported on the entity
     const entityHashes = new Set(entity.content?.map(({ hash }) => hash) ?? [])
     for (const [hash] of files) {
@@ -39,19 +42,34 @@ export const content: Validation = {
         errors.push(`This hash was uploaded but is not referenced in the entity: ${hash}`)
       }
     }
+    return fromErrors(...errors)
+  }
+}
 
-    if (entity.timestamp > ADR_45_TIMESTAMP) {
-      for (const { file, hash } of entity.content ?? []) {
-        // Validate all content files correspond to at least one avatar snapshot
-        if (entity.type === EntityType.PROFILE) {
-          if (!correspondsToASnapshot(file, hash, entity.metadata)) {
-            errors.push(
-              `This file is not expected: '${file}' or its hash is invalid: '${hash}'. Please, include only valid snapshot files.`
-            )
-          }
+export const allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45: Validation = validationAfterADR45({
+  async validate(components, deployment) {
+    const { entity } = deployment
+    const errors: string[] = []
+    for (const { file, hash } of entity.content ?? []) {
+      // Validate all content files correspond to at least one avatar snapshot
+      if (entity.type === EntityType.PROFILE) {
+        if (!correspondsToASnapshot(file, hash, entity.metadata)) {
+          errors.push(
+            `This file is not expected: '${file}' or its hash is invalid: '${hash}'. Please, include only valid snapshot files.`
+          )
         }
       }
     }
     return fromErrors(...errors)
   }
-}
+})
+
+/**
+ * Validate that uploaded and reported hashes are corrects and files corresponds to snapshots
+ * @public
+ */
+export const content: Validation = validationGroup(
+  allHashesWereUploadedOrStored,
+  allHashesInUploadedFilesAreReportedInTheEntity,
+  allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45
+)

@@ -1,6 +1,7 @@
-import { entityParameters } from './ADR51'
-import { ADR_45_TIMESTAMP, calculateDeploymentSize, LEGACY_CONTENT_MIGRATION_TIMESTAMP } from '.'
+import { calculateDeploymentSize } from '.'
 import { OK, Validation, validationFailed } from '../types'
+import { entityParameters } from './ADR51'
+import { ADR_45_TIMESTAMP, LEGACY_CONTENT_MIGRATION_TIMESTAMP } from './timestamps'
 
 /** Validate that the full request size is within limits
  *

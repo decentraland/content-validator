@@ -1,7 +1,7 @@
-import { ContentValidatorComponents, ExternalCalls, QueryGraph } from '../../src/types'
-import { WearableCollection } from '../../src/validations/access-checker/wearables'
-import { createTheGraphClient } from '../../src'
 import { ILoggerComponent } from '@well-known-components/interfaces'
+import { createTheGraphClient } from '../../src'
+import { ContentValidatorComponents, ExternalCalls, QueryGraph } from '../../src/types'
+import { ItemCollection } from '../../src/validations/access-checker/items/collection-asset'
 
 export const buildLogger = (): ILoggerComponent => ({
   getLogger: () => ({
@@ -62,7 +62,7 @@ export const buildSubgraphs = (subgraphs?: Partial<Subgraphs>): Subgraphs => ({
 export const mockedQueryGraph = () => jest.fn() as jest.MockedFunction<QueryGraph>
 
 const COMMITTEE_MEMBER = '0xCOMMITEE_MEMBER'
-export const buildMockedQueryGraph = (collection?: Partial<WearableCollection>, _merkleRoot?: string) =>
+export const buildMockedQueryGraph = (collection?: Partial<ItemCollection>, _merkleRoot?: string) =>
   mockedQueryGraph().mockImplementation(async (url, _query, _variables) => {
     const withDefaults = {
       collections: [

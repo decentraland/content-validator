@@ -1,10 +1,10 @@
-import { profiles } from '../../../src/validations/access-checker/profiles'
-import { buildDeployment, buildProfileDeployment } from '../../setup/deployments'
-import { buildComponents, buildExternalCalls, fetcherWithWearablesOwnership } from '../../setup/mock'
-import { buildEntity } from '../../setup/entity'
 import { EntityType } from '@dcl/schemas'
+import { profiles } from '../../../src/validations/access-checker/profiles'
+import { ADR_75_TIMESTAMP } from '../../../src/validations/timestamps'
+import { buildDeployment, buildProfileDeployment } from '../../setup/deployments'
+import { buildEntity } from '../../setup/entity'
+import { buildComponents, buildExternalCalls, fetcherWithWearablesOwnership } from '../../setup/mock'
 import { VALID_PROFILE_METADATA } from '../../setup/profiles'
-import { ADR_75_TIMESTAMP } from '../../../src'
 
 describe('Access: profiles', () => {
   it('When a non-decentraland address tries to deploy an default profile, then an error is returned', async () => {
