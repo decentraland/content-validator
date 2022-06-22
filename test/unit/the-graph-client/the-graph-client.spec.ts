@@ -1,9 +1,4 @@
-import {
-  buildComponents,
-  buildExternalCalls,
-  buildSubgraphs,
-  createMockSubgraphComponent
-} from '../../setup/mock'
+import { buildComponents, buildExternalCalls, buildSubgraphs, createMockSubgraphComponent } from '../../setup/mock'
 
 describe('TheGraphClient', () => {
   it('When invocation to TheGraph throws an error, it is reported accordingly', async () => {
@@ -13,22 +8,16 @@ describe('TheGraphClient', () => {
           collections: createMockSubgraphComponent(),
           blocks: createMockSubgraphComponent(),
           landManager: createMockSubgraphComponent(),
-          ensOwner: createMockSubgraphComponent(
-            jest.fn().mockRejectedValue('error')
-          )
+          ensOwner: createMockSubgraphComponent(jest.fn().mockRejectedValue('error'))
         }
       })
     })
 
     const { theGraphClient } = buildComponents({ externalCalls })
 
-    await expect(
-      theGraphClient.checkForNamesOwnershipWithTimestamp(
-        '0x1',
-        ['Some Name'],
-        10
-      )
-    ).rejects.toThrow('Internal server error')
+    await expect(theGraphClient.checkForNamesOwnershipWithTimestamp('0x1', ['Some Name'], 10)).rejects.toThrow(
+      'Internal server error'
+    )
   })
 
   it('When invoking findBlocksForTimestamp, it may happen that no block matches and exception is thrown', async () => {
@@ -50,12 +39,9 @@ describe('TheGraphClient', () => {
 
     const { theGraphClient } = buildComponents({ externalCalls })
 
-    await expect(
-      theGraphClient.findBlocksForTimestamp(
-        externalCalls.subgraphs.L1.blocks,
-        10
-      )
-    ).rejects.toThrow('Internal server error')
+    await expect(theGraphClient.findBlocksForTimestamp(externalCalls.subgraphs.L1.blocks, 10)).rejects.toThrow(
+      'Internal server error'
+    )
   })
 
   describe('Checks for name ownership', function () {
@@ -89,13 +75,7 @@ describe('TheGraphClient', () => {
       })
       const { theGraphClient } = buildComponents({ externalCalls })
 
-      await expect(
-        theGraphClient.checkForNamesOwnershipWithTimestamp(
-          '0x1',
-          ['Some Name'],
-          10
-        )
-      ).resolves.toEqual({
+      await expect(theGraphClient.checkForNamesOwnershipWithTimestamp('0x1', ['Some Name'], 10)).resolves.toEqual({
         result: true
       })
     })
@@ -132,13 +112,7 @@ describe('TheGraphClient', () => {
       })
       const { theGraphClient } = buildComponents({ externalCalls })
 
-      await expect(
-        theGraphClient.checkForNamesOwnershipWithTimestamp(
-          '0x1',
-          ['Some Name'],
-          10
-        )
-      ).resolves.toEqual({
+      await expect(theGraphClient.checkForNamesOwnershipWithTimestamp('0x1', ['Some Name'], 10)).resolves.toEqual({
         result: true
       })
     })
@@ -155,21 +129,13 @@ describe('TheGraphClient', () => {
               })
             ),
             landManager: createMockSubgraphComponent(),
-            ensOwner: createMockSubgraphComponent(
-              jest.fn().mockRejectedValue('error')
-            )
+            ensOwner: createMockSubgraphComponent(jest.fn().mockRejectedValue('error'))
           }
         })
       })
       const { theGraphClient } = buildComponents({ externalCalls })
 
-      await expect(
-        theGraphClient.checkForNamesOwnershipWithTimestamp(
-          '0x1',
-          ['Some Name'],
-          10
-        )
-      ).resolves.toEqual({
+      await expect(theGraphClient.checkForNamesOwnershipWithTimestamp('0x1', ['Some Name'], 10)).resolves.toEqual({
         result: false
       })
     })
@@ -196,9 +162,7 @@ describe('TheGraphClient', () => {
               })
             ),
             landManager: createMockSubgraphComponent(),
-            ensOwner: createMockSubgraphComponent(
-              jest.fn().mockRejectedValue('error')
-            )
+            ensOwner: createMockSubgraphComponent(jest.fn().mockRejectedValue('error'))
           },
           L2: {
             thirdPartyRegistry: createMockSubgraphComponent(),
@@ -322,9 +286,7 @@ describe('TheGraphClient', () => {
                 max: [{ number: 123500 }]
               })
             ),
-            collections: createMockSubgraphComponent(
-              jest.fn().mockRejectedValue('error')
-            )
+            collections: createMockSubgraphComponent(jest.fn().mockRejectedValue('error'))
           }
         })
       })

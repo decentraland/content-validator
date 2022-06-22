@@ -40,11 +40,7 @@ export type DeploymentToValidate = {
  * Function used to fetch TheGraph
  * @public
  */
-export type QueryGraph = <T = any>(
-  query: string,
-  variables?: Variables,
-  remainingAttempts?: number
-) => Promise<T>
+export type QueryGraph = <T = any>(query: string, variables?: Variables, remainingAttempts?: number) => Promise<T>
 
 /**
  * External calls interface to be provided by the servers.
@@ -60,7 +56,6 @@ export type ExternalCalls = {
   ) => Promise<{ ok: boolean; message?: string }>
   ownerAddress: (auditInfo: LocalDeploymentAuditInfo) => string
   isAddressOwnedByDecentraland: (address: string) => boolean
-  queryGraph: QueryGraph
   subgraphs: {
     L1: {
       landManager: ISubgraphComponent
@@ -135,13 +130,8 @@ export const validationFailed = (...error: string[]): ValidationResponse => ({
 /**
  * @public
  */
-export const conditionalValidation = (
-  condition: ConditionalValidation
-): Validation => ({
-  validate: async (
-    components: ContentValidatorComponents,
-    deployment: DeploymentToValidate
-  ) => {
+export const conditionalValidation = (condition: ConditionalValidation): Validation => ({
+  validate: async (components: ContentValidatorComponents, deployment: DeploymentToValidate) => {
     try {
       return await condition.predicate(components, deployment)
       //     ^^^^^ never remove this await, it exists to ensure try {} catch
@@ -175,10 +165,7 @@ export type TheGraphClient = {
     timestamp: number
   ) => Promise<PermissionResult>
 
-  findBlocksForTimestamp: (
-    subgraph: ISubgraphComponent,
-    timestamp: number
-  ) => Promise<BlockInformation>
+  findBlocksForTimestamp: (subgraph: ISubgraphComponent, timestamp: number) => Promise<BlockInformation>
 }
 
 /**

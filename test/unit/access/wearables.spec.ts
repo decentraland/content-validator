@@ -6,8 +6,6 @@ import {
 import {
   buildComponents,
   buildExternalCalls,
-  buildSubgraphs,
-  createMockSubgraphComponent,
   fetcherWithoutAccess,
   fetcherWithThirdPartyEmptyMerkleRoots,
   fetcherWithThirdPartyMerkleRoot,

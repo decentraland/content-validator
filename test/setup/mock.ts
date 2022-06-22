@@ -44,13 +44,9 @@ export const buildExternalCalls = (
   validateSignature: () => Promise.resolve({ ok: true }),
   ownerAddress: () => '',
   isAddressOwnedByDecentraland: () => false,
-  queryGraph: mockedQueryGraph(),
   subgraphs: buildSubgraphs(),
   ...externalCalls
 })
-
-export const mockedQueryGraph = () =>
-  jest.fn() as jest.MockedFunction<QueryGraph>
 
 type Subgraphs = ExternalCalls['subgraphs']
 
@@ -285,6 +281,38 @@ export const fetcherWithThirdPartyEmptyMerkleRoots = (): Subgraphs =>
     }
   })
 
+const defaultEns = [
+  {
+    name: 'Some Name'
+  }
+]
+const defaultEthereum = [
+  {
+    urn: 'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet'
+  }
+]
+const defaultMatic = [
+  {
+    urn: 'urn:decentraland:matic:collections-v2:0xf6f601efee04e74cecac02c8c5bdc8cc0fc1c721:0'
+  },
+  {
+    urn: 'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
+  },
+  {
+    urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa4:0'
+  },
+  {
+    urn: 'urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:19'
+  },
+  {
+    urn: 'urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:2'
+  }
+]
+const defaultBlocks = {
+  min: [{ number: 123400 }],
+  max: [{ number: 123500 }]
+}
+
 export const fetcherWithWearablesOwnership = (
   address: string,
   ens?: { name: string }[],
@@ -294,57 +322,60 @@ export const fetcherWithWearablesOwnership = (
     min: { number: number }[]
     max: { number: number }[]
   }
-) => {
-  const defaultEns = [
-    {
-      name: 'Some Name'
-    }
-  ]
-  const defaultEthereum = [
-    {
-      urn: 'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet'
-    }
-  ]
-  const defaultMatic = [
-    {
-      urn: 'urn:decentraland:matic:collections-v2:0xf6f601efee04e74cecac02c8c5bdc8cc0fc1c721:0'
-    },
-    {
-      urn: 'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
-    },
-    {
-      urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa4:0'
-    },
-    {
-      urn: 'urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:19'
-    },
-    {
-      urn: 'urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:2'
-    }
-  ]
-  const defaultBlocks = {
-    min: [{ number: 123400 }],
-    max: [{ number: 123500 }]
-  }
-
-  return mockedQueryGraph().mockImplementation(
-    async (url, _query, _variables) => {
-      if (url.includes('marketplace')) {
-        return Promise.resolve({
-          names: ens ?? defaultEns
-        })
-      } else if (url.includes('blocks')) {
-        return Promise.resolve(blocks ?? defaultBlocks)
-      } else if (url.includes('ethereum')) {
-        return Promise.resolve({
+): Subgraphs =>
+  buildSubgraphs({
+    L1: {
+      collections: createMockSubgraphComponent(
+        jest.fn().mockResolvedValue({
           wearables: ethereum ?? defaultEthereum
         })
-      } else if (url.includes('matic')) {
-        return Promise.resolve({
+      ),
+      blocks: createMockSubgraphComponent(
+        jest.fn().mockResolvedValue(blocks ?? defaultBlocks)
+      ),
+      landManager: createMockSubgraphComponent(),
+      ensOwner: createMockSubgraphComponent(
+        jest.fn().mockResolvedValue({
+          names: ens ?? defaultEns
+        })
+      )
+    },
+    L2: {
+      thirdPartyRegistry: createMockSubgraphComponent(
+        jest.fn().mockResolvedValue({
+          thirdParties: []
+        })
+      ),
+      blocks: createMockSubgraphComponent(
+        jest.fn().mockResolvedValue(blocks ?? defaultBlocks)
+      ),
+      collections: createMockSubgraphComponent(
+        jest.fn().mockResolvedValue({
           wearables: matic ?? defaultMatic
         })
-      }
-      return Promise.resolve('')
+      )
     }
-  )
-}
+  })
+
+//
+//   return mockedQueryGraph().mockImplementation(
+//     async (url, _query, _variables) => {
+//       if (url.includes('marketplace')) {
+//         return Promise.resolve({
+//           names: ens ?? defaultEns
+//         })
+//       } else if (url.includes('blocks')) {
+//         return Promise.resolve(blocks ?? defaultBlocks)
+//       } else if (url.includes('ethereum')) {
+//         return Promise.resolve({
+//           wearables: ethereum ?? defaultEthereum
+//         })
+//       } else if (url.includes('matic')) {
+//         return Promise.resolve({
+//           wearables: matic ?? defaultMatic
+//         })
+//       }
+//       return Promise.resolve('')
+//     }
+//   )
+// }
