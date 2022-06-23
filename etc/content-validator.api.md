@@ -8,6 +8,8 @@ import { AuthChain } from '@dcl/schemas';
 import { Entity } from '@dcl/schemas';
 import { EthAddress } from '@dcl/schemas';
 import { ILoggerComponent } from '@well-known-components/interfaces';
+import { ISubgraphComponent } from '@well-known-components/thegraph-component';
+import { Variables } from '@well-known-components/thegraph-component';
 import { WearableId } from '@dcl/schemas';
 
 // @public (undocumented)
@@ -62,18 +64,17 @@ export type ExternalCalls = {
     }>;
     ownerAddress: (auditInfo: LocalDeploymentAuditInfo) => string;
     isAddressOwnedByDecentraland: (address: string) => boolean;
-    queryGraph: QueryGraph;
     subgraphs: {
         L1: {
-            landManager: string;
-            blocks: string;
-            collections: string;
-            ensOwner: string;
+            landManager: ISubgraphComponent;
+            blocks: ISubgraphComponent;
+            collections: ISubgraphComponent;
+            ensOwner: ISubgraphComponent;
         };
         L2: {
-            blocks: string;
-            collections: string;
-            thirdPartyRegistry: string;
+            blocks: ISubgraphComponent;
+            collections: ISubgraphComponent;
+            thirdPartyRegistry: ISubgraphComponent;
         };
     };
 };
@@ -90,7 +91,7 @@ export type LocalDeploymentAuditInfo = {
 export const OK: ValidationResponse;
 
 // @public
-export type QueryGraph = <T = any>(url: string, query: string, variables: Record<string, any>) => Promise<T>;
+export type QueryGraph = <T = any>(query: string, variables?: Variables, remainingAttempts?: number) => Promise<T>;
 
 // @public
 export const statefulValidations: readonly [Validation, Validation, Validation, Validation, Validation, Validation, Validation];
@@ -102,16 +103,7 @@ export const statelessValidations: readonly [Validation, Validation, Validation]
 export type TheGraphClient = {
     checkForNamesOwnershipWithTimestamp: (ethAddress: EthAddress, namesToCheck: string[], timestamp: number) => Promise<PermissionResult>;
     checkForWearablesOwnershipWithTimestamp: (ethAddress: EthAddress, wearableIdsToCheck: WearableId[], timestamp: number) => Promise<PermissionResult>;
-    findBlocksForTimestamp: (subgraph: keyof URLs, timestamp: number) => Promise<BlockInformation>;
-};
-
-// @public (undocumented)
-export type URLs = {
-    ensSubgraph: string;
-    blocksSubgraph: string;
-    maticBlocksSubgraph: string;
-    collectionsSubgraph: string;
-    maticCollectionsSubgraph: string;
+    findBlocksForTimestamp: (subgraph: ISubgraphComponent, timestamp: number) => Promise<BlockInformation>;
 };
 
 // @public (undocumented)
@@ -147,7 +139,7 @@ export type Warnings = string[];
 
 // Warnings were encountered during analysis:
 //
-// src/types.ts:152:3 - (ae-forgotten-export) The symbol "PermissionResult" needs to be exported by the entry point index.d.ts
+// src/types.ts:142:3 - (ae-forgotten-export) The symbol "PermissionResult" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 
