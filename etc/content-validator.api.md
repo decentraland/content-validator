@@ -87,7 +87,7 @@ export const statefulValidations: readonly [Validation, Validation, Validation, 
 // @public
 export const statelessValidations: readonly [Validation, Validation, Validation];
 
-// @public (undocumented)
+// @public
 export type SubGraphs = {
     L1: {
         landManager: ISubgraphComponent;
@@ -142,7 +142,7 @@ export type Warnings = string[];
 
 // Warnings were encountered during analysis:
 //
-// src/types.ts:143:3 - (ae-forgotten-export) The symbol "PermissionResult" needs to be exported by the entry point index.d.ts
+// src/types.ts:147:3 - (ae-forgotten-export) The symbol "PermissionResult" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

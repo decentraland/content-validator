@@ -122,6 +122,10 @@ export const fromErrors = (...errors: Errors): ValidationResponse => ({
   errors: errors.length > 0 ? errors : undefined
 })
 
+/**
+ * A list with all sub-graphs used for validations.
+ * @public
+ */
 export type SubGraphs = {
   L1: {
     landManager: ISubgraphComponent
