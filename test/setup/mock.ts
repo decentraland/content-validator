@@ -1,9 +1,5 @@
 import { ILoggerComponent } from '@well-known-components/interfaces'
-import {
-  ContentValidatorComponents,
-  ExternalCalls,
-  QueryGraph
-} from '../../src/types'
+import { ContentValidatorComponents, ExternalCalls, QueryGraph } from '../../src/types'
 import { createTheGraphClient } from '../../src'
 import { ISubgraphComponent } from '@well-known-components/thegraph-component'
 import { ItemCollection } from '../../src/validations/access-checker/items/collection-asset'
@@ -18,16 +14,12 @@ export const buildLogger = (): ILoggerComponent => ({
   })
 })
 
-export const buildComponents = (
-  components?: Partial<ContentValidatorComponents>
-): ContentValidatorComponents => {
+export const buildComponents = (components?: Partial<ContentValidatorComponents>): ContentValidatorComponents => {
   const externalCalls = components?.externalCalls ?? buildExternalCalls()
 
   const logs = components?.logs ?? buildLogger()
 
-  const theGraphClient =
-    components?.theGraphClient ??
-    createTheGraphClient({ logs, externalCalls, ...components })
+  const theGraphClient = components?.theGraphClient ?? createTheGraphClient({ logs, externalCalls, ...components })
 
   return {
     externalCalls,
@@ -36,9 +28,7 @@ export const buildComponents = (
   }
 }
 
-export const buildExternalCalls = (
-  externalCalls?: Partial<ExternalCalls>
-): ExternalCalls => ({
+export const buildExternalCalls = (externalCalls?: Partial<ExternalCalls>): ExternalCalls => ({
   isContentStoredAlready: () => Promise.resolve(new Map()),
   fetchContentFileSize: () => Promise.resolve(undefined),
   validateSignature: () => Promise.resolve({ ok: true }),
@@ -50,9 +40,7 @@ export const buildExternalCalls = (
 
 type Subgraphs = ExternalCalls['subgraphs']
 
-export const createMockSubgraphComponent = (
-  mock?: QueryGraph
-): ISubgraphComponent => ({
+export const createMockSubgraphComponent = (mock?: QueryGraph): ISubgraphComponent => ({
   query: mock ?? (jest.fn() as jest.MockedFunction<QueryGraph>)
 })
 
@@ -83,10 +71,7 @@ export const buildSubgraphs = (subgraphs?: Partial<Subgraphs>): Subgraphs => ({
 })
 
 const COMMITTEE_MEMBER = '0xCOMMITEE_MEMBER'
-export const buildMockedQueryGraph = (
-  collection?: Partial<ItemCollection>,
-  _merkleRoot?: string
-): Subgraphs =>
+export const buildMockedQueryGraph = (collection?: Partial<ItemCollection>, _merkleRoot?: string): Subgraphs =>
   buildSubgraphs({
     L1: {
       collections: createMockSubgraphComponent(
@@ -151,18 +136,14 @@ export const buildMockedQueryGraph = (
 
 export const fetcherWithoutAccess = () => buildMockedQueryGraph()
 
-export const fetcherWithValidCollectionAndCreator = (
-  address: string
-): Subgraphs =>
+export const fetcherWithValidCollectionAndCreator = (address: string): Subgraphs =>
   buildMockedQueryGraph({
     creator: address.toLowerCase(),
     isCompleted: true,
     isApproved: false
   })
 
-export const fetcherWithValidCollectionAndCollectionManager = (
-  address: string
-) =>
+export const fetcherWithValidCollectionAndCollectionManager = (address: string) =>
   buildMockedQueryGraph({
     managers: [address.toLowerCase()],
     isCompleted: true,
@@ -176,10 +157,7 @@ export const fetcherWithValidCollectionAndItemManager = (address: string) =>
     isApproved: false
   })
 
-export const fetcherWithValidCollectionAndCreatorAndContentHash = (
-  address: string,
-  contentHash: string
-) =>
+export const fetcherWithValidCollectionAndCreatorAndContentHash = (address: string, contentHash: string) =>
   buildMockedQueryGraph({
     creator: address.toLowerCase(),
     isCompleted: true,
@@ -194,9 +172,7 @@ export const fetcherWithInvalidCollectionAndCreator = (address: string) =>
     isApproved: true
   })
 
-export const fetcherWithInvalidCollectionAndCollectionManager = (
-  address: string
-) =>
+export const fetcherWithInvalidCollectionAndCollectionManager = (address: string) =>
   buildMockedQueryGraph({
     managers: [address.toLowerCase()],
     isCompleted: true,
@@ -210,9 +186,7 @@ export const fetcherWithInvalidCollectionAndItemManager = (address: string) =>
     isApproved: true
   })
 
-export const fetcherWithInvalidCollectionAndContentHash = (
-  contentHash: string
-) =>
+export const fetcherWithInvalidCollectionAndContentHash = (contentHash: string) =>
   buildMockedQueryGraph({
     items: [{ managers: [], contentHash }],
     isCompleted: true,
@@ -330,9 +304,7 @@ export const fetcherWithWearablesOwnership = (
           wearables: ethereum ?? defaultEthereum
         })
       ),
-      blocks: createMockSubgraphComponent(
-        jest.fn().mockResolvedValue(blocks ?? defaultBlocks)
-      ),
+      blocks: createMockSubgraphComponent(jest.fn().mockResolvedValue(blocks ?? defaultBlocks)),
       landManager: createMockSubgraphComponent(),
       ensOwner: createMockSubgraphComponent(
         jest.fn().mockResolvedValue({
@@ -346,9 +318,7 @@ export const fetcherWithWearablesOwnership = (
           thirdParties: []
         })
       ),
-      blocks: createMockSubgraphComponent(
-        jest.fn().mockResolvedValue(blocks ?? defaultBlocks)
-      ),
+      blocks: createMockSubgraphComponent(jest.fn().mockResolvedValue(blocks ?? defaultBlocks)),
       collections: createMockSubgraphComponent(
         jest.fn().mockResolvedValue({
           wearables: matic ?? defaultMatic
