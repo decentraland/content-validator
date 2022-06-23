@@ -195,14 +195,8 @@ export const createTheGraphClient = (
     query: Query<QueryResult, ReturnType>,
     variables: Record<string, any>
   ): Promise<ReturnType> => {
-    try {
-      const response = await query.subgraph.query<QueryResult>(query.query, variables)
-      return query.mapper(response)
-    } catch (error) {
-      logger.error(`Failed to execute the following query to the subgraph ${query.description}'.`)
-      logger.error(error as any)
-      throw new Error('Internal server error')
-    }
+    const response = await query.subgraph.query<QueryResult>(query.query, variables)
+    return query.mapper(response)
   }
 
   const findBlocksForTimestamp = async (subgraph: ISubgraphComponent, timestamp: number): Promise<BlockInformation> => {

@@ -5,17 +5,19 @@ describe('TheGraphClient', () => {
     const subGraphs = buildSubGraphs({
       L1: {
         collections: createMockSubgraphComponent(),
-        blocks: createMockSubgraphComponent(),
+        blocks: createMockSubgraphComponent(
+          jest.fn().mockImplementation(() => {
+            throw new Error('error')
+          })
+        ),
         landManager: createMockSubgraphComponent(),
-        ensOwner: createMockSubgraphComponent(jest.fn().mockRejectedValue('error'))
+        ensOwner: createMockSubgraphComponent()
       }
     })
 
     const { theGraphClient } = buildComponents({ subGraphs })
 
-    await expect(theGraphClient.checkForNamesOwnershipWithTimestamp('0x1', ['Some Name'], 10)).rejects.toThrow(
-      'Internal server error'
-    )
+    await expect(theGraphClient.checkForNamesOwnershipWithTimestamp('0x1', ['Some Name'], 10)).rejects.toThrow('error')
   })
 
   it('When invoking findBlocksForTimestamp, it may happen that no block matches and exception is thrown', async () => {
@@ -36,7 +38,7 @@ describe('TheGraphClient', () => {
     const { theGraphClient } = buildComponents({ subGraphs })
 
     await expect(theGraphClient.findBlocksForTimestamp(subGraphs.L1.blocks, 10)).rejects.toThrow(
-      'Internal server error'
+      'Failed to find blocks for the specific timestamp'
     )
   })
 
