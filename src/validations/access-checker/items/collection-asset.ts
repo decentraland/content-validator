@@ -173,11 +173,11 @@ async function checkCollectionAccess(
 
 export const v1andV2collectionAssetValidation: AssetValidation = {
   async validateAsset(
-    components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'theGraphClient'>,
+    components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'theGraphClient' | 'subGraphs'>,
     asset: BlockchainCollectionV1Asset | BlockchainCollectionV2Asset,
     deployment: DeploymentToValidate
   ) {
-    const { externalCalls } = components
+    const { externalCalls, subGraphs } = components
     const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
     const logger = components.logs.getLogger('collection asset access validation')
     // L1 or L2 so contractAddress is present
@@ -188,11 +188,9 @@ export const v1andV2collectionAssetValidation: AssetValidation = {
     const isL2 = L2_NETWORKS.includes(network)
     if (!isL1 && !isL2) return validationFailed(`Found an unknown network on the urn '${network}'`)
 
-    const blocksSubgraphUrl = isL1 ? externalCalls.subgraphs.L1.blocks : externalCalls.subgraphs.L2.blocks
+    const blocksSubgraphUrl = isL1 ? subGraphs.L1.blocks : subGraphs.L2.blocks
 
-    const collectionsSubgraphUrl = isL1
-      ? externalCalls.subgraphs.L1.collections
-      : externalCalls.subgraphs.L2.collections
+    const collectionsSubgraphUrl = isL1 ? subGraphs.L1.collections : subGraphs.L2.collections
 
     const hasAccess = await checkCollectionAccess(
       components,

@@ -12,7 +12,7 @@ export type PermissionResult = {
  * @public
  */
 export const createTheGraphClient = (
-  components: Pick<ContentValidatorComponents, 'logs' | 'externalCalls'>
+  components: Pick<ContentValidatorComponents, 'logs' | 'subGraphs'>
 ): TheGraphClient => {
   const logger = components.logs.getLogger('TheGraphClient')
 
@@ -28,7 +28,7 @@ export const createTheGraphClient = (
       return permissionOk()
     }
 
-    const blocks = await findBlocksForTimestamp(components.externalCalls.subgraphs.L1.blocks, timestamp)
+    const blocks = await findBlocksForTimestamp(components.subGraphs.L1.blocks, timestamp)
 
     const hasPermissionOnBlock = async (blockNumber: number | undefined): Promise<PermissionResult> => {
       if (!blockNumber) {
@@ -38,7 +38,7 @@ export const createTheGraphClient = (
       const runOwnedNamesOnBlockQuery = async (blockNumber: number) => {
         const query: Query<{ names: { name: string }[] }, Set<string>> = {
           description: 'check for names ownership',
-          subgraph: components.externalCalls.subgraphs.L1.ensOwner,
+          subgraph: components.subGraphs.L1.ensOwner,
           query: QUERY_NAMES_FOR_ADDRESS_AT_BLOCK,
           mapper: (response: { names: { name: string }[] }): Set<string> =>
             new Set(response.names.map(({ name }) => name))
@@ -116,15 +116,15 @@ export const createTheGraphClient = (
       ethAddress,
       ethereum,
       timestamp,
-      components.externalCalls.subgraphs.L1.blocks,
-      components.externalCalls.subgraphs.L1.collections
+      components.subGraphs.L1.blocks,
+      components.subGraphs.L1.collections
     )
     const maticWearablesOwnersPromise = getOwnersByWearableWithTimestamp(
       ethAddress,
       matic,
       timestamp,
-      components.externalCalls.subgraphs.L2.blocks,
-      components.externalCalls.subgraphs.L2.collections
+      components.subGraphs.L2.blocks,
+      components.subGraphs.L2.collections
     )
 
     const [ethereumWearablesOwners, maticWearablesOwners] = await Promise.all([

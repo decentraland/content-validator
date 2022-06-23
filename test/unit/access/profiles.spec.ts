@@ -92,12 +92,12 @@ describe('Access: profiles', () => {
     })
     const deployment = buildDeployment({ entity })
 
+    const subGraphs = fetcherWithWearablesOwnership('0x862f109696d7121438642a78b3caa38f476db08b')
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => someAddress,
-      subgraphs: fetcherWithWearablesOwnership('0x862f109696d7121438642a78b3caa38f476db08b')
+      ownerAddress: () => someAddress
     })
 
-    const response = await profiles.validate(buildComponents({ externalCalls }), deployment)
+    const response = await profiles.validate(buildComponents({ externalCalls, subGraphs }), deployment)
     expect(response.ok).toBeTruthy()
   })
 
@@ -112,16 +112,16 @@ describe('Access: profiles', () => {
     })
     const deployment = buildDeployment({ entity })
 
+    const subGraphs = fetcherWithWearablesOwnership('0x862f109696d7121438642a78b3caa38f476db08b', [
+      {
+        name: "Someone else's name"
+      }
+    ])
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => someAddress,
-      subgraphs: fetcherWithWearablesOwnership('0x862f109696d7121438642a78b3caa38f476db08b', [
-        {
-          name: "Someone else's name"
-        }
-      ])
+      ownerAddress: () => someAddress
     })
 
-    const response = await profiles.validate(buildComponents({ externalCalls }), deployment)
+    const response = await profiles.validate(buildComponents({ externalCalls, subGraphs }), deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       'The following names (Some Name) are not owned by the address 0x862f109696d7121438642a78b3caa38f476db08b).'
@@ -139,19 +139,24 @@ describe('Access: profiles', () => {
     })
     const deployment = buildDeployment({ entity })
 
-    const externalCalls = buildExternalCalls({
-      ownerAddress: () => someAddress,
-      subgraphs: fetcherWithWearablesOwnership('0x862f109696d7121438642a78b3caa38f476db08b', undefined, undefined, [
+    const subGraphs = fetcherWithWearablesOwnership(
+      '0x862f109696d7121438642a78b3caa38f476db08b',
+      undefined,
+      undefined,
+      [
         {
           urn: 'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
         },
         {
           urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa4:0'
         }
-      ])
+      ]
+    )
+    const externalCalls = buildExternalCalls({
+      ownerAddress: () => someAddress
     })
 
-    const response = await profiles.validate(buildComponents({ externalCalls }), deployment)
+    const response = await profiles.validate(buildComponents({ externalCalls, subGraphs }), deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       'The following wearables (urn:decentraland:matic:collections-v2:0xf6f601efee04e74cecac02c8c5bdc8cc0fc1c721:0, urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:2, urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:19) are not owned by the address 0x862f109696d7121438642a78b3caa38f476db08b).'

@@ -1,5 +1,5 @@
 import { ILoggerComponent } from '@well-known-components/interfaces'
-import { ContentValidatorComponents, ExternalCalls, QueryGraph } from '../../src/types'
+import { ContentValidatorComponents, ExternalCalls, QueryGraph, SubGraphs } from '../../src/types'
 import { createTheGraphClient } from '../../src'
 import { ISubgraphComponent } from '@well-known-components/thegraph-component'
 import { ItemCollection } from '../../src/validations/access-checker/items/collection-asset'
@@ -19,12 +19,14 @@ export const buildComponents = (components?: Partial<ContentValidatorComponents>
 
   const logs = components?.logs ?? buildLogger()
 
-  const theGraphClient = components?.theGraphClient ?? createTheGraphClient({ logs, externalCalls, ...components })
+  const subGraphs = components?.subGraphs ?? buildSubGraphs()
+  const theGraphClient = components?.theGraphClient ?? createTheGraphClient({ logs, subGraphs, ...components })
 
   return {
-    externalCalls,
     logs,
-    theGraphClient
+    theGraphClient,
+    externalCalls,
+    subGraphs
   }
 }
 
@@ -34,17 +36,16 @@ export const buildExternalCalls = (externalCalls?: Partial<ExternalCalls>): Exte
   validateSignature: () => Promise.resolve({ ok: true }),
   ownerAddress: () => '',
   isAddressOwnedByDecentraland: () => false,
-  subgraphs: buildSubgraphs(),
   ...externalCalls
 })
 
-type Subgraphs = ExternalCalls['subgraphs']
+// type Subgraphs = ExternalCalls['subgraphs']
 
 export const createMockSubgraphComponent = (mock?: QueryGraph): ISubgraphComponent => ({
   query: mock ?? (jest.fn() as jest.MockedFunction<QueryGraph>)
 })
 
-const defaultSubgraphs: Subgraphs = {
+const defaultSubGraphs: SubGraphs = {
   L1: {
     // 'https://api.thegraph.com/subgraphs/name/decentraland/collections-ethereum-ropsten'
     collections: createMockSubgraphComponent(),
@@ -65,14 +66,14 @@ const defaultSubgraphs: Subgraphs = {
   }
 }
 
-export const buildSubgraphs = (subgraphs?: Partial<Subgraphs>): Subgraphs => ({
-  ...defaultSubgraphs,
-  ...subgraphs
+export const buildSubGraphs = (subGraphs?: Partial<SubGraphs>): SubGraphs => ({
+  ...defaultSubGraphs,
+  ...subGraphs
 })
 
 const COMMITTEE_MEMBER = '0xCOMMITEE_MEMBER'
-export const buildMockedQueryGraph = (collection?: Partial<ItemCollection>, _merkleRoot?: string): Subgraphs =>
-  buildSubgraphs({
+export const buildMockedQueryGraph = (collection?: Partial<ItemCollection>, _merkleRoot?: string): SubGraphs =>
+  buildSubGraphs({
     L1: {
       collections: createMockSubgraphComponent(
         jest.fn().mockResolvedValueOnce({
@@ -136,7 +137,7 @@ export const buildMockedQueryGraph = (collection?: Partial<ItemCollection>, _mer
 
 export const fetcherWithoutAccess = () => buildMockedQueryGraph()
 
-export const fetcherWithValidCollectionAndCreator = (address: string): Subgraphs =>
+export const fetcherWithValidCollectionAndCreator = (address: string): SubGraphs =>
   buildMockedQueryGraph({
     creator: address.toLowerCase(),
     isCompleted: true,
@@ -193,8 +194,8 @@ export const fetcherWithInvalidCollectionAndContentHash = (contentHash: string) 
     isApproved: true
   })
 
-export const fetcherWithThirdPartyMerkleRoot = (root: string): Subgraphs =>
-  buildSubgraphs({
+export const fetcherWithThirdPartyMerkleRoot = (root: string): SubGraphs =>
+  buildSubGraphs({
     L1: {
       collections: createMockSubgraphComponent(),
       blocks: createMockSubgraphComponent(
@@ -226,8 +227,8 @@ export const fetcherWithThirdPartyMerkleRoot = (root: string): Subgraphs =>
     }
   })
 
-export const fetcherWithThirdPartyEmptyMerkleRoots = (): Subgraphs =>
-  buildSubgraphs({
+export const fetcherWithThirdPartyEmptyMerkleRoots = (): SubGraphs =>
+  buildSubGraphs({
     L1: {
       collections: createMockSubgraphComponent(),
       blocks: createMockSubgraphComponent(
@@ -296,8 +297,8 @@ export const fetcherWithWearablesOwnership = (
     min: { number: number }[]
     max: { number: number }[]
   }
-): Subgraphs =>
-  buildSubgraphs({
+): SubGraphs =>
+  buildSubGraphs({
     L1: {
       collections: createMockSubgraphComponent(
         jest.fn().mockResolvedValue({

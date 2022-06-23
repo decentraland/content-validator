@@ -37,7 +37,7 @@ type Authorization = {
  * @public
  */
 export const scenes: Validation = {
-  validate: async ({ externalCalls, logs }, deployment) => {
+  validate: async ({ externalCalls, logs, subGraphs }, deployment) => {
     const logger = logs.getLogger('scenes access validator')
     const getAuthorizations = async (
       owner: EthAddress,
@@ -68,7 +68,7 @@ export const scenes: Validation = {
 
       try {
         return (
-          await externalCalls.subgraphs.L1.landManager.query<{
+          await subGraphs.L1.landManager.query<{
             authorizations: Authorization[]
           }>(query, variables)
         ).authorizations
@@ -123,7 +123,7 @@ export const scenes: Validation = {
 
       try {
         return (
-          await externalCalls.subgraphs.L1.landManager.query<{
+          await subGraphs.L1.landManager.query<{
             estates: Estate[]
           }>(query, variables)
         ).estates[0]
@@ -185,7 +185,7 @@ export const scenes: Validation = {
       }
 
       try {
-        const r = await externalCalls.subgraphs.L1.landManager.query<{
+        const r = await subGraphs.L1.landManager.query<{
           parcels: Parcel[]
         }>(query, variables)
 

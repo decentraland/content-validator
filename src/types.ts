@@ -56,19 +56,6 @@ export type ExternalCalls = {
   ) => Promise<{ ok: boolean; message?: string }>
   ownerAddress: (auditInfo: LocalDeploymentAuditInfo) => string
   isAddressOwnedByDecentraland: (address: string) => boolean
-  subgraphs: {
-    L1: {
-      landManager: ISubgraphComponent
-      blocks: ISubgraphComponent
-      collections: ISubgraphComponent
-      ensOwner: ISubgraphComponent
-    }
-    L2: {
-      blocks: ISubgraphComponent
-      collections: ISubgraphComponent
-      thirdPartyRegistry: ISubgraphComponent
-    }
-  }
 }
 
 /**
@@ -135,6 +122,20 @@ export const fromErrors = (...errors: Errors): ValidationResponse => ({
   errors: errors.length > 0 ? errors : undefined
 })
 
+export type SubGraphs = {
+  L1: {
+    landManager: ISubgraphComponent
+    blocks: ISubgraphComponent
+    collections: ISubgraphComponent
+    ensOwner: ISubgraphComponent
+  }
+  L2: {
+    blocks: ISubgraphComponent
+    collections: ISubgraphComponent
+    thirdPartyRegistry: ISubgraphComponent
+  }
+}
+
 /**
  * @public
  */
@@ -170,4 +171,5 @@ export type ContentValidatorComponents = {
   logs: ILoggerComponent
   theGraphClient: TheGraphClient
   externalCalls: ExternalCalls
+  subGraphs: SubGraphs
 }

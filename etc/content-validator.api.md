@@ -30,14 +30,15 @@ export type ConditionalValidation = {
 export type ContentValidatorComponents = {
     logs: ILoggerComponent;
     theGraphClient: TheGraphClient;
+    subGraphs: SubGraphs;
     externalCalls: ExternalCalls;
 };
 
 // @public (undocumented)
-export const createTheGraphClient: (components: Pick<ContentValidatorComponents, 'logs' | 'externalCalls'>) => TheGraphClient;
+export const createTheGraphClient: (components: Pick<ContentValidatorComponents, 'logs' | 'subGraphs'>) => TheGraphClient;
 
 // @public
-export const createValidator: (components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'theGraphClient'>) => Validator;
+export const createValidator: (components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'theGraphClient' | 'subGraphs'>) => Validator;
 
 // @public
 export type DeploymentToValidate = {
@@ -64,19 +65,6 @@ export type ExternalCalls = {
     }>;
     ownerAddress: (auditInfo: LocalDeploymentAuditInfo) => string;
     isAddressOwnedByDecentraland: (address: string) => boolean;
-    subgraphs: {
-        L1: {
-            landManager: ISubgraphComponent;
-            blocks: ISubgraphComponent;
-            collections: ISubgraphComponent;
-            ensOwner: ISubgraphComponent;
-        };
-        L2: {
-            blocks: ISubgraphComponent;
-            collections: ISubgraphComponent;
-            thirdPartyRegistry: ISubgraphComponent;
-        };
-    };
 };
 
 // @public (undocumented)
@@ -98,6 +86,21 @@ export const statefulValidations: readonly [Validation, Validation, Validation, 
 
 // @public
 export const statelessValidations: readonly [Validation, Validation, Validation];
+
+// @public (undocumented)
+export type SubGraphs = {
+    L1: {
+        landManager: ISubgraphComponent;
+        blocks: ISubgraphComponent;
+        collections: ISubgraphComponent;
+        ensOwner: ISubgraphComponent;
+    };
+    L2: {
+        blocks: ISubgraphComponent;
+        collections: ISubgraphComponent;
+        thirdPartyRegistry: ISubgraphComponent;
+    };
+};
 
 // @public (undocumented)
 export type TheGraphClient = {
@@ -139,7 +142,7 @@ export type Warnings = string[];
 
 // Warnings were encountered during analysis:
 //
-// src/types.ts:142:3 - (ae-forgotten-export) The symbol "PermissionResult" needs to be exported by the entry point index.d.ts
+// src/types.ts:143:3 - (ae-forgotten-export) The symbol "PermissionResult" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

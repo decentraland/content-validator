@@ -73,9 +73,8 @@ describe('Access: emotes', () => {
 
   it('When urn network belongs to L2, then L2 subgraph is used', async () => {
     const ethAddress = 'address'
-    const subgraphs = fetcherWithValidCollectionAndCreator(ethAddress)
+    const subGraphs = fetcherWithValidCollectionAndCreator(ethAddress)
     const externalCalls = buildExternalCalls({
-      subgraphs,
       ownerAddress: () => ethAddress
     })
 
@@ -83,17 +82,16 @@ describe('Access: emotes', () => {
       'urn:decentraland:mumbai:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
-    await emotes.validate(buildComponents({ externalCalls }), deployment)
+    await emotes.validate(buildComponents({ externalCalls, subGraphs }), deployment)
 
-    expect(subgraphs.L2.blocks.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
-    expect(subgraphs.L2.collections.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
+    expect(subGraphs.L2.blocks.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
+    expect(subGraphs.L2.collections.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
   })
 
   it('When urn network belongs to L1, then L1 subgraph is used', async () => {
     const ethAddress = 'address'
-    const subgraphs = fetcherWithoutAccess()
+    const subGraphs = fetcherWithoutAccess()
     const externalCalls = buildExternalCalls({
-      subgraphs,
       ownerAddress: () => ethAddress
     })
 
@@ -101,17 +99,16 @@ describe('Access: emotes', () => {
       'urn:decentraland:ethereum:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
-    await emotes.validate(buildComponents({ externalCalls }), deployment)
+    await emotes.validate(buildComponents({ externalCalls, subGraphs }), deployment)
 
-    expect(subgraphs.L1.blocks.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
-    expect(subgraphs.L1.collections.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
+    expect(subGraphs.L1.blocks.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
+    expect(subGraphs.L1.collections.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
   })
 
   it(`When urn network belongs to L2, and address doesn't have access, then L2 subgraph is used twice`, async () => {
     const ethAddress = 'address'
-    const subgraphs = fetcherWithoutAccess()
+    const subGraphs = fetcherWithoutAccess()
     const externalCalls = buildExternalCalls({
-      subgraphs,
       ownerAddress: () => ethAddress
     })
 
@@ -119,18 +116,17 @@ describe('Access: emotes', () => {
       'urn:decentraland:mumbai:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
-    await emotes.validate(buildComponents({ externalCalls }), deployment)
+    await emotes.validate(buildComponents({ externalCalls, subGraphs }), deployment)
 
-    expect(subgraphs.L2.blocks.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
-    expect(subgraphs.L2.collections.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
-    expect(subgraphs.L2.collections.query).toHaveBeenNthCalledWith(2, expect.anything(), expect.anything())
+    expect(subGraphs.L2.blocks.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
+    expect(subGraphs.L2.collections.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
+    expect(subGraphs.L2.collections.query).toHaveBeenNthCalledWith(2, expect.anything(), expect.anything())
   })
 
   it(`When urn network belongs to L1, and address doesn't have access, then L1 subgraph is used twice`, async () => {
     const ethAddress = 'address'
-    const subgraphs = fetcherWithoutAccess()
+    const subGraphs = fetcherWithoutAccess()
     const externalCalls = buildExternalCalls({
-      subgraphs,
       ownerAddress: () => ethAddress
     })
 
@@ -138,11 +134,11 @@ describe('Access: emotes', () => {
       'urn:decentraland:ethereum:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
-    await emotes.validate(buildComponents({ externalCalls }), deployment)
+    await emotes.validate(buildComponents({ externalCalls, subGraphs }), deployment)
 
-    expect(subgraphs.L1.blocks.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
-    expect(subgraphs.L1.collections.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
-    expect(subgraphs.L1.collections.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
+    expect(subGraphs.L1.blocks.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
+    expect(subGraphs.L1.collections.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
+    expect(subGraphs.L1.collections.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
   })
 
   it('When pointer resolves to L1 fails because collection v1 is not allowed', async () => {
@@ -177,77 +173,61 @@ describe('Access: emotes', () => {
     const { entity: metadata, root: merkleRoot } = VALID_THIRD_PARTY_EMOTE_METADATA_WITH_MERKLE_ROOT
 
     it(`When urn corresponds to a Third Party emotes and can verify merkle root with the proofs, validation pass`, async () => {
-      const externalCalls = buildExternalCalls({
-        subgraphs: fetcherWithThirdPartyMerkleRoot(merkleRoot)
-      })
+      const subGraphs = fetcherWithThirdPartyMerkleRoot(merkleRoot)
 
       const deployment = buildThirdPartyEmoteDeployment(metadata.id, metadata)
 
-      const response = await emotes.validate(buildComponents({ externalCalls }), deployment)
+      const response = await emotes.validate(buildComponents({ subGraphs }), deployment)
       expect(response.ok).toBeTruthy()
     })
 
     it(`When urn corresponds to a Third Party emotes and metadata is modified, validation fails`, async () => {
-      const externalCalls = buildExternalCalls({
-        subgraphs: fetcherWithThirdPartyMerkleRoot(merkleRoot)
-      })
+      const subGraphs = fetcherWithThirdPartyMerkleRoot(merkleRoot)
 
       const deployment = buildThirdPartyEmoteDeployment(metadata.id, {
         ...metadata,
         content: {}
       })
 
-      const response = await emotes.validate(buildComponents({ externalCalls }), deployment)
+      const response = await emotes.validate(buildComponents({ subGraphs }), deployment)
       expect(response.ok).toBeFalsy()
     })
 
     it(`When urn corresponds to a Third Party emotes, then L2 subgraph is used`, async () => {
-      const subgraphs = fetcherWithThirdPartyMerkleRoot(merkleRoot)
-      const externalCalls = buildExternalCalls({
-        subgraphs
-      })
+      const subGraphs = fetcherWithThirdPartyMerkleRoot(merkleRoot)
 
       const deployment = buildThirdPartyEmoteDeployment(metadata.id, metadata)
 
-      await emotes.validate(buildComponents({ externalCalls }), deployment)
+      await emotes.validate(buildComponents({ subGraphs }), deployment)
 
-      expect(subgraphs.L2.blocks.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
-      expect(subgraphs.L2.thirdPartyRegistry.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
+      expect(subGraphs.L2.blocks.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
+      expect(subGraphs.L2.thirdPartyRegistry.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
     })
 
     it(`When can't find any merkle proof, it should fail`, async () => {
       // When The Graph respond with no merkle proof
-      const subgraphs = fetcherWithThirdPartyEmptyMerkleRoots()
-      const externalCalls = buildExternalCalls({
-        subgraphs
-      })
+      const subGraphs = fetcherWithThirdPartyEmptyMerkleRoots()
 
       const deployment = buildThirdPartyEmoteDeployment(metadata.id, metadata)
 
-      const response = await emotes.validate(buildComponents({ externalCalls }), deployment)
+      const response = await emotes.validate(buildComponents({ subGraphs }), deployment)
       expect(response.ok).toBeFalsy()
     })
 
     it(`When merkle proof is not well formed, it should fail`, async () => {
-      const subgraphs = fetcherWithThirdPartyMerkleRoot(merkleRoot)
-      const externalCalls = buildExternalCalls({
-        subgraphs
-      })
+      const subGraphs = fetcherWithThirdPartyMerkleRoot(merkleRoot)
 
       const deployment = buildThirdPartyEmoteDeployment(metadata.id, {
         ...metadata,
         merkleProof: { proof: [], index: 0, hashingKeys: [], entityHash: '' }
       })
 
-      const response = await emotes.validate(buildComponents({ externalCalls }), deployment)
+      const response = await emotes.validate(buildComponents({ subGraphs }), deployment)
       expect(response.ok).toBeFalsy()
     })
 
     it(`When requiredKeys are not a subset of the hashingKeys, it should fail`, async () => {
-      const subgraphs = fetcherWithThirdPartyMerkleRoot(merkleRoot)
-      const externalCalls = buildExternalCalls({
-        subgraphs
-      })
+      const subGraphs = fetcherWithThirdPartyMerkleRoot(merkleRoot)
 
       const deployment = buildThirdPartyEmoteDeployment(metadata.id, {
         ...metadata,
@@ -257,22 +237,19 @@ describe('Access: emotes', () => {
         }
       })
 
-      const response = await emotes.validate(buildComponents({ externalCalls }), deployment)
+      const response = await emotes.validate(buildComponents({ subGraphs }), deployment)
       expect(response.ok).toBeFalsy()
     })
 
     it(`When entityHash doesn’t match the calculated hash, it should fail`, async () => {
-      const subgraphs = fetcherWithThirdPartyMerkleRoot(merkleRoot)
-      const externalCalls = buildExternalCalls({
-        subgraphs
-      })
+      const subGraphs = fetcherWithThirdPartyMerkleRoot(merkleRoot)
 
       const deployment = buildThirdPartyEmoteDeployment(metadata.id, {
         ...metadata,
         merkleProof: { ...metadata.merkleProof, entityHash: 'someInvalidHash' }
       })
 
-      const response = await emotes.validate(buildComponents({ externalCalls }), deployment)
+      const response = await emotes.validate(buildComponents({ subGraphs }), deployment)
       expect(response.ok).toBeFalsy()
     })
   })
