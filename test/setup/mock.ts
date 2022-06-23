@@ -1,12 +1,12 @@
+import { ILoggerComponent } from '@well-known-components/interfaces'
 import {
   ContentValidatorComponents,
   ExternalCalls,
   QueryGraph
 } from '../../src/types'
-import { WearableCollection } from '../../src/validations/access-checker/wearables'
 import { createTheGraphClient } from '../../src'
-import { ILoggerComponent } from '@well-known-components/interfaces'
 import { ISubgraphComponent } from '@well-known-components/thegraph-component'
+import { ItemCollection } from '../../src/validations/access-checker/items/collection-asset'
 
 export const buildLogger = (): ILoggerComponent => ({
   getLogger: () => ({
@@ -84,7 +84,7 @@ export const buildSubgraphs = (subgraphs?: Partial<Subgraphs>): Subgraphs => ({
 
 const COMMITTEE_MEMBER = '0xCOMMITEE_MEMBER'
 export const buildMockedQueryGraph = (
-  collection?: Partial<WearableCollection>,
+  collection?: Partial<ItemCollection>,
   _merkleRoot?: string
 ): Subgraphs =>
   buildSubgraphs({

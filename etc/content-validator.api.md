@@ -10,12 +10,6 @@ import { EthAddress } from '@dcl/schemas';
 import { ILoggerComponent } from '@well-known-components/interfaces';
 import { WearableId } from '@dcl/schemas';
 
-// @public
-export const ADR_45_TIMESTAMP: number;
-
-// @public
-export const ADR_75_TIMESTAMP: number;
-
 // @public (undocumented)
 export type BlockInformation = {
     blockNumberAtDeployment: number | undefined;
@@ -29,9 +23,6 @@ export const calculateDeploymentSize: (deployment: DeploymentToValidate, externa
 export type ConditionalValidation = {
     predicate: (components: ContentValidatorComponents, deployment: DeploymentToValidate) => ValidationResponse | Promise<ValidationResponse>;
 };
-
-// @public (undocumented)
-export const conditionalValidation: (condition: ConditionalValidation) => Validation;
 
 // @public
 export type ContentValidatorComponents = {
@@ -90,9 +81,6 @@ export type ExternalCalls = {
 // @public (undocumented)
 export const fromErrors: (...errors: Errors) => ValidationResponse;
 
-// @public
-export const LEGACY_CONTENT_MIGRATION_TIMESTAMP = 1582167600000;
-
 // @public (undocumented)
 export type LocalDeploymentAuditInfo = {
     authChain: AuthChain;
@@ -105,7 +93,7 @@ export const OK: ValidationResponse;
 export type QueryGraph = <T = any>(url: string, query: string, variables: Record<string, any>) => Promise<T>;
 
 // @public
-export const statefulValidations: readonly [Validation, Validation, Validation, Validation, Validation, Validation];
+export const statefulValidations: readonly [Validation, Validation, Validation, Validation, Validation, Validation, Validation];
 
 // @public
 export const statelessValidations: readonly [Validation, Validation, Validation];
@@ -127,9 +115,6 @@ export type URLs = {
 };
 
 // @public (undocumented)
-export const validateInRow: (components: ContentValidatorComponents, deployment: DeploymentToValidate, ...validations: Validation[]) => Promise<ValidationResponse>;
-
-// @public (undocumented)
 export type Validation = {
     validate: (components: ContentValidatorComponents, deployment: DeploymentToValidate) => ValidationResponse | Promise<ValidationResponse>;
 };
@@ -149,7 +134,7 @@ export type ValidationResponse = {
 };
 
 // @public
-export const validations: readonly [Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation];
+export const validations: readonly [Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation];
 
 // @public
 export interface Validator {
@@ -162,7 +147,7 @@ export type Warnings = string[];
 
 // Warnings were encountered during analysis:
 //
-// src/types.ts:166:3 - (ae-forgotten-export) The symbol "PermissionResult" needs to be exported by the entry point index.d.ts
+// src/types.ts:152:3 - (ae-forgotten-export) The symbol "PermissionResult" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

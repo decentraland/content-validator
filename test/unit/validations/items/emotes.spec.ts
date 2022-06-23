@@ -1,15 +1,20 @@
 import { EntityType } from '@dcl/schemas'
 import sharp from 'sharp'
-import { ADR_45_TIMESTAMP, ValidationResponse } from '../../../src'
-import { size } from '../../../src/validations/size'
-import { wearableRepresentationContent, wearableSize, wearableThumbnail } from '../../../src/validations/wearable'
-import { buildDeployment } from '../../setup/deployments'
-import { buildEntity } from '../../setup/entity'
-import { buildComponents, buildExternalCalls } from '../../setup/mock'
-import { VALID_WEARABLE_METADATA } from '../../setup/wearable'
+import { ValidationResponse } from '../../../../src'
+import { emoteRepresentationContent, wasCreatedAfterADR74 } from '../../../../src/validations/items/emotes'
+import {
+  deploymentMaxSizeExcludingThumbnailIsNotExceeded,
+  thumbnailMaxSizeIsNotExceeded
+} from '../../../../src/validations/items/items'
+import { size } from '../../../../src/validations/size'
+import { ADR_74_TIMESTAMP } from '../../../../src/validations/timestamps'
+import { buildDeployment } from '../../../setup/deployments'
+import { VALID_STANDARD_EMOTE_METADATA } from '../../../setup/emotes'
+import { buildEntity } from '../../../setup/entity'
+import { buildComponents, buildExternalCalls } from '../../../setup/mock'
 
-describe('Wearables', () => {
-  const timestamp = ADR_45_TIMESTAMP + 1
+describe('Emotes', () => {
+  const timestampAfterADR74 = ADR_74_TIMESTAMP + 1
   const components = buildComponents()
   describe('Thumbnail:', () => {
     let validThumbnailBuffer: Buffer
@@ -40,13 +45,13 @@ describe('Wearables', () => {
     it('When there is no hash for given thumbnail file name, it should return an error', async () => {
       const files = new Map([[hash, validThumbnailBuffer]])
       const entity = buildEntity({
-        type: EntityType.WEARABLE,
-        metadata: VALID_WEARABLE_METADATA,
-        timestamp
+        type: EntityType.EMOTE,
+        metadata: VALID_STANDARD_EMOTE_METADATA,
+        timestamp: timestampAfterADR74
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await wearableThumbnail.validate(components, deployment)
+      const result = await thumbnailMaxSizeIsNotExceeded.validate(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Couldn't find hash for thumbnail file with name: ${fileName}`)
     })
@@ -55,14 +60,14 @@ describe('Wearables', () => {
       const content = [{ file: fileName, hash }]
       const files = new Map([['notSame' + hash, validThumbnailBuffer]])
       const entity = buildEntity({
-        type: EntityType.WEARABLE,
-        metadata: VALID_WEARABLE_METADATA,
+        type: EntityType.EMOTE,
+        metadata: VALID_STANDARD_EMOTE_METADATA,
         content,
-        timestamp
+        timestamp: timestampAfterADR74
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await wearableThumbnail.validate(components, deployment)
+      const result = await thumbnailMaxSizeIsNotExceeded.validate(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Couldn't find thumbnail file with hash: ${hash}`)
     })
@@ -71,14 +76,14 @@ describe('Wearables', () => {
       const content = [{ file: fileName, hash }]
       const files = new Map([[hash, Buffer.alloc(1)]])
       const entity = buildEntity({
-        type: EntityType.WEARABLE,
-        metadata: VALID_WEARABLE_METADATA,
+        type: EntityType.EMOTE,
+        metadata: VALID_STANDARD_EMOTE_METADATA,
         content,
-        timestamp
+        timestamp: timestampAfterADR74
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await wearableThumbnail.validate(components, deployment)
+      const result = await thumbnailMaxSizeIsNotExceeded.validate(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Couldn't parse thumbnail, please check image format.`)
     })
@@ -87,14 +92,14 @@ describe('Wearables', () => {
       const content = [{ file: fileName, hash }]
       const files = new Map([[hash, invalidThumbnailBuffer]])
       const entity = buildEntity({
-        type: EntityType.WEARABLE,
-        metadata: VALID_WEARABLE_METADATA,
+        type: EntityType.EMOTE,
+        metadata: VALID_STANDARD_EMOTE_METADATA,
         content,
-        timestamp
+        timestamp: timestampAfterADR74
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await wearableThumbnail.validate(components, deployment)
+      const result = await thumbnailMaxSizeIsNotExceeded.validate(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Invalid thumbnail image size (width = 1025 / height = 1025)`)
     })
@@ -104,14 +109,14 @@ describe('Wearables', () => {
       const content = [{ file: fileName, hash }]
       const files = new Map([[hash, jpgImage]])
       const entity = buildEntity({
-        type: EntityType.WEARABLE,
-        metadata: VALID_WEARABLE_METADATA,
+        type: EntityType.EMOTE,
+        metadata: VALID_STANDARD_EMOTE_METADATA,
         content,
-        timestamp
+        timestamp: timestampAfterADR74
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result: ValidationResponse = await wearableThumbnail.validate(components, deployment)
+      const result: ValidationResponse = await thumbnailMaxSizeIsNotExceeded.validate(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Invalid or unknown image format. Only 'PNG' format is accepted.`)
     })
@@ -120,14 +125,14 @@ describe('Wearables', () => {
       const content = [{ file: fileName, hash }]
       const files = new Map([[hash, validThumbnailBuffer]])
       const entity = buildEntity({
-        type: EntityType.WEARABLE,
-        metadata: VALID_WEARABLE_METADATA,
+        type: EntityType.EMOTE,
+        metadata: VALID_STANDARD_EMOTE_METADATA,
         content,
-        timestamp
+        timestamp: timestampAfterADR74
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await wearableThumbnail.validate(components, deployment)
+      const result = await thumbnailMaxSizeIsNotExceeded.validate(components, deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -135,10 +140,10 @@ describe('Wearables', () => {
     it(`When thumbnail file was already uploaded, it won't be validated again`, async () => {
       const content = [{ file: fileName, hash }]
       const entity = buildEntity({
-        type: EntityType.WEARABLE,
-        metadata: VALID_WEARABLE_METADATA,
+        type: EntityType.EMOTE,
+        metadata: VALID_STANDARD_EMOTE_METADATA,
         content,
-        timestamp
+        timestamp: timestampAfterADR74
       })
       const deployment = buildDeployment({ entity })
 
@@ -146,14 +151,14 @@ describe('Wearables', () => {
         isContentStoredAlready: async () => new Map([[hash, true]])
       })
 
-      const result = await wearableThumbnail.validate(buildComponents({ externalCalls }), deployment)
+      const result = await thumbnailMaxSizeIsNotExceeded.validate(buildComponents({ externalCalls }), deployment)
 
       expect(result.ok).toBeTruthy()
     })
   })
 
   describe('Size:', () => {
-    it(`When a wearable is deployed and model is too big, then it fails`, async () => {
+    it(`When an emote is deployed and model is too big, then it fails`, async () => {
       const withSize = (size: number) => Buffer.alloc(size * 1024 * 1024)
       const content = [
         { file: 'A', hash: 'A' },
@@ -166,20 +171,20 @@ describe('Wearables', () => {
         ['thumbnail', Buffer.alloc(1)]
       ])
       const entity = buildEntity({
-        type: EntityType.WEARABLE,
+        type: EntityType.EMOTE,
         metadata: { thumbnail: 'thumbnail.png' },
         content,
-        timestamp
+        timestamp: timestampAfterADR74
       })
       const deployment = buildDeployment({ entity, files })
-      const result = await wearableSize.validate(components, deployment)
+      const result = await deploymentMaxSizeExcludingThumbnailIsNotExceeded.validate(components, deployment)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
-        'The deployment is too big. The maximum allowed size for wearable model files is 2 MB. You can upload up to 2097152 bytes but you tried to upload 2621440.'
+        'The deployment is too big. The maximum allowed size for emote model files is 2 MB. You can upload up to 2097152 bytes but you tried to upload 2621440.'
       )
     })
-    it(`When a wearable is deployed and thumbnail is too big, then it fails`, async () => {
+    it(`When an emote is deployed and thumbnail is too big, then it fails`, async () => {
       const withSize = (size: number) => Buffer.alloc(size * 1024 * 1024)
       const content = [
         { file: 'A', hash: 'A' },
@@ -192,20 +197,20 @@ describe('Wearables', () => {
         ['thumbnail', withSize(2)]
       ])
       const entity = buildEntity({
-        type: EntityType.WEARABLE,
+        type: EntityType.EMOTE,
         metadata: { thumbnail: 'thumbnail.png' },
         content,
-        timestamp
+        timestamp: timestampAfterADR74
       })
       const deployment = buildDeployment({ entity, files })
       const result = await size.validate(components, deployment)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
-        'The deployment is too big. The maximum allowed size per pointer is 3 MB for wearable. You can upload up to 3145728 bytes but you tried to upload 4194304.'
+        'The deployment is too big. The maximum allowed size per pointer is 3 MB for emote. You can upload up to 3145728 bytes but you tried to upload 4194304.'
       )
     })
-    it(`when a wearable is deployed and sizes are correct, then it is ok`, async () => {
+    it(`when an emote is deployed and sizes are correct, then it is ok`, async () => {
       const withSize = (size: number) => Buffer.alloc(size * 1024 * 1024)
       const content = [
         { file: 'A', hash: 'A' },
@@ -218,19 +223,20 @@ describe('Wearables', () => {
         ['thumbnail', withSize(0.9)]
       ])
       const entity = buildEntity({
-        type: EntityType.WEARABLE,
+        type: EntityType.EMOTE,
         metadata: { thumbnail: 'thumbnail.png' },
         content,
-        timestamp
+        timestamp: timestampAfterADR74
       })
       const deployment = buildDeployment({ entity, files })
-      const result = await wearableSize.validate(components, deployment)
+      const result = await deploymentMaxSizeExcludingThumbnailIsNotExceeded.validate(components, deployment)
 
       expect(result.ok).toBeTruthy()
     })
   })
+
   describe('Content:', () => {
-    it('when a wearable representation is referencing files included in content, then it is ok', async () => {
+    it('when an emote representation is referencing files included in content, then it is ok', async () => {
       const withSize = (size: number) => Buffer.alloc(size * 1024 * 1024)
       const content = [
         { file: 'file1', hash: '1' },
@@ -241,18 +247,17 @@ describe('Wearables', () => {
         ['file2', withSize(0.9)]
       ])
       const entity = buildEntity({
-        type: EntityType.WEARABLE,
+        type: EntityType.EMOTE,
         // this metadata includes representations pointing to file1 and file2
-        metadata: VALID_WEARABLE_METADATA,
+        metadata: VALID_STANDARD_EMOTE_METADATA,
         content
       })
       const deployment = buildDeployment({ entity, files })
-      const result = await wearableRepresentationContent.validate(components, deployment)
-
+      const result = await emoteRepresentationContent.validate(components, deployment)
       expect(result.ok).toBeTruthy()
     })
 
-    it('when a wearable representation is referencing a file that is not present in the content array, it returns an error', async () => {
+    it('when an emote representation is referencing a file that is not present in the content array, it returns an error', async () => {
       const withSize = (size: number) => Buffer.alloc(size * 1024 * 1024)
       const content = [
         { file: 'notFile1', hash: '1' },
@@ -263,16 +268,77 @@ describe('Wearables', () => {
         ['file2', withSize(0.9)]
       ])
       const entity = buildEntity({
-        type: EntityType.WEARABLE,
+        type: EntityType.EMOTE,
         // this metadata includes representations pointing to file1 and file2
-        metadata: VALID_WEARABLE_METADATA,
+        metadata: VALID_STANDARD_EMOTE_METADATA,
         content
       })
       const deployment = buildDeployment({ entity, files })
-      const result = await wearableRepresentationContent.validate(components, deployment)
-
+      const result = await emoteRepresentationContent.validate(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Representation content: 'file1' is not one of the content files`)
+    })
+
+    it('emote validation without representation fails', async () => {
+      const { emoteDataADR74, ...emoteWithoutData } = { ...VALID_STANDARD_EMOTE_METADATA }
+      const entity = buildEntity({
+        type: EntityType.EMOTE,
+        metadata: {
+          ...emoteWithoutData,
+          emoteDataADR74: {
+            ...emoteDataADR74,
+            representations: []
+          }
+        },
+        content: [
+          { file: 'notFile1', hash: '1' },
+          { file: 'file2', hash: '2' }
+        ]
+      })
+      const deployment = buildDeployment({ entity })
+      const result = await emoteRepresentationContent.validate(components, deployment)
+      expect(result.ok).toBeFalsy()
+      expect(result.errors).toContain(`No emote representations found`)
+    })
+
+    it('emote validation without content fails', async () => {
+      const entity = buildEntity({
+        type: EntityType.EMOTE,
+        metadata: VALID_STANDARD_EMOTE_METADATA,
+        content: []
+      })
+      const deployment = buildDeployment({ entity })
+      const result = await emoteRepresentationContent.validate(components, deployment)
+      expect(result.ok).toBeFalsy()
+      expect(result.errors).toContain(`No content found`)
+    })
+  })
+
+  describe('ADR 74', () => {
+    it('emote validation with timestamp after adr 74 passes', async () => {
+      const entity = buildEntity({
+        type: EntityType.EMOTE,
+        metadata: VALID_STANDARD_EMOTE_METADATA,
+        content: [{ file: 'file1', hash: '1' }],
+        timestamp: timestampAfterADR74
+      })
+      const deployment = buildDeployment({ entity })
+      const result = await wasCreatedAfterADR74.validate(components, deployment)
+      expect(result.ok).toBeTruthy()
+    })
+    it('emote validation with timestamp before adr 74 fails', async () => {
+      const entity = buildEntity({
+        type: EntityType.EMOTE,
+        metadata: VALID_STANDARD_EMOTE_METADATA,
+        content: [{ file: 'file1', hash: '1' }],
+        timestamp: ADR_74_TIMESTAMP - 1
+      })
+      const deployment = buildDeployment({ entity })
+      const result = await wasCreatedAfterADR74.validate(components, deployment)
+      expect(result.ok).toBeFalsy()
+      expect(result.errors).toContain(
+        `The emote timestamp ${ADR_74_TIMESTAMP - 1} is before ADR 74. Emotes did not exist before ADR 74.`
+      )
     })
   })
 })

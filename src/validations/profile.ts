@@ -1,18 +1,16 @@
 import { EntityType } from '@dcl/schemas'
-import sharp from 'sharp'
-import { ADR_45_TIMESTAMP, ADR_75_TIMESTAMP, validateInRow } from '.'
-import { OK, Validation, validationFailed } from '../types'
 import { parseUrn } from '@dcl/urn-resolver'
+import sharp from 'sharp'
+import { OK, Validation, validationFailed } from '../types'
+import { validationAfterADR45, validationAfterADR75, validationForType, validationGroup } from './validations'
 
 /** Validate that given profile deployment includes a face256 thumbnail with valid size */
 const defaultThumbnailSize = 256
 
 export const isOldEmote = (wearable: string): boolean => /^[a-z]+$/i.test(wearable)
 
-export const faceThumbnail: Validation = {
+export const faceThumbnail: Validation = validationAfterADR45({
   validate: async ({ externalCalls }, deployment) => {
-    if (deployment.entity.timestamp < ADR_45_TIMESTAMP) return OK
-
     const errors: string[] = []
     const allAvatars: any[] = deployment.entity.metadata?.avatars ?? []
 
@@ -41,12 +39,10 @@ export const faceThumbnail: Validation = {
     }
     return errors.length > 0 ? validationFailed(...errors) : OK
   }
-}
+})
 
-export const wearableUrns: Validation = {
+export const wearableUrns: Validation = validationAfterADR75({
   validate: async (components, deployment) => {
-    if (deployment.entity.timestamp < ADR_75_TIMESTAMP) return OK
-
     const allAvatars: any[] = deployment.entity.metadata?.avatars ?? []
     for (const avatar of allAvatars) {
       for (const pointer of avatar.avatar.wearables) {
@@ -55,22 +51,16 @@ export const wearableUrns: Validation = {
         const parsed = await parseUrn(pointer)
         if (!parsed)
           return validationFailed(
-            `Wearable pointers should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (${pointer})`
+            `Each profile pointer should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (${pointer})`
           )
       }
     }
     return OK
   }
-}
+})
 
 /**
  * Validate that given profile deployment includes the face256 file with the correct size
  * * @public
  */
-export const profile: Validation = {
-  validate: async (components, deployment) => {
-    if (deployment.entity.type !== EntityType.PROFILE) return OK
-
-    return validateInRow(components, deployment, faceThumbnail, wearableUrns)
-  }
-}
+export const profile: Validation = validationForType(EntityType.PROFILE, validationGroup(faceThumbnail, wearableUrns))

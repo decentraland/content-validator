@@ -1,7 +1,8 @@
 import { EntityType } from '@dcl/schemas'
 import sharp from 'sharp'
-import { ADR_45_TIMESTAMP, ADR_75_TIMESTAMP, ValidationResponse } from '../../../src'
-import { faceThumbnail, wearableUrns } from '../../../src/validations/profile'
+import { ValidationResponse } from '../../../src'
+import { faceThumbnail, profile, wearableUrns } from '../../../src/validations/profile'
+import { ADR_45_TIMESTAMP, ADR_75_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
 import { buildComponents, buildExternalCalls } from '../../setup/mock'
@@ -207,7 +208,82 @@ describe('Profiles', () => {
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
-        'Wearable pointers should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (urn:decentraland:tucu-tucu:base-avatars:tall_front_01)'
+        'Each profile pointer should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (urn:decentraland:tucu-tucu:base-avatars:tall_front_01)'
+      )
+    })
+  })
+
+  describe('Profile group', () => {
+    it('When entity type is not profile, should not return errors', async () => {
+      const entity = buildEntity({
+        type: EntityType.SCENE,
+        metadata: VALID_PROFILE_METADATA,
+        timestamp
+      })
+      const deployment = buildDeployment({ entity })
+
+      const result = await profile.validate(components, deployment)
+
+      expect(result.ok).toBeTruthy()
+    })
+  })
+
+  describe('Wearables urns', () => {
+    it('When wearable urn is correct, should return no errors', async () => {
+      const entity = buildEntity({
+        type: EntityType.PROFILE,
+        metadata: VALID_PROFILE_METADATA,
+        timestamp
+      })
+      const deployment = buildDeployment({ entity })
+
+      const result = await wearableUrns.validate(components, deployment)
+
+      expect(result.ok).toBeTruthy()
+    })
+
+    it('When wearable using a base emote, should return no errors', async () => {
+      const entity = buildEntity({
+        type: EntityType.PROFILE,
+        metadata: {
+          avatars: [
+            {
+              avatar: {
+                wearables: ['raiseHand']
+              }
+            }
+          ]
+        },
+        timestamp: ADR_75_TIMESTAMP + 1
+      })
+      const deployment = buildDeployment({ entity })
+
+      const result = await wearableUrns.validate(components, deployment)
+
+      expect(result.ok).toBeTruthy()
+    })
+
+    it('When wearable urn is wrong, should return the correct error', async () => {
+      const entity = buildEntity({
+        type: EntityType.PROFILE,
+        metadata: {
+          avatars: [
+            {
+              avatar: {
+                wearables: ['urn:decentraland:tucu-tucu:base-avatars:tall_front_01']
+              }
+            }
+          ]
+        },
+        timestamp: ADR_75_TIMESTAMP + 1
+      })
+      const deployment = buildDeployment({ entity })
+
+      const result = await wearableUrns.validate(components, deployment)
+
+      expect(result.ok).toBeFalsy()
+      expect(result.errors).toContain(
+        'Each profile pointer should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (urn:decentraland:tucu-tucu:base-avatars:tall_front_01)'
       )
     })
   })

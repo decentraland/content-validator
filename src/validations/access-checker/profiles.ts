@@ -1,9 +1,8 @@
-import { EthAddress, Entity } from '@dcl/schemas'
-import { OK, Validation, validationFailed } from '../../types'
+import { Avatar, Entity, EthAddress } from '@dcl/schemas'
 import { parseUrn } from '@dcl/urn-resolver'
-import { Avatar } from '@dcl/schemas'
-import { ADR_75_TIMESTAMP } from '../index'
+import { OK, Validation, validationFailed } from '../../types'
 import { isOldEmote } from '../profile'
+import { ADR_75_TIMESTAMP } from '../timestamps'
 
 /**
  * Validate that the pointers are valid, and that the Ethereum address has write access to them

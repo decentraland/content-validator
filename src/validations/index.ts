@@ -1,53 +1,14 @@
-import {
-  ContentValidatorComponents,
-  DeploymentToValidate,
-  ExternalCalls,
-  OK,
-  Validation,
-  ValidationResponse
-} from '../types'
+import { DeploymentToValidate, ExternalCalls } from '../types'
 import { access } from './access-checker/access'
 import { content } from './content'
 import { entityStructure } from './entity-structure'
 import { ipfsHashing } from './ipfs-hashing'
+import { emote } from './items/emotes'
+import { wearable } from './items/wearables'
 import { metadata } from './metadata-schema'
 import { profile } from './profile'
 import { signature } from './signature'
 import { size } from './size'
-import { wearable } from './wearable'
-
-/**
- * @public
- */
-export const validateInRow = async (
-  components: ContentValidatorComponents,
-  deployment: DeploymentToValidate,
-  ...validations: Validation[]
-): Promise<ValidationResponse> => {
-  for (const validation of validations) {
-    const response = await validation.validate(components, deployment)
-    if (!response.ok) return response
-  }
-  return OK
-}
-
-/**
- * 1652191200000 = 2022-05-10T14:00:00Z
- * @public
- */
-export const ADR_45_TIMESTAMP = process.env.ADR_45_TIMESTAMP ? parseInt(process.env.ADR_45_TIMESTAMP) : 1652191200000
-
-/**
- * 1658275200000 = 2022-07-20T00:00:00Z
- * @public
- */
-export const ADR_75_TIMESTAMP = process.env.ADR_75_TIMESTAMP ? parseInt(process.env.ADR_75_TIMESTAMP) : 1658275200000
-
-/**
- * DCL Launch Day
- * @public
- */
-export const LEGACY_CONTENT_MIGRATION_TIMESTAMP = 1582167600000
 
 /**
  * @public
@@ -74,7 +35,7 @@ export const calculateDeploymentSize = async (
  * Stateful validations that are run on a deployment.
  * @public
  */
-export const statefulValidations = [signature, access, size, wearable, profile, content] as const
+export const statefulValidations = [signature, access, size, wearable, emote, profile, content] as const
 
 /**
  * Stateless validations that are run on a deployment.

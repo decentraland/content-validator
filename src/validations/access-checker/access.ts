@@ -1,6 +1,7 @@
 import { Entity, EntityType } from '@dcl/schemas'
-import { LEGACY_CONTENT_MIGRATION_TIMESTAMP } from '..'
 import { DeploymentToValidate, OK, Validation, validationFailed } from '../../types'
+import { LEGACY_CONTENT_MIGRATION_TIMESTAMP } from '../timestamps'
+import { emotes } from './emotes'
 import { profiles } from './profiles'
 import { scenes } from './scenes'
 import { stores } from './stores'
@@ -10,7 +11,8 @@ const accessCheckers: Record<EntityType, Validation> = {
   [EntityType.PROFILE]: profiles,
   [EntityType.SCENE]: scenes,
   [EntityType.WEARABLE]: wearables,
-  [EntityType.STORE]: stores
+  [EntityType.STORE]: stores,
+  [EntityType.EMOTE]: emotes
 }
 
 /**

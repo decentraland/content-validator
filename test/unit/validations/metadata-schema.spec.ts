@@ -1,34 +1,34 @@
 import { EntityType } from '@dcl/schemas'
-import { ADR_45_TIMESTAMP } from '../../../src'
 import { metadata } from '../../../src/validations/metadata-schema'
+import { ADR_45_TIMESTAMP, ADR_74_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment } from '../../setup/deployments'
+import { VALID_STANDARD_EMOTE_METADATA, VALID_THIRD_PARTY_EMOTE_METADATA_WITH_MERKLE_ROOT } from '../../setup/emotes'
 import { buildEntity } from '../../setup/entity'
 import { buildComponents } from '../../setup/mock'
 import { VALID_PROFILE_METADATA } from '../../setup/profiles'
-import { entityAndMerkleRoot, VALID_WEARABLE_METADATA } from '../../setup/wearable'
+import { VALID_THIRD_PARTY_WEARABLE, VALID_WEARABLE_METADATA } from '../../setup/wearable'
 
 describe('Metadata Schema', () => {
   const POST_ADR_45_TIMESTAMP = ADR_45_TIMESTAMP + 1
   const PRE_ADR_45_TIMESTAMP = ADR_45_TIMESTAMP - 1
+  const invalidMetadata = {}
   const testType = (
     type: EntityType,
     validMetadata: any,
     invalidMetadata: any,
-    timestamp = POST_ADR_45_TIMESTAMP,
+    timestamp: number = POST_ADR_45_TIMESTAMP,
     errors: string[] = []
   ) => {
     it('when entity metadata is valid should not report errors', async () => {
       const entity = buildEntity({ type, metadata: validMetadata, timestamp })
       const deployment = buildDeployment({ entity })
       const result = await metadata.validate(buildComponents(), deployment)
-
       expect(result.ok).toBeTruthy()
     })
     it('when entity metadata is invalid should report an error', async () => {
       const entity = buildEntity({ type, metadata: invalidMetadata, timestamp })
       const deployment = buildDeployment({ entity })
       const result = await metadata.validate(buildComponents(), deployment)
-
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`The metadata for this entity type (${type}) is not valid.`)
       errors.forEach(($) => expect(result.errors).toContain($))
@@ -36,7 +36,6 @@ describe('Metadata Schema', () => {
   }
 
   describe('PROFILE: ', () => {
-    const invalidMetadata = {}
     testType(EntityType.PROFILE, VALID_PROFILE_METADATA, invalidMetadata)
   })
 
@@ -48,26 +47,34 @@ describe('Metadata Schema', () => {
         parcels: ['0,0']
       }
     }
-    const invalidMetadata = {}
-    testType(EntityType.SCENE, validMetadata, invalidMetadata, undefined, ["should have required property 'main'"])
+    testType(EntityType.SCENE, validMetadata, invalidMetadata, undefined, ["must have required property 'main'"])
   })
 
   describe('WEARABLE: ', () => {
-    const validMetadata = VALID_WEARABLE_METADATA
-    const invalidMetadata = {}
-    testType(EntityType.WEARABLE, validMetadata, invalidMetadata)
+    testType(EntityType.WEARABLE, VALID_WEARABLE_METADATA, invalidMetadata)
   })
 
   describe('THIRD PARTY WEARABLE: ', () => {
-    const validMetadata = entityAndMerkleRoot.entity
-    const invalidMetadata = {}
-    testType(EntityType.WEARABLE, validMetadata, invalidMetadata)
+    testType(EntityType.WEARABLE, VALID_THIRD_PARTY_WEARABLE.entity, invalidMetadata)
+  })
+
+  describe('EMOTE: ', () => {
+    testType(EntityType.EMOTE, VALID_STANDARD_EMOTE_METADATA, invalidMetadata, ADR_74_TIMESTAMP + 1)
+  })
+
+  describe('THIRD PARTY EMOTE: ', () => {
+    testType(
+      EntityType.EMOTE,
+      VALID_THIRD_PARTY_EMOTE_METADATA_WITH_MERKLE_ROOT.entity,
+      invalidMetadata,
+      ADR_74_TIMESTAMP + 1
+    )
   })
 
   it('When entity timestamp is previous to ADR_45, then validation does not run', async () => {
     const entity = buildEntity({
       type: EntityType.PROFILE,
-      metadata: {},
+      metadata: invalidMetadata,
       timestamp: PRE_ADR_45_TIMESTAMP
     })
     const deployment = buildDeployment({ entity })
