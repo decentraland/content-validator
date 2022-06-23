@@ -30,8 +30,8 @@ export type ConditionalValidation = {
 export type ContentValidatorComponents = {
     logs: ILoggerComponent;
     theGraphClient: TheGraphClient;
-    subGraphs: SubGraphs;
     externalCalls: ExternalCalls;
+    subGraphs: SubGraphs;
 };
 
 // @public (undocumented)
