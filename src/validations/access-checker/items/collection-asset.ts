@@ -45,7 +45,7 @@ export type ItemCollection = {
 
 async function getCollectionItems(
   components: Pick<ContentValidatorComponents, 'externalCalls'>,
-  subgraphUrl: ISubgraphComponent,
+  subgraph: ISubgraphComponent,
   collection: string,
   itemId: string,
   block: number
@@ -68,7 +68,7 @@ async function getCollectionItems(
             }
         }`
 
-  const result = await subgraphUrl.query<ItemCollections>(query, {
+  const result = await subgraph.query<ItemCollections>(query, {
     collection,
     itemId: `${collection}-${itemId}`,
     block
@@ -88,7 +88,7 @@ async function getCollectionItems(
 
 async function hasPermission(
   components: Pick<ContentValidatorComponents, 'externalCalls'>,
-  subgraphUrl: ISubgraphComponent,
+  subgraph: ISubgraphComponent,
   collection: string,
   itemId: string,
   block: number,
@@ -97,13 +97,7 @@ async function hasPermission(
 ): Promise<boolean> {
   try {
     const { content, metadata } = entity
-    const permissions: ItemPermissionsData = await getCollectionItems(
-      components,
-      subgraphUrl,
-      collection,
-      itemId,
-      block
-    )
+    const permissions: ItemPermissionsData = await getCollectionItems(components, subgraph, collection, itemId, block)
     const ethAddressLowercase = entity.ethAddress.toLowerCase()
 
     if (!!permissions.contentHash) {
@@ -141,8 +135,8 @@ async function hasPermission(
 
 async function checkCollectionAccess(
   components: Pick<ContentValidatorComponents, 'externalCalls' | 'theGraphClient'>,
-  blocksSubgraphUrl: ISubgraphComponent,
-  collectionsSubgraphUrl: ISubgraphComponent,
+  blocksSubgraph: ISubgraphComponent,
+  collectionsSubgraph: ISubgraphComponent,
   collection: string,
   itemId: string,
   entity: EntityWithEthAddress,
@@ -151,21 +145,21 @@ async function checkCollectionAccess(
   const { timestamp } = entity
   try {
     const { blockNumberAtDeployment, blockNumberFiveMinBeforeDeployment } =
-      await components.theGraphClient.findBlocksForTimestamp(blocksSubgraphUrl, timestamp)
+      await components.theGraphClient.findBlocksForTimestamp(blocksSubgraph, timestamp)
     // It could happen that the subgraph hasn't synced yet, so someone who just lost access still managed to make a deployment. The problem would be that when other catalysts perform
     // the same check, the subgraph might have synced and the deployment is no longer valid. So, in order to prevent inconsistencies between catalysts, we will allow all deployments that
     // have access now, or had access 5 minutes ago.
 
     const hasPermissionOnBlock = async (blockNumber: number | undefined) =>
       !!blockNumber &&
-      (await hasPermission(components, collectionsSubgraphUrl, collection, itemId, blockNumber, entity, logger))
+      (await hasPermission(components, collectionsSubgraph, collection, itemId, blockNumber, entity, logger))
     return (
       (await hasPermissionOnBlock(blockNumberAtDeployment)) ||
       (await hasPermissionOnBlock(blockNumberFiveMinBeforeDeployment))
     )
   } catch (error) {
     logger.error(
-      `Error checking wearable access (${collection}, ${itemId}, ${entity.ethAddress}, ${timestamp}, ${blocksSubgraphUrl}).`
+      `Error checking wearable access (${collection}, ${itemId}, ${entity.ethAddress}, ${timestamp}, ${blocksSubgraph}).`
     )
     return false
   }
