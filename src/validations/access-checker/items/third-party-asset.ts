@@ -46,7 +46,7 @@ async function verifyHash<T>(
 }
 
 async function getMerkleRoot(
-  components: Pick<ContentValidatorComponents, 'externalCalls'>,
+  components: Pick<ContentValidatorComponents, 'externalCalls' | 'subGraphs'>,
   block: number,
   thirdPartyId: string
 ): Promise<string | undefined> {
@@ -57,9 +57,9 @@ async function getMerkleRoot(
     }
   }`
 
-  const result = await components.externalCalls.queryGraph<{
+  const result = await components.subGraphs.L2.thirdPartyRegistry.query<{
     thirdParties: { root: string }[]
-  }>(components.externalCalls.subgraphs.L2.thirdPartyRegistry, query, {
+  }>(query, {
     id: thirdPartyId,
     block
   })
@@ -68,7 +68,7 @@ async function getMerkleRoot(
 }
 
 async function verifyMerkleProofedEntity(
-  components: Pick<ContentValidatorComponents, 'externalCalls' | 'theGraphClient'>,
+  components: Pick<ContentValidatorComponents, 'externalCalls' | 'theGraphClient' | 'subGraphs'>,
   urn: BlockchainCollectionThirdParty,
   deployment: DeploymentToValidate,
   logger: ILoggerComponent.ILogger
@@ -82,7 +82,7 @@ async function verifyMerkleProofedEntity(
 
   const thirdPartyId = getThirdPartyId(urn)
   const { blockNumberAtDeployment, blockNumberFiveMinBeforeDeployment } =
-    await components.theGraphClient.findBlocksForTimestamp('maticBlocksSubgraph', deployment.entity.timestamp)
+    await components.theGraphClient.findBlocksForTimestamp(components.subGraphs.L2.blocks, deployment.entity.timestamp)
 
   const merkleRoots: string[] = []
   const hasPermissionOnBlock = async (blockNumber: number | undefined) => {
@@ -119,7 +119,7 @@ async function verifyMerkleProofedEntity(
 
 export const thirdPartyAssetValidation: AssetValidation = {
   async validateAsset(
-    components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'theGraphClient'>,
+    components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'theGraphClient' | 'subGraphs'>,
     asset: BlockchainCollectionThirdParty,
     deployment: DeploymentToValidate
   ) {

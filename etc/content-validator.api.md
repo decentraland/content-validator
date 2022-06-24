@@ -8,6 +8,8 @@ import { AuthChain } from '@dcl/schemas';
 import { Entity } from '@dcl/schemas';
 import { EthAddress } from '@dcl/schemas';
 import { ILoggerComponent } from '@well-known-components/interfaces';
+import { ISubgraphComponent } from '@well-known-components/thegraph-component';
+import { Variables } from '@well-known-components/thegraph-component';
 import { WearableId } from '@dcl/schemas';
 
 // @public (undocumented)
@@ -29,13 +31,14 @@ export type ContentValidatorComponents = {
     logs: ILoggerComponent;
     theGraphClient: TheGraphClient;
     externalCalls: ExternalCalls;
+    subGraphs: SubGraphs;
 };
 
 // @public (undocumented)
-export const createTheGraphClient: (components: Pick<ContentValidatorComponents, 'logs' | 'externalCalls'>) => TheGraphClient;
+export const createTheGraphClient: (components: Pick<ContentValidatorComponents, 'logs' | 'subGraphs'>) => TheGraphClient;
 
 // @public
-export const createValidator: (components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'theGraphClient'>) => Validator;
+export const createValidator: (components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'theGraphClient' | 'subGraphs'>) => Validator;
 
 // @public
 export type DeploymentToValidate = {
@@ -62,20 +65,6 @@ export type ExternalCalls = {
     }>;
     ownerAddress: (auditInfo: LocalDeploymentAuditInfo) => string;
     isAddressOwnedByDecentraland: (address: string) => boolean;
-    queryGraph: QueryGraph;
-    subgraphs: {
-        L1: {
-            landManager: string;
-            blocks: string;
-            collections: string;
-            ensOwner: string;
-        };
-        L2: {
-            blocks: string;
-            collections: string;
-            thirdPartyRegistry: string;
-        };
-    };
 };
 
 // @public (undocumented)
@@ -90,7 +79,7 @@ export type LocalDeploymentAuditInfo = {
 export const OK: ValidationResponse;
 
 // @public
-export type QueryGraph = <T = any>(url: string, query: string, variables: Record<string, any>) => Promise<T>;
+export type QueryGraph = <T = any>(query: string, variables?: Variables, remainingAttempts?: number) => Promise<T>;
 
 // @public
 export const statefulValidations: readonly [Validation, Validation, Validation, Validation, Validation, Validation, Validation];
@@ -98,20 +87,26 @@ export const statefulValidations: readonly [Validation, Validation, Validation, 
 // @public
 export const statelessValidations: readonly [Validation, Validation, Validation];
 
+// @public
+export type SubGraphs = {
+    L1: {
+        landManager: ISubgraphComponent;
+        blocks: ISubgraphComponent;
+        collections: ISubgraphComponent;
+        ensOwner: ISubgraphComponent;
+    };
+    L2: {
+        blocks: ISubgraphComponent;
+        collections: ISubgraphComponent;
+        thirdPartyRegistry: ISubgraphComponent;
+    };
+};
+
 // @public (undocumented)
 export type TheGraphClient = {
     checkForNamesOwnershipWithTimestamp: (ethAddress: EthAddress, namesToCheck: string[], timestamp: number) => Promise<PermissionResult>;
     checkForWearablesOwnershipWithTimestamp: (ethAddress: EthAddress, wearableIdsToCheck: WearableId[], timestamp: number) => Promise<PermissionResult>;
-    findBlocksForTimestamp: (subgraph: keyof URLs, timestamp: number) => Promise<BlockInformation>;
-};
-
-// @public (undocumented)
-export type URLs = {
-    ensSubgraph: string;
-    blocksSubgraph: string;
-    maticBlocksSubgraph: string;
-    collectionsSubgraph: string;
-    maticCollectionsSubgraph: string;
+    findBlocksForTimestamp: (subgraph: ISubgraphComponent, timestamp: number) => Promise<BlockInformation>;
 };
 
 // @public (undocumented)
@@ -147,7 +142,7 @@ export type Warnings = string[];
 
 // Warnings were encountered during analysis:
 //
-// src/types.ts:152:3 - (ae-forgotten-export) The symbol "PermissionResult" needs to be exported by the entry point index.d.ts
+// src/types.ts:147:3 - (ae-forgotten-export) The symbol "PermissionResult" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

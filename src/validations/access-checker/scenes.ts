@@ -37,7 +37,7 @@ type Authorization = {
  * @public
  */
 export const scenes: Validation = {
-  validate: async ({ externalCalls, logs }, deployment) => {
+  validate: async ({ externalCalls, logs, subGraphs }, deployment) => {
     const logger = logs.getLogger('scenes access validator')
     const getAuthorizations = async (
       owner: EthAddress,
@@ -68,11 +68,9 @@ export const scenes: Validation = {
 
       try {
         return (
-          await externalCalls.queryGraph<{ authorizations: Authorization[] }>(
-            externalCalls.subgraphs.L1.landManager,
-            query,
-            variables
-          )
+          await subGraphs.L1.landManager.query<{
+            authorizations: Authorization[]
+          }>(query, variables)
         ).authorizations
       } catch (error) {
         logger.error(`Error fetching authorizations for ${owner}`)
@@ -125,11 +123,9 @@ export const scenes: Validation = {
 
       try {
         return (
-          await externalCalls.queryGraph<{ estates: Estate[] }>(
-            externalCalls.subgraphs.L1.landManager,
-            query,
-            variables
-          )
+          await subGraphs.L1.landManager.query<{
+            estates: Estate[]
+          }>(query, variables)
         ).estates[0]
       } catch (error) {
         logger.error(`Error fetching estate (${estateId})`)
@@ -189,11 +185,9 @@ export const scenes: Validation = {
       }
 
       try {
-        const r = await externalCalls.queryGraph<{ parcels: Parcel[] }>(
-          externalCalls.subgraphs.L1.landManager,
-          query,
-          variables
-        )
+        const r = await subGraphs.L1.landManager.query<{
+          parcels: Parcel[]
+        }>(query, variables)
 
         if (r.parcels && r.parcels.length) return r.parcels[0]
 

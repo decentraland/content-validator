@@ -1,6 +1,8 @@
 import { AuthChain, Entity, EthAddress, WearableId } from '@dcl/schemas'
 import { ILoggerComponent } from '@well-known-components/interfaces'
 import { PermissionResult } from './the-graph-client/the-graph-client'
+import { ISubgraphComponent } from '@well-known-components/thegraph-component'
+import { Variables } from '@well-known-components/thegraph-component'
 
 /**
  * @public
@@ -38,7 +40,7 @@ export type DeploymentToValidate = {
  * Function used to fetch TheGraph
  * @public
  */
-export type QueryGraph = <T = any>(url: string, query: string, variables: Record<string, any>) => Promise<T>
+export type QueryGraph = <T = any>(query: string, variables?: Variables, remainingAttempts?: number) => Promise<T>
 
 /**
  * External calls interface to be provided by the servers.
@@ -54,20 +56,6 @@ export type ExternalCalls = {
   ) => Promise<{ ok: boolean; message?: string }>
   ownerAddress: (auditInfo: LocalDeploymentAuditInfo) => string
   isAddressOwnedByDecentraland: (address: string) => boolean
-  queryGraph: QueryGraph
-  subgraphs: {
-    L1: {
-      landManager: string
-      blocks: string
-      collections: string
-      ensOwner: string
-    }
-    L2: {
-      blocks: string
-      collections: string
-      thirdPartyRegistry: string
-    }
-  }
 }
 
 /**
@@ -135,14 +123,21 @@ export const fromErrors = (...errors: Errors): ValidationResponse => ({
 })
 
 /**
+ * A list with all sub-graphs used for validations.
  * @public
  */
-export type URLs = {
-  ensSubgraph: string
-  blocksSubgraph: string
-  maticBlocksSubgraph: string
-  collectionsSubgraph: string
-  maticCollectionsSubgraph: string
+export type SubGraphs = {
+  L1: {
+    landManager: ISubgraphComponent
+    blocks: ISubgraphComponent
+    collections: ISubgraphComponent
+    ensOwner: ISubgraphComponent
+  }
+  L2: {
+    blocks: ISubgraphComponent
+    collections: ISubgraphComponent
+    thirdPartyRegistry: ISubgraphComponent
+  }
 }
 
 /**
@@ -161,7 +156,7 @@ export type TheGraphClient = {
     timestamp: number
   ) => Promise<PermissionResult>
 
-  findBlocksForTimestamp: (subgraph: keyof URLs, timestamp: number) => Promise<BlockInformation>
+  findBlocksForTimestamp: (subgraph: ISubgraphComponent, timestamp: number) => Promise<BlockInformation>
 }
 
 /**
@@ -180,4 +175,5 @@ export type ContentValidatorComponents = {
   logs: ILoggerComponent
   theGraphClient: TheGraphClient
   externalCalls: ExternalCalls
+  subGraphs: SubGraphs
 }
