@@ -39,29 +39,20 @@ export const buildExternalCalls = (externalCalls?: Partial<ExternalCalls>): Exte
   ...externalCalls
 })
 
-// type Subgraphs = ExternalCalls['subgraphs']
-
 export const createMockSubgraphComponent = (mock?: QueryGraph): ISubgraphComponent => ({
   query: mock ?? (jest.fn() as jest.MockedFunction<QueryGraph>)
 })
 
 const defaultSubGraphs: SubGraphs = {
   L1: {
-    // 'https://api.thegraph.com/subgraphs/name/decentraland/collections-ethereum-ropsten'
     collections: createMockSubgraphComponent(),
-    // 'https://api.thegraph.com/subgraphs/name/decentraland/blocks-ethereum-ropsten'
     blocks: createMockSubgraphComponent(),
-    // 'https://api.thegraph.com/subgraphs/name/decentraland/land-manager-ropsten'
     landManager: createMockSubgraphComponent(),
-    // 'https://api.thegraph.com/subgraphs/name/decentraland/marketplace-ropsten'
     ensOwner: createMockSubgraphComponent()
   },
   L2: {
-    // 'https://api.thegraph.com/subgraphs/name/decentraland/collections-matic-mumbai'
     collections: createMockSubgraphComponent(),
-    // 'https://api.thegraph.com/subgraphs/name/decentraland/blocks-matic-mumbai'
     blocks: createMockSubgraphComponent(),
-    // 'https://api.thegraph.com/subgraphs/name/decentraland/tpr-matic-mumbai'
     thirdPartyRegistry: createMockSubgraphComponent()
   }
 }
@@ -95,23 +86,13 @@ export const buildMockedQueryGraph = (collection?: Partial<ItemCollection>, _mer
           accounts: [{ id: COMMITTEE_MEMBER }]
         })
       ),
-      blocks: createMockSubgraphComponent(
-        jest.fn().mockResolvedValueOnce({
-          min: [{ number: 5 }],
-          max: [{ number: 10 }]
-        })
-      ),
+      blocks: createMockSubgraphComponent(jest.fn().mockResolvedValueOnce(defaultBlocks)),
       landManager: createMockSubgraphComponent(),
       ensOwner: createMockSubgraphComponent()
     },
     L2: {
       thirdPartyRegistry: createMockSubgraphComponent(),
-      blocks: createMockSubgraphComponent(
-        jest.fn().mockResolvedValueOnce({
-          min: [{ number: 5 }],
-          max: [{ number: 10 }]
-        })
-      ),
+      blocks: createMockSubgraphComponent(jest.fn().mockResolvedValueOnce(defaultBlocks)),
       collections: createMockSubgraphComponent(
         jest.fn().mockResolvedValueOnce({
           collections: [
@@ -144,66 +125,11 @@ export const fetcherWithValidCollectionAndCreator = (address: string): SubGraphs
     isApproved: false
   })
 
-export const fetcherWithValidCollectionAndCollectionManager = (address: string) =>
-  buildMockedQueryGraph({
-    managers: [address.toLowerCase()],
-    isCompleted: true,
-    isApproved: false
-  })
-
-export const fetcherWithValidCollectionAndItemManager = (address: string) =>
-  buildMockedQueryGraph({
-    items: [{ managers: [address.toLowerCase()], contentHash: '' }],
-    isCompleted: true,
-    isApproved: false
-  })
-
-export const fetcherWithValidCollectionAndCreatorAndContentHash = (address: string, contentHash: string) =>
-  buildMockedQueryGraph({
-    creator: address.toLowerCase(),
-    isCompleted: true,
-    isApproved: false,
-    items: [{ managers: [], contentHash }]
-  })
-
-export const fetcherWithInvalidCollectionAndCreator = (address: string) =>
-  buildMockedQueryGraph({
-    creator: address.toLowerCase(),
-    isCompleted: true,
-    isApproved: true
-  })
-
-export const fetcherWithInvalidCollectionAndCollectionManager = (address: string) =>
-  buildMockedQueryGraph({
-    managers: [address.toLowerCase()],
-    isCompleted: true,
-    isApproved: true
-  })
-
-export const fetcherWithInvalidCollectionAndItemManager = (address: string) =>
-  buildMockedQueryGraph({
-    items: [{ managers: [address.toLowerCase()], contentHash: '' }],
-    isCompleted: true,
-    isApproved: true
-  })
-
-export const fetcherWithInvalidCollectionAndContentHash = (contentHash: string) =>
-  buildMockedQueryGraph({
-    items: [{ managers: [], contentHash }],
-    isCompleted: true,
-    isApproved: true
-  })
-
 export const fetcherWithThirdPartyMerkleRoot = (root: string): SubGraphs =>
   buildSubGraphs({
     L1: {
       collections: createMockSubgraphComponent(),
-      blocks: createMockSubgraphComponent(
-        jest.fn().mockResolvedValueOnce({
-          min: [{ number: 5 }],
-          max: [{ number: 10 }]
-        })
-      ),
+      blocks: createMockSubgraphComponent(jest.fn().mockResolvedValueOnce(defaultBlocks)),
       landManager: createMockSubgraphComponent(),
       ensOwner: createMockSubgraphComponent()
     },
@@ -217,12 +143,7 @@ export const fetcherWithThirdPartyMerkleRoot = (root: string): SubGraphs =>
           ]
         })
       ),
-      blocks: createMockSubgraphComponent(
-        jest.fn().mockResolvedValueOnce({
-          min: [{ number: 5 }],
-          max: [{ number: 10 }]
-        })
-      ),
+      blocks: createMockSubgraphComponent(jest.fn().mockResolvedValueOnce(defaultBlocks)),
       collections: createMockSubgraphComponent()
     }
   })
@@ -231,12 +152,7 @@ export const fetcherWithThirdPartyEmptyMerkleRoots = (): SubGraphs =>
   buildSubGraphs({
     L1: {
       collections: createMockSubgraphComponent(),
-      blocks: createMockSubgraphComponent(
-        jest.fn().mockResolvedValueOnce({
-          min: [{ number: 5 }],
-          max: [{ number: 10 }]
-        })
-      ),
+      blocks: createMockSubgraphComponent(jest.fn().mockResolvedValueOnce(defaultBlocks)),
       landManager: createMockSubgraphComponent(),
       ensOwner: createMockSubgraphComponent()
     },
@@ -246,12 +162,7 @@ export const fetcherWithThirdPartyEmptyMerkleRoots = (): SubGraphs =>
           thirdParties: []
         })
       ),
-      blocks: createMockSubgraphComponent(
-        jest.fn().mockResolvedValueOnce({
-          min: [{ number: 5 }],
-          max: [{ number: 10 }]
-        })
-      ),
+      blocks: createMockSubgraphComponent(jest.fn().mockResolvedValueOnce(defaultBlocks)),
       collections: createMockSubgraphComponent()
     }
   })
@@ -261,11 +172,13 @@ const defaultEns = [
     name: 'Some Name'
   }
 ]
+
 const defaultEthereum = [
   {
     urn: 'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet'
   }
 ]
+
 const defaultMatic = [
   {
     urn: 'urn:decentraland:matic:collections-v2:0xf6f601efee04e74cecac02c8c5bdc8cc0fc1c721:0'
@@ -283,6 +196,7 @@ const defaultMatic = [
     urn: 'urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:2'
   }
 ]
+
 const defaultBlocks = {
   min: [{ number: 123400 }],
   max: [{ number: 123500 }]
@@ -327,26 +241,3 @@ export const fetcherWithWearablesOwnership = (
       )
     }
   })
-
-//
-//   return mockedQueryGraph().mockImplementation(
-//     async (url, _query, _variables) => {
-//       if (url.includes('marketplace')) {
-//         return Promise.resolve({
-//           names: ens ?? defaultEns
-//         })
-//       } else if (url.includes('blocks')) {
-//         return Promise.resolve(blocks ?? defaultBlocks)
-//       } else if (url.includes('ethereum')) {
-//         return Promise.resolve({
-//           wearables: ethereum ?? defaultEthereum
-//         })
-//       } else if (url.includes('matic')) {
-//         return Promise.resolve({
-//           wearables: matic ?? defaultMatic
-//         })
-//       }
-//       return Promise.resolve('')
-//     }
-//   )
-// }
