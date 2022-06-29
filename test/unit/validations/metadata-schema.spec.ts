@@ -23,6 +23,7 @@ describe('Metadata Schema', () => {
       const entity = buildEntity({ type, metadata: validMetadata, timestamp })
       const deployment = buildDeployment({ entity })
       const result = await metadata.validate(buildComponents(), deployment)
+      console.log(result.errors)
       expect(result.ok).toBeTruthy()
     })
     it('when entity metadata is invalid should report an error', async () => {

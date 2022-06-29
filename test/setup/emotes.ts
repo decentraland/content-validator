@@ -43,7 +43,8 @@ export const VALID_STANDARD_EMOTE_METADATA: Emote & StandardProps = {
   emoteDataADR74: {
     category: EmoteCategory.SIMPLE,
     tags: ['tag1'],
-    representations: [representation]
+    representations: [representation],
+    loop: true
   },
   thumbnail: 'thumbnail.png',
   image: 'image.png'
@@ -62,7 +63,8 @@ export const VALID_THIRD_PARTY_WEARABLE_BASE_METADATA: Omit<Emote & ThirdPartyPr
   emoteDataADR74: {
     tags: ['tag1'],
     representations: [representation],
-    category: EmoteCategory.SIMPLE
+    category: EmoteCategory.SIMPLE,
+    loop: true
   },
   thumbnail: 'thumbnail.png',
   image: 'image.png',
