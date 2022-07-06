@@ -1,8 +1,8 @@
 import { EntityType } from '@dcl/schemas'
 import sharp from 'sharp'
 import { ValidationResponse } from '../../../src'
-import { faceThumbnail, profile, wearableUrns } from '../../../src/validations/profile'
-import { ADR_45_TIMESTAMP, ADR_75_TIMESTAMP } from '../../../src/validations/timestamps'
+import { faceThumbnail, profile, profileEmotes, profileMustHaveEmotes, profileMustNotHaveEmotes, wearableUrns } from '../../../src/validations/profile'
+import { ADR_45_TIMESTAMP, ADR_74_TIMESTAMP, ADR_75_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
 import { buildComponents, buildExternalCalls } from '../../setup/mock'
@@ -284,6 +284,169 @@ describe('Profiles', () => {
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         'Each profile pointer should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (urn:decentraland:tucu-tucu:base-avatars:tall_front_01)'
+      )
+    })
+  })
+
+  describe('Profile emotes', () => {
+
+    it('Before ADR 74, if profile have emotes, should return the correct error', async () => {
+      const entity = buildEntity({
+        type: EntityType.PROFILE,
+        metadata: {
+          ...VALID_PROFILE_METADATA,
+          avatars: [{
+            ...VALID_PROFILE_METADATA.avatars[0],
+            avatar: {
+              ...VALID_PROFILE_METADATA.avatars[0].avatar,
+              emotes: [
+                {
+                  slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0'
+                }
+              ]
+            }
+          }]
+        },
+        timestamp: ADR_74_TIMESTAMP - 1
+      })
+      const deployment = buildDeployment({ entity })
+      const result = await profileMustNotHaveEmotes.validate(components, deployment)
+      expect(result.ok).toBeFalsy()
+      expect(result.errors).toContain('Profile must not have emotes before ADR 74.')
+    })
+
+    it('After ADR 74, if profile does not have emotes, should return the correct error', async () => {
+      const entity = buildEntity({
+        type: EntityType.PROFILE,
+        metadata: {
+          ...VALID_PROFILE_METADATA,
+          avatars: [{
+            ...VALID_PROFILE_METADATA.avatars[0],
+            avatar: {
+              ...VALID_PROFILE_METADATA.avatars[0].avatar,
+              emotes: undefined
+            }
+          }]
+        },
+        timestamp: ADR_74_TIMESTAMP + 1
+      })
+      const deployment = buildDeployment({ entity })
+      const result = await profileMustHaveEmotes.validate(components, deployment)
+      expect(result.ok).toBeFalsy()
+      expect(result.errors).toContain('Profile must have emotes after ADR 74.')
+    })
+
+    it('After ADR 74, when emote urn and slot are correct, should return no errors', async () => {
+      const entity = buildEntity({
+        type: EntityType.PROFILE,
+        metadata: {
+          ...VALID_PROFILE_METADATA,
+          avatars: [{
+            ...VALID_PROFILE_METADATA.avatars[0],
+            avatar: {
+              ...VALID_PROFILE_METADATA.avatars[0].avatar,
+              emotes: [
+                {
+                  slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0'
+                }
+              ]
+            }
+          }]
+        },
+        timestamp: ADR_74_TIMESTAMP + 1
+      })
+      const deployment = buildDeployment({ entity })
+
+      const result = await profileEmotes.validate(components, deployment)
+
+      expect(result.ok).toBeTruthy()
+    })
+
+    it('After ADR 74, when emote urn is wrong, should return the correct error', async () => {
+      const entity = buildEntity({
+        type: EntityType.PROFILE,
+        metadata: {
+          ...VALID_PROFILE_METADATA,
+          avatars: [{
+            ...VALID_PROFILE_METADATA.avatars[0],
+            avatar: {
+              ...VALID_PROFILE_METADATA.avatars[0].avatar,
+              emotes: [
+                {
+                  // the urn below is invalid
+                  slot: 0, urn: 'urn:decentraland:tucu-tucu:base-avatars:tall_front_01'
+                }
+              ]
+            }
+          }]
+        },
+        timestamp: ADR_74_TIMESTAMP + 1
+      })
+      const deployment = buildDeployment({ entity })
+
+      const result = await profileEmotes.validate(components, deployment)
+
+      expect(result.ok).toBeFalsy()
+      expect(result.errors).toContain(
+        'Each profile emote pointer should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (urn:decentraland:tucu-tucu:base-avatars:tall_front_01)'
+      )
+    })
+
+    it('After ADR 74, when emote slot number is < 0, should return the correct error', async () => {
+      const entity = buildEntity({
+        type: EntityType.PROFILE,
+        metadata: {
+          ...VALID_PROFILE_METADATA,
+          avatars: [{
+            ...VALID_PROFILE_METADATA.avatars[0],
+            avatar: {
+              ...VALID_PROFILE_METADATA.avatars[0].avatar,
+              emotes: [
+                {
+                  slot: -1, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0'
+                }
+              ]
+            }
+          }]
+        },
+        timestamp: ADR_74_TIMESTAMP + 1
+      })
+      const deployment = buildDeployment({ entity })
+
+      const result = await profileEmotes.validate(components, deployment)
+
+      expect(result.ok).toBeFalsy()
+      expect(result.errors).toContain(
+        'The slot -1 of the emote urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0 must be a number between 0 and 9 (inclusive).'
+      )
+    })
+
+    it('After ADR 74, when emote slot number is > 0, should return the correct error', async () => {
+      const entity = buildEntity({
+        type: EntityType.PROFILE,
+        metadata: {
+          ...VALID_PROFILE_METADATA,
+          avatars: [{
+            ...VALID_PROFILE_METADATA.avatars[0],
+            avatar: {
+              ...VALID_PROFILE_METADATA.avatars[0].avatar,
+              emotes: [
+                {
+                  slot: 10, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0'
+                }
+              ]
+            }
+          }]
+        },
+        timestamp: ADR_74_TIMESTAMP + 1
+      })
+      const deployment = buildDeployment({ entity })
+
+      const result = await profileEmotes.validate(components, deployment)
+
+      expect(result.ok).toBeFalsy()
+      expect(result.errors).toContain(
+        'The slot 10 of the emote urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0 must be a number between 0 and 9 (inclusive).'
       )
     })
   })

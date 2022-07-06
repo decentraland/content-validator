@@ -1,8 +1,8 @@
-import { EntityType } from '@dcl/schemas'
+import { Avatar, EntityType } from '@dcl/schemas'
 import { parseUrn } from '@dcl/urn-resolver'
 import sharp from 'sharp'
-import { OK, Validation, validationFailed } from '../types'
-import { validationAfterADR45, validationAfterADR75, validationForType, validationGroup } from './validations'
+import { DeploymentToValidate, OK, Validation, validationFailed } from '../types'
+import { validationAfterADR45, validationAfterADR74, validationAfterADR75, validationBeforeADR74, validationForType, validationGroup } from './validations'
 
 /** Validate that given profile deployment includes a face256 thumbnail with valid size */
 const defaultThumbnailSize = 256
@@ -59,8 +59,59 @@ export const wearableUrns: Validation = validationAfterADR75({
   }
 })
 
+export const profileEmotes: Validation = validationAfterADR74({
+  validate: async (components, deployment) => {
+    const allAvatars = deployment.entity.metadata?.avatars ?? []
+    for (const avatar of allAvatars) {
+      const allEmotes = avatar.avatar.emotes ?? []
+      for (const { slot, urn } of allEmotes) {
+        const parsed = await parseUrn(urn)
+        if (!parsed)
+          return validationFailed(
+            `Each profile emote pointer should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (${urn})`
+          )
+        if (slot < 0 || slot > 9) {
+          return validationFailed(
+            `The slot ${slot} of the emote ${urn} must be a number between 0 and 9 (inclusive).`
+          )
+        }
+      }
+    }
+    return OK
+  }
+})
+
+function profileHasEmotes(deployment: DeploymentToValidate) {
+  const allAvatars: Avatar[] = deployment.entity.metadata?.avatars ?? []
+  for (const avatar of allAvatars) {
+    if (avatar.avatar?.emotes) {
+      return true
+    }
+  }
+  return false
+}
+
+export const profileMustHaveEmotes: Validation = validationAfterADR74({
+  validate: async (components, deployment) => {
+    if (!profileHasEmotes(deployment)) {
+      return validationFailed('Profile must have emotes after ADR 74.')
+    }
+    return OK
+  }
+})
+
+export const profileMustNotHaveEmotes: Validation = validationBeforeADR74({
+  validate: async (components, deployment) => {
+    if (profileHasEmotes(deployment)) {
+      return validationFailed('Profile must not have emotes before ADR 74.')
+    }
+    return OK
+  }
+})
+
 /**
  * Validate that given profile deployment includes the face256 file with the correct size
  * * @public
  */
-export const profile: Validation = validationForType(EntityType.PROFILE, validationGroup(faceThumbnail, wearableUrns))
+export const profile: Validation = validationForType(EntityType.PROFILE,
+  validationGroup(faceThumbnail, wearableUrns, profileEmotes, profileMustHaveEmotes, profileMustNotHaveEmotes))
