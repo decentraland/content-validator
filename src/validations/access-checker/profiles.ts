@@ -49,7 +49,7 @@ export const profileOwnsWearables: Validation = validationAfterADR75({
       )
 
     const wearableUrns = await allWearablesUrns(deployment.entity)
-    const wearablesCheckResult = await theGraphClient.ownsWearablesAtTimestamp(
+    const wearablesCheckResult = await theGraphClient.ownsItemsAtTimestamp(
       ethAddress,
       wearableUrns,
       deployment.entity.timestamp

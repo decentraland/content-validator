@@ -1,8 +1,7 @@
-import { AuthChain, Entity, EthAddress, WearableId } from '@dcl/schemas'
+import { AuthChain, Entity, EthAddress, URN } from '@dcl/schemas'
 import { ILoggerComponent } from '@well-known-components/interfaces'
+import { ISubgraphComponent, Variables } from '@well-known-components/thegraph-component'
 import { PermissionResult } from './the-graph-client/the-graph-client'
-import { ISubgraphComponent } from '@well-known-components/thegraph-component'
-import { Variables } from '@well-known-components/thegraph-component'
 
 /**
  * @public
@@ -150,9 +149,9 @@ export type TheGraphClient = {
     timestamp: number
   ) => Promise<PermissionResult>
 
-  checkForWearablesOwnershipWithTimestamp: (
+  ownsItemsAtTimestamp: (
     ethAddress: EthAddress,
-    wearableIdsToCheck: WearableId[],
+    wearableIdsToCheck: URN[],
     timestamp: number
   ) => Promise<PermissionResult>
 

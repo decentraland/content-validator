@@ -177,7 +177,7 @@ describe('TheGraphClient', () => {
       const { theGraphClient } = buildComponents({ subGraphs })
 
       await expect(
-        theGraphClient.checkForWearablesOwnershipWithTimestamp(
+        theGraphClient.ownsItemsAtTimestamp(
           '0x1',
           [
             'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet',
@@ -237,7 +237,7 @@ describe('TheGraphClient', () => {
       const { theGraphClient } = buildComponents({ subGraphs })
 
       await expect(
-        theGraphClient.checkForWearablesOwnershipWithTimestamp(
+        theGraphClient.ownsItemsAtTimestamp(
           '0x1',
           [
             'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet',
@@ -279,7 +279,7 @@ describe('TheGraphClient', () => {
       const { theGraphClient } = buildComponents({ subGraphs })
 
       await expect(
-        theGraphClient.checkForWearablesOwnershipWithTimestamp(
+        theGraphClient.ownsItemsAtTimestamp(
           '0x1',
           [
             'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet',
