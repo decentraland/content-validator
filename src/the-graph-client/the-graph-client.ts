@@ -19,7 +19,7 @@ export const createTheGraphClient = (
   const L1_NETWORKS = ['mainnet', 'ropsten', 'kovan', 'rinkeby', 'goerli']
   const L2_NETWORKS = ['matic', 'mumbai']
 
-  const checkForNamesOwnershipWithTimestamp = async (
+  const ownsNamesAtTimestamp = async (
     ethAddress: EthAddress,
     namesToCheck: string[],
     timestamp: number
@@ -238,7 +238,7 @@ export const createTheGraphClient = (
   }
 
   return {
-    checkForNamesOwnershipWithTimestamp,
+    ownsNamesAtTimestamp,
     ownsItemsAtTimestamp,
     findBlocksForTimestamp
   }

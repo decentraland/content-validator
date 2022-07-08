@@ -40,7 +40,7 @@ export const ownsNames: Validation = validationAfterADR75({
   validate: async ({ externalCalls, theGraphClient }, deployment) => {
     const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
     const names = allClaimedNames(deployment.entity)
-    const namesCheckResult = await theGraphClient.checkForNamesOwnershipWithTimestamp(
+    const namesCheckResult = await theGraphClient.ownsNamesAtTimestamp(
       ethAddress,
       names,
       deployment.entity.timestamp
@@ -79,28 +79,6 @@ async function allWearableUrns(entity: Entity) {
 
   return (await Promise.all(allWearablesInProfilePromises)).filter((wearableId): wearableId is string => !!wearableId)
 }
-
-export const ownsWearables: Validation = validationAfterADR75({
-  validate: async ({ externalCalls, theGraphClient }, deployment) => {
-    const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
-
-    const wearableUrns = await allWearableUrns(deployment.entity)
-    const wearablesCheckResult = await theGraphClient.ownsItemsAtTimestamp(
-      ethAddress,
-      wearableUrns,
-      deployment.entity.timestamp
-    )
-    if (!wearablesCheckResult.result) {
-      return validationFailed(
-        `The following wearables (${wearablesCheckResult.failing?.join(
-          ', '
-        )}) are not owned by the address ${ethAddress.toLowerCase()}).`
-      )
-    }
-
-    return OK
-  }
-})
 
 async function allEmoteUrns(entity: Entity) {
   const allEmotesInProfilePromises: Promise<string | undefined>[] = []

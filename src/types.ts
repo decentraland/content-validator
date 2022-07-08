@@ -143,7 +143,7 @@ export type SubGraphs = {
  * @public
  */
 export type TheGraphClient = {
-  checkForNamesOwnershipWithTimestamp: (
+  ownsNamesAtTimestamp: (
     ethAddress: EthAddress,
     namesToCheck: string[],
     timestamp: number

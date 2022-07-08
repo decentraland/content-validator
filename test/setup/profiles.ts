@@ -51,5 +51,3 @@ export function validProfileMetadataWithEmotes(emotes: { slot: number, urn: stri
     }]
   }
 }
-
-// export const VALID_PROFILE_METADATA_WITH_EMOTES = { avatars: [avatar] }

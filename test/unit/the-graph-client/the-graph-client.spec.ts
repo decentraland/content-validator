@@ -17,7 +17,7 @@ describe('TheGraphClient', () => {
 
     const { theGraphClient } = buildComponents({ subGraphs })
 
-    await expect(theGraphClient.checkForNamesOwnershipWithTimestamp('0x1', ['Some Name'], 10)).rejects.toThrow('error')
+    await expect(theGraphClient.ownsNamesAtTimestamp('0x1', ['Some Name'], 10)).rejects.toThrow('error')
   })
 
   it('When invoking findBlocksForTimestamp, it may happen that no block matches and exception is thrown', async () => {
@@ -71,7 +71,7 @@ describe('TheGraphClient', () => {
       })
       const { theGraphClient } = buildComponents({ subGraphs })
 
-      await expect(theGraphClient.checkForNamesOwnershipWithTimestamp('0x1', ['Some Name'], 10)).resolves.toEqual({
+      await expect(theGraphClient.ownsNamesAtTimestamp('0x1', ['Some Name'], 10)).resolves.toEqual({
         result: true
       })
     })
@@ -106,7 +106,7 @@ describe('TheGraphClient', () => {
       })
       const { theGraphClient } = buildComponents({ subGraphs })
 
-      await expect(theGraphClient.checkForNamesOwnershipWithTimestamp('0x1', ['Some Name'], 10)).resolves.toEqual({
+      await expect(theGraphClient.ownsNamesAtTimestamp('0x1', ['Some Name'], 10)).resolves.toEqual({
         result: true
       })
     })
@@ -127,7 +127,7 @@ describe('TheGraphClient', () => {
       })
       const { theGraphClient } = buildComponents({ subGraphs })
 
-      await expect(theGraphClient.checkForNamesOwnershipWithTimestamp('0x1', ['Some Name'], 10)).resolves.toEqual({
+      await expect(theGraphClient.ownsNamesAtTimestamp('0x1', ['Some Name'], 10)).resolves.toEqual({
         result: false
       })
     })
