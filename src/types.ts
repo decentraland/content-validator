@@ -145,11 +145,7 @@ export type SubGraphs = {
 export type TheGraphClient = {
   ownsNamesAtTimestamp: (ethAddress: EthAddress, namesToCheck: string[], timestamp: number) => Promise<PermissionResult>
 
-  ownsItemsAtTimestamp: (
-    ethAddress: EthAddress,
-    urnsToCheck: string[],
-    timestamp: number
-  ) => Promise<PermissionResult>
+  ownsItemsAtTimestamp: (ethAddress: EthAddress, urnsToCheck: string[], timestamp: number) => Promise<PermissionResult>
 
   findBlocksForTimestamp: (subgraph: ISubgraphComponent, timestamp: number) => Promise<BlockInformation>
 }
