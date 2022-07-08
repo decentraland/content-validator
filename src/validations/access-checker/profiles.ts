@@ -2,14 +2,10 @@ import { Avatar, Entity, EthAddress } from '@dcl/schemas'
 import { parseUrn } from '@dcl/urn-resolver'
 import { OK, Validation, validationFailed } from '../../types'
 import { isOldEmote } from '../profile'
-import { ADR_75_TIMESTAMP } from '../timestamps'
+import { validationAfterADR75, validationGroup } from '../validations'
 
-/**
- * Validate that the pointers are valid, and that the Ethereum address has write access to them
- * @public
- */
-export const profiles: Validation = {
-  validate: async ({ externalCalls, theGraphClient }, deployment) => {
+export const pointerIsValid: Validation = {
+  validate: async ({ externalCalls }, deployment) => {
     const pointers = deployment.entity.pointers
     const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
 
@@ -28,9 +24,17 @@ export const profiles: Validation = {
         `You can only alter your own profile. The pointer address and the signer address are different (pointer:${pointer} signer: ${ethAddress.toLowerCase()}).`
       )
     }
+    return OK
+  }
+}
 
-    if (deployment.entity.timestamp < ADR_75_TIMESTAMP) return OK
-
+/**
+ * Validate that the pointers are valid, and that the Ethereum address has write access to them
+ * @public
+ */
+export const profileOwnsWearables: Validation = validationAfterADR75({
+  validate: async ({ externalCalls, theGraphClient }, deployment) => {
+    const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
     const names = allClaimedNames(deployment.entity)
     const namesCheckResult = await theGraphClient.checkForNamesOwnershipWithTimestamp(
       ethAddress,
@@ -45,7 +49,7 @@ export const profiles: Validation = {
       )
 
     const wearableUrns = await allWearablesUrns(deployment.entity)
-    const wearablesCheckResult = await theGraphClient.checkForWearablesOwnershipWithTimestamp(
+    const wearablesCheckResult = await theGraphClient.ownsWearablesAtTimestamp(
       ethAddress,
       wearableUrns,
       deployment.entity.timestamp
@@ -60,7 +64,7 @@ export const profiles: Validation = {
 
     return OK
   }
-}
+})
 
 const allClaimedNames = (entity: Entity): string[] =>
   entity.metadata.avatars
@@ -90,3 +94,5 @@ const allWearablesUrns = async (entity: Entity) => {
 
   return (await Promise.all(allWearablesInProfilePromises)).filter((wearableId): wearableId is string => !!wearableId)
 }
+
+export const profiles: Validation = validationGroup(pointerIsValid, profileOwnsWearables)
