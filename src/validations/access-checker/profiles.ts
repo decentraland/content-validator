@@ -2,7 +2,8 @@ import { Avatar, Entity, EthAddress } from '@dcl/schemas'
 import { parseUrn } from '@dcl/urn-resolver'
 import { OK, Validation, validationFailed } from '../../types'
 import { isOldEmote } from '../profile'
-import { validationAfterADR75, validationGroup } from '../validations'
+import { ADR_74_TIMESTAMP, ADR_75_TIMESTAMP } from '../timestamps'
+import { conditionalValidation, validationAfterADR75, validationGroup } from '../validations'
 
 export const pointerIsValid: Validation = {
   validate: async ({ externalCalls }, deployment) => {
@@ -58,7 +59,7 @@ function isBaseAvatar(urn: string): boolean {
   return urn.includes('base-avatars')
 }
 
-async function translateWearablesIdFormat(urn: string): Promise<string | undefined> {
+async function sanitizeUrn(urn: string): Promise<string | undefined> {
   if (!urn.startsWith('dcl://')) {
     return urn
   }
@@ -66,12 +67,12 @@ async function translateWearablesIdFormat(urn: string): Promise<string | undefin
   return parsed?.uri?.toString()
 }
 
-async function allWearablesUrns(entity: Entity) {
+async function allWearableUrns(entity: Entity) {
   const allWearablesInProfilePromises: Promise<string | undefined>[] = []
   for (const avatar of entity.metadata.avatars) {
     for (const wearableId of avatar.avatar.wearables) {
       if (!isBaseAvatar(wearableId) && !isOldEmote(wearableId)) {
-        allWearablesInProfilePromises.push(translateWearablesIdFormat(wearableId))
+        allWearablesInProfilePromises.push(sanitizeUrn(wearableId))
       }
     }
   }
@@ -79,15 +80,11 @@ async function allWearablesUrns(entity: Entity) {
   return (await Promise.all(allWearablesInProfilePromises)).filter((wearableId): wearableId is string => !!wearableId)
 }
 
-/**
- * Validate that the pointers are valid, and that the Ethereum address has write access to them
- * @public
- */
 export const ownsWearables: Validation = validationAfterADR75({
   validate: async ({ externalCalls, theGraphClient }, deployment) => {
     const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
 
-    const wearableUrns = await allWearablesUrns(deployment.entity)
+    const wearableUrns = await allWearableUrns(deployment.entity)
     const wearablesCheckResult = await theGraphClient.ownsItemsAtTimestamp(
       ethAddress,
       wearableUrns,
@@ -105,4 +102,52 @@ export const ownsWearables: Validation = validationAfterADR75({
   }
 })
 
-export const profiles: Validation = validationGroup(pointerIsValid, ownsNames, ownsWearables)
+async function allEmoteUrns(entity: Entity) {
+  const allEmotesInProfilePromises: Promise<string | undefined>[] = []
+  const allAvatars = entity.metadata?.avatars ?? []
+  for (const avatar of allAvatars) {
+    const allEmotes = avatar.avatar.emotes ?? []
+    for (const { slot, urn } of allEmotes) {
+      allEmotesInProfilePromises.push(sanitizeUrn(urn))
+    }
+  }
+
+  return (await Promise.all(allEmotesInProfilePromises)).filter((wearableId): wearableId is string => !!wearableId)
+}
+
+export const ownsItems: Validation = conditionalValidation(
+  (deployment) =>
+    deployment.entity.timestamp >= ADR_74_TIMESTAMP || deployment.entity.timestamp >= ADR_75_TIMESTAMP,
+  {
+    validate: async ({ externalCalls, theGraphClient }, deployment) => {
+      const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
+      const depoymentTimestamp = deployment.entity.timestamp
+      const itemUrns: string[] = []
+      if (depoymentTimestamp >= ADR_75_TIMESTAMP) {
+        for (const urn of await allWearableUrns(deployment.entity)) {
+          itemUrns.push(urn)
+        }
+      }
+      if (depoymentTimestamp >= ADR_74_TIMESTAMP) {
+        for (const urn of await allEmoteUrns(deployment.entity)) {
+          itemUrns.push(urn)
+        }
+      }
+      const itemsOwnershipResult = await theGraphClient.ownsItemsAtTimestamp(
+        ethAddress,
+        itemUrns,
+        deployment.entity.timestamp
+      )
+      if (!itemsOwnershipResult.result) {
+        return validationFailed(
+          `The following items (${itemsOwnershipResult.failing?.join(
+            ', '
+          )}) are not owned by the address ${ethAddress.toLowerCase()}).`
+        )
+      }
+
+      return OK
+    }
+  })
+
+export const profiles: Validation = validationGroup(pointerIsValid, ownsNames, ownsItems)
