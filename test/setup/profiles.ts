@@ -20,7 +20,7 @@ const avatarInfo = {
     'urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:2',
     'urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:19',
     'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa4:0'
-  ],
+  ]
 }
 
 const avatar = {
@@ -38,16 +38,18 @@ const avatar = {
 
 export const VALID_PROFILE_METADATA = { avatars: [avatar] }
 
-export function validProfileMetadataWithEmotes(emotes: { slot: number, urn: string }[], wearables: string[] = []) {
+export function validProfileMetadataWithEmotes(emotes: { slot: number; urn: string }[], wearables: string[] = []) {
   return {
     ...VALID_PROFILE_METADATA,
-    avatars: [{
-      ...VALID_PROFILE_METADATA.avatars[0],
-      avatar: {
-        ...VALID_PROFILE_METADATA.avatars[0].avatar,
-        wearables: wearables,
-        emotes: emotes
+    avatars: [
+      {
+        ...VALID_PROFILE_METADATA.avatars[0],
+        avatar: {
+          ...VALID_PROFILE_METADATA.avatars[0].avatar,
+          wearables: wearables,
+          emotes: emotes
+        }
       }
-    }]
+    ]
   }
 }

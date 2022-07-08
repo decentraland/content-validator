@@ -1,7 +1,14 @@
 import { EntityType } from '@dcl/schemas'
 import sharp from 'sharp'
 import { ValidationResponse } from '../../../src'
-import { faceThumbnail, profile, profileEmotes, profileMustHaveEmotes, profileMustNotHaveEmotes, wearableUrns } from '../../../src/validations/profile'
+import {
+  faceThumbnail,
+  profile,
+  profileEmotes,
+  profileMustHaveEmotes,
+  profileMustNotHaveEmotes,
+  wearableUrns
+} from '../../../src/validations/profile'
 import { ADR_45_TIMESTAMP, ADR_74_TIMESTAMP, ADR_75_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
@@ -289,13 +296,12 @@ describe('Profiles', () => {
   })
 
   describe('Profile emotes', () => {
-
     it('Before ADR 74, if profile have emotes, should return the correct error', async () => {
       const entity = buildEntity({
         type: EntityType.PROFILE,
-        metadata: validProfileMetadataWithEmotes(
-          [{ slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }]
-        ),
+        metadata: validProfileMetadataWithEmotes([
+          { slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }
+        ]),
         timestamp: ADR_74_TIMESTAMP - 1
       })
       const deployment = buildDeployment({ entity })
@@ -320,9 +326,9 @@ describe('Profiles', () => {
     it('After ADR 74, when emote urn and slot are correct, should return no errors', async () => {
       const entity = buildEntity({
         type: EntityType.PROFILE,
-        metadata: validProfileMetadataWithEmotes(
-          [{ slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }]
-        ),
+        metadata: validProfileMetadataWithEmotes([
+          { slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }
+        ]),
         timestamp: ADR_74_TIMESTAMP + 1
       })
       const deployment = buildDeployment({ entity })
@@ -354,9 +360,9 @@ describe('Profiles', () => {
     it('After ADR 74, when emote slot number is < 0, should return the correct error', async () => {
       const entity = buildEntity({
         type: EntityType.PROFILE,
-        metadata: validProfileMetadataWithEmotes(
-          [{ slot: -1, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }]
-        ),
+        metadata: validProfileMetadataWithEmotes([
+          { slot: -1, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }
+        ]),
         timestamp: ADR_74_TIMESTAMP + 1
       })
       const deployment = buildDeployment({ entity })
@@ -372,9 +378,9 @@ describe('Profiles', () => {
     it('After ADR 74, when emote slot number is > 9, should return the correct error', async () => {
       const entity = buildEntity({
         type: EntityType.PROFILE,
-        metadata: validProfileMetadataWithEmotes(
-          [{ slot: 10, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }]
-        ),
+        metadata: validProfileMetadataWithEmotes([
+          { slot: 10, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }
+        ]),
         timestamp: ADR_74_TIMESTAMP + 1
       })
       const deployment = buildDeployment({ entity })

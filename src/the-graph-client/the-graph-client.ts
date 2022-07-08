@@ -163,8 +163,7 @@ export const createTheGraphClient = (
           description: 'check for items ownership',
           subgraph: collectionsSubgraph,
           query: QUERY_ITEMS_FOR_ADDRESS_AT_BLOCK,
-          mapper: (response: { items: { urn: string }[] }): Set<string> =>
-            new Set(response.items.map(({ urn }) => urn))
+          mapper: (response: { items: { urn: string }[] }): Set<string> => new Set(response.items.map(({ urn }) => urn))
         }
         return runQuery(query, {
           block: blockNumber,
@@ -178,9 +177,7 @@ export const createTheGraphClient = (
         const notOwned = urnsToCheck.filter((name) => !ownedItems.has(name))
         return notOwned.length > 0 ? permissionError(notOwned) : permissionOk()
       } catch (error) {
-        logger.error(
-          `Error retrieving items owned by address ${ethAddress} at block ${blocks.blockNumberAtDeployment}`
-        )
+        logger.error(`Error retrieving items owned by address ${ethAddress} at block ${blocks.blockNumberAtDeployment}`)
         return permissionError()
       }
     }

@@ -139,19 +139,14 @@ describe('Access: profiles', () => {
     })
     const deployment = buildDeployment({ entity })
 
-    const subGraphs = fetcherWithItemsOwnership(
-      '0x862f109696d7121438642a78b3caa38f476db08b',
-      undefined,
-      undefined,
-      [
-        {
-          urn: 'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
-        },
-        {
-          urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa4:0'
-        }
-      ]
-    )
+    const subGraphs = fetcherWithItemsOwnership('0x862f109696d7121438642a78b3caa38f476db08b', undefined, undefined, [
+      {
+        urn: 'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
+      },
+      {
+        urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa4:0'
+      }
+    ])
     const externalCalls = buildExternalCalls({
       ownerAddress: () => someAddress
     })
@@ -168,19 +163,17 @@ describe('Access: profiles', () => {
 
     const entity = buildEntity({
       type: EntityType.PROFILE,
-      metadata: validProfileMetadataWithEmotes(
-        [{ slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }]
-      ),
+      metadata: validProfileMetadataWithEmotes([
+        { slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }
+      ]),
       timestamp: ADR_74_TIMESTAMP + 1,
       pointers: [someAddress]
     })
     const deployment = buildDeployment({ entity })
 
-    const subGraphs = fetcherWithItemsOwnership(
-      '0x862f109696d7121438642a78b3caa38f476db08b',
-      undefined,
-      undefined,
-      [{ urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }])
+    const subGraphs = fetcherWithItemsOwnership('0x862f109696d7121438642a78b3caa38f476db08b', undefined, undefined, [
+      { urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }
+    ])
     const externalCalls = buildExternalCalls({
       ownerAddress: () => someAddress
     })
@@ -194,23 +187,18 @@ describe('Access: profiles', () => {
 
     const entity = buildEntity({
       type: EntityType.PROFILE,
-      metadata: validProfileMetadataWithEmotes(
-        [
-          { slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' },
-          { slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:1' }
-        ]
-      ),
+      metadata: validProfileMetadataWithEmotes([
+        { slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' },
+        { slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:1' }
+      ]),
       timestamp: ADR_75_TIMESTAMP + 1,
       pointers: [someAddress]
     })
     const deployment = buildDeployment({ entity })
 
-    const subGraphs = fetcherWithItemsOwnership(
-      '0x862f109696d7121438642a78b3caa38f476db08b',
-      undefined,
-      undefined,
-      [{ urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }]
-    )
+    const subGraphs = fetcherWithItemsOwnership('0x862f109696d7121438642a78b3caa38f476db08b', undefined, undefined, [
+      { urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }
+    ])
     const externalCalls = buildExternalCalls({
       ownerAddress: () => someAddress
     })

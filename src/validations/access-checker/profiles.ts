@@ -40,11 +40,7 @@ export const ownsNames: Validation = validationAfterADR75({
   validate: async ({ externalCalls, theGraphClient }, deployment) => {
     const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
     const names = allClaimedNames(deployment.entity)
-    const namesCheckResult = await theGraphClient.ownsNamesAtTimestamp(
-      ethAddress,
-      names,
-      deployment.entity.timestamp
-    )
+    const namesCheckResult = await theGraphClient.ownsNamesAtTimestamp(ethAddress, names, deployment.entity.timestamp)
     if (!namesCheckResult.result)
       return validationFailed(
         `The following names (${namesCheckResult.failing?.join(
@@ -94,8 +90,7 @@ async function allEmoteUrns(entity: Entity) {
 }
 
 export const ownsItems: Validation = conditionalValidation(
-  (deployment) =>
-    deployment.entity.timestamp >= ADR_74_TIMESTAMP || deployment.entity.timestamp >= ADR_75_TIMESTAMP,
+  (deployment) => deployment.entity.timestamp >= ADR_74_TIMESTAMP || deployment.entity.timestamp >= ADR_75_TIMESTAMP,
   {
     validate: async ({ externalCalls, theGraphClient }, deployment) => {
       const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
@@ -126,6 +121,7 @@ export const ownsItems: Validation = conditionalValidation(
 
       return OK
     }
-  })
+  }
+)
 
 export const profiles: Validation = validationGroup(pointerIsValid, ownsNames, ownsItems)

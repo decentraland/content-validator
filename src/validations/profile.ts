@@ -2,7 +2,14 @@ import { Avatar, EntityType } from '@dcl/schemas'
 import { parseUrn } from '@dcl/urn-resolver'
 import sharp from 'sharp'
 import { DeploymentToValidate, OK, Validation, validationFailed } from '../types'
-import { validationAfterADR45, validationAfterADR74, validationAfterADR75, validationBeforeADR74, validationForType, validationGroup } from './validations'
+import {
+  validationAfterADR45,
+  validationAfterADR74,
+  validationAfterADR75,
+  validationBeforeADR74,
+  validationForType,
+  validationGroup
+} from './validations'
 
 /** Validate that given profile deployment includes a face256 thumbnail with valid size */
 const defaultThumbnailSize = 256
@@ -71,9 +78,7 @@ export const profileEmotes: Validation = validationAfterADR74({
             `Each profile emote pointer should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (${urn})`
           )
         if (slot < 0 || slot > 9) {
-          return validationFailed(
-            `The slot ${slot} of the emote ${urn} must be a number between 0 and 9 (inclusive).`
-          )
+          return validationFailed(`The slot ${slot} of the emote ${urn} must be a number between 0 and 9 (inclusive).`)
         }
       }
     }
@@ -113,5 +118,7 @@ export const profileMustNotHaveEmotes: Validation = validationBeforeADR74({
  * Validate that given profile deployment includes the face256 file with the correct size
  * * @public
  */
-export const profile: Validation = validationForType(EntityType.PROFILE,
-  validationGroup(faceThumbnail, wearableUrns, profileEmotes, profileMustHaveEmotes, profileMustNotHaveEmotes))
+export const profile: Validation = validationForType(
+  EntityType.PROFILE,
+  validationGroup(faceThumbnail, wearableUrns, profileEmotes, profileMustHaveEmotes, profileMustNotHaveEmotes)
+)

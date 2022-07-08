@@ -143,11 +143,7 @@ export type SubGraphs = {
  * @public
  */
 export type TheGraphClient = {
-  ownsNamesAtTimestamp: (
-    ethAddress: EthAddress,
-    namesToCheck: string[],
-    timestamp: number
-  ) => Promise<PermissionResult>
+  ownsNamesAtTimestamp: (ethAddress: EthAddress, namesToCheck: string[], timestamp: number) => Promise<PermissionResult>
 
   ownsItemsAtTimestamp: (
     ethAddress: EthAddress,
