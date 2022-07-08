@@ -10,7 +10,6 @@ import { EthAddress } from '@dcl/schemas';
 import { ILoggerComponent } from '@well-known-components/interfaces';
 import { ISubgraphComponent } from '@well-known-components/thegraph-component';
 import { Variables } from '@well-known-components/thegraph-component';
-import { WearableId } from '@dcl/schemas';
 
 // @public (undocumented)
 export type BlockInformation = {
@@ -104,8 +103,8 @@ export type SubGraphs = {
 
 // @public (undocumented)
 export type TheGraphClient = {
-    checkForNamesOwnershipWithTimestamp: (ethAddress: EthAddress, namesToCheck: string[], timestamp: number) => Promise<PermissionResult>;
-    checkForWearablesOwnershipWithTimestamp: (ethAddress: EthAddress, wearableIdsToCheck: WearableId[], timestamp: number) => Promise<PermissionResult>;
+    ownsNamesAtTimestamp: (ethAddress: EthAddress, namesToCheck: string[], timestamp: number) => Promise<PermissionResult>;
+    ownsItemsAtTimestamp: (ethAddress: EthAddress, urnsToCheck: string[], timestamp: number) => Promise<PermissionResult>;
     findBlocksForTimestamp: (subgraph: ISubgraphComponent, timestamp: number) => Promise<BlockInformation>;
 };
 
@@ -142,7 +141,7 @@ export type Warnings = string[];
 
 // Warnings were encountered during analysis:
 //
-// src/types.ts:147:3 - (ae-forgotten-export) The symbol "PermissionResult" needs to be exported by the entry point index.d.ts
+// src/types.ts:146:3 - (ae-forgotten-export) The symbol "PermissionResult" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 
