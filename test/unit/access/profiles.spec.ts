@@ -3,7 +3,7 @@ import { profiles } from '../../../src/validations/access-checker/profiles'
 import { ADR_75_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment, buildProfileDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
-import { buildComponents, buildExternalCalls, fetcherWithWearablesOwnership } from '../../setup/mock'
+import { buildComponents, buildExternalCalls, fetcherWithItemsOwnership } from '../../setup/mock'
 import { VALID_PROFILE_METADATA } from '../../setup/profiles'
 
 describe('Access: profiles', () => {
@@ -92,7 +92,7 @@ describe('Access: profiles', () => {
     })
     const deployment = buildDeployment({ entity })
 
-    const subGraphs = fetcherWithWearablesOwnership('0x862f109696d7121438642a78b3caa38f476db08b')
+    const subGraphs = fetcherWithItemsOwnership('0x862f109696d7121438642a78b3caa38f476db08b')
     const externalCalls = buildExternalCalls({
       ownerAddress: () => someAddress
     })
@@ -112,7 +112,7 @@ describe('Access: profiles', () => {
     })
     const deployment = buildDeployment({ entity })
 
-    const subGraphs = fetcherWithWearablesOwnership('0x862f109696d7121438642a78b3caa38f476db08b', [
+    const subGraphs = fetcherWithItemsOwnership('0x862f109696d7121438642a78b3caa38f476db08b', [
       {
         name: "Someone else's name"
       }
@@ -139,7 +139,7 @@ describe('Access: profiles', () => {
     })
     const deployment = buildDeployment({ entity })
 
-    const subGraphs = fetcherWithWearablesOwnership(
+    const subGraphs = fetcherWithItemsOwnership(
       '0x862f109696d7121438642a78b3caa38f476db08b',
       undefined,
       undefined,

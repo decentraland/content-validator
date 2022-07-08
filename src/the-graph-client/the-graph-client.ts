@@ -159,12 +159,12 @@ export const createTheGraphClient = (
       }
 
       const runOwnedItemsOnBlockQuery = async (blockNumber: number) => {
-        const query: Query<{ wearables: { urn: string }[] }, Set<string>> = {
+        const query: Query<{ items: { urn: string }[] }, Set<string>> = {
           description: 'check for items ownership',
           subgraph: collectionsSubgraph,
           query: QUERY_ITEMS_FOR_ADDRESS_AT_BLOCK,
-          mapper: (response: { wearables: { urn: string }[] }): Set<string> =>
-            new Set(response.wearables.map(({ urn }) => urn))
+          mapper: (response: { items: { urn: string }[] }): Set<string> =>
+            new Set(response.items.map(({ urn }) => urn))
         }
         return runQuery(query, {
           block: blockNumber,
@@ -179,7 +179,7 @@ export const createTheGraphClient = (
         return notOwned.length > 0 ? permissionError(notOwned) : permissionOk()
       } catch (error) {
         logger.error(
-          `Error retrieving wearables owned by address ${ethAddress} at block ${blocks.blockNumberAtDeployment}`
+          `Error retrieving items owned by address ${ethAddress} at block ${blocks.blockNumberAtDeployment}`
         )
         return permissionError()
       }
@@ -276,8 +276,8 @@ query getNftNamesForBlock($block: Int!, $ethAddress: String!, $nameList: [String
 }`
 
 const QUERY_ITEMS_FOR_ADDRESS_AT_BLOCK = `
-query getNftWearablesForBlock($block: Int!, $ethAddress: String!, $urnList: [String!]) {
-  wearables: nfts(
+query getNftItemsForBlock($block: Int!, $ethAddress: String!, $urnList: [String!]) {
+  items: nfts(
     block: {number: $block}
     where: {owner: $ethAddress, searchItemType_in: ["wearable_v1", "wearable_v2", "smart_wearable_v1", "emote_v1"] urn_in: $urnList}
     first: 1000

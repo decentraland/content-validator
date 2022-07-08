@@ -139,7 +139,7 @@ describe('TheGraphClient', () => {
         L1: {
           collections: createMockSubgraphComponent(
             jest.fn().mockResolvedValue({
-              wearables: [
+              items: [
                 {
                   urn: 'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet'
                 }
@@ -165,7 +165,7 @@ describe('TheGraphClient', () => {
           ),
           collections: createMockSubgraphComponent(
             jest.fn().mockResolvedValue({
-              wearables: [
+              items: [
                 {
                   urn: 'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
                 }
@@ -197,7 +197,7 @@ describe('TheGraphClient', () => {
                 return Promise.reject('error')
               } else {
                 return Promise.resolve({
-                  wearables: [
+                  items: [
                     {
                       urn: 'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet'
                     }
@@ -225,7 +225,7 @@ describe('TheGraphClient', () => {
           ),
           collections: createMockSubgraphComponent(
             jest.fn().mockResolvedValue({
-              wearables: [
+              items: [
                 {
                   urn: 'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
                 }

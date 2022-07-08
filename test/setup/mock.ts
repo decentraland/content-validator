@@ -1,16 +1,16 @@
 import { ILoggerComponent } from '@well-known-components/interfaces'
-import { ContentValidatorComponents, ExternalCalls, QueryGraph, SubGraphs } from '../../src/types'
-import { createTheGraphClient } from '../../src'
 import { ISubgraphComponent } from '@well-known-components/thegraph-component'
+import { createTheGraphClient } from '../../src'
+import { ContentValidatorComponents, ExternalCalls, QueryGraph, SubGraphs } from '../../src/types'
 import { ItemCollection } from '../../src/validations/access-checker/items/collection-asset'
 
 export const buildLogger = (): ILoggerComponent => ({
   getLogger: () => ({
-    debug() {},
-    info() {},
-    warn() {},
-    error() {},
-    log() {}
+    debug() { },
+    info() { },
+    warn() { },
+    error() { },
+    log() { }
   })
 })
 
@@ -202,7 +202,7 @@ const defaultBlocks = {
   max: [{ number: 123500 }]
 }
 
-export const fetcherWithWearablesOwnership = (
+export const fetcherWithItemsOwnership = (
   address: string,
   ens?: { name: string }[],
   ethereum?: { urn: string }[],
@@ -216,7 +216,7 @@ export const fetcherWithWearablesOwnership = (
     L1: {
       collections: createMockSubgraphComponent(
         jest.fn().mockResolvedValue({
-          wearables: ethereum ?? defaultEthereum
+          items: ethereum ?? defaultEthereum
         })
       ),
       blocks: createMockSubgraphComponent(jest.fn().mockResolvedValue(blocks ?? defaultBlocks)),
@@ -236,7 +236,7 @@ export const fetcherWithWearablesOwnership = (
       blocks: createMockSubgraphComponent(jest.fn().mockResolvedValue(blocks ?? defaultBlocks)),
       collections: createMockSubgraphComponent(
         jest.fn().mockResolvedValue({
-          wearables: matic ?? defaultMatic
+          items: matic ?? defaultMatic
         })
       )
     }
