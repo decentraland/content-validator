@@ -6,7 +6,7 @@ import { ADR_45_TIMESTAMP, ADR_74_TIMESTAMP, ADR_75_TIMESTAMP } from '../../../s
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
 import { buildComponents, buildExternalCalls } from '../../setup/mock'
-import { VALID_PROFILE_METADATA } from '../../setup/profiles'
+import { validProfileMetadataWithEmotes, VALID_PROFILE_METADATA } from '../../setup/profiles'
 
 describe('Profiles', () => {
   const timestamp = ADR_45_TIMESTAMP + 1
@@ -293,20 +293,9 @@ describe('Profiles', () => {
     it('Before ADR 74, if profile have emotes, should return the correct error', async () => {
       const entity = buildEntity({
         type: EntityType.PROFILE,
-        metadata: {
-          ...VALID_PROFILE_METADATA,
-          avatars: [{
-            ...VALID_PROFILE_METADATA.avatars[0],
-            avatar: {
-              ...VALID_PROFILE_METADATA.avatars[0].avatar,
-              emotes: [
-                {
-                  slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0'
-                }
-              ]
-            }
-          }]
-        },
+        metadata: validProfileMetadataWithEmotes(
+          [{ slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }]
+        ),
         timestamp: ADR_74_TIMESTAMP - 1
       })
       const deployment = buildDeployment({ entity })
@@ -315,19 +304,11 @@ describe('Profiles', () => {
       expect(result.errors).toContain('Profile must not have emotes before ADR 74.')
     })
 
-    it('After ADR 74, if profile does not have emotes, should return the correct error', async () => {
+    it('After ADR 74, if profile does not have "emotes" property, should return the correct error', async () => {
       const entity = buildEntity({
         type: EntityType.PROFILE,
-        metadata: {
-          ...VALID_PROFILE_METADATA,
-          avatars: [{
-            ...VALID_PROFILE_METADATA.avatars[0],
-            avatar: {
-              ...VALID_PROFILE_METADATA.avatars[0].avatar,
-              emotes: undefined
-            }
-          }]
-        },
+        // VALID_PROFILE_METADATA does not have "emotes" property
+        metadata: VALID_PROFILE_METADATA,
         timestamp: ADR_74_TIMESTAMP + 1
       })
       const deployment = buildDeployment({ entity })
@@ -339,20 +320,9 @@ describe('Profiles', () => {
     it('After ADR 74, when emote urn and slot are correct, should return no errors', async () => {
       const entity = buildEntity({
         type: EntityType.PROFILE,
-        metadata: {
-          ...VALID_PROFILE_METADATA,
-          avatars: [{
-            ...VALID_PROFILE_METADATA.avatars[0],
-            avatar: {
-              ...VALID_PROFILE_METADATA.avatars[0].avatar,
-              emotes: [
-                {
-                  slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0'
-                }
-              ]
-            }
-          }]
-        },
+        metadata: validProfileMetadataWithEmotes(
+          [{ slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }]
+        ),
         timestamp: ADR_74_TIMESTAMP + 1
       })
       const deployment = buildDeployment({ entity })
@@ -365,21 +335,10 @@ describe('Profiles', () => {
     it('After ADR 74, when emote urn is wrong, should return the correct error', async () => {
       const entity = buildEntity({
         type: EntityType.PROFILE,
-        metadata: {
-          ...VALID_PROFILE_METADATA,
-          avatars: [{
-            ...VALID_PROFILE_METADATA.avatars[0],
-            avatar: {
-              ...VALID_PROFILE_METADATA.avatars[0].avatar,
-              emotes: [
-                {
-                  // the urn below is invalid
-                  slot: 0, urn: 'urn:decentraland:tucu-tucu:base-avatars:tall_front_01'
-                }
-              ]
-            }
-          }]
-        },
+        metadata: validProfileMetadataWithEmotes(
+          // the urn below is invalid
+          [{ slot: 0, urn: 'urn:decentraland:tucu-tucu:base-avatars:tall_front_01' }]
+        ),
         timestamp: ADR_74_TIMESTAMP + 1
       })
       const deployment = buildDeployment({ entity })
@@ -395,20 +354,9 @@ describe('Profiles', () => {
     it('After ADR 74, when emote slot number is < 0, should return the correct error', async () => {
       const entity = buildEntity({
         type: EntityType.PROFILE,
-        metadata: {
-          ...VALID_PROFILE_METADATA,
-          avatars: [{
-            ...VALID_PROFILE_METADATA.avatars[0],
-            avatar: {
-              ...VALID_PROFILE_METADATA.avatars[0].avatar,
-              emotes: [
-                {
-                  slot: -1, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0'
-                }
-              ]
-            }
-          }]
-        },
+        metadata: validProfileMetadataWithEmotes(
+          [{ slot: -1, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }]
+        ),
         timestamp: ADR_74_TIMESTAMP + 1
       })
       const deployment = buildDeployment({ entity })
@@ -421,23 +369,12 @@ describe('Profiles', () => {
       )
     })
 
-    it('After ADR 74, when emote slot number is > 0, should return the correct error', async () => {
+    it('After ADR 74, when emote slot number is > 9, should return the correct error', async () => {
       const entity = buildEntity({
         type: EntityType.PROFILE,
-        metadata: {
-          ...VALID_PROFILE_METADATA,
-          avatars: [{
-            ...VALID_PROFILE_METADATA.avatars[0],
-            avatar: {
-              ...VALID_PROFILE_METADATA.avatars[0].avatar,
-              emotes: [
-                {
-                  slot: 10, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0'
-                }
-              ]
-            }
-          }]
-        },
+        metadata: validProfileMetadataWithEmotes(
+          [{ slot: 10, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }]
+        ),
         timestamp: ADR_74_TIMESTAMP + 1
       })
       const deployment = buildDeployment({ entity })
