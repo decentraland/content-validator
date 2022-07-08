@@ -191,7 +191,7 @@ describe('Access: profiles', () => {
         { slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' },
         { slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:1' }
       ]),
-      timestamp: ADR_75_TIMESTAMP + 1,
+      timestamp: ADR_74_TIMESTAMP + 1,
       pointers: [someAddress]
     })
     const deployment = buildDeployment({ entity })

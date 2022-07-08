@@ -69,15 +69,13 @@ export const createTheGraphClient = (
   }
 
   type URNsByNetwork = {
-    ethereum: URN[]
-    matic: URN[]
+    ethereum: string[]
+    matic: string[]
   }
 
-  type URN = string
-
-  const splitItemsByNetwork = async (urnsToCheck: URN[]): Promise<URNsByNetwork> => {
-    const ethereum: URN[] = []
-    const matic: URN[] = []
+  const splitItemsByNetwork = async (urnsToCheck: string[]): Promise<URNsByNetwork> => {
+    const ethereum: string[] = []
+    const matic: string[] = []
     for (const urn of urnsToCheck) {
       const parsed = await parseUrn(urn)
       if (
@@ -106,7 +104,7 @@ export const createTheGraphClient = (
 
   const ownsItemsAtTimestamp = async (
     ethAddress: EthAddress,
-    urnsToCheck: URN[],
+    urnsToCheck: string[],
     timestamp: number
   ): Promise<PermissionResult> => {
     if (urnsToCheck.length === 0) {
@@ -142,7 +140,7 @@ export const createTheGraphClient = (
 
   const ownsItemsAtTimestampInBlockchain = async (
     ethAddress: EthAddress,
-    urnsToCheck: URN[],
+    urnsToCheck: string[],
     timestamp: number,
     blocksSubgraph: ISubgraphComponent,
     collectionsSubgraph: ISubgraphComponent
