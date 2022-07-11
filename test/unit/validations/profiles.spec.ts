@@ -2,11 +2,8 @@ import { EntityType } from '@dcl/schemas'
 import sharp from 'sharp'
 import { ValidationResponse } from '../../../src'
 import {
-  faceThumbnail,
-  profile,
-  profileEmotes,
-  profileMustHaveEmotes,
-  profileMustNotHaveEmotes,
+  emoteUrns, faceThumbnail,
+  profile, profileMustHaveEmotes,
   wearableUrns
 } from '../../../src/validations/profile'
 import { ADR_45_TIMESTAMP, ADR_74_TIMESTAMP, ADR_75_TIMESTAMP } from '../../../src/validations/timestamps'
@@ -215,7 +212,7 @@ describe('Profiles', () => {
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
-        'Each profile pointer should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (urn:decentraland:tucu-tucu:base-avatars:tall_front_01)'
+        'Each profile wearable pointer should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (urn:decentraland:tucu-tucu:base-avatars:tall_front_01)'
       )
     })
   })
@@ -290,25 +287,12 @@ describe('Profiles', () => {
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
-        'Each profile pointer should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (urn:decentraland:tucu-tucu:base-avatars:tall_front_01)'
+        'Each profile wearable pointer should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (urn:decentraland:tucu-tucu:base-avatars:tall_front_01)'
       )
     })
   })
 
   describe('Profile emotes', () => {
-    it('Before ADR 74, if profile have emotes, should return the correct error', async () => {
-      const entity = buildEntity({
-        type: EntityType.PROFILE,
-        metadata: validProfileMetadataWithEmotes([
-          { slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }
-        ]),
-        timestamp: ADR_74_TIMESTAMP - 1
-      })
-      const deployment = buildDeployment({ entity })
-      const result = await profileMustNotHaveEmotes.validate(components, deployment)
-      expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain('Profile must not have emotes before ADR 74.')
-    })
 
     it('After ADR 74, if profile does not have "emotes" property, should return the correct error', async () => {
       const entity = buildEntity({
@@ -333,7 +317,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await profileEmotes.validate(components, deployment)
+      const result = await emoteUrns.validate(components, deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -349,7 +333,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await profileEmotes.validate(components, deployment)
+      const result = await emoteUrns.validate(components, deployment)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
@@ -367,7 +351,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await profileEmotes.validate(components, deployment)
+      const result = await emoteUrns.validate(components, deployment)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
@@ -385,7 +369,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await profileEmotes.validate(components, deployment)
+      const result = await emoteUrns.validate(components, deployment)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(

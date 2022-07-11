@@ -63,7 +63,7 @@ async function sanitizeUrn(urn: string): Promise<string | undefined> {
   return parsed?.uri?.toString()
 }
 
-async function allWearableUrns(entity: Entity) {
+async function allOnChainWearableUrns(entity: Entity) {
   const allWearablesInProfilePromises: Promise<string | undefined>[] = []
   for (const avatar of entity.metadata.avatars) {
     for (const wearableId of avatar.avatar.wearables) {
@@ -97,7 +97,7 @@ export const ownsItems: Validation = conditionalValidation(
       const depoymentTimestamp = deployment.entity.timestamp
       const itemUrns: string[] = []
       if (depoymentTimestamp >= ADR_75_TIMESTAMP) {
-        for (const urn of await allWearableUrns(deployment.entity)) {
+        for (const urn of await allOnChainWearableUrns(deployment.entity)) {
           itemUrns.push(urn)
         }
       }
