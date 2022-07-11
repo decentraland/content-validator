@@ -5,7 +5,8 @@ import { DeploymentToValidate, OK, Validation, validationFailed } from '../types
 import {
   validationAfterADR45,
   validationAfterADR74,
-  validationAfterADR75, validationForType,
+  validationAfterADR75,
+  validationForType,
   validationGroup
 } from './validations'
 

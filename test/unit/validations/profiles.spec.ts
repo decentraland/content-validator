@@ -2,8 +2,10 @@ import { EntityType } from '@dcl/schemas'
 import sharp from 'sharp'
 import { ValidationResponse } from '../../../src'
 import {
-  emoteUrns, faceThumbnail,
-  profile, profileMustHaveEmotes,
+  emoteUrns,
+  faceThumbnail,
+  profile,
+  profileMustHaveEmotes,
   wearableUrns
 } from '../../../src/validations/profile'
 import { ADR_45_TIMESTAMP, ADR_74_TIMESTAMP, ADR_75_TIMESTAMP } from '../../../src/validations/timestamps'
@@ -293,7 +295,6 @@ describe('Profiles', () => {
   })
 
   describe('Profile emotes', () => {
-
     it('After ADR 74, if profile does not have "emotes" property, should return the correct error', async () => {
       const entity = buildEntity({
         type: EntityType.PROFILE,

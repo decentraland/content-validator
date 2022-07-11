@@ -44,10 +44,6 @@ export function validationAfterADR74(validation: Validation): Validation {
   return conditionalValidation((deployment) => deployment.entity.timestamp >= ADR_74_TIMESTAMP, validation)
 }
 
-export function validationBeforeADR74(validation: Validation): Validation {
-  return conditionalValidation((deployment) => deployment.entity.timestamp < ADR_74_TIMESTAMP, validation)
-}
-
 export function validationForType(entityType: EntityType, validation: Validation) {
   return conditionalValidation((deployment) => deployment.entity.type === entityType, validation)
 }
