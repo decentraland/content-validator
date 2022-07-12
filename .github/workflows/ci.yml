@@ -24,6 +24,7 @@ jobs:
     needs: release
     if: ${{ success() }}
     steps:
+      - uses: actions/checkout@master
       - name: Publish
         uses: menduz/oddish-action@master
         with:
