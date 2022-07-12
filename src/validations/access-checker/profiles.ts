@@ -81,7 +81,7 @@ async function allEmoteUrns(entity: Entity) {
   const allAvatars = entity.metadata?.avatars ?? []
   for (const avatar of allAvatars) {
     const allEmotes = avatar.avatar.emotes ?? []
-    for (const { slot, urn } of allEmotes) {
+    for (const { urn } of allEmotes) {
       if (!isOldEmote(urn)) {
         allEmotesInProfilePromises.push(sanitizeUrn(urn))
       }
