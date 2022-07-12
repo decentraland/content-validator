@@ -5,10 +5,10 @@ on:
     branches:
       - main
 
-name: CI
+name: Release and publish NPM package
 jobs:
 
-  build:
+  build-and-test:
     uses: ./.github/workflows/build-and-test.yml
 
   release:
