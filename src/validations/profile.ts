@@ -71,6 +71,7 @@ export const emoteUrns: Validation = validationAfterADR74({
     for (const avatar of allAvatars) {
       const allEmotes = avatar.avatar.emotes ?? []
       for (const { slot, urn } of allEmotes) {
+        if (isOldEmote(urn)) continue
         const parsed = await parseUrn(urn)
         if (!parsed)
           return validationFailed(
