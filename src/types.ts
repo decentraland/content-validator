@@ -1,8 +1,7 @@
-import { AuthChain, Entity, EthAddress, WearableId } from '@dcl/schemas'
+import { AuthChain, Entity, EthAddress } from '@dcl/schemas'
 import { ILoggerComponent } from '@well-known-components/interfaces'
+import { ISubgraphComponent, Variables } from '@well-known-components/thegraph-component'
 import { PermissionResult } from './the-graph-client/the-graph-client'
-import { ISubgraphComponent } from '@well-known-components/thegraph-component'
-import { Variables } from '@well-known-components/thegraph-component'
 
 /**
  * @public
@@ -144,17 +143,9 @@ export type SubGraphs = {
  * @public
  */
 export type TheGraphClient = {
-  checkForNamesOwnershipWithTimestamp: (
-    ethAddress: EthAddress,
-    namesToCheck: string[],
-    timestamp: number
-  ) => Promise<PermissionResult>
+  ownsNamesAtTimestamp: (ethAddress: EthAddress, namesToCheck: string[], timestamp: number) => Promise<PermissionResult>
 
-  checkForWearablesOwnershipWithTimestamp: (
-    ethAddress: EthAddress,
-    wearableIdsToCheck: WearableId[],
-    timestamp: number
-  ) => Promise<PermissionResult>
+  ownsItemsAtTimestamp: (ethAddress: EthAddress, urnsToCheck: string[], timestamp: number) => Promise<PermissionResult>
 
   findBlocksForTimestamp: (subgraph: ISubgraphComponent, timestamp: number) => Promise<BlockInformation>
 }

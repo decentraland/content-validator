@@ -37,3 +37,19 @@ const avatar = {
 }
 
 export const VALID_PROFILE_METADATA = { avatars: [avatar] }
+
+export function validProfileMetadataWithEmotes(emotes: { slot: number; urn: string }[], wearables: string[] = []) {
+  return {
+    ...VALID_PROFILE_METADATA,
+    avatars: [
+      {
+        ...VALID_PROFILE_METADATA.avatars[0],
+        avatar: {
+          ...VALID_PROFILE_METADATA.avatars[0].avatar,
+          wearables: wearables,
+          emotes: emotes
+        }
+      }
+    ]
+  }
+}

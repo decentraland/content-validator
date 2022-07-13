@@ -17,7 +17,7 @@ describe('TheGraphClient', () => {
 
     const { theGraphClient } = buildComponents({ subGraphs })
 
-    await expect(theGraphClient.checkForNamesOwnershipWithTimestamp('0x1', ['Some Name'], 10)).rejects.toThrow('error')
+    await expect(theGraphClient.ownsNamesAtTimestamp('0x1', ['Some Name'], 10)).rejects.toThrow('error')
   })
 
   it('When invoking findBlocksForTimestamp, it may happen that no block matches and exception is thrown', async () => {
@@ -71,7 +71,7 @@ describe('TheGraphClient', () => {
       })
       const { theGraphClient } = buildComponents({ subGraphs })
 
-      await expect(theGraphClient.checkForNamesOwnershipWithTimestamp('0x1', ['Some Name'], 10)).resolves.toEqual({
+      await expect(theGraphClient.ownsNamesAtTimestamp('0x1', ['Some Name'], 10)).resolves.toEqual({
         result: true
       })
     })
@@ -106,7 +106,7 @@ describe('TheGraphClient', () => {
       })
       const { theGraphClient } = buildComponents({ subGraphs })
 
-      await expect(theGraphClient.checkForNamesOwnershipWithTimestamp('0x1', ['Some Name'], 10)).resolves.toEqual({
+      await expect(theGraphClient.ownsNamesAtTimestamp('0x1', ['Some Name'], 10)).resolves.toEqual({
         result: true
       })
     })
@@ -127,7 +127,7 @@ describe('TheGraphClient', () => {
       })
       const { theGraphClient } = buildComponents({ subGraphs })
 
-      await expect(theGraphClient.checkForNamesOwnershipWithTimestamp('0x1', ['Some Name'], 10)).resolves.toEqual({
+      await expect(theGraphClient.ownsNamesAtTimestamp('0x1', ['Some Name'], 10)).resolves.toEqual({
         result: false
       })
     })
@@ -139,7 +139,7 @@ describe('TheGraphClient', () => {
         L1: {
           collections: createMockSubgraphComponent(
             jest.fn().mockResolvedValue({
-              wearables: [
+              items: [
                 {
                   urn: 'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet'
                 }
@@ -165,7 +165,7 @@ describe('TheGraphClient', () => {
           ),
           collections: createMockSubgraphComponent(
             jest.fn().mockResolvedValue({
-              wearables: [
+              items: [
                 {
                   urn: 'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
                 }
@@ -177,7 +177,7 @@ describe('TheGraphClient', () => {
       const { theGraphClient } = buildComponents({ subGraphs })
 
       await expect(
-        theGraphClient.checkForWearablesOwnershipWithTimestamp(
+        theGraphClient.ownsItemsAtTimestamp(
           '0x1',
           [
             'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet',
@@ -197,7 +197,7 @@ describe('TheGraphClient', () => {
                 return Promise.reject('error')
               } else {
                 return Promise.resolve({
-                  wearables: [
+                  items: [
                     {
                       urn: 'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet'
                     }
@@ -225,7 +225,7 @@ describe('TheGraphClient', () => {
           ),
           collections: createMockSubgraphComponent(
             jest.fn().mockResolvedValue({
-              wearables: [
+              items: [
                 {
                   urn: 'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
                 }
@@ -237,7 +237,7 @@ describe('TheGraphClient', () => {
       const { theGraphClient } = buildComponents({ subGraphs })
 
       await expect(
-        theGraphClient.checkForWearablesOwnershipWithTimestamp(
+        theGraphClient.ownsItemsAtTimestamp(
           '0x1',
           [
             'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet',
@@ -279,7 +279,7 @@ describe('TheGraphClient', () => {
       const { theGraphClient } = buildComponents({ subGraphs })
 
       await expect(
-        theGraphClient.checkForWearablesOwnershipWithTimestamp(
+        theGraphClient.ownsItemsAtTimestamp(
           '0x1',
           [
             'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet',

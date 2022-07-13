@@ -1,7 +1,7 @@
-import { EthAddress, WearableId } from '@dcl/schemas'
-import { BlockInformation, ContentValidatorComponents, TheGraphClient } from '../types'
+import { EthAddress } from '@dcl/schemas'
 import { parseUrn } from '@dcl/urn-resolver'
 import { ISubgraphComponent } from '@well-known-components/thegraph-component'
+import { BlockInformation, ContentValidatorComponents, TheGraphClient } from '../types'
 
 export type PermissionResult = {
   result: boolean
@@ -19,7 +19,7 @@ export const createTheGraphClient = (
   const L1_NETWORKS = ['mainnet', 'ropsten', 'kovan', 'rinkeby', 'goerli']
   const L2_NETWORKS = ['matic', 'mumbai']
 
-  const checkForNamesOwnershipWithTimestamp = async (
+  const ownsNamesAtTimestamp = async (
     ethAddress: EthAddress,
     namesToCheck: string[],
     timestamp: number
@@ -68,25 +68,25 @@ export const createTheGraphClient = (
     return await hasPermissionOnBlock(blocks.blockNumberFiveMinBeforeDeployment)
   }
 
-  type WearablesByNetwork = {
-    ethereum: WearableId[]
-    matic: WearableId[]
+  type URNsByNetwork = {
+    ethereum: string[]
+    matic: string[]
   }
 
-  const splitWearablesByNetwork = async (wearableIdsToCheck: WearableId[]): Promise<WearablesByNetwork> => {
-    const ethereum: WearableId[] = []
-    const matic: WearableId[] = []
-    for (const wearable of wearableIdsToCheck) {
-      const parsed = await parseUrn(wearable)
+  const splitItemsByNetwork = async (urnsToCheck: string[]): Promise<URNsByNetwork> => {
+    const ethereum: string[] = []
+    const matic: string[] = []
+    for (const urn of urnsToCheck) {
+      const parsed = await parseUrn(urn)
       if (
         parsed &&
         'network' in parsed &&
         ['blockchain-collection-v1-asset', 'blockchain-collection-v2-asset'].includes(parsed.type)
       ) {
         if (L1_NETWORKS.includes(parsed.network)) {
-          ethereum.push(wearable)
+          ethereum.push(urn)
         } else if (L2_NETWORKS.includes(parsed.network)) {
-          matic.push(wearable)
+          matic.push(urn)
         }
       }
     }
@@ -102,24 +102,24 @@ export const createTheGraphClient = (
     failing: failing
   })
 
-  const checkForWearablesOwnershipWithTimestamp = async (
+  const ownsItemsAtTimestamp = async (
     ethAddress: EthAddress,
-    wearableIdsToCheck: WearableId[],
+    urnsToCheck: string[],
     timestamp: number
   ): Promise<PermissionResult> => {
-    if (wearableIdsToCheck.length === 0) {
+    if (urnsToCheck.length === 0) {
       return permissionOk()
     }
 
-    const { ethereum, matic } = await splitWearablesByNetwork(wearableIdsToCheck)
-    const ethereumWearablesOwnersPromise = getOwnersByWearableWithTimestamp(
+    const { ethereum, matic } = await splitItemsByNetwork(urnsToCheck)
+    const ethereumItemsOwnersPromise = ownsItemsAtTimestampInBlockchain(
       ethAddress,
       ethereum,
       timestamp,
       components.subGraphs.L1.blocks,
       components.subGraphs.L1.collections
     )
-    const maticWearablesOwnersPromise = getOwnersByWearableWithTimestamp(
+    const maticItemsOwnersPromise = ownsItemsAtTimestampInBlockchain(
       ethAddress,
       matic,
       timestamp,
@@ -127,25 +127,25 @@ export const createTheGraphClient = (
       components.subGraphs.L2.collections
     )
 
-    const [ethereumWearablesOwners, maticWearablesOwners] = await Promise.all([
-      ethereumWearablesOwnersPromise,
-      maticWearablesOwnersPromise
+    const [ethereumItemsOwnership, maticItemsOwnership] = await Promise.all([
+      ethereumItemsOwnersPromise,
+      maticItemsOwnersPromise
     ])
 
-    if (ethereumWearablesOwners.result && maticWearablesOwners.result) return permissionOk()
+    if (ethereumItemsOwnership.result && maticItemsOwnership.result) return permissionOk()
     else {
-      return permissionError([...(ethereumWearablesOwners.failing ?? []), ...(maticWearablesOwners.failing ?? [])])
+      return permissionError([...(ethereumItemsOwnership.failing ?? []), ...(maticItemsOwnership.failing ?? [])])
     }
   }
 
-  const getOwnersByWearableWithTimestamp = async (
+  const ownsItemsAtTimestampInBlockchain = async (
     ethAddress: EthAddress,
-    wearableIdsToCheck: WearableId[],
+    urnsToCheck: string[],
     timestamp: number,
     blocksSubgraph: ISubgraphComponent,
     collectionsSubgraph: ISubgraphComponent
   ): Promise<PermissionResult> => {
-    if (wearableIdsToCheck.length === 0) {
+    if (urnsToCheck.length === 0) {
       return permissionOk()
     }
 
@@ -156,29 +156,26 @@ export const createTheGraphClient = (
         return permissionError()
       }
 
-      const runOwnedWearablesOnBlockQuery = async (blockNumber: number) => {
-        const query: Query<{ wearables: { urn: string }[] }, Set<string>> = {
-          description: 'check for wearables ownership',
+      const runOwnedItemsOnBlockQuery = async (blockNumber: number) => {
+        const query: Query<{ items: { urn: string }[] }, Set<string>> = {
+          description: 'check for items ownership',
           subgraph: collectionsSubgraph,
-          query: QUERY_WEARABLES_FOR_ADDRESS_AT_BLOCK,
-          mapper: (response: { wearables: { urn: string }[] }): Set<string> =>
-            new Set(response.wearables.map(({ urn }) => urn))
+          query: QUERY_ITEMS_FOR_ADDRESS_AT_BLOCK,
+          mapper: (response: { items: { urn: string }[] }): Set<string> => new Set(response.items.map(({ urn }) => urn))
         }
         return runQuery(query, {
           block: blockNumber,
           ethAddress,
-          urnList: wearableIdsToCheck
+          urnList: urnsToCheck
         })
       }
 
       try {
-        const ownedWearables = await runOwnedWearablesOnBlockQuery(blockNumber)
-        const notOwned = wearableIdsToCheck.filter((name) => !ownedWearables.has(name))
+        const ownedItems = await runOwnedItemsOnBlockQuery(blockNumber)
+        const notOwned = urnsToCheck.filter((name) => !ownedItems.has(name))
         return notOwned.length > 0 ? permissionError(notOwned) : permissionOk()
       } catch (error) {
-        logger.error(
-          `Error retrieving wearables owned by address ${ethAddress} at block ${blocks.blockNumberAtDeployment}`
-        )
+        logger.error(`Error retrieving items owned by address ${ethAddress} at block ${blocks.blockNumberAtDeployment}`)
         return permissionError()
       }
     }
@@ -236,8 +233,8 @@ export const createTheGraphClient = (
   }
 
   return {
-    checkForNamesOwnershipWithTimestamp,
-    checkForWearablesOwnershipWithTimestamp,
+    ownsNamesAtTimestamp,
+    ownsItemsAtTimestamp,
     findBlocksForTimestamp
   }
 }
@@ -273,9 +270,9 @@ query getNftNamesForBlock($block: Int!, $ethAddress: String!, $nameList: [String
   }
 }`
 
-const QUERY_WEARABLES_FOR_ADDRESS_AT_BLOCK = `
-query getNftWearablesForBlock($block: Int!, $ethAddress: String!, $urnList: [String!]) {
-  wearables: nfts(
+const QUERY_ITEMS_FOR_ADDRESS_AT_BLOCK = `
+query getNftItemsForBlock($block: Int!, $ethAddress: String!, $urnList: [String!]) {
+  items: nfts(
     block: {number: $block}
     where: {owner: $ethAddress, searchItemType_in: ["wearable_v1", "wearable_v2", "smart_wearable_v1", "emote_v1"] urn_in: $urnList}
     first: 1000
