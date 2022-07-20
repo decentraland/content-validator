@@ -121,7 +121,9 @@ async function hasPermission(
       const contentHashIsOk = hashes.includes(permissions.contentHash)
       if (!contentHashIsOk) {
         logger.debug(
-          `The hash ${permissions.contentHash} doesn't match any of the calculated hashes: ${JSON.stringify(hashes)}.`
+          `The hash ${permissions.contentHash} doesn't match any of the calculated hashes: ${JSON.stringify(
+            hashes
+          )}. Content: ${JSON.stringify(content)}`
         )
       }
       return deployedByCommittee && contentHashIsOk
