@@ -2,6 +2,7 @@ import { hashV0, hashV1 } from '@dcl/hashing'
 import { EthAddress } from '@dcl/schemas'
 import { BlockchainCollectionV1Asset, BlockchainCollectionV2Asset } from '@dcl/urn-resolver'
 import { ILoggerComponent } from '@well-known-components/interfaces'
+import { ISubgraphComponent } from '@well-known-components/thegraph-component'
 import {
   ContentValidatorComponents,
   DeploymentToValidate,
@@ -10,7 +11,6 @@ import {
   validationFailed
 } from '../../../types'
 import { AssetValidation } from './items'
-import { ISubgraphComponent } from '@well-known-components/thegraph-component'
 
 const L1_NETWORKS = ['mainnet', 'ropsten', 'kovan', 'rinkeby', 'goerli']
 const L2_NETWORKS = ['matic', 'mumbai']
@@ -86,7 +86,7 @@ async function getCollectionItems(
   }
 }
 
-async function hasPermission(
+export async function hasPermission(
   components: Pick<ContentValidatorComponents, 'externalCalls'>,
   subgraph: ISubgraphComponent,
   collection: string,
@@ -102,6 +102,9 @@ async function hasPermission(
 
     if (!!permissions.contentHash) {
       const deployedByCommittee = permissions.committee.includes(ethAddressLowercase)
+      if (!deployedByCommittee) {
+        logger.debug(`The eth address ${ethAddressLowercase} is not part of committee.`)
+      }
       const calculateHashes = () => {
         // Compare both by key and hash
         const compare = (a: { key: string; hash: string }, b: { key: string; hash: string }) => {
@@ -114,7 +117,14 @@ async function hasPermission(
         const buffer = Buffer.from(JSON.stringify({ content: contentAsJson, metadata }))
         return Promise.all([hashV0(buffer), hashV1(buffer)])
       }
-      return deployedByCommittee && (await calculateHashes()).includes(permissions.contentHash)
+      const hashes = await calculateHashes()
+      const contentHashIsOk = hashes.includes(permissions.contentHash)
+      if (!contentHashIsOk) {
+        logger.debug(
+          `The hash ${permissions.contentHash} doesn't match any of the calculated hashes: ${JSON.stringify(hashes)}.`
+        )
+      }
+      return deployedByCommittee && contentHashIsOk
     } else {
       const addressHasAccess =
         (permissions.collectionCreator && permissions.collectionCreator === ethAddressLowercase) ||
@@ -202,7 +212,7 @@ export const v1andV2collectionAssetValidation: AssetValidation = {
     if (!hasAccess) {
       if (isL2)
         return validationFailed(
-          `The provided Eth Address does not have access to the following item: (${asset.contractAddress}, ${asset.id})`
+          `The provided Eth Address '${ethAddress}' does not have access to the following item: (${asset.contractAddress}, ${asset.id})`
         )
 
       // L1 collections are deployed by Decentraland Address
