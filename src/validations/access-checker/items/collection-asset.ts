@@ -100,6 +100,7 @@ async function hasPermission(
     const permissions: ItemPermissionsData = await getCollectionItems(components, subgraph, collection, itemId, block)
     const ethAddressLowercase = entity.ethAddress.toLowerCase()
 
+    logger.debug(`contentHash: ${permissions.contentHash}`)
     if (!!permissions.contentHash) {
       const deployedByCommittee = permissions.committee.includes(ethAddressLowercase)
       if (!deployedByCommittee) {
@@ -114,7 +115,9 @@ async function hasPermission(
         }
 
         const contentAsJson = (content ?? []).map(({ file, hash }) => ({ key: file, hash })).sort(compare)
-        const buffer = Buffer.from(JSON.stringify({ content: contentAsJson, metadata }))
+        const data = JSON.stringify({ content: contentAsJson, metadata })
+        logger.debug(`data: ${data}`)
+        const buffer = Buffer.from(data)
         return Promise.all([hashV0(buffer), hashV1(buffer)])
       }
       const hashes = await calculateHashes()
@@ -128,10 +131,11 @@ async function hasPermission(
       }
       return deployedByCommittee && contentHashIsOk
     } else {
-      const addressHasAccess =
-        (permissions.collectionCreator && permissions.collectionCreator === ethAddressLowercase) ||
-        (permissions.collectionManagers && permissions.collectionManagers.includes(ethAddressLowercase)) ||
-        (permissions.itemManagers && permissions.itemManagers.includes(ethAddressLowercase))
+      const b1 = permissions.collectionCreator && permissions.collectionCreator === ethAddressLowercase
+      const b2 = permissions.collectionManagers && permissions.collectionManagers.includes(ethAddressLowercase)
+      const b3 = permissions.itemManagers && permissions.itemManagers.includes(ethAddressLowercase)
+      logger.debug(`b1: ${b1}, b2: ${b2}, b3: ${b3}`)
+      const addressHasAccess = b1 || b2 || b3
 
       // Deployments to the content server are made after the collection is completed, so that the committee can then approve it.
       // That's why isCompleted must be true, but isApproved must be false. After the committee approves the wearable, there can't be any more changes
@@ -158,6 +162,9 @@ async function checkCollectionAccess(
   try {
     const { blockNumberAtDeployment, blockNumberFiveMinBeforeDeployment } =
       await components.theGraphClient.findBlocksForTimestamp(blocksSubgraph, timestamp)
+    logger.debug(
+      `blockNumberAtDeployment ${blockNumberAtDeployment}, blockNumberFiveMinBeforeDeployment: ${blockNumberFiveMinBeforeDeployment}`
+    )
     // It could happen that the subgraph hasn't synced yet, so someone who just lost access still managed to make a deployment. The problem would be that when other catalysts perform
     // the same check, the subgraph might have synced and the deployment is no longer valid. So, in order to prevent inconsistencies between catalysts, we will allow all deployments that
     // have access now, or had access 5 minutes ago.
@@ -165,10 +172,15 @@ async function checkCollectionAccess(
     const hasPermissionOnBlock = async (blockNumber: number | undefined) =>
       !!blockNumber &&
       (await hasPermission(components, collectionsSubgraph, collection, itemId, blockNumber, entity, logger))
-    return (
-      (await hasPermissionOnBlock(blockNumberAtDeployment)) ||
-      (await hasPermissionOnBlock(blockNumberFiveMinBeforeDeployment))
-    )
+    const b1 = await hasPermissionOnBlock(blockNumberAtDeployment)
+    if (b1) {
+      return b1
+    } else {
+      logger.debug(`b1: ${b1}`)
+    }
+    const b2 = await hasPermissionOnBlock(blockNumberFiveMinBeforeDeployment)
+    if (!b2) logger.debug(`b2: ${b2}`)
+    return b2
   } catch (error) {
     logger.error(
       `Error checking wearable access (${collection}, ${itemId}, ${entity.ethAddress}, ${timestamp}, ${blocksSubgraph}).`
