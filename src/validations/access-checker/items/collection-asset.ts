@@ -86,7 +86,7 @@ async function getCollectionItems(
   }
 }
 
-export async function hasPermission(
+async function hasPermission(
   components: Pick<ContentValidatorComponents, 'externalCalls'>,
   subgraph: ISubgraphComponent,
   collection: string,
