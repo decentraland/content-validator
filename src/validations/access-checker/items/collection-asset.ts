@@ -100,11 +100,11 @@ async function hasPermission(
     const permissions: ItemPermissionsData = await getCollectionItems(components, subgraph, collection, itemId, block)
     const ethAddressLowercase = entity.ethAddress.toLowerCase()
 
-    logger.debug(`contentHash: ${permissions.contentHash}`)
+    logger.info(`MARIANO(${entity.id}) contentHash: ${permissions.contentHash}`)
     if (!!permissions.contentHash) {
       const deployedByCommittee = permissions.committee.includes(ethAddressLowercase)
       if (!deployedByCommittee) {
-        logger.debug(`The eth address ${ethAddressLowercase} is not part of committee.`)
+        logger.info(`MARIANO(${entity.id}) The eth address ${ethAddressLowercase} is not part of committee.`)
       }
       const calculateHashes = () => {
         // Compare both by key and hash
@@ -116,17 +116,17 @@ async function hasPermission(
 
         const contentAsJson = (content ?? []).map(({ file, hash }) => ({ key: file, hash })).sort(compare)
         const data = JSON.stringify({ content: contentAsJson, metadata })
-        logger.debug(`data: ${data}`)
+        logger.info(`MARIANO(${entity.id}) data: ${data}`)
         const buffer = Buffer.from(data)
         return Promise.all([hashV0(buffer), hashV1(buffer)])
       }
       const hashes = await calculateHashes()
       const contentHashIsOk = hashes.includes(permissions.contentHash)
       if (!contentHashIsOk) {
-        logger.debug(
-          `The hash ${permissions.contentHash} doesn't match any of the calculated hashes: ${JSON.stringify(
-            hashes
-          )}. Content: ${JSON.stringify(content)}`
+        logger.info(
+          `MARIANO(${entity.id}) The hash ${
+            permissions.contentHash
+          } doesn't match any of the calculated hashes: ${JSON.stringify(hashes)}. Content: ${JSON.stringify(content)}`
         )
       }
       return deployedByCommittee && contentHashIsOk
@@ -134,7 +134,7 @@ async function hasPermission(
       const b1 = permissions.collectionCreator && permissions.collectionCreator === ethAddressLowercase
       const b2 = permissions.collectionManagers && permissions.collectionManagers.includes(ethAddressLowercase)
       const b3 = permissions.itemManagers && permissions.itemManagers.includes(ethAddressLowercase)
-      logger.debug(`b1: ${b1}, b2: ${b2}, b3: ${b3}`)
+      logger.info(`MARIANO(${entity.id}) b1: ${b1}, b2: ${b2}, b3: ${b3}`)
       const addressHasAccess = b1 || b2 || b3
 
       // Deployments to the content server are made after the collection is completed, so that the committee can then approve it.
@@ -162,8 +162,8 @@ async function checkCollectionAccess(
   try {
     const { blockNumberAtDeployment, blockNumberFiveMinBeforeDeployment } =
       await components.theGraphClient.findBlocksForTimestamp(blocksSubgraph, timestamp)
-    logger.debug(
-      `blockNumberAtDeployment ${blockNumberAtDeployment}, blockNumberFiveMinBeforeDeployment: ${blockNumberFiveMinBeforeDeployment}`
+    logger.info(
+      `MARIANO(${entity.id}) blockNumberAtDeployment ${blockNumberAtDeployment}, blockNumberFiveMinBeforeDeployment: ${blockNumberFiveMinBeforeDeployment}`
     )
     // It could happen that the subgraph hasn't synced yet, so someone who just lost access still managed to make a deployment. The problem would be that when other catalysts perform
     // the same check, the subgraph might have synced and the deployment is no longer valid. So, in order to prevent inconsistencies between catalysts, we will allow all deployments that
@@ -176,10 +176,10 @@ async function checkCollectionAccess(
     if (b1) {
       return b1
     } else {
-      logger.debug(`b1: ${b1}`)
+      logger.info(`MARIANO(${entity.id}) b1: ${b1}`)
     }
     const b2 = await hasPermissionOnBlock(blockNumberFiveMinBeforeDeployment)
-    if (!b2) logger.debug(`b2: ${b2}`)
+    if (!b2) logger.info(`MARIANO(${entity.id}) b2: ${b2}`)
     return b2
   } catch (error) {
     logger.error(
