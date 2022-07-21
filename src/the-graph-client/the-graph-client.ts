@@ -223,8 +223,8 @@ export const createTheGraphClient = (
       }
     }
 
-    const timestampSec = Math.ceil(timestamp / 1000)
-    const timestamp5MinAgo = timestampSec - 60 * 5
+    const timestampSec = Math.ceil(timestamp / 1000) + 8
+    const timestamp5MinAgo = timestampSec - 60 * 5 - 7
 
     return await runQuery(query, {
       timestamp: timestampSec,
