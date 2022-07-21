@@ -48,7 +48,8 @@ async function getCollectionItems(
   subgraph: ISubgraphComponent,
   collection: string,
   itemId: string,
-  block: number
+  block: number,
+  logger: ILoggerComponent.ILogger
 ): Promise<ItemPermissionsData> {
   const query = `
          query getCollectionRoles($collection: String!, $itemId: String!, $block: Int!) {
@@ -68,11 +69,14 @@ async function getCollectionItems(
             }
         }`
 
-  const result = await subgraph.query<ItemCollections>(query, {
+  const variables = {
     collection,
     itemId: `${collection}-${itemId}`,
     block
-  })
+  }
+  const result = await subgraph.query<ItemCollections>(query, variables)
+  logger.info(`MARIANO() contentHash: variables ${JSON.stringify(variables)} result ${JSON.stringify(result)}`)
+
   const collectionResult = result.collections[0]
   const itemResult = collectionResult?.items[0]
   return {
@@ -97,7 +101,14 @@ async function hasPermission(
 ): Promise<boolean> {
   try {
     const { content, metadata } = entity
-    const permissions: ItemPermissionsData = await getCollectionItems(components, subgraph, collection, itemId, block)
+    const permissions: ItemPermissionsData = await getCollectionItems(
+      components,
+      subgraph,
+      collection,
+      itemId,
+      block,
+      logger
+    )
     const ethAddressLowercase = entity.ethAddress.toLowerCase()
 
     logger.info(`MARIANO(${entity.id}) contentHash: ${permissions.contentHash}`)
