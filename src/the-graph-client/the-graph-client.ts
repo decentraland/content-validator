@@ -223,8 +223,12 @@ export const createTheGraphClient = (
       }
     }
 
-    const timestampSec = Math.ceil(timestamp / 1000)
-    const timestamp5MinAgo = timestampSec - 60 * 5
+    /*
+     * This mimics original behavior of looking up to 8 seconds after the entity timestamp
+     * and up to 5 minutes and 7 seconds before
+     */
+    const timestampSec = Math.ceil(timestamp / 1000) + 8
+    const timestamp5MinAgo = timestampSec - 60 * 5 - 7
 
     return await runQuery(query, {
       timestamp: timestampSec,
