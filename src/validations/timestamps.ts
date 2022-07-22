@@ -1,8 +1,8 @@
 /**
- * 1657843200000 = 2022-07-25T00:00:00Z
+ * 1669852800 = 2022-12-01T00:00:00Z
  * @public
  */
-export const ADR_74_TIMESTAMP = process.env.ADR_74_TIMESTAMP ? parseInt(process.env.ADR_74_TIMESTAMP) : 1658707200000
+export const ADR_74_TIMESTAMP = process.env.ADR_74_TIMESTAMP ? parseInt(process.env.ADR_74_TIMESTAMP) : 1669852800
 
 /**
  * 1652191200000 = 2022-05-10T14:00:00Z
