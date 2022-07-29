@@ -16,7 +16,7 @@ export const createTheGraphClient = (
 ): TheGraphClient => {
   const logger = components.logs.getLogger('TheGraphClient')
 
-  const L1_NETWORKS = ['mainnet', 'kovan', 'rinkeby', 'goerli']
+  const L1_NETWORKS = ['mainnet', 'ropsten', 'kovan', 'rinkeby', 'goerli']
   const L2_NETWORKS = ['matic', 'mumbai']
 
   const ownsNamesAtTimestamp = async (
