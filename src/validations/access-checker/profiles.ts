@@ -3,7 +3,7 @@ import { parseUrn } from '@dcl/urn-resolver'
 import { OK, Validation, validationFailed } from '../../types'
 import { isOldEmote } from '../profile'
 import { ADR_74_TIMESTAMP, ADR_75_TIMESTAMP } from '../timestamps'
-import { conditionalValidation, validationAfterADR75, validationGroup } from '../validations'
+import { conditionalValidation, validationAfterADR74, validationAfterADR75, validationGroup } from '../validations'
 
 export const pointerIsValid: Validation = {
   validate: async ({ externalCalls }, deployment) => {
@@ -126,4 +126,19 @@ export const ownsItems: Validation = conditionalValidation(
   }
 )
 
-export const profiles: Validation = validationGroup(pointerIsValid, ownsNames, ownsItems)
+export const profileSlotsAreNotRepeated: Validation = validationAfterADR74({
+  validate: async (components, deployment) => {
+    const allAvatars: Avatar[] = deployment.entity.metadata?.avatars ?? []
+    const allEmotes: { slot: number }[] = allAvatars.flatMap((avatar) => avatar.avatar.emotes ?? [])
+    const usedSlots = new Set()
+    for (const { slot } of allEmotes) {
+      if (usedSlots.has(slot)) {
+        return validationFailed('Emote slots should not be repeated.')
+      }
+      usedSlots.add(slot)
+    }
+    return OK
+  }
+})
+
+export const profiles: Validation = validationGroup(pointerIsValid, ownsNames, ownsItems, profileSlotsAreNotRepeated)
