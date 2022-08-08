@@ -1751,6 +1751,13 @@
     "@typescript-eslint/types" "5.29.0"
     eslint-visitor-keys "^3.3.0"
 
+"@well-known-components/env-config-provider@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@well-known-components/env-config-provider/-/env-config-provider-1.1.1.tgz#d04215847fcab83a1ab05e375df8e2141dae23cd"
+  integrity sha512-toj2HcxYZRf9UuBqEC9mrej9yyQlGU/15oGtShrDtNC9/OVLBNY3q8cNgLLKbPOMLaRJkjdQvIvpjb+Q+E+PFQ==
+  dependencies:
+    dotenv "^8.2.0"
+
 "@well-known-components/http-server@^1.1.0":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@well-known-components/http-server/-/http-server-1.1.2.tgz#39d038da07efd3c1a3bc9a7edab5418c8162910f"
@@ -2534,6 +2541,11 @@ doctrine@^3.0.0:
   integrity sha512-yS+Q5i3hBf7GBkd4KG8a7eBNNWNGLTaEwwYWUijIYM7zrlYDM0BFXHjjPWlWZ1Rg7UaddZeIDmi9jF3HmqiQ2w==
   dependencies:
     esutils "^2.0.2"
+
+dotenv@^8.2.0:
+  version "8.6.0"
+  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-8.6.0.tgz#061af664d19f7f4d8fc6e4ff9b584ce237adcb8b"
+  integrity sha512-IrPdXQsk2BbzvCBGBOTmmSH5SodmqZNt4ERAZDmW4CT+tL8VtvinqywuANaFu4bOMWki16nqf0e4oC0QIaDr/g==
 
 ee-first@1.1.1:
   version "1.1.1"
