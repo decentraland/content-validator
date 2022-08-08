@@ -1,8 +1,9 @@
-import { ILoggerComponent } from '@well-known-components/interfaces'
+import { IConfigComponent, ILoggerComponent } from '@well-known-components/interfaces'
 import { ISubgraphComponent } from '@well-known-components/thegraph-component'
 import { createTheGraphClient } from '../../src'
 import { ContentValidatorComponents, ExternalCalls, QueryGraph, SubGraphs } from '../../src/types'
 import { ItemCollection } from '../../src/validations/access-checker/items/collection-asset'
+import { createConfigComponent } from '@well-known-components/env-config-provider'
 
 export const buildLogger = (): ILoggerComponent => ({
   getLogger: () => ({
@@ -15,6 +16,8 @@ export const buildLogger = (): ILoggerComponent => ({
 })
 
 export const buildComponents = (components?: Partial<ContentValidatorComponents>): ContentValidatorComponents => {
+  const config = components?.config ?? buildConfig({})
+
   const externalCalls = components?.externalCalls ?? buildExternalCalls()
 
   const logs = components?.logs ?? buildLogger()
@@ -23,12 +26,16 @@ export const buildComponents = (components?: Partial<ContentValidatorComponents>
   const theGraphClient = components?.theGraphClient ?? createTheGraphClient({ logs, subGraphs, ...components })
 
   return {
+    config,
     logs,
     theGraphClient,
     externalCalls,
     subGraphs
   }
 }
+
+export const buildConfig = (optionMap: Partial<Record<string, string>>): IConfigComponent =>
+  createConfigComponent({ ...optionMap })
 
 export const buildExternalCalls = (externalCalls?: Partial<ExternalCalls>): ExternalCalls => ({
   isContentStoredAlready: () => Promise.resolve(new Map()),
