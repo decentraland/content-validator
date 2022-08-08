@@ -7,6 +7,7 @@
 import { AuthChain } from '@dcl/schemas';
 import { Entity } from '@dcl/schemas';
 import { EthAddress } from '@dcl/schemas';
+import { IConfigComponent } from '@well-known-components/interfaces';
 import { ILoggerComponent } from '@well-known-components/interfaces';
 import { ISubgraphComponent } from '@well-known-components/thegraph-component';
 import { Variables } from '@well-known-components/thegraph-component';
@@ -27,6 +28,7 @@ export type ConditionalValidation = {
 
 // @public
 export type ContentValidatorComponents = {
+    config: IConfigComponent;
     logs: ILoggerComponent;
     theGraphClient: TheGraphClient;
     externalCalls: ExternalCalls;
@@ -37,7 +39,7 @@ export type ContentValidatorComponents = {
 export const createTheGraphClient: (components: Pick<ContentValidatorComponents, 'logs' | 'subGraphs'>) => TheGraphClient;
 
 // @public
-export const createValidator: (components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'theGraphClient' | 'subGraphs'>) => Validator;
+export const createValidator: (components: Pick<ContentValidatorComponents, 'config' | 'externalCalls' | 'logs' | 'theGraphClient' | 'subGraphs'>) => Validator;
 
 // @public
 export type DeploymentToValidate = {
