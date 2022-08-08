@@ -10,7 +10,7 @@ import { wearables } from './wearables'
 /**
  * Whether to ignore checks for access permission using blockchain data. Useful during content development.
  */
-const IGNORE_BLOCKCHAIN_ACCESS_CHECKS = process.env.IGNORE_BLOCKCHAIN_ACCESS_CHECKS || false
+const IGNORE_BLOCKCHAIN_ACCESS_CHECKS = process.env.IGNORE_BLOCKCHAIN_ACCESS_CHECKS === 'true'
 
 const accessCheckers: Record<EntityType, Validation> = {
   [EntityType.PROFILE]: profiles,
