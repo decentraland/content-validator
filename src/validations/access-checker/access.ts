@@ -7,11 +7,6 @@ import { scenes } from './scenes'
 import { stores } from './stores'
 import { wearables } from './wearables'
 
-/**
- * Whether to ignore checks for access permission using blockchain data. Useful during content development.
- */
-const IGNORE_BLOCKCHAIN_ACCESS_CHECKS = process.env.IGNORE_BLOCKCHAIN_ACCESS_CHECKS === 'true'
-
 const accessCheckers: Record<EntityType, Validation> = {
   [EntityType.PROFILE]: profiles,
   [EntityType.SCENE]: scenes,
@@ -26,7 +21,9 @@ const accessCheckers: Record<EntityType, Validation> = {
  */
 export const access: Validation = {
   validate: async (components, deployment: DeploymentToValidate) => {
-    if (IGNORE_BLOCKCHAIN_ACCESS_CHECKS) return OK
+    if ((await components.config.getString('IGNORE_BLOCKCHAIN_ACCESS_CHECKS')) === 'true') {
+      return OK
+    }
 
     const { externalCalls } = components
     const deployedBeforeDCLLaunch = deployment.entity.timestamp <= LEGACY_CONTENT_MIGRATION_TIMESTAMP

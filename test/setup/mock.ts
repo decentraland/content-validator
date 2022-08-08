@@ -16,7 +16,7 @@ export const buildLogger = (): ILoggerComponent => ({
 })
 
 export const buildComponents = (components?: Partial<ContentValidatorComponents>): ContentValidatorComponents => {
-  const config = components?.config ?? buildConfig()
+  const config = components?.config ?? buildConfig({})
 
   const externalCalls = components?.externalCalls ?? buildExternalCalls()
 
@@ -34,7 +34,8 @@ export const buildComponents = (components?: Partial<ContentValidatorComponents>
   }
 }
 
-export const buildConfig = (): IConfigComponent => createConfigComponent({})
+export const buildConfig = (optionMap: Partial<Record<string, string>>): IConfigComponent =>
+  createConfigComponent({ ...optionMap })
 
 export const buildExternalCalls = (externalCalls?: Partial<ExternalCalls>): ExternalCalls => ({
   isContentStoredAlready: () => Promise.resolve(new Map()),
