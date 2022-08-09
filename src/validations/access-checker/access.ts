@@ -21,6 +21,10 @@ const accessCheckers: Record<EntityType, Validation> = {
  */
 export const access: Validation = {
   validate: async (components, deployment: DeploymentToValidate) => {
+    if ((await components.config.getString('IGNORE_BLOCKCHAIN_ACCESS_CHECKS')) === 'true') {
+      return OK
+    }
+
     const { externalCalls } = components
     const deployedBeforeDCLLaunch = deployment.entity.timestamp <= LEGACY_CONTENT_MIGRATION_TIMESTAMP
     const address = externalCalls.ownerAddress(deployment.auditInfo)

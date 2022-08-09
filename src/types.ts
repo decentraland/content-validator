@@ -1,5 +1,5 @@
 import { AuthChain, Entity, EthAddress } from '@dcl/schemas'
-import { ILoggerComponent } from '@well-known-components/interfaces'
+import { IConfigComponent, ILoggerComponent } from '@well-known-components/interfaces'
 import { ISubgraphComponent, Variables } from '@well-known-components/thegraph-component'
 import { PermissionResult } from './the-graph-client/the-graph-client'
 
@@ -163,6 +163,7 @@ export type BlockInformation = {
  * @public
  */
 export type ContentValidatorComponents = {
+  config: IConfigComponent
   logs: ILoggerComponent
   theGraphClient: TheGraphClient
   externalCalls: ExternalCalls
