@@ -1,6 +1,7 @@
 import { EntityType } from '@dcl/schemas'
 import sharp from 'sharp'
 import { ValidationResponse } from '../../../src'
+import { profileSlotsAreNotRepeated } from '../../../src/validations/access-checker/profiles'
 import {
   emoteUrns,
   faceThumbnail,
@@ -376,6 +377,24 @@ describe('Profiles', () => {
       expect(result.errors).toContain(
         'The slot 10 of the emote urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0 must be a number between 0 and 9 (inclusive).'
       )
+    })
+
+    it('After ADR 74, when emote slots are repaated, should return the correct error', async () => {
+      const entity = buildEntity({
+        type: EntityType.PROFILE,
+        metadata: validProfileMetadataWithEmotes([
+          { slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' },
+          { slot: 1, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' },
+          { slot: 1, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }
+        ]),
+        timestamp: ADR_74_TIMESTAMP + 1
+      })
+      const deployment = buildDeployment({ entity })
+
+      const result = await profileSlotsAreNotRepeated.validate(components, deployment)
+
+      expect(result.ok).toBeFalsy()
+      expect(result.errors).toContain('Emote slots should not be repeated.')
     })
   })
 })

@@ -507,18 +507,18 @@
     multiformats "^9.6.3"
 
 "@dcl/schemas@^5.4.2":
-  version "5.4.5"
-  resolved "https://registry.yarnpkg.com/@dcl/schemas/-/schemas-5.4.5.tgz#3a811e422857add169e7b626fd7f9887156c8cb0"
-  integrity sha512-ZdrXX9jjB8au5jDHPMADl4TzBQEufmXT6Tv48Q+WKYQ/al5Ll3OAuft2DQKkDt9UVEIXm9MUd0qw3alESAT/zA==
+  version "5.10.0"
+  resolved "https://registry.yarnpkg.com/@dcl/schemas/-/schemas-5.10.0.tgz#23655482e7d74416420d0a3491d5a2c2aa7c0b20"
+  integrity sha512-pyj3g7XtPl7Q+YPsHRKmMWRpUr6RBTsLh1wpbOFSG8Kx72edp6dgOrCQq3c7tE4C3CEsu59Yq0ef6O0G4fPQEQ==
   dependencies:
     ajv "^8.11.0"
     ajv-errors "^3.0.0"
     ajv-keywords "^5.1.0"
 
-"@dcl/urn-resolver@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@dcl/urn-resolver/-/urn-resolver-1.4.0.tgz#930d46a1222894863c56305cb042499b1aed620d"
-  integrity sha512-9+cjs1XvDv2jIzcevDw+DJyxd5Od03mAmP08Z1eZm+DVxtKErrlWrCNQxKtAY9bU9R/jYLieeG/OckIjCGPNoQ==
+"@dcl/urn-resolver@2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@dcl/urn-resolver/-/urn-resolver-2.0.0.tgz#4df0f9a27edc0e879a19126b06d7590b2e6bdbbb"
+  integrity sha512-C+nbC7HRzM1Od9jgzpleFQwiVSTsoT+VQY3HkPPDom36ljkOcvQ39x5zhtswI68BA4zmP6Nldl0M8fX72NleQw==
 
 "@eslint/eslintrc@^1.2.2", "@eslint/eslintrc@^1.3.0":
   version "1.3.0"
@@ -1751,6 +1751,13 @@
     "@typescript-eslint/types" "5.29.0"
     eslint-visitor-keys "^3.3.0"
 
+"@well-known-components/env-config-provider@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@well-known-components/env-config-provider/-/env-config-provider-1.1.1.tgz#d04215847fcab83a1ab05e375df8e2141dae23cd"
+  integrity sha512-toj2HcxYZRf9UuBqEC9mrej9yyQlGU/15oGtShrDtNC9/OVLBNY3q8cNgLLKbPOMLaRJkjdQvIvpjb+Q+E+PFQ==
+  dependencies:
+    dotenv "^8.2.0"
+
 "@well-known-components/http-server@^1.1.0":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@well-known-components/http-server/-/http-server-1.1.2.tgz#39d038da07efd3c1a3bc9a7edab5418c8162910f"
@@ -2534,6 +2541,11 @@ doctrine@^3.0.0:
   integrity sha512-yS+Q5i3hBf7GBkd4KG8a7eBNNWNGLTaEwwYWUijIYM7zrlYDM0BFXHjjPWlWZ1Rg7UaddZeIDmi9jF3HmqiQ2w==
   dependencies:
     esutils "^2.0.2"
+
+dotenv@^8.2.0:
+  version "8.6.0"
+  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-8.6.0.tgz#061af664d19f7f4d8fc6e4ff9b584ce237adcb8b"
+  integrity sha512-IrPdXQsk2BbzvCBGBOTmmSH5SodmqZNt4ERAZDmW4CT+tL8VtvinqywuANaFu4bOMWki16nqf0e4oC0QIaDr/g==
 
 ee-first@1.1.1:
   version "1.1.1"
