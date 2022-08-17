@@ -515,10 +515,10 @@
     ajv-errors "^3.0.0"
     ajv-keywords "^5.1.0"
 
-"@dcl/urn-resolver@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@dcl/urn-resolver/-/urn-resolver-1.4.0.tgz#930d46a1222894863c56305cb042499b1aed620d"
-  integrity sha512-9+cjs1XvDv2jIzcevDw+DJyxd5Od03mAmP08Z1eZm+DVxtKErrlWrCNQxKtAY9bU9R/jYLieeG/OckIjCGPNoQ==
+"@dcl/urn-resolver@2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@dcl/urn-resolver/-/urn-resolver-2.0.0.tgz#4df0f9a27edc0e879a19126b06d7590b2e6bdbbb"
+  integrity sha512-C+nbC7HRzM1Od9jgzpleFQwiVSTsoT+VQY3HkPPDom36ljkOcvQ39x5zhtswI68BA4zmP6Nldl0M8fX72NleQw==
 
 "@eslint/eslintrc@^1.2.2", "@eslint/eslintrc@^1.3.0":
   version "1.3.0"
