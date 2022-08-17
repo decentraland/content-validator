@@ -12,7 +12,7 @@ import {
 } from '../../../types'
 import { AssetValidation } from './items'
 
-const L1_NETWORKS = ['mainnet', 'ropsten', 'kovan', 'rinkeby', 'goerli']
+const L1_NETWORKS = ['mainnet', 'kovan', 'rinkeby', 'goerli']
 const L2_NETWORKS = ['matic', 'mumbai']
 
 type ItemPermissionsData = {
