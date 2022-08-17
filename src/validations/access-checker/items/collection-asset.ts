@@ -138,7 +138,7 @@ async function hasPermission(
       return addressHasAccess && isCollectionValid
     }
   } catch (error) {
-    logger.error(`Error checking permission for (${collection}-${itemId}) at block ${block}`)
+    logger.error(`Error checking permission for (${collection}-${itemId}) at block ${block}. Error: ${error}`)
     return false
   }
 }
