@@ -13,8 +13,6 @@ name: CI
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - uses: actions/checkout@master
       - name: Use Node.js 16.x
@@ -37,3 +35,5 @@ jobs:
         with:
           registry-url: "https://registry.npmjs.org"
           access: public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
