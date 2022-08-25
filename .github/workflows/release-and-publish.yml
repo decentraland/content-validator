@@ -23,8 +23,23 @@ jobs:
       NODE_AUTH_TOKEN: stub
     needs: release
     if: ${{ success() }}
+    env:
+      NODE_AUTH_TOKEN: stub
     steps:
       - uses: actions/checkout@master
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+          cache: 'yarn'
+      - name: install
+        run:  yarn install --frozen-lockfile
+      - name: check code lint
+        run:  yarn lint:check
+      - name: build
+        run:  yarn build
+      - name: api-extractor
+        run:  yarn api-extractor-ci
       - name: Publish
         uses: menduz/oddish-action@master
         with:
