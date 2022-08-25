@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
-      - uses: decentraland/gh-action-release@0.3.2
+      - uses: decentraland/gh-action-release@0.3.4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
