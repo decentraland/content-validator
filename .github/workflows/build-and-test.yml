@@ -1,20 +1,11 @@
 on:
-  push:
-    tags:
-      - '*'
-    branches:
-      - main
   pull_request:
-  release:
-    types:
-      - created
+  workflow_call:
 
-name: CI
+name: Build and test
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
-    env:
-      NODE_AUTH_TOKEN: stub
     steps:
       - uses: actions/checkout@master
       - name: Use Node.js 16.x
@@ -32,10 +23,3 @@ jobs:
         run:  yarn api-extractor-ci
       - name: test
         run:  yarn test
-      - name: Publish
-        uses: menduz/oddish-action@master
-        with:
-          registry-url: "https://registry.npmjs.org"
-          access: public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
