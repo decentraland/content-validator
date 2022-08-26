@@ -20,8 +20,6 @@ jobs:
 
   publish:
     runs-on: ubuntu-latest
-    env:
-      NODE_AUTH_TOKEN: stub
     needs: release
     if: ${{ success() }}
     env:
