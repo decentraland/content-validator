@@ -12,6 +12,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     permissions: write-all
+    needs: build-and-test
     steps:
       - uses: decentraland/gh-action-release@0.3.4
         with:

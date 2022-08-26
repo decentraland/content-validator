@@ -6,8 +6,6 @@ name: Build and test
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    env:
-      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - uses: actions/checkout@master
       - name: Use Node.js 16.x
