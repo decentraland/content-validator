@@ -10,7 +10,7 @@ import {
 } from '../../setup/mock'
 import { VALID_THIRD_PARTY_WEARABLE } from '../../setup/wearable'
 
-describe('Access: wearables', () => {
+describe.skip('Access: wearables', () => {
   it('When non-urns are used as pointers, then validation fails', async () => {
     const pointers = ['invalid-pointer']
     const deployment = buildWearableDeployment(pointers)

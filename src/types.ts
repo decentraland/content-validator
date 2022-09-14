@@ -2,6 +2,7 @@ import { AuthChain, Entity, EthAddress } from '@dcl/schemas'
 import { IConfigComponent, ILoggerComponent } from '@well-known-components/interfaces'
 import { ISubgraphComponent, Variables } from '@well-known-components/thegraph-component'
 import { PermissionResult } from './the-graph-client/the-graph-client'
+import { BlockSearch } from '@dcl/block-indexer'
 
 /**
  * @public
@@ -137,6 +138,8 @@ export type SubGraphs = {
     collections: ISubgraphComponent
     thirdPartyRegistry: ISubgraphComponent
   }
+  l1BlockSearch: BlockSearch
+  l2BlockSearch: BlockSearch
 }
 
 /**
@@ -147,7 +150,11 @@ export type TheGraphClient = {
 
   ownsItemsAtTimestamp: (ethAddress: EthAddress, urnsToCheck: string[], timestamp: number) => Promise<PermissionResult>
 
-  findBlocksForTimestamp: (subgraph: ISubgraphComponent, timestamp: number) => Promise<BlockInformation>
+  findBlocksForTimestamp: (
+    subgraph: ISubgraphComponent,
+    timestamp: number,
+    blockSearch: BlockSearch
+  ) => Promise<BlockInformation>
 }
 
 /**

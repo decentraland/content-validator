@@ -4,6 +4,7 @@ import { createTheGraphClient } from '../../src'
 import { ContentValidatorComponents, ExternalCalls, QueryGraph, SubGraphs } from '../../src/types'
 import { ItemCollection } from '../../src/validations/access-checker/items/collection-asset'
 import { createConfigComponent } from '@well-known-components/env-config-provider'
+import { BlockInfo, BlockRepository, createAvlBlockSearch } from '@dcl/block-indexer'
 
 export const buildLogger = (): ILoggerComponent => ({
   getLogger: () => ({
@@ -50,6 +51,27 @@ export const createMockSubgraphComponent = (mock?: QueryGraph): ISubgraphCompone
   query: mock ?? (jest.fn() as jest.MockedFunction<QueryGraph>)
 })
 
+const createMockBlockRepository = (currentBlock: number, blocks: Record<number, number>) => {
+  const blockRepository: BlockRepository = {
+    currentBlock(): Promise<BlockInfo> {
+      return Promise.resolve({
+        block: currentBlock,
+        timestamp: blocks[currentBlock]
+      })
+    },
+    findBlock(block: number): Promise<BlockInfo> {
+      if (block in blocks) {
+        return Promise.resolve({
+          block,
+          timestamp: blocks[block]
+        })
+      }
+      throw Error(`Block ${block} could not be retrieved.`)
+    }
+  }
+  return blockRepository
+}
+
 const defaultSubGraphs: SubGraphs = {
   L1: {
     collections: createMockSubgraphComponent(),
@@ -61,7 +83,35 @@ const defaultSubGraphs: SubGraphs = {
     collections: createMockSubgraphComponent(),
     blocks: createMockSubgraphComponent(),
     thirdPartyRegistry: createMockSubgraphComponent()
-  }
+  },
+  l1BlockSearch: createAvlBlockSearch(
+    createMockBlockRepository(10, {
+      1: 10,
+      2: 20,
+      3: 30,
+      4: 40,
+      5: 50,
+      6: 60,
+      7: 70,
+      8: 80,
+      9: 90,
+      10: 100
+    })
+  ),
+  l2BlockSearch: createAvlBlockSearch(
+    createMockBlockRepository(10, {
+      1: 10,
+      2: 20,
+      3: 30,
+      4: 40,
+      5: 50,
+      6: 60,
+      7: 70,
+      8: 80,
+      9: 90,
+      10: 100
+    })
+  )
 }
 
 export const buildSubGraphs = (subGraphs?: Partial<SubGraphs>): SubGraphs => ({

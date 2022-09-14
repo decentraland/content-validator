@@ -5,6 +5,7 @@
 ```ts
 
 import { AuthChain } from '@dcl/schemas';
+import { BlockSearch } from '@dcl/block-indexer';
 import { Entity } from '@dcl/schemas';
 import { EthAddress } from '@dcl/schemas';
 import { IConfigComponent } from '@well-known-components/interfaces';
@@ -101,13 +102,15 @@ export type SubGraphs = {
         collections: ISubgraphComponent;
         thirdPartyRegistry: ISubgraphComponent;
     };
+    l1BlockSearch: BlockSearch;
+    l2BlockSearch: BlockSearch;
 };
 
 // @public (undocumented)
 export type TheGraphClient = {
     ownsNamesAtTimestamp: (ethAddress: EthAddress, namesToCheck: string[], timestamp: number) => Promise<PermissionResult>;
     ownsItemsAtTimestamp: (ethAddress: EthAddress, urnsToCheck: string[], timestamp: number) => Promise<PermissionResult>;
-    findBlocksForTimestamp: (subgraph: ISubgraphComponent, timestamp: number) => Promise<BlockInformation>;
+    findBlocksForTimestamp: (subgraph: ISubgraphComponent, timestamp: number, blockSearch: BlockSearch) => Promise<BlockInformation>;
 };
 
 // @public (undocumented)
@@ -143,7 +146,7 @@ export type Warnings = string[];
 
 // Warnings were encountered during analysis:
 //
-// src/types.ts:146:3 - (ae-forgotten-export) The symbol "PermissionResult" needs to be exported by the entry point index.d.ts
+// src/types.ts:149:3 - (ae-forgotten-export) The symbol "PermissionResult" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

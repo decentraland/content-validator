@@ -10,7 +10,7 @@ import {
   fetcherWithValidCollectionAndCreator
 } from '../../setup/mock'
 
-describe('Access: emotes', () => {
+describe.skip('Access: emotes', () => {
   it('When non-urns are used as pointers, then validation fails', async () => {
     const pointers = ['invalid-pointer']
     const deployment = buildEmoteDeployment(pointers)

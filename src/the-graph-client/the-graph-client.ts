@@ -2,6 +2,7 @@ import { EthAddress } from '@dcl/schemas'
 import { parseUrn } from '@dcl/urn-resolver'
 import { ISubgraphComponent } from '@well-known-components/thegraph-component'
 import { BlockInformation, ContentValidatorComponents, TheGraphClient } from '../types'
+import { BlockInfo, BlockSearch } from '@dcl/block-indexer'
 
 export type PermissionResult = {
   result: boolean
@@ -28,7 +29,12 @@ export const createTheGraphClient = (
       return permissionOk()
     }
 
-    const blocks = await findBlocksForTimestamp(components.subGraphs.L1.blocks, timestamp)
+    const blocks = await findBlocksForTimestamp(
+      components.subGraphs.L1.blocks,
+      timestamp,
+      components.subGraphs.l1BlockSearch
+    )
+    console.log('MARIANO ownsNamesAtTimestamp blocks', blocks)
 
     const hasPermissionOnBlock = async (blockNumber: number | undefined): Promise<PermissionResult> => {
       if (!blockNumber) {
@@ -117,14 +123,16 @@ export const createTheGraphClient = (
       ethereum,
       timestamp,
       components.subGraphs.L1.blocks,
-      components.subGraphs.L1.collections
+      components.subGraphs.L1.collections,
+      components.subGraphs.l1BlockSearch
     )
     const maticItemsOwnersPromise = ownsItemsAtTimestampInBlockchain(
       ethAddress,
       matic,
       timestamp,
       components.subGraphs.L2.blocks,
-      components.subGraphs.L2.collections
+      components.subGraphs.L2.collections,
+      components.subGraphs.l2BlockSearch
     )
 
     const [ethereumItemsOwnership, maticItemsOwnership] = await Promise.all([
@@ -143,13 +151,15 @@ export const createTheGraphClient = (
     urnsToCheck: string[],
     timestamp: number,
     blocksSubgraph: ISubgraphComponent,
-    collectionsSubgraph: ISubgraphComponent
+    collectionsSubgraph: ISubgraphComponent,
+    blockSearch: BlockSearch
   ): Promise<PermissionResult> => {
     if (urnsToCheck.length === 0) {
       return permissionOk()
     }
 
-    const blocks = await findBlocksForTimestamp(blocksSubgraph, timestamp)
+    const blocks = await findBlocksForTimestamp(blocksSubgraph, timestamp, blockSearch)
+    console.log('MARIANO ownsItemsAtTimestampInBlockchain blocks', blocks)
 
     const hasPermissionOnBlock = async (blockNumber: number | undefined): Promise<PermissionResult> => {
       if (!blockNumber) {
@@ -196,7 +206,11 @@ export const createTheGraphClient = (
     return query.mapper(response)
   }
 
-  const findBlocksForTimestamp = async (subgraph: ISubgraphComponent, timestamp: number): Promise<BlockInformation> => {
+  const findBlocksForTimestamp = async (
+    subgraph: ISubgraphComponent,
+    timestamp: number,
+    blockSearch: BlockSearch
+  ): Promise<BlockInformation> => {
     const query: Query<
       {
         min: { number: string }[]
@@ -230,10 +244,66 @@ export const createTheGraphClient = (
     const timestampSec = Math.ceil(timestamp / 1000) + 8
     const timestamp5MinAgo = timestampSec - 60 * 5 - 7
 
-    return await runQuery(query, {
+    const blockInformation = await runQuery(query, {
       timestamp: timestampSec,
       timestamp5Min: timestamp5MinAgo
     })
+
+    try {
+      // Attempt blockSearch but carry on if anything fails
+      const nachoBlockNumberAtDeployment = await blockSearch.findBlockForTimestamp(timestampSec)
+      let nachoBlockNumberFiveMinBeforeDeployment = (await blockSearch.findBlockForTimestamp(timestamp5MinAgo))!
+      console.log('MARIANO', nachoBlockNumberAtDeployment, nachoBlockNumberFiveMinBeforeDeployment)
+      if (nachoBlockNumberFiveMinBeforeDeployment.timestamp < timestamp5MinAgo) {
+        // Mimic the way TheGraph was calculating this
+        nachoBlockNumberFiveMinBeforeDeployment = {
+          ...nachoBlockNumberFiveMinBeforeDeployment,
+          block: nachoBlockNumberFiveMinBeforeDeployment.block + 1
+        }
+      }
+      const nachos = {
+        blockNumberAtDeployment: nachoBlockNumberAtDeployment,
+        blockNumberFiveMinBeforeDeployment: nachoBlockNumberFiveMinBeforeDeployment
+      }
+
+      logIfDifferent(nachos, blockInformation, timestampSec, timestamp5MinAgo)
+    } catch (e) {
+      console.log(e)
+    }
+    return blockInformation
+  }
+
+  function logIfDifferent(
+    onChainSearch: {
+      blockNumberAtDeployment: BlockInfo | undefined
+      blockNumberFiveMinBeforeDeployment: BlockInfo | undefined
+    },
+    blockInformation: BlockInformation,
+    timestampSec: number,
+    timestamp5MinAgo: number
+  ) {
+    if (
+      onChainSearch.blockNumberAtDeployment?.block === blockInformation.blockNumberAtDeployment &&
+      onChainSearch.blockNumberFiveMinBeforeDeployment?.block === blockInformation.blockNumberFiveMinBeforeDeployment
+    ) {
+      // console.log(`MARIANO: para ${timestampSec}/${timestamp5MinAgo} 0 differences`, {
+      //   nachos: onChainSearch,
+      //   blockInformation
+      // })
+    } else if (
+      onChainSearch.blockNumberAtDeployment?.block !== blockInformation.blockNumberAtDeployment &&
+      onChainSearch.blockNumberFiveMinBeforeDeployment?.block !== blockInformation.blockNumberFiveMinBeforeDeployment
+    ) {
+      console.log(`MARIANO para ${timestampSec}/${timestamp5MinAgo} 2 differences`, {
+        nachos: onChainSearch,
+        blockInformation
+      })
+    } else {
+      console.log(`MARIANO para ${timestampSec}/${timestamp5MinAgo} 1 difference`, {
+        nachos: onChainSearch,
+        blockInformation
+      })
+    }
   }
 
   return {
@@ -249,7 +319,7 @@ query getBlockForTimestampRange($timestamp: Int!, $timestamp5Min: Int!) {
     where: {timestamp_gte: $timestamp5Min, timestamp_lte: $timestamp}
     first: 1
     orderBy: timestamp
-    orderDirection: desc
+    orderDirection: asc
   ) {
     number
   }
@@ -257,7 +327,7 @@ query getBlockForTimestampRange($timestamp: Int!, $timestamp5Min: Int!) {
     where: {timestamp_gte: $timestamp5Min, timestamp_lte: $timestamp}
     first: 1
     orderBy: timestamp
-    orderDirection: asc
+    orderDirection: desc
   ) {
     number
   }

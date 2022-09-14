@@ -11,6 +11,7 @@ import {
   validationFailed
 } from '../../../types'
 import { AssetValidation } from './items'
+import { BlockSearch } from '@dcl/block-indexer'
 
 const L1_NETWORKS = ['mainnet', 'kovan', 'rinkeby', 'goerli']
 const L2_NETWORKS = ['matic', 'mumbai']
@@ -150,12 +151,13 @@ async function checkCollectionAccess(
   collection: string,
   itemId: string,
   entity: EntityWithEthAddress,
-  logger: ILoggerComponent.ILogger
+  logger: ILoggerComponent.ILogger,
+  blockSearch: BlockSearch
 ): Promise<boolean> {
   const { timestamp } = entity
   try {
     const { blockNumberAtDeployment, blockNumberFiveMinBeforeDeployment } =
-      await components.theGraphClient.findBlocksForTimestamp(blocksSubgraph, timestamp)
+      await components.theGraphClient.findBlocksForTimestamp(blocksSubgraph, timestamp, blockSearch)
     // It could happen that the subgraph hasn't synced yet, so someone who just lost access still managed to make a deployment. The problem would be that when other catalysts perform
     // the same check, the subgraph might have synced and the deployment is no longer valid. So, in order to prevent inconsistencies between catalysts, we will allow all deployments that
     // have access now, or had access 5 minutes ago.
@@ -206,7 +208,8 @@ export const v1andV2collectionAssetValidation: AssetValidation = {
         ...deployment.entity,
         ethAddress
       },
-      logger
+      logger,
+      isL1 ? components.subGraphs.l1BlockSearch : components.subGraphs.l2BlockSearch
     )
 
     if (!hasAccess) {

@@ -6,7 +6,7 @@ import { buildEntity } from '../../setup/entity'
 import { buildComponents, buildExternalCalls, fetcherWithItemsOwnership } from '../../setup/mock'
 import { validProfileMetadataWithEmotes, VALID_PROFILE_METADATA } from '../../setup/profiles'
 
-describe('Access: profiles', () => {
+describe.skip('Access: profiles', () => {
   it('When a non-decentraland address tries to deploy an default profile, then an error is returned', async () => {
     const deployment = buildProfileDeployment(['Default10'])
     const externalCalls = buildExternalCalls()
