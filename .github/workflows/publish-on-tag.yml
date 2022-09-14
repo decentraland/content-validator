@@ -1,6 +1,7 @@
 on:
-  tags:
-    - '*'
+  push:
+    tags:
+      - '*'
 
 name: Publish NPM package
 jobs:
