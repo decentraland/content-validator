@@ -169,7 +169,7 @@ async function checkCollectionAccess(
     )
   } catch (error) {
     logger.error(
-      `Error checking wearable access (${collection}, ${itemId}, ${entity.ethAddress}, ${timestamp}, ${blocksSubgraph}).`
+      `Error checking wearable access (${collection}, ${itemId}, ${entity.ethAddress}, ${timestamp}, ${blocksSubgraph}). Error: ${error}`
     )
     return false
   }
