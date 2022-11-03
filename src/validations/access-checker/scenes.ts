@@ -311,7 +311,7 @@ export const scenes: Validation = {
       if (pointerParts.length === 2) {
         const x: number = parseInt(pointerParts[0], 10)
         const y: number = parseInt(pointerParts[1], 10)
-        promises.push(async (): Promise<boolean> => {
+        promises.push(async (): Promise<void> => {
           try {
             // Check that the address has access (we check both the present and the 5 min into the past to avoid synchronization issues in the blockchain)
             const hasAccess =
@@ -320,10 +320,8 @@ export const scenes: Validation = {
             if (!hasAccess) {
               errors.push(`The provided Eth Address does not have access to the following parcel: (${x},${y})`)
             }
-            return hasAccess
           } catch (e) {
             errors.push(`The provided Eth Address does not have access to the following parcel: (${x},${y}). ${e}`)
-            return false
           }
         })
       } else {
