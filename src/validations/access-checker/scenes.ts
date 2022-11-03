@@ -330,7 +330,7 @@ export const scenes: Validation = {
         )
       }
     }
-    await Promise.all(promises)
+    await Promise.all(promises.map(($) => $()))
 
     return fromErrors(...errors)
   }
