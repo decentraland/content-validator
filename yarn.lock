@@ -472,10 +472,10 @@
   resolved "https://registry.npmjs.org/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@dcl/block-indexer@1.0.0-20221028144543.commit-a76df23":
-  version "1.0.0-20221028144543.commit-a76df23"
-  resolved "https://registry.yarnpkg.com/@dcl/block-indexer/-/block-indexer-1.0.0-20221028144543.commit-a76df23.tgz#87a23e046c4360460854119022e1b5121f395abc"
-  integrity sha512-N3p7knD3RArMPRMRbufEVWriDI82enqOvy4OMggVx0RM8SGeImp3fPjtUPNmZJF1uzvvFTsJf/UAauDmA31jIw==
+"@dcl/block-indexer@1.0.0-20221104164205.commit-8013cad":
+  version "1.0.0-20221104164205.commit-8013cad"
+  resolved "https://registry.yarnpkg.com/@dcl/block-indexer/-/block-indexer-1.0.0-20221104164205.commit-8013cad.tgz#b61c81c543e7775583f438e10ec7e228499a0d3f"
+  integrity sha512-PwJI6akLc88QXQXVEMQhzp1HbvsUwh+9KcIZuU60XX8GaGWviTW5ZdTaMk9byB4bwDfOpxsf4dFQqaNctEcJ/A==
   dependencies:
     lru-cache "^7.14.0"
 
