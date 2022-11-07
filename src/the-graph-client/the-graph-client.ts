@@ -211,6 +211,34 @@ export const createTheGraphClient = (
     timestamp: number,
     blockSearch: BlockSearch
   ): Promise<BlockInformation> => {
+    /*
+     * This mimics original behavior of looking up to 8 seconds after the entity timestamp
+     * and up to 5 minutes and 7 seconds before
+     */
+    const timestampSec = Math.ceil(timestamp / 1000) + 8
+    const timestamp5MinAgo = timestampSec - 60 * 5 - 7
+
+    const blockNumberAtDeployment = await blockSearch.findBlockForTimestamp(timestampSec)
+    let nachoBlockNumberFiveMinBeforeDeployment = (await blockSearch.findBlockForTimestamp(timestamp5MinAgo))!
+    if (nachoBlockNumberFiveMinBeforeDeployment.timestamp < timestamp5MinAgo) {
+      // Mimic the way TheGraph was calculating this
+      nachoBlockNumberFiveMinBeforeDeployment = {
+        ...nachoBlockNumberFiveMinBeforeDeployment,
+        block: nachoBlockNumberFiveMinBeforeDeployment.block + 1
+      }
+    }
+
+    return {
+      blockNumberAtDeployment: blockNumberAtDeployment?.block,
+      blockNumberFiveMinBeforeDeployment: nachoBlockNumberFiveMinBeforeDeployment?.block
+    }
+  }
+
+  const findBlocksForTimestampOld = async (
+    subgraph: ISubgraphComponent,
+    timestamp: number,
+    blockSearch: BlockSearch
+  ): Promise<BlockInformation> => {
     const query: Query<
       {
         min: { number: string }[]
