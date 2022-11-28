@@ -504,19 +504,19 @@
     eslint-plugin-prettier "^4.0.0"
     prettier "^2.4.1"
 
-"@dcl/hashing@1.1.1":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@dcl/hashing/-/hashing-1.1.1.tgz#4ecbe9fba3e4f34eebed097eb0080c673a90d3fc"
-  integrity sha512-0IjZMuJij09P61C1BZkMZKJVDuCbzkINjkM6jRNqy/tuypa4hyzF/v0SoI8Ob7WvZmZ6VJuSmfnY1cPBfEykcg==
+"@dcl/hashing@1.1.2":
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@dcl/hashing/-/hashing-1.1.2.tgz#f72334eae2fdafac8b69299b297ff6a0c37b5544"
+  integrity sha512-edCbqZH4ZEHpacY6LIn/D+qRx2cSmRAjfJIgSNifURLKXQ0LWXc8bVzfhlM3R9D+RLyQIgddWObCCXoa6YS+eA==
   dependencies:
     ethereum-cryptography "^1.0.3"
     ipfs-unixfs-importer "^7.0.3"
     multiformats "^9.6.3"
 
 "@dcl/schemas@^5.4.2":
-  version "5.26.1"
-  resolved "https://registry.yarnpkg.com/@dcl/schemas/-/schemas-5.26.1.tgz#604ab85babc9bcd6e0842d2b3c7731705568ceac"
-  integrity sha512-aMQVGIwOuJm9G2Gm4dLNKpzk650j+tWZC/sVuRNuIG5DTG+rfYksyvD2lrPRfgLJIOId590AtU8HOe1FDWLJ6Q==
+  version "5.29.0"
+  resolved "https://registry.yarnpkg.com/@dcl/schemas/-/schemas-5.29.0.tgz#434bd1642fd0e66933d308b309d2b710d3233e04"
+  integrity sha512-nLGFpIa3wRqlqoBuGpJGxgwsWMcKuTuphq6pf7PPjuv6ZyveUeaklKBl77VEfQvInAexMIqtljxsfA/ISZdkkw==
   dependencies:
     ajv "^8.11.0"
     ajv-errors "^3.0.0"
@@ -1793,9 +1793,9 @@
     typed-url-params "^1.0.1"
 
 "@well-known-components/thegraph-component@^1.2.0":
-  version "1.3.1"
-  resolved "https://registry.yarnpkg.com/@well-known-components/thegraph-component/-/thegraph-component-1.3.1.tgz#373a1c98f2d2507df2d50b9feca3e3222385b947"
-  integrity sha512-+r2ozfscSjJ3wtAn9+NLOo4seSTkan6hTcJusSjaD7/5+twMC+vOHu3hIYOW4HmPFt07Rm9VmwFpWqB3KLUC6Q==
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/@well-known-components/thegraph-component/-/thegraph-component-1.3.2.tgz#299ac90495e7af518952c86ee98ba35910d66a04"
+  integrity sha512-E6jzQ3CKxOY7G5E8bMHXwhYu6JCYh0P1vdOoPZqrEZdeOeeJkwb7gyNie6rJsNQcw5Fy8DG4VLy9crlWvi5sFg==
   dependencies:
     "@well-known-components/http-server" "^1.1.0"
     "@well-known-components/interfaces" "^1.1.0"
