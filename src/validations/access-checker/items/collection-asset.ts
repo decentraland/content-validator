@@ -8,7 +8,7 @@ import {
   DeploymentToValidate,
   EntityWithEthAddress,
   OK,
-  validationFailed
+  validationFailed,
 } from '../../../types'
 import { AssetValidation } from './items'
 import { BlockSearch } from '@dcl/block-indexer'
@@ -72,7 +72,7 @@ async function getCollectionItems(
   const result = await subgraph.query<ItemCollections>(query, {
     collection,
     itemId: `${collection}-${itemId}`,
-    block
+    block,
   })
   const collectionResult = result.collections[0]
   const itemResult = collectionResult?.items[0]
@@ -83,7 +83,7 @@ async function getCollectionItems(
     isCompleted: collectionResult?.isCompleted,
     itemManagers: itemResult?.managers,
     contentHash: itemResult?.contentHash,
-    committee: result.accounts.map(({ id }) => id.toLowerCase())
+    committee: result.accounts.map(({ id }) => id.toLowerCase()),
   }
 }
 
@@ -146,7 +146,6 @@ async function hasPermission(
 
 async function checkCollectionAccess(
   components: Pick<ContentValidatorComponents, 'externalCalls' | 'theGraphClient'>,
-  blocksSubgraph: ISubgraphComponent,
   collectionsSubgraph: ISubgraphComponent,
   collection: string,
   itemId: string,
@@ -157,7 +156,7 @@ async function checkCollectionAccess(
   const { timestamp } = entity
   try {
     const { blockNumberAtDeployment, blockNumberFiveMinBeforeDeployment } =
-      await components.theGraphClient.findBlocksForTimestamp(blocksSubgraph, timestamp, blockSearch)
+      await components.theGraphClient.findBlocksForTimestamp(timestamp, blockSearch)
     // It could happen that the subgraph hasn't synced yet, so someone who just lost access still managed to make a deployment. The problem would be that when other catalysts perform
     // the same check, the subgraph might have synced and the deployment is no longer valid. So, in order to prevent inconsistencies between catalysts, we will allow all deployments that
     // have access now, or had access 5 minutes ago.
@@ -171,7 +170,7 @@ async function checkCollectionAccess(
     )
   } catch (error) {
     logger.error(
-      `Error checking wearable access (${collection}, ${itemId}, ${entity.ethAddress}, ${timestamp}, ${blocksSubgraph}). Error: ${error}`
+      `Error checking wearable access (${collection}, ${itemId}, ${entity.ethAddress}, ${timestamp}). Error: ${error}`
     )
     return false
   }
@@ -194,19 +193,16 @@ export const v1andV2collectionAssetValidation: AssetValidation = {
     const isL2 = L2_NETWORKS.includes(network)
     if (!isL1 && !isL2) return validationFailed(`Found an unknown network on the urn '${network}'`)
 
-    const blocksSubgraphUrl = isL1 ? subGraphs.L1.blocks : subGraphs.L2.blocks
-
     const collectionsSubgraphUrl = isL1 ? subGraphs.L1.collections : subGraphs.L2.collections
 
     const hasAccess = await checkCollectionAccess(
       components,
-      blocksSubgraphUrl,
       collectionsSubgraphUrl,
       collection,
       asset.id,
       {
         ...deployment.entity,
-        ethAddress
+        ethAddress,
       },
       logger,
       isL1 ? components.subGraphs.l1BlockSearch : components.subGraphs.l2BlockSearch
@@ -230,5 +226,5 @@ export const v1andV2collectionAssetValidation: AssetValidation = {
   },
   canValidate(asset): asset is BlockchainCollectionV1Asset | BlockchainCollectionV2Asset {
     return asset.type === 'blockchain-collection-v1-asset' || asset.type === 'blockchain-collection-v2-asset'
-  }
+  },
 }

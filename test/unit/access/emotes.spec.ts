@@ -7,10 +7,10 @@ import {
   fetcherWithoutAccess,
   fetcherWithThirdPartyEmptyMerkleRoots,
   fetcherWithThirdPartyMerkleRoot,
-  fetcherWithValidCollectionAndCreator
+  fetcherWithValidCollectionAndCreator,
 } from '../../setup/mock'
 
-describe.skip('Access: emotes', () => {
+describe('Access: emotes', () => {
   it('When non-urns are used as pointers, then validation fails', async () => {
     const pointers = ['invalid-pointer']
     const deployment = buildEmoteDeployment(pointers)
@@ -26,7 +26,7 @@ describe.skip('Access: emotes', () => {
   it('When there is more than one pointer set, then validation fails', async () => {
     const pointers = [
       'urn:decentraland:ethereum:collections-v1:atari_launch:a',
-      'urn:decentraland:ethereum:collections-v1:atari_launch:b'
+      'urn:decentraland:ethereum:collections-v1:atari_launch:b',
     ]
     const deployment = buildEmoteDeployment(pointers)
     const externalCalls = buildExternalCalls()
@@ -39,11 +39,11 @@ describe.skip('Access: emotes', () => {
   it('When several pointers resolve to the same URN then accept both but fail with the access', async () => {
     const pointers = [
       'urn:decentraland:ethereum:collections-v2:0x4c290f486bae507719c562b6b524bdb71a2570c9:1',
-      'urn:decentraland:ethereum:collections-v2:0x4c290f486bae507719c562b6b524bdb71a2570c9:1'
+      'urn:decentraland:ethereum:collections-v2:0x4c290f486bae507719c562b6b524bdb71a2570c9:1',
     ]
     const deployment = buildEmoteDeployment(pointers)
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => 'some address'
+      ownerAddress: () => 'some address',
     })
 
     const response = await emotes.validate(buildComponents({ externalCalls }), deployment)
@@ -57,11 +57,11 @@ describe.skip('Access: emotes', () => {
   it('When several pointers resolve to the same URN then accept both 2', async () => {
     const pointers = [
       'urn:decentraland:ethereum:collections-v2:0x4c290f486bae507719c562b6b524bdb71a2570c9:1',
-      'urn:decentraland:ethereum:collections-v2:0x4c290f486bae507719c562b6b524bdb71a2570c9:1'
+      'urn:decentraland:ethereum:collections-v2:0x4c290f486bae507719c562b6b524bdb71a2570c9:1',
     ]
     const deployment = buildEmoteDeployment(pointers)
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => 'some address'
+      ownerAddress: () => 'some address',
     })
 
     const response = await emotes.validate(buildComponents({ externalCalls }), deployment)
@@ -75,16 +75,18 @@ describe.skip('Access: emotes', () => {
     const ethAddress = 'address'
     const subGraphs = fetcherWithValidCollectionAndCreator(ethAddress)
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => ethAddress
+      ownerAddress: () => ethAddress,
     })
 
+    const l2BlockSearchSpy = jest.spyOn(subGraphs.l2BlockSearch, 'findBlockForTimestamp')
+
     const deployment = buildEmoteDeployment([
-      'urn:decentraland:mumbai:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
+      'urn:decentraland:mumbai:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1',
     ])
 
     await emotes.validate(buildComponents({ externalCalls, subGraphs }), deployment)
 
-    expect(subGraphs.L2.blocks.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
+    expect(l2BlockSearchSpy).toHaveBeenNthCalledWith(1, expect.anything())
     expect(subGraphs.L2.collections.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
   })
 
@@ -92,16 +94,17 @@ describe.skip('Access: emotes', () => {
     const ethAddress = 'address'
     const subGraphs = fetcherWithoutAccess()
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => ethAddress
+      ownerAddress: () => ethAddress,
     })
 
     const deployment = buildEmoteDeployment([
-      'urn:decentraland:ethereum:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
+      'urn:decentraland:ethereum:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1',
     ])
 
+    const l1BlockSearchSpy = jest.spyOn(subGraphs.l2BlockSearch, 'findBlockForTimestamp')
     await emotes.validate(buildComponents({ externalCalls, subGraphs }), deployment)
 
-    expect(subGraphs.L1.blocks.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
+    expect(l1BlockSearchSpy).toHaveBeenNthCalledWith(1, expect.anything())
     expect(subGraphs.L1.collections.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
   })
 
@@ -109,16 +112,16 @@ describe.skip('Access: emotes', () => {
     const ethAddress = 'address'
     const subGraphs = fetcherWithoutAccess()
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => ethAddress
+      ownerAddress: () => ethAddress,
     })
 
     const deployment = buildEmoteDeployment([
-      'urn:decentraland:mumbai:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
+      'urn:decentraland:mumbai:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1',
     ])
 
     await emotes.validate(buildComponents({ externalCalls, subGraphs }), deployment)
 
-    expect(subGraphs.L2.blocks.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
+    expect(subGraphs.l2BlockSearch.findBlockForTimestamp).toHaveBeenNthCalledWith(1, expect.anything())
     expect(subGraphs.L2.collections.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
     expect(subGraphs.L2.collections.query).toHaveBeenNthCalledWith(2, expect.anything(), expect.anything())
   })
@@ -127,16 +130,18 @@ describe.skip('Access: emotes', () => {
     const ethAddress = 'address'
     const subGraphs = fetcherWithoutAccess()
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => ethAddress
+      ownerAddress: () => ethAddress,
     })
 
     const deployment = buildEmoteDeployment([
-      'urn:decentraland:ethereum:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
+      'urn:decentraland:ethereum:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1',
     ])
+
+    const l1BlockSearchSpy = jest.spyOn(subGraphs.l1BlockSearch, 'findBlockForTimestamp')
 
     await emotes.validate(buildComponents({ externalCalls, subGraphs }), deployment)
 
-    expect(subGraphs.L1.blocks.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
+    expect(l1BlockSearchSpy).toHaveBeenNthCalledWith(1, expect.anything())
     expect(subGraphs.L1.collections.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
     expect(subGraphs.L1.collections.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
   })
@@ -145,7 +150,7 @@ describe.skip('Access: emotes', () => {
     const pointers = ['urn:decentraland:ethereum:collections-v1:dgtble_headspace:dgtble_hoodi_linetang_upper_body']
     const deployment = buildEmoteDeployment(pointers)
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => 'some address'
+      ownerAddress: () => 'some address',
     })
 
     const response = await emotes.validate(buildComponents({ externalCalls }), deployment)
@@ -159,7 +164,7 @@ describe.skip('Access: emotes', () => {
     const pointers = ['urn:decentraland:off-chain:base-avatars:BaseFemale']
     const deployment = buildEmoteDeployment(pointers)
     const externalCalls = buildExternalCalls({
-      isAddressOwnedByDecentraland: () => true
+      isAddressOwnedByDecentraland: () => true,
     })
 
     const response = await emotes.validate(buildComponents({ externalCalls }), deployment)
@@ -186,7 +191,7 @@ describe.skip('Access: emotes', () => {
 
       const deployment = buildThirdPartyEmoteDeployment(metadata.id, {
         ...metadata,
-        content: {}
+        content: {},
       })
 
       const response = await emotes.validate(buildComponents({ subGraphs }), deployment)
@@ -200,7 +205,7 @@ describe.skip('Access: emotes', () => {
 
       await emotes.validate(buildComponents({ subGraphs }), deployment)
 
-      expect(subGraphs.L2.blocks.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
+      expect(subGraphs.l2BlockSearch.findBlockForTimestamp).toHaveBeenNthCalledWith(1, expect.anything())
       expect(subGraphs.L2.thirdPartyRegistry.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
     })
 
@@ -219,7 +224,7 @@ describe.skip('Access: emotes', () => {
 
       const deployment = buildThirdPartyEmoteDeployment(metadata.id, {
         ...metadata,
-        merkleProof: { proof: [], index: 0, hashingKeys: [], entityHash: '' }
+        merkleProof: { proof: [], index: 0, hashingKeys: [], entityHash: '' },
       })
 
       const response = await emotes.validate(buildComponents({ subGraphs }), deployment)
@@ -233,8 +238,8 @@ describe.skip('Access: emotes', () => {
         ...metadata,
         merkleProof: {
           ...metadata.merkleProof,
-          hashingKeys: ['id', 'description']
-        }
+          hashingKeys: ['id', 'description'],
+        },
       })
 
       const response = await emotes.validate(buildComponents({ subGraphs }), deployment)
@@ -246,7 +251,7 @@ describe.skip('Access: emotes', () => {
 
       const deployment = buildThirdPartyEmoteDeployment(metadata.id, {
         ...metadata,
-        merkleProof: { ...metadata.merkleProof, entityHash: 'someInvalidHash' }
+        merkleProof: { ...metadata.merkleProof, entityHash: 'someInvalidHash' },
       })
 
       const response = await emotes.validate(buildComponents({ subGraphs }), deployment)

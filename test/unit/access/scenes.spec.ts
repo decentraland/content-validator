@@ -2,7 +2,6 @@ import { scenes } from '../../../src/validations/access-checker/scenes'
 import { access } from '../../../src/validations/access-checker/access'
 import { buildSceneDeployment } from '../../setup/deployments'
 import { buildComponents, buildConfig, buildExternalCalls } from '../../setup/mock'
-import { throws } from 'assert'
 
 describe('Access: scenes', () => {
   it('When a non-decentraland address tries to deploy a default scene, then an error is returned', async () => {
@@ -10,7 +9,7 @@ describe('Access: scenes', () => {
     const deployment = buildSceneDeployment(pointers)
     const externalCalls = buildExternalCalls({
       isAddressOwnedByDecentraland: () => false,
-      ownerAddress: () => '0xAddress'
+      ownerAddress: () => '0xAddress',
     })
 
     const response = await scenes.validate(buildComponents({ externalCalls }), deployment)
@@ -25,7 +24,7 @@ describe('Access: scenes', () => {
     const deployment = buildSceneDeployment(pointers)
     const externalCalls = buildExternalCalls({
       isAddressOwnedByDecentraland: () => true,
-      ownerAddress: () => '0xAddress'
+      ownerAddress: () => '0xAddress',
     })
 
     const response = await scenes.validate(buildComponents({ externalCalls }), deployment)
@@ -37,7 +36,7 @@ describe('Access: scenes', () => {
     const deployment = buildSceneDeployment(pointers)
     const externalCalls = buildExternalCalls({
       isAddressOwnedByDecentraland: () => true,
-      ownerAddress: () => '0xAddress'
+      ownerAddress: () => '0xAddress',
     })
 
     const response = await scenes.validate(buildComponents({ externalCalls }), deployment)
@@ -52,13 +51,13 @@ describe('Access: scenes', () => {
       const pointers = ['Default10']
       const deployment = buildSceneDeployment(pointers)
       const config = buildConfig({
-        IGNORE_BLOCKCHAIN_ACCESS_CHECKS: 'false'
+        IGNORE_BLOCKCHAIN_ACCESS_CHECKS: 'false',
       })
       const ownerAddress = jest.fn()
       ownerAddress.mockResolvedValue('0xAddress')
       const externalCalls = buildExternalCalls({
         isAddressOwnedByDecentraland: () => true,
-        ownerAddress
+        ownerAddress,
       })
 
       const response = await access.validate(buildComponents({ config, externalCalls }), deployment)
@@ -70,11 +69,11 @@ describe('Access: scenes', () => {
       const pointers = ['Default10']
       const deployment = buildSceneDeployment(pointers)
       const config = buildConfig({
-        IGNORE_BLOCKCHAIN_ACCESS_CHECKS: 'true'
+        IGNORE_BLOCKCHAIN_ACCESS_CHECKS: 'true',
       })
       const ownerAddress = jest.fn()
       const externalCalls = buildExternalCalls({
-        ownerAddress
+        ownerAddress,
       })
 
       const response = await access.validate(buildComponents({ config, externalCalls }), deployment)

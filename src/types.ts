@@ -111,7 +111,7 @@ export const OK: ValidationResponse = { ok: true }
  */
 export const validationFailed = (...error: string[]): ValidationResponse => ({
   ok: false,
-  errors: error
+  errors: error,
 })
 
 /**
@@ -119,7 +119,7 @@ export const validationFailed = (...error: string[]): ValidationResponse => ({
  */
 export const fromErrors = (...errors: Errors): ValidationResponse => ({
   ok: errors.length === 0,
-  errors: errors.length > 0 ? errors : undefined
+  errors: errors.length > 0 ? errors : undefined,
 })
 
 /**
@@ -129,12 +129,10 @@ export const fromErrors = (...errors: Errors): ValidationResponse => ({
 export type SubGraphs = {
   L1: {
     landManager: ISubgraphComponent
-    blocks: ISubgraphComponent
     collections: ISubgraphComponent
     ensOwner: ISubgraphComponent
   }
   L2: {
-    blocks: ISubgraphComponent
     collections: ISubgraphComponent
     thirdPartyRegistry: ISubgraphComponent
   }
@@ -150,11 +148,7 @@ export type TheGraphClient = {
 
   ownsItemsAtTimestamp: (ethAddress: EthAddress, urnsToCheck: string[], timestamp: number) => Promise<PermissionResult>
 
-  findBlocksForTimestamp: (
-    subgraph: ISubgraphComponent,
-    timestamp: number,
-    blockSearch: BlockSearch
-  ) => Promise<BlockInformation>
+  findBlocksForTimestamp: (timestamp: number, blockSearch: BlockSearch) => Promise<BlockInformation>
 }
 
 /**
