@@ -213,10 +213,13 @@ export const createTheGraphClient = (
   const findBlocksForTimestamp = async (timestamp: number, blockSearch: BlockSearch): Promise<BlockInformation> => {
     const { lower, upper } = timestampBounds(timestamp)
 
-    let [blockNumberAtDeployment, blockNumberFiveMinBeforeDeployment] = await Promise.all([
+    const result = await Promise.all([
       blockSearch.findBlockForTimestamp(upper),
       blockSearch.findBlockForTimestamp(lower)
     ])
+
+    const blockNumberAtDeployment = result[0]
+    let blockNumberFiveMinBeforeDeployment = result[1]
 
     if (blockNumberFiveMinBeforeDeployment && blockNumberFiveMinBeforeDeployment.timestamp < lower) {
       // Mimic the way TheGraph was calculating this
