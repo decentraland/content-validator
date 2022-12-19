@@ -1,7 +1,9 @@
-import { createAvlBlockSearch } from '@dcl/block-indexer'
+import { createAvlBlockSearch, metricsDefinitions } from '@dcl/block-indexer'
+import { createTestMetricsComponent } from '@well-known-components/metrics'
 import { timestampBounds } from '../../../src/the-graph-client/the-graph-client'
 import {
   buildComponents,
+  buildLogger,
   buildSubGraphs,
   createMockBlockRepository,
   createMockSubgraphComponent
@@ -11,9 +13,16 @@ const currentTimestamp = 1000
 const bounds = timestampBounds(currentTimestamp)
 
 describe('TheGraphClient', () => {
+  const logs = buildLogger()
+  const metrics = createTestMetricsComponent(metricsDefinitions)
+
   it('When invocation to TheGraph throws an error, it is reported accordingly', async () => {
     const subGraphs = buildSubGraphs({
-      l1BlockSearch: createAvlBlockSearch(createMockBlockRepository(10, {}))
+      l1BlockSearch: createAvlBlockSearch({
+        logs,
+        metrics,
+        blockRepository: createMockBlockRepository(10, {})
+      })
     })
     subGraphs.l1BlockSearch.findBlockForTimestamp = jest.fn().mockImplementation(() => {
       throw new Error('error')
@@ -25,7 +34,7 @@ describe('TheGraphClient', () => {
   })
 
   it('When invoking findBlocksForTimestamp, it may happen that no block matches and exception is thrown', async () => {
-    const subGraphs = buildSubGraphs({})
+    const subGraphs = buildSubGraphs()
 
     const { theGraphClient } = buildComponents({ subGraphs })
 
@@ -54,7 +63,11 @@ describe('TheGraphClient', () => {
             })
           )
         },
-        l1BlockSearch: createAvlBlockSearch(createMockBlockRepository(10, {}))
+        l1BlockSearch: createAvlBlockSearch({
+          logs,
+          metrics,
+          blockRepository: createMockBlockRepository(10, {})
+        })
       })
 
       subGraphs.l1BlockSearch.findBlockForTimestamp = jest.fn().mockImplementation((t) => {

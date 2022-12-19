@@ -101,7 +101,7 @@ describe('Access: emotes', () => {
       'urn:decentraland:ethereum:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
-    const l1BlockSearchSpy = jest.spyOn(subGraphs.l2BlockSearch, 'findBlockForTimestamp')
+    const l1BlockSearchSpy = jest.spyOn(subGraphs.l1BlockSearch, 'findBlockForTimestamp')
     await emotes.validate(buildComponents({ externalCalls, subGraphs }), deployment)
 
     expect(l1BlockSearchSpy).toHaveBeenNthCalledWith(1, expect.anything())
@@ -119,9 +119,10 @@ describe('Access: emotes', () => {
       'urn:decentraland:mumbai:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
+    const l2BlockSearchSpy = jest.spyOn(subGraphs.l2BlockSearch, 'findBlockForTimestamp')
     await emotes.validate(buildComponents({ externalCalls, subGraphs }), deployment)
 
-    expect(subGraphs.l2BlockSearch.findBlockForTimestamp).toHaveBeenNthCalledWith(1, expect.anything())
+    expect(l2BlockSearchSpy).toHaveBeenNthCalledWith(1, expect.anything())
     expect(subGraphs.L2.collections.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
     expect(subGraphs.L2.collections.query).toHaveBeenNthCalledWith(2, expect.anything(), expect.anything())
   })
@@ -203,9 +204,10 @@ describe('Access: emotes', () => {
 
       const deployment = buildThirdPartyEmoteDeployment(metadata.id, metadata)
 
+      const l2BlockSearchSpy = jest.spyOn(subGraphs.l2BlockSearch, 'findBlockForTimestamp')
       await emotes.validate(buildComponents({ subGraphs }), deployment)
 
-      expect(subGraphs.l2BlockSearch.findBlockForTimestamp).toHaveBeenNthCalledWith(1, expect.anything())
+      expect(l2BlockSearchSpy).toHaveBeenNthCalledWith(1, expect.anything())
       expect(subGraphs.L2.thirdPartyRegistry.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
     })
 
