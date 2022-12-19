@@ -2,7 +2,7 @@ import { EthAddress } from '@dcl/schemas'
 import { parseUrn } from '@dcl/urn-resolver'
 import { ISubgraphComponent } from '@well-known-components/thegraph-component'
 import { BlockInformation, ContentValidatorComponents, TheGraphClient } from '../types'
-import { BlockInfo, BlockSearch } from '@dcl/block-indexer'
+import { BlockSearch } from '@dcl/block-indexer'
 
 export type PermissionResult = {
   result: boolean

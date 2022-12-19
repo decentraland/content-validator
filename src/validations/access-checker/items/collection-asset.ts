@@ -8,7 +8,7 @@ import {
   DeploymentToValidate,
   EntityWithEthAddress,
   OK,
-  validationFailed,
+  validationFailed
 } from '../../../types'
 import { AssetValidation } from './items'
 import { BlockSearch } from '@dcl/block-indexer'
@@ -72,7 +72,7 @@ async function getCollectionItems(
   const result = await subgraph.query<ItemCollections>(query, {
     collection,
     itemId: `${collection}-${itemId}`,
-    block,
+    block
   })
   const collectionResult = result.collections[0]
   const itemResult = collectionResult?.items[0]
@@ -83,7 +83,7 @@ async function getCollectionItems(
     isCompleted: collectionResult?.isCompleted,
     itemManagers: itemResult?.managers,
     contentHash: itemResult?.contentHash,
-    committee: result.accounts.map(({ id }) => id.toLowerCase()),
+    committee: result.accounts.map(({ id }) => id.toLowerCase())
   }
 }
 
@@ -202,7 +202,7 @@ export const v1andV2collectionAssetValidation: AssetValidation = {
       asset.id,
       {
         ...deployment.entity,
-        ethAddress,
+        ethAddress
       },
       logger,
       isL1 ? components.subGraphs.l1BlockSearch : components.subGraphs.l2BlockSearch
@@ -226,5 +226,5 @@ export const v1andV2collectionAssetValidation: AssetValidation = {
   },
   canValidate(asset): asset is BlockchainCollectionV1Asset | BlockchainCollectionV2Asset {
     return asset.type === 'blockchain-collection-v1-asset' || asset.type === 'blockchain-collection-v2-asset'
-  },
+  }
 }
