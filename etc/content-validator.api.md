@@ -93,12 +93,10 @@ export const statelessValidations: readonly [Validation, Validation, Validation]
 export type SubGraphs = {
     L1: {
         landManager: ISubgraphComponent;
-        blocks: ISubgraphComponent;
         collections: ISubgraphComponent;
         ensOwner: ISubgraphComponent;
     };
     L2: {
-        blocks: ISubgraphComponent;
         collections: ISubgraphComponent;
         thirdPartyRegistry: ISubgraphComponent;
     };
@@ -110,7 +108,7 @@ export type SubGraphs = {
 export type TheGraphClient = {
     ownsNamesAtTimestamp: (ethAddress: EthAddress, namesToCheck: string[], timestamp: number) => Promise<PermissionResult>;
     ownsItemsAtTimestamp: (ethAddress: EthAddress, urnsToCheck: string[], timestamp: number) => Promise<PermissionResult>;
-    findBlocksForTimestamp: (subgraph: ISubgraphComponent, timestamp: number, blockSearch: BlockSearch) => Promise<BlockInformation>;
+    findBlocksForTimestamp: (timestamp: number, blockSearch: BlockSearch) => Promise<BlockInformation>;
 };
 
 // @public (undocumented)
@@ -146,7 +144,7 @@ export type Warnings = string[];
 
 // Warnings were encountered during analysis:
 //
-// src/types.ts:149:3 - (ae-forgotten-export) The symbol "PermissionResult" needs to be exported by the entry point index.d.ts
+// src/types.ts:147:3 - (ae-forgotten-export) The symbol "PermissionResult" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 
