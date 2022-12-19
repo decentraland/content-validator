@@ -19,7 +19,7 @@ export function timestampBounds(timestampMs: number) {
 
   return {
     upper: timestampSec,
-    lower: timestamp5MinAgo,
+    lower: timestamp5MinAgo
   }
 }
 
@@ -55,12 +55,12 @@ export const createTheGraphClient = (
           subgraph: components.subGraphs.L1.ensOwner,
           query: QUERY_NAMES_FOR_ADDRESS_AT_BLOCK,
           mapper: (response: { names: { name: string }[] }): Set<string> =>
-            new Set(response.names.map(({ name }) => name)),
+            new Set(response.names.map(({ name }) => name))
         }
         return runQuery(query, {
           block: blockNumber,
           ethAddress,
-          nameList: namesToCheck,
+          nameList: namesToCheck
         })
       }
 
@@ -106,14 +106,14 @@ export const createTheGraphClient = (
     }
     return {
       ethereum,
-      matic,
+      matic
     }
   }
 
   const permissionOk = (): PermissionResult => ({ result: true })
   const permissionError = (failing?: string[]): PermissionResult => ({
     result: false,
-    failing: failing,
+    failing: failing
   })
 
   const ownsItemsAtTimestamp = async (
@@ -143,7 +143,7 @@ export const createTheGraphClient = (
 
     const [ethereumItemsOwnership, maticItemsOwnership] = await Promise.all([
       ethereumItemsOwnersPromise,
-      maticItemsOwnersPromise,
+      maticItemsOwnersPromise
     ])
 
     if (ethereumItemsOwnership.result && maticItemsOwnership.result) return permissionOk()
@@ -175,13 +175,12 @@ export const createTheGraphClient = (
           description: 'check for items ownership',
           subgraph: collectionsSubgraph,
           query: QUERY_ITEMS_FOR_ADDRESS_AT_BLOCK,
-          mapper: (response: { items: { urn: string }[] }): Set<string> =>
-            new Set(response.items.map(({ urn }) => urn)),
+          mapper: (response: { items: { urn: string }[] }): Set<string> => new Set(response.items.map(({ urn }) => urn))
         }
         return runQuery(query, {
           block: blockNumber,
           ethAddress,
-          urnList: urnsToCheck,
+          urnList: urnsToCheck
         })
       }
 
@@ -216,27 +215,27 @@ export const createTheGraphClient = (
 
     let [blockNumberAtDeployment, blockNumberFiveMinBeforeDeployment] = await Promise.all([
       blockSearch.findBlockForTimestamp(upper),
-      blockSearch.findBlockForTimestamp(lower),
+      blockSearch.findBlockForTimestamp(lower)
     ])
 
     if (blockNumberFiveMinBeforeDeployment && blockNumberFiveMinBeforeDeployment.timestamp < lower) {
       // Mimic the way TheGraph was calculating this
       blockNumberFiveMinBeforeDeployment = {
         ...blockNumberFiveMinBeforeDeployment,
-        block: blockNumberFiveMinBeforeDeployment.block + 1,
+        block: blockNumberFiveMinBeforeDeployment.block + 1
       }
     }
 
     return {
       blockNumberAtDeployment: blockNumberAtDeployment?.block,
-      blockNumberFiveMinBeforeDeployment: blockNumberFiveMinBeforeDeployment?.block,
+      blockNumberFiveMinBeforeDeployment: blockNumberFiveMinBeforeDeployment?.block
     }
   }
 
   return {
     ownsNamesAtTimestamp,
     ownsItemsAtTimestamp,
-    findBlocksForTimestamp,
+    findBlocksForTimestamp
   }
 }
 
