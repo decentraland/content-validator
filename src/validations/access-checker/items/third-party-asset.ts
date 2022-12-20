@@ -83,7 +83,6 @@ async function verifyMerkleProofedEntity(
   const thirdPartyId = getThirdPartyId(urn)
   const { blockNumberAtDeployment, blockNumberFiveMinBeforeDeployment } =
     await components.theGraphClient.findBlocksForTimestamp(
-      components.subGraphs.L2.blocks,
       deployment.entity.timestamp,
       components.subGraphs.l2BlockSearch
     )

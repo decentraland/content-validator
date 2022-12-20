@@ -146,7 +146,6 @@ async function hasPermission(
 
 async function checkCollectionAccess(
   components: Pick<ContentValidatorComponents, 'externalCalls' | 'theGraphClient'>,
-  blocksSubgraph: ISubgraphComponent,
   collectionsSubgraph: ISubgraphComponent,
   collection: string,
   itemId: string,
@@ -157,7 +156,7 @@ async function checkCollectionAccess(
   const { timestamp } = entity
   try {
     const { blockNumberAtDeployment, blockNumberFiveMinBeforeDeployment } =
-      await components.theGraphClient.findBlocksForTimestamp(blocksSubgraph, timestamp, blockSearch)
+      await components.theGraphClient.findBlocksForTimestamp(timestamp, blockSearch)
     // It could happen that the subgraph hasn't synced yet, so someone who just lost access still managed to make a deployment. The problem would be that when other catalysts perform
     // the same check, the subgraph might have synced and the deployment is no longer valid. So, in order to prevent inconsistencies between catalysts, we will allow all deployments that
     // have access now, or had access 5 minutes ago.
@@ -171,7 +170,7 @@ async function checkCollectionAccess(
     )
   } catch (error) {
     logger.error(
-      `Error checking wearable access (${collection}, ${itemId}, ${entity.ethAddress}, ${timestamp}, ${blocksSubgraph}). Error: ${error}`
+      `Error checking wearable access (${collection}, ${itemId}, ${entity.ethAddress}, ${timestamp}). Error: ${error}`
     )
     return false
   }
@@ -194,13 +193,10 @@ export const v1andV2collectionAssetValidation: AssetValidation = {
     const isL2 = L2_NETWORKS.includes(network)
     if (!isL1 && !isL2) return validationFailed(`Found an unknown network on the urn '${network}'`)
 
-    const blocksSubgraphUrl = isL1 ? subGraphs.L1.blocks : subGraphs.L2.blocks
-
     const collectionsSubgraphUrl = isL1 ? subGraphs.L1.collections : subGraphs.L2.collections
 
     const hasAccess = await checkCollectionAccess(
       components,
-      blocksSubgraphUrl,
       collectionsSubgraphUrl,
       collection,
       asset.id,

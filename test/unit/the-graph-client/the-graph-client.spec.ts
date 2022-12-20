@@ -1,18 +1,31 @@
-import { buildComponents, buildSubGraphs, createMockSubgraphComponent } from '../../setup/mock'
+import { createAvlBlockSearch, metricsDefinitions } from '@dcl/block-indexer'
+import { createTestMetricsComponent } from '@well-known-components/metrics'
+import { timestampBounds } from '../../../src/the-graph-client/the-graph-client'
+import {
+  buildComponents,
+  buildLogger,
+  buildSubGraphs,
+  createMockBlockRepository,
+  createMockSubgraphComponent
+} from '../../setup/mock'
 
-describe.skip('TheGraphClient', () => {
+const currentTimestamp = 1000
+const bounds = timestampBounds(currentTimestamp)
+
+describe('TheGraphClient', () => {
+  const logs = buildLogger()
+  const metrics = createTestMetricsComponent(metricsDefinitions)
+
   it('When invocation to TheGraph throws an error, it is reported accordingly', async () => {
     const subGraphs = buildSubGraphs({
-      L1: {
-        collections: createMockSubgraphComponent(),
-        blocks: createMockSubgraphComponent(
-          jest.fn().mockImplementation(() => {
-            throw new Error('error')
-          })
-        ),
-        landManager: createMockSubgraphComponent(),
-        ensOwner: createMockSubgraphComponent()
-      }
+      l1BlockSearch: createAvlBlockSearch({
+        logs,
+        metrics,
+        blockRepository: createMockBlockRepository(10, {})
+      })
+    })
+    subGraphs.l1BlockSearch.findBlockForTimestamp = jest.fn().mockImplementation(() => {
+      throw new Error('error')
     })
 
     const { theGraphClient } = buildComponents({ subGraphs })
@@ -21,25 +34,13 @@ describe.skip('TheGraphClient', () => {
   })
 
   it('When invoking findBlocksForTimestamp, it may happen that no block matches and exception is thrown', async () => {
-    const subGraphs = buildSubGraphs({
-      L1: {
-        collections: createMockSubgraphComponent(),
-        blocks: createMockSubgraphComponent(
-          jest.fn().mockResolvedValueOnce({
-            max: [],
-            min: []
-          })
-        ),
-        landManager: createMockSubgraphComponent(),
-        ensOwner: createMockSubgraphComponent()
-      }
-    })
+    const subGraphs = buildSubGraphs()
 
     const { theGraphClient } = buildComponents({ subGraphs })
 
-    await expect(
-      theGraphClient.findBlocksForTimestamp(subGraphs.L1.blocks, 10, subGraphs.l1BlockSearch)
-    ).rejects.toThrow('Failed to find blocks for the specific timestamp')
+    await expect(theGraphClient.findBlocksForTimestamp(10, subGraphs.l1BlockSearch)).rejects.toThrow(
+      'Block 0 could not be retrieved'
+    )
   })
 
   describe('Checks for name ownership', function () {
@@ -47,12 +48,6 @@ describe.skip('TheGraphClient', () => {
       const subGraphs = buildSubGraphs({
         L1: {
           collections: createMockSubgraphComponent(),
-          blocks: createMockSubgraphComponent(
-            jest.fn().mockResolvedValueOnce({
-              min: [{ number: 123400 }],
-              max: []
-            })
-          ),
           landManager: createMockSubgraphComponent(),
           ensOwner: createMockSubgraphComponent(
             jest.fn().mockImplementation(async (_query, _variables) => {
@@ -67,11 +62,24 @@ describe.skip('TheGraphClient', () => {
               }
             })
           )
-        }
+        },
+        l1BlockSearch: createAvlBlockSearch({
+          logs,
+          metrics,
+          blockRepository: createMockBlockRepository(10, {})
+        })
       })
+
+      subGraphs.l1BlockSearch.findBlockForTimestamp = jest.fn().mockImplementation((t) => {
+        if (t === bounds.upper) {
+          return undefined
+        }
+        return { timestamp: bounds.lower, block: 123400 }
+      })
+
       const { theGraphClient } = buildComponents({ subGraphs })
 
-      await expect(theGraphClient.ownsNamesAtTimestamp('0x1', ['Some Name'], 10)).resolves.toEqual({
+      await expect(theGraphClient.ownsNamesAtTimestamp('0x1', ['Some Name'], currentTimestamp)).resolves.toEqual({
         result: true
       })
     })
@@ -80,12 +88,6 @@ describe.skip('TheGraphClient', () => {
       const subGraphs = buildSubGraphs({
         L1: {
           collections: createMockSubgraphComponent(),
-          blocks: createMockSubgraphComponent(
-            jest.fn().mockResolvedValueOnce({
-              min: [{ number: 123400 }],
-              max: [{ number: 123500 }]
-            })
-          ),
           landManager: createMockSubgraphComponent(),
           ensOwner: createMockSubgraphComponent(
             jest.fn().mockImplementation(async (_query, _variables) => {
@@ -104,9 +106,17 @@ describe.skip('TheGraphClient', () => {
           )
         }
       })
+
+      subGraphs.l1BlockSearch.findBlockForTimestamp = jest.fn().mockImplementation((t) => {
+        if (t === bounds.upper) {
+          return { timestamp: bounds.upper, block: 123500 }
+        }
+        return { timestamp: bounds.lower, block: 123400 }
+      })
+
       const { theGraphClient } = buildComponents({ subGraphs })
 
-      await expect(theGraphClient.ownsNamesAtTimestamp('0x1', ['Some Name'], 10)).resolves.toEqual({
+      await expect(theGraphClient.ownsNamesAtTimestamp('0x1', ['Some Name'], currentTimestamp)).resolves.toEqual({
         result: true
       })
     })
@@ -115,17 +125,15 @@ describe.skip('TheGraphClient', () => {
       const subGraphs = buildSubGraphs({
         L1: {
           collections: createMockSubgraphComponent(),
-          blocks: createMockSubgraphComponent(
-            jest.fn().mockResolvedValueOnce({
-              min: [{ number: 123400 }],
-              max: [{ number: 123500 }]
-            })
-          ),
           landManager: createMockSubgraphComponent(),
           ensOwner: createMockSubgraphComponent(jest.fn().mockRejectedValue('error'))
         }
       })
       const { theGraphClient } = buildComponents({ subGraphs })
+
+      subGraphs.l1BlockSearch.findBlockForTimestamp = jest.fn().mockImplementation(() => {
+        return undefined
+      })
 
       await expect(theGraphClient.ownsNamesAtTimestamp('0x1', ['Some Name'], 10)).resolves.toEqual({
         result: false
@@ -146,23 +154,11 @@ describe.skip('TheGraphClient', () => {
               ]
             })
           ),
-          blocks: createMockSubgraphComponent(
-            jest.fn().mockResolvedValueOnce({
-              min: [{ number: 123400 }],
-              max: []
-            })
-          ),
           landManager: createMockSubgraphComponent(),
           ensOwner: createMockSubgraphComponent(jest.fn().mockRejectedValue('error'))
         },
         L2: {
           thirdPartyRegistry: createMockSubgraphComponent(),
-          blocks: createMockSubgraphComponent(
-            jest.fn().mockResolvedValueOnce({
-              min: [{ number: 123400 }],
-              max: []
-            })
-          ),
           collections: createMockSubgraphComponent(
             jest.fn().mockResolvedValue({
               items: [
@@ -174,6 +170,20 @@ describe.skip('TheGraphClient', () => {
           )
         }
       })
+
+      subGraphs.l1BlockSearch.findBlockForTimestamp = jest.fn().mockImplementation((t) => {
+        if (t === bounds.upper) {
+          return undefined
+        }
+        return { timestamp: bounds.lower, block: 123400 }
+      })
+      subGraphs.l2BlockSearch.findBlockForTimestamp = jest.fn().mockImplementation((t) => {
+        if (t === bounds.upper) {
+          return undefined
+        }
+        return { timestamp: bounds.lower, block: 123400 }
+      })
+
       const { theGraphClient } = buildComponents({ subGraphs })
 
       await expect(
@@ -183,7 +193,7 @@ describe.skip('TheGraphClient', () => {
             'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet',
             'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
           ],
-          10
+          currentTimestamp
         )
       ).resolves.toEqual({ result: true })
     })
@@ -206,23 +216,11 @@ describe.skip('TheGraphClient', () => {
               }
             })
           ),
-          blocks: createMockSubgraphComponent(
-            jest.fn().mockResolvedValueOnce({
-              min: [{ number: 123400 }],
-              max: [{ number: 123500 }]
-            })
-          ),
           landManager: createMockSubgraphComponent(),
           ensOwner: createMockSubgraphComponent()
         },
         L2: {
           thirdPartyRegistry: createMockSubgraphComponent(),
-          blocks: createMockSubgraphComponent(
-            jest.fn().mockResolvedValueOnce({
-              min: [{ number: 123400 }],
-              max: [{ number: 123500 }]
-            })
-          ),
           collections: createMockSubgraphComponent(
             jest.fn().mockResolvedValue({
               items: [
@@ -236,6 +234,19 @@ describe.skip('TheGraphClient', () => {
       })
       const { theGraphClient } = buildComponents({ subGraphs })
 
+      subGraphs.l1BlockSearch.findBlockForTimestamp = jest.fn().mockImplementation((t) => {
+        if (t === bounds.upper) {
+          return { timestamp: bounds.upper, block: 123500 }
+        }
+        return { timestamp: bounds.lower, block: 123400 }
+      })
+      subGraphs.l2BlockSearch.findBlockForTimestamp = jest.fn().mockImplementation((t) => {
+        if (t === bounds.upper) {
+          return { timestamp: bounds.upper, block: 123500 }
+        }
+        return { timestamp: bounds.lower, block: 123400 }
+      })
+
       await expect(
         theGraphClient.ownsItemsAtTimestamp(
           '0x1',
@@ -243,7 +254,7 @@ describe.skip('TheGraphClient', () => {
             'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet',
             'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
           ],
-          10
+          currentTimestamp
         )
       ).resolves.toEqual({ result: true })
     })
@@ -251,33 +262,29 @@ describe.skip('TheGraphClient', () => {
     it('When both current and 5-min before blocks have not been indexed yet, it should report error', async () => {
       const subGraphs = buildSubGraphs({
         L1: {
-          collections: createMockSubgraphComponent(
-            jest.fn().mockImplementation(async (_query, _variables) => {
-              return Promise.reject('error')
-            })
-          ),
-          blocks: createMockSubgraphComponent(
-            jest.fn().mockResolvedValueOnce({
-              min: [{ number: 123400 }],
-              max: [{ number: 123500 }]
-            })
-          ),
+          collections: createMockSubgraphComponent(jest.fn().mockRejectedValue('error')),
           landManager: createMockSubgraphComponent(),
           ensOwner: createMockSubgraphComponent()
         },
         L2: {
           thirdPartyRegistry: createMockSubgraphComponent(),
-          blocks: createMockSubgraphComponent(
-            jest.fn().mockResolvedValueOnce({
-              min: [{ number: 123400 }],
-              max: [{ number: 123500 }]
-            })
-          ),
           collections: createMockSubgraphComponent(jest.fn().mockRejectedValue('error'))
         }
       })
       const { theGraphClient } = buildComponents({ subGraphs })
 
+      subGraphs.l1BlockSearch.findBlockForTimestamp = jest.fn().mockImplementation((t) => {
+        if (t === bounds.upper) {
+          return { timestamp: bounds.upper, block: 123500 }
+        }
+        return { timestamp: bounds.lower, block: 123400 }
+      })
+      subGraphs.l2BlockSearch.findBlockForTimestamp = jest.fn().mockImplementation((t) => {
+        if (t === bounds.upper) {
+          return { timestamp: bounds.upper, block: 123500 }
+        }
+        return { timestamp: bounds.lower, block: 123400 }
+      })
       await expect(
         theGraphClient.ownsItemsAtTimestamp(
           '0x1',
@@ -285,7 +292,7 @@ describe.skip('TheGraphClient', () => {
             'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet',
             'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
           ],
-          10
+          currentTimestamp
         )
       ).resolves.toEqual({ result: false, failing: [] })
     })

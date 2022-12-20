@@ -10,7 +10,7 @@ import {
 } from '../../setup/mock'
 import { VALID_THIRD_PARTY_WEARABLE } from '../../setup/wearable'
 
-describe.skip('Access: wearables', () => {
+describe('Access: wearables', () => {
   it('When non-urns are used as pointers, then validation fails', async () => {
     const pointers = ['invalid-pointer']
     const deployment = buildWearableDeployment(pointers)
@@ -117,9 +117,10 @@ describe.skip('Access: wearables', () => {
       'urn:decentraland:mumbai:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
+    const l2BlockSearchSpy = jest.spyOn(subGraphs.l2BlockSearch, 'findBlockForTimestamp')
     await wearables.validate(buildComponents({ externalCalls, subGraphs }), deployment)
 
-    expect(subGraphs.L2.blocks.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
+    expect(l2BlockSearchSpy).toHaveBeenNthCalledWith(1, expect.anything())
     expect(subGraphs.L2.collections.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
   })
 
@@ -134,9 +135,10 @@ describe.skip('Access: wearables', () => {
       'urn:decentraland:ethereum:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
+    const l1BlockSearchSpy = jest.spyOn(subGraphs.l1BlockSearch, 'findBlockForTimestamp')
     await wearables.validate(buildComponents({ externalCalls, subGraphs }), deployment)
 
-    expect(subGraphs.L1.blocks.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
+    expect(l1BlockSearchSpy).toHaveBeenNthCalledWith(1, expect.anything())
     expect(subGraphs.L1.collections.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
   })
 
@@ -150,10 +152,10 @@ describe.skip('Access: wearables', () => {
     const deployment = buildWearableDeployment([
       'urn:decentraland:mumbai:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
-
+    const l2BlockSearchSpy = jest.spyOn(subGraphs.l2BlockSearch, 'findBlockForTimestamp')
     await wearables.validate(buildComponents({ externalCalls, subGraphs }), deployment)
 
-    expect(subGraphs.L2.blocks.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
+    expect(l2BlockSearchSpy).toHaveBeenNthCalledWith(1, expect.anything())
     expect(subGraphs.L2.collections.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
     expect(subGraphs.L2.collections.query).toHaveBeenNthCalledWith(2, expect.anything(), expect.anything())
   })
@@ -169,9 +171,10 @@ describe.skip('Access: wearables', () => {
       'urn:decentraland:ethereum:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
+    const l1BlockSearchSpy = jest.spyOn(subGraphs.l1BlockSearch, 'findBlockForTimestamp')
     await wearables.validate(buildComponents({ externalCalls, subGraphs }), deployment)
 
-    expect(subGraphs.L1.blocks.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
+    expect(l1BlockSearchSpy).toHaveBeenNthCalledWith(1, expect.anything())
     expect(subGraphs.L1.collections.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
     expect(subGraphs.L1.collections.query).toHaveBeenNthCalledWith(2, expect.anything(), expect.anything())
   })
@@ -205,9 +208,10 @@ describe.skip('Access: wearables', () => {
 
       const deployment = buildThirdPartyWearableDeployment(metadata.id, metadata)
 
+      const l2BlockSearchSpy = jest.spyOn(subGraphs.l2BlockSearch, 'findBlockForTimestamp')
       await wearables.validate(buildComponents({ subGraphs }), deployment)
 
-      expect(subGraphs.L2.blocks.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
+      expect(l2BlockSearchSpy).toHaveBeenNthCalledWith(1, expect.anything())
       expect(subGraphs.L2.thirdPartyRegistry.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
     })
 

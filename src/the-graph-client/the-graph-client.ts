@@ -2,11 +2,25 @@ import { EthAddress } from '@dcl/schemas'
 import { parseUrn } from '@dcl/urn-resolver'
 import { ISubgraphComponent } from '@well-known-components/thegraph-component'
 import { BlockInformation, ContentValidatorComponents, TheGraphClient } from '../types'
-import { BlockInfo, BlockSearch } from '@dcl/block-indexer'
+import { BlockSearch } from '@dcl/block-indexer'
 
 export type PermissionResult = {
   result: boolean
   failing?: string[]
+}
+
+export function timestampBounds(timestampMs: number) {
+  /*
+   * This mimics original behavior of looking up to 8 seconds after the entity timestamp
+   * and up to 5 minutes and 7 seconds before
+   */
+  const timestampSec = Math.ceil(timestampMs / 1000) + 8
+  const timestamp5MinAgo = Math.max(timestampSec - 60 * 5 - 7, 0)
+
+  return {
+    upper: timestampSec,
+    lower: timestamp5MinAgo
+  }
 }
 
 /**
@@ -29,13 +43,7 @@ export const createTheGraphClient = (
       return permissionOk()
     }
 
-    const blocks = await findBlocksForTimestamp(
-      components.subGraphs.L1.blocks,
-      timestamp,
-      components.subGraphs.l1BlockSearch
-    )
-    console.log('MARIANO ownsNamesAtTimestamp blocks', blocks)
-
+    const blocks = await findBlocksForTimestamp(timestamp, components.subGraphs.l1BlockSearch)
     const hasPermissionOnBlock = async (blockNumber: number | undefined): Promise<PermissionResult> => {
       if (!blockNumber) {
         return permissionError()
@@ -122,7 +130,6 @@ export const createTheGraphClient = (
       ethAddress,
       ethereum,
       timestamp,
-      components.subGraphs.L1.blocks,
       components.subGraphs.L1.collections,
       components.subGraphs.l1BlockSearch
     )
@@ -130,7 +137,6 @@ export const createTheGraphClient = (
       ethAddress,
       matic,
       timestamp,
-      components.subGraphs.L2.blocks,
       components.subGraphs.L2.collections,
       components.subGraphs.l2BlockSearch
     )
@@ -150,7 +156,6 @@ export const createTheGraphClient = (
     ethAddress: EthAddress,
     urnsToCheck: string[],
     timestamp: number,
-    blocksSubgraph: ISubgraphComponent,
     collectionsSubgraph: ISubgraphComponent,
     blockSearch: BlockSearch
   ): Promise<PermissionResult> => {
@@ -158,8 +163,7 @@ export const createTheGraphClient = (
       return permissionOk()
     }
 
-    const blocks = await findBlocksForTimestamp(blocksSubgraph, timestamp, blockSearch)
-    console.log('MARIANO ownsItemsAtTimestampInBlockchain blocks', blocks)
+    const blocks = await findBlocksForTimestamp(timestamp, blockSearch)
 
     const hasPermissionOnBlock = async (blockNumber: number | undefined): Promise<PermissionResult> => {
       if (!blockNumber) {
@@ -206,131 +210,28 @@ export const createTheGraphClient = (
     return query.mapper(response)
   }
 
-  const findBlocksForTimestamp = async (
-    subgraph: ISubgraphComponent,
-    timestamp: number,
-    blockSearch: BlockSearch
-  ): Promise<BlockInformation> => {
-    /*
-     * This mimics original behavior of looking up to 8 seconds after the entity timestamp
-     * and up to 5 minutes and 7 seconds before
-     */
-    const timestampSec = Math.ceil(timestamp / 1000) + 8
-    const timestamp5MinAgo = timestampSec - 60 * 5 - 7
+  const findBlocksForTimestamp = async (timestamp: number, blockSearch: BlockSearch): Promise<BlockInformation> => {
+    const { lower, upper } = timestampBounds(timestamp)
 
-    const blockNumberAtDeployment = await blockSearch.findBlockForTimestamp(timestampSec)
-    let nachoBlockNumberFiveMinBeforeDeployment = (await blockSearch.findBlockForTimestamp(timestamp5MinAgo))!
-    if (nachoBlockNumberFiveMinBeforeDeployment.timestamp < timestamp5MinAgo) {
+    const result = await Promise.all([
+      blockSearch.findBlockForTimestamp(upper),
+      blockSearch.findBlockForTimestamp(lower)
+    ])
+
+    const blockNumberAtDeployment = result[0]
+    let blockNumberFiveMinBeforeDeployment = result[1]
+
+    if (blockNumberFiveMinBeforeDeployment && blockNumberFiveMinBeforeDeployment.timestamp < lower) {
       // Mimic the way TheGraph was calculating this
-      nachoBlockNumberFiveMinBeforeDeployment = {
-        ...nachoBlockNumberFiveMinBeforeDeployment,
-        block: nachoBlockNumberFiveMinBeforeDeployment.block + 1
+      blockNumberFiveMinBeforeDeployment = {
+        ...blockNumberFiveMinBeforeDeployment,
+        block: blockNumberFiveMinBeforeDeployment.block + 1
       }
     }
 
     return {
       blockNumberAtDeployment: blockNumberAtDeployment?.block,
-      blockNumberFiveMinBeforeDeployment: nachoBlockNumberFiveMinBeforeDeployment?.block
-    }
-  }
-
-  const findBlocksForTimestampOld = async (
-    subgraph: ISubgraphComponent,
-    timestamp: number,
-    blockSearch: BlockSearch
-  ): Promise<BlockInformation> => {
-    const query: Query<
-      {
-        min: { number: string }[]
-        max: { number: string }[]
-      },
-      BlockInformation
-    > = {
-      description: 'fetch blocks for timestamp',
-      subgraph: subgraph,
-      query: QUERY_BLOCKS_FOR_TIMESTAMP,
-      mapper: (response) => {
-        const blockNumberAtDeployment = response.max[0]?.number
-        const blockNumberFiveMinBeforeDeployment = response.min[0]?.number
-        if (blockNumberAtDeployment === undefined && blockNumberFiveMinBeforeDeployment === undefined) {
-          throw new Error(`Failed to find blocks for the specific timestamp`)
-        }
-
-        return {
-          blockNumberAtDeployment: !!blockNumberAtDeployment ? parseInt(blockNumberAtDeployment) : undefined,
-          blockNumberFiveMinBeforeDeployment: !!blockNumberFiveMinBeforeDeployment
-            ? parseInt(blockNumberFiveMinBeforeDeployment)
-            : undefined
-        }
-      }
-    }
-
-    /*
-     * This mimics original behavior of looking up to 8 seconds after the entity timestamp
-     * and up to 5 minutes and 7 seconds before
-     */
-    const timestampSec = Math.ceil(timestamp / 1000) + 8
-    const timestamp5MinAgo = timestampSec - 60 * 5 - 7
-
-    const blockInformation = await runQuery(query, {
-      timestamp: timestampSec,
-      timestamp5Min: timestamp5MinAgo
-    })
-
-    try {
-      // Attempt blockSearch but carry on if anything fails
-      const nachoBlockNumberAtDeployment = await blockSearch.findBlockForTimestamp(timestampSec)
-      let nachoBlockNumberFiveMinBeforeDeployment = (await blockSearch.findBlockForTimestamp(timestamp5MinAgo))!
-      console.log('MARIANO', nachoBlockNumberAtDeployment, nachoBlockNumberFiveMinBeforeDeployment)
-      if (nachoBlockNumberFiveMinBeforeDeployment.timestamp < timestamp5MinAgo) {
-        // Mimic the way TheGraph was calculating this
-        nachoBlockNumberFiveMinBeforeDeployment = {
-          ...nachoBlockNumberFiveMinBeforeDeployment,
-          block: nachoBlockNumberFiveMinBeforeDeployment.block + 1
-        }
-      }
-      const nachos = {
-        blockNumberAtDeployment: nachoBlockNumberAtDeployment,
-        blockNumberFiveMinBeforeDeployment: nachoBlockNumberFiveMinBeforeDeployment
-      }
-
-      logIfDifferent(nachos, blockInformation, timestampSec, timestamp5MinAgo)
-    } catch (e) {
-      console.log(e)
-    }
-    return blockInformation
-  }
-
-  function logIfDifferent(
-    onChainSearch: {
-      blockNumberAtDeployment: BlockInfo | undefined
-      blockNumberFiveMinBeforeDeployment: BlockInfo | undefined
-    },
-    blockInformation: BlockInformation,
-    timestampSec: number,
-    timestamp5MinAgo: number
-  ) {
-    if (
-      onChainSearch.blockNumberAtDeployment?.block === blockInformation.blockNumberAtDeployment &&
-      onChainSearch.blockNumberFiveMinBeforeDeployment?.block === blockInformation.blockNumberFiveMinBeforeDeployment
-    ) {
-      // console.log(`MARIANO: para ${timestampSec}/${timestamp5MinAgo} 0 differences`, {
-      //   nachos: onChainSearch,
-      //   blockInformation
-      // })
-    } else if (
-      onChainSearch.blockNumberAtDeployment?.block !== blockInformation.blockNumberAtDeployment &&
-      onChainSearch.blockNumberFiveMinBeforeDeployment?.block !== blockInformation.blockNumberFiveMinBeforeDeployment
-    ) {
-      console.log(`MARIANO para ${timestampSec}/${timestamp5MinAgo} 2 differences`, {
-        nachos: onChainSearch,
-        blockInformation
-      })
-    } else {
-      console.log(`MARIANO para ${timestampSec}/${timestamp5MinAgo} 1 difference`, {
-        nachos: onChainSearch,
-        blockInformation
-      })
+      blockNumberFiveMinBeforeDeployment: blockNumberFiveMinBeforeDeployment?.block
     }
   }
 
@@ -340,26 +241,6 @@ export const createTheGraphClient = (
     findBlocksForTimestamp
   }
 }
-
-const QUERY_BLOCKS_FOR_TIMESTAMP = `
-query getBlockForTimestampRange($timestamp: Int!, $timestamp5Min: Int!) {
-  min: blocks(
-    where: {timestamp_gte: $timestamp5Min, timestamp_lte: $timestamp}
-    first: 1
-    orderBy: timestamp
-    orderDirection: asc
-  ) {
-    number
-  }
-  max: blocks(
-    where: {timestamp_gte: $timestamp5Min, timestamp_lte: $timestamp}
-    first: 1
-    orderBy: timestamp
-    orderDirection: desc
-  ) {
-    number
-  }
-}`
 
 const QUERY_NAMES_FOR_ADDRESS_AT_BLOCK = `
 query getNftNamesForBlock($block: Int!, $ethAddress: String!, $nameList: [String!]) {
