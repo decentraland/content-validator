@@ -88,5 +88,6 @@ export const allMandatoryContentFilesArePresent: Validation = validationAfterADR
 export const content: Validation = validationGroup(
   allHashesWereUploadedOrStored,
   allHashesInUploadedFilesAreReportedInTheEntity,
-  allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45
+  allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45,
+  allMandatoryContentFilesArePresent
 )
