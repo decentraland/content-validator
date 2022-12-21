@@ -1,6 +1,6 @@
 import { Avatar, EntityType, Profile } from '@dcl/schemas'
 import { fromErrors, Validation } from '../types'
-import { validationAfterADR45, validationGroup } from './validations'
+import { validationAfterADR100, validationAfterADR45, validationGroup } from './validations'
 
 const correspondsToASnapshot = (fileName: string, hash: string, metadata: Profile) => {
   const fileNameWithoutExtension = fileName.replace(/.[^/.]+$/, '')
@@ -32,7 +32,7 @@ export const allHashesWereUploadedOrStored: Validation = {
 }
 
 export const allHashesInUploadedFilesAreReportedInTheEntity: Validation = {
-  async validate(components, deployment) {
+  async validate(_components, deployment) {
     const { entity, files } = deployment
     const errors: string[] = []
     // Validate that all hashes that belong to uploaded files are actually reported on the entity
@@ -47,7 +47,7 @@ export const allHashesInUploadedFilesAreReportedInTheEntity: Validation = {
 }
 
 export const allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45: Validation = validationAfterADR45({
-  async validate(components, deployment) {
+  async validate(_components, deployment) {
     const { entity } = deployment
     const errors: string[] = []
     for (const { file, hash } of entity.content ?? []) {
@@ -58,6 +58,23 @@ export const allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45: Vali
             `This file is not expected: '${file}' or its hash is invalid: '${hash}'. Please, include only valid snapshot files.`
           )
         }
+      }
+    }
+    return fromErrors(...errors)
+  }
+})
+
+export const allMandatoryContentFilesArePresent: Validation = validationAfterADR100({
+  async validate(_components, deployment) {
+    const { entity } = deployment
+    const errors: string[] = []
+    if (entity.type === EntityType.PROFILE) {
+      const fileNames = entity.content.map((a) => a.file.toLowerCase())
+      if (!fileNames.includes('body.png')) {
+        errors.push(`Profile entity is missing file 'body.png'`)
+      }
+      if (!fileNames.includes('face256.png')) {
+        errors.push(`Profile entity is missing file 'face256.png'`)
       }
     }
     return fromErrors(...errors)
