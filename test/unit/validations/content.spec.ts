@@ -44,7 +44,8 @@ describe('Content', () => {
           {
             avatar: {
               snapshots: {
-                body: 'hash'
+                body: 'hash',
+                face256: 'hash'
               }
             }
           }
