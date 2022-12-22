@@ -35,7 +35,10 @@ describe('Content', () => {
 
   it(`When a hash content file was not uploaded but was already stored, then no error is returned`, async () => {
     const entity = buildEntity({
-      content: [{ file: 'body.png', hash: 'hash' }],
+      content: [
+        { file: 'body.png', hash: 'hash' },
+        { file: 'face256.png', hash: 'hash' }
+      ],
       metadata: {
         avatars: [
           {
