@@ -1,6 +1,6 @@
 import { Avatar, EntityType, Profile } from '@dcl/schemas'
 import { fromErrors, Validation } from '../types'
-import { validationAfterADR100, validationAfterADR45, validationGroup } from './validations'
+import { validationAfterADR158, validationAfterADR45, validationGroup } from './validations'
 
 const correspondsToASnapshot = (fileName: string, hash: string, metadata: Profile) => {
   const fileNameWithoutExtension = fileName.replace(/.[^/.]+$/, '')
@@ -64,7 +64,7 @@ export const allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45: Vali
   }
 })
 
-export const allMandatoryContentFilesArePresent: Validation = validationAfterADR100({
+export const allMandatoryContentFilesArePresent: Validation = validationAfterADR158({
   async validate(_components, deployment) {
     const { entity } = deployment
     const errors: string[] = []
@@ -88,5 +88,6 @@ export const allMandatoryContentFilesArePresent: Validation = validationAfterADR
 export const content: Validation = validationGroup(
   allHashesWereUploadedOrStored,
   allHashesInUploadedFilesAreReportedInTheEntity,
-  allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45
+  allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45,
+  allMandatoryContentFilesArePresent
 )

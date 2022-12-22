@@ -5,7 +5,7 @@ import {
   allMandatoryContentFilesArePresent,
   content
 } from '../../../src/validations/content'
-import { ADR_100_TIMESTAMP, ADR_45_TIMESTAMP } from '../../../src/validations/timestamps'
+import { ADR_158_TIMESTAMP, ADR_45_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
 import { buildComponents, buildExternalCalls } from '../../setup/mock'
@@ -177,7 +177,7 @@ describe('Content', () => {
       const entity = buildEntity({
         metadata: VALID_PROFILE_METADATA,
         content: [],
-        timestamp: ADR_100_TIMESTAMP - 1
+        timestamp: ADR_158_TIMESTAMP - 1
       })
 
       const deployment = buildDeployment({ entity })
@@ -189,7 +189,7 @@ describe('Content', () => {
       const entity = buildEntity({
         metadata: VALID_PROFILE_METADATA,
         content: [],
-        timestamp: ADR_100_TIMESTAMP + 1
+        timestamp: ADR_158_TIMESTAMP + 1
       })
 
       const deployment = buildDeployment({ entity })
@@ -212,7 +212,7 @@ describe('Content', () => {
       const entity = buildEntity({
         metadata: VALID_PROFILE_METADATA,
         content: contentItems,
-        timestamp: ADR_100_TIMESTAMP + 1
+        timestamp: ADR_158_TIMESTAMP + 1
       })
 
       const deployment = buildDeployment({ entity, files })
