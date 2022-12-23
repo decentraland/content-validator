@@ -123,12 +123,19 @@ export const fromErrors = (...errors: Errors): ValidationResponse => ({
 })
 
 /**
+ * @public
+ */
+export type Checker = {
+  checkLAND(address: string, x: number, y: number, block: number): Promise<boolean>
+}
+
+/**
  * A list with all sub-graphs used for validations.
  * @public
  */
 export type SubGraphs = {
   L1: {
-    landManager: ISubgraphComponent
+    checker: Checker
     collections: ISubgraphComponent
     ensOwner: ISubgraphComponent
   }

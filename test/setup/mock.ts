@@ -1,7 +1,7 @@
 import { IConfigComponent, ILoggerComponent } from '@well-known-components/interfaces'
 import { ISubgraphComponent } from '@well-known-components/thegraph-component'
 import { createTheGraphClient } from '../../src'
-import { ContentValidatorComponents, ExternalCalls, QueryGraph, SubGraphs } from '../../src/types'
+import { Checker, ContentValidatorComponents, ExternalCalls, QueryGraph, SubGraphs } from '../../src/types'
 import { ItemCollection } from '../../src/validations/access-checker/items/collection-asset'
 import { createConfigComponent } from '@well-known-components/env-config-provider'
 import { BlockInfo, BlockRepository, createAvlBlockSearch, metricsDefinitions } from '@dcl/block-indexer'
@@ -16,6 +16,12 @@ export const buildLogger = (): ILoggerComponent => ({
     log() {}
   })
 })
+
+export function createMockChecker(): Checker {
+  return {
+    checkLAND: jest.fn()
+  }
+}
 
 export const buildComponents = (components?: Partial<ContentValidatorComponents>): ContentValidatorComponents => {
   const config = components?.config ?? buildConfig({})
@@ -78,8 +84,8 @@ export function buildSubGraphs(subGraphs?: Partial<SubGraphs>): SubGraphs {
   const logs = buildLogger()
   return {
     L1: {
+      checker: createMockChecker(),
       collections: createMockSubgraphComponent(),
-      landManager: createMockSubgraphComponent(),
       ensOwner: createMockSubgraphComponent()
     },
     L2: {
@@ -148,7 +154,7 @@ export function buildMockedQueryGraph(collection?: Partial<ItemCollection>, _mer
           accounts: [{ id: COMMITTEE_MEMBER }]
         })
       ),
-      landManager: createMockSubgraphComponent(),
+      checker: createMockChecker(),
       ensOwner: createMockSubgraphComponent()
     },
     L2: {
@@ -189,8 +195,8 @@ export const fetcherWithValidCollectionAndCreator = (address: string): SubGraphs
 export function fetcherWithThirdPartyMerkleRoot(root: string): SubGraphs {
   return buildSubGraphs({
     L1: {
+      checker: createMockChecker(),
       collections: createMockSubgraphComponent(),
-      landManager: createMockSubgraphComponent(),
       ensOwner: createMockSubgraphComponent()
     },
     L2: {
@@ -211,8 +217,8 @@ export function fetcherWithThirdPartyMerkleRoot(root: string): SubGraphs {
 export const fetcherWithThirdPartyEmptyMerkleRoots = (): SubGraphs =>
   buildSubGraphs({
     L1: {
+      checker: createMockChecker(),
       collections: createMockSubgraphComponent(),
-      landManager: createMockSubgraphComponent(),
       ensOwner: createMockSubgraphComponent()
     },
     L2: {
@@ -263,12 +269,12 @@ export function fetcherWithItemsOwnership(
 ): SubGraphs {
   return buildSubGraphs({
     L1: {
+      checker: createMockChecker(),
       collections: createMockSubgraphComponent(
         jest.fn().mockResolvedValue({
           items: ethereum ?? defaultEthereum
         })
       ),
-      landManager: createMockSubgraphComponent(),
       ensOwner: createMockSubgraphComponent(
         jest.fn().mockResolvedValue({
           names: ens ?? defaultEns
