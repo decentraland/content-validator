@@ -472,10 +472,10 @@
   resolved "https://registry.npmjs.org/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@dcl/block-indexer@1.0.0-20221219151053.commit-69f0ed7":
-  version "1.0.0-20221219151053.commit-69f0ed7"
-  resolved "https://registry.yarnpkg.com/@dcl/block-indexer/-/block-indexer-1.0.0-20221219151053.commit-69f0ed7.tgz#8b9ef4cfafde2efb6695e4f54a20fbf38dadd4a8"
-  integrity sha512-s4CV0cc2zr82van8gXeReXHXCIELvHb/htjGabLiDsfwtPgQqshby0E/PgTfNFYqPBmJWY8VxkS1XgKVMmZ1zw==
+"@dcl/block-indexer@^1.0.0-20221223191317.commit-2d753e7":
+  version "1.0.0-20221223191317.commit-2d753e7"
+  resolved "https://registry.yarnpkg.com/@dcl/block-indexer/-/block-indexer-1.0.0-20221223191317.commit-2d753e7.tgz#a255bfbad56b7af4a37b636a8f6d8b9c0d454fd1"
+  integrity sha512-7aEWfJTY/vPQihDmBYuStYezCRNmeRQrFCcgsNUtYRdU9tmtjQsuT3M+miWTPM+4k/YVPOVPwtYMPbi7uaRTsA==
   dependencies:
     "@well-known-components/interfaces" "^1.1.3"
     "@well-known-components/logger" "^3.0.0"

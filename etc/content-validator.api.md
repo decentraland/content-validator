@@ -23,6 +23,11 @@ export type BlockInformation = {
 export const calculateDeploymentSize: (deployment: DeploymentToValidate, externalCalls: ExternalCalls) => Promise<number | string>;
 
 // @public (undocumented)
+export type Checker = {
+    checkLAND(address: string, x: number, y: number, block: number): Promise<boolean>;
+};
+
+// @public (undocumented)
 export type ConditionalValidation = {
     predicate: (components: ContentValidatorComponents, deployment: DeploymentToValidate) => ValidationResponse | Promise<ValidationResponse>;
 };
@@ -92,7 +97,7 @@ export const statelessValidations: readonly [Validation, Validation, Validation]
 // @public
 export type SubGraphs = {
     L1: {
-        landManager: ISubgraphComponent;
+        checker: Checker;
         collections: ISubgraphComponent;
         ensOwner: ISubgraphComponent;
     };
@@ -144,7 +149,7 @@ export type Warnings = string[];
 
 // Warnings were encountered during analysis:
 //
-// src/types.ts:147:3 - (ae-forgotten-export) The symbol "PermissionResult" needs to be exported by the entry point index.d.ts
+// src/types.ts:154:3 - (ae-forgotten-export) The symbol "PermissionResult" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 
