@@ -1,8 +1,7 @@
-import { scenes } from '../../../src/validations/access-checker/scenes'
 import { access } from '../../../src/validations/access-checker/access'
+import { scenes } from '../../../src/validations/access-checker/scenes'
 import { buildSceneDeployment } from '../../setup/deployments'
 import { buildComponents, buildConfig, buildExternalCalls } from '../../setup/mock'
-import { throws } from 'assert'
 
 describe('Access: scenes', () => {
   it('When a non-decentraland address tries to deploy a default scene, then an error is returned', async () => {
