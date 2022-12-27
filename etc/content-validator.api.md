@@ -24,7 +24,7 @@ export const calculateDeploymentSize: (deployment: DeploymentToValidate, externa
 
 // @public (undocumented)
 export type Checker = {
-    checkLAND(address: string, x: number, y: number, block: number): Promise<boolean>;
+    checkLAND(ethAddress: string, parcels: [number, number][], block: number): Promise<boolean[]>;
 };
 
 // @public (undocumented)
