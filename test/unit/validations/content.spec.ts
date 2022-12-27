@@ -2,9 +2,10 @@ import {
   allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45,
   allHashesInUploadedFilesAreReportedInTheEntity,
   allHashesWereUploadedOrStored,
+  allMandatoryContentFilesArePresent,
   content
 } from '../../../src/validations/content'
-import { ADR_45_TIMESTAMP } from '../../../src/validations/timestamps'
+import { ADR_158_TIMESTAMP, ADR_45_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
 import { buildComponents, buildExternalCalls } from '../../setup/mock'
@@ -34,13 +35,17 @@ describe('Content', () => {
 
   it(`When a hash content file was not uploaded but was already stored, then no error is returned`, async () => {
     const entity = buildEntity({
-      content: [{ file: 'body.png', hash: 'hash' }],
+      content: [
+        { file: 'body.png', hash: 'hash' },
+        { file: 'face256.png', hash: 'hash' }
+      ],
       metadata: {
         avatars: [
           {
             avatar: {
               snapshots: {
-                body: 'hash'
+                body: 'hash',
+                face256: 'hash'
               }
             }
           }
@@ -167,6 +172,55 @@ describe('Content', () => {
         components,
         deployment
       )
+      expect(result.ok).toBeTruthy()
+    })
+  })
+
+  describe('ADR_100: ', () => {
+    it(`When profile content files are empty before ADR 100, it is not reported`, async () => {
+      const entity = buildEntity({
+        metadata: VALID_PROFILE_METADATA,
+        content: [],
+        timestamp: ADR_158_TIMESTAMP - 1
+      })
+
+      const deployment = buildDeployment({ entity })
+      const result = await allMandatoryContentFilesArePresent.validate(components, deployment)
+      expect(result.ok).toBeTruthy()
+    })
+
+    it(`When profile content files are empty after ADR 100, it is reported`, async () => {
+      const entity = buildEntity({
+        metadata: VALID_PROFILE_METADATA,
+        content: [],
+        timestamp: ADR_158_TIMESTAMP + 1
+      })
+
+      const deployment = buildDeployment({ entity })
+      const result = await allMandatoryContentFilesArePresent.validate(components, deployment)
+      expect(result.ok).toBeFalsy()
+      expect(result.errors).toContain("Profile entity is missing file 'body.png'")
+      expect(result.errors).toContain("Profile entity is missing file 'face256.png'")
+    })
+
+    it(`When profile content files are all present after ADR 100, it is not reported`, async () => {
+      const faceFile = 'face256.png'
+      const bodyFile = 'body.png'
+      const hash = 'bafybeiasb5vpmaounyilfuxbd3lryvosl4yefqrfahsb2esg46q6tu6y5q'
+
+      const contentItems = [
+        { file: faceFile, hash },
+        { file: bodyFile, hash }
+      ]
+      const files = new Map([[hash, Buffer.from([])]])
+      const entity = buildEntity({
+        metadata: VALID_PROFILE_METADATA,
+        content: contentItems,
+        timestamp: ADR_158_TIMESTAMP + 1
+      })
+
+      const deployment = buildDeployment({ entity, files })
+      const result = await allMandatoryContentFilesArePresent.validate(components, deployment)
       expect(result.ok).toBeTruthy()
     })
   })

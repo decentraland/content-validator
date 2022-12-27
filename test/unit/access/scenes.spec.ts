@@ -1,5 +1,5 @@
-import { scenes } from '../../../src/validations/access-checker/scenes'
 import { access } from '../../../src/validations/access-checker/access'
+import { scenes } from '../../../src/validations/access-checker/scenes'
 import { buildSceneDeployment } from '../../setup/deployments'
 import { buildComponents, buildConfig, buildExternalCalls } from '../../setup/mock'
 
