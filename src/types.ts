@@ -126,7 +126,7 @@ export const fromErrors = (...errors: Errors): ValidationResponse => ({
  * @public
  */
 export type Checker = {
-  checkLAND(address: string, x: number, y: number, block: number): Promise<boolean>
+  checkLAND(ethAddress: string, parcels: [number, number][], block: number): Promise<boolean[]>
 }
 
 /**

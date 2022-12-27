@@ -8,9 +8,11 @@ const SCENE_LOOKBACK_TIME = ms('5m')
  * @public
  */
 export const scenes: Validation = {
-  validate: async ({ externalCalls, subGraphs }, deployment) => {
+  validate: async ({ externalCalls, subGraphs, logs }, deployment) => {
     const { entity } = deployment
     const { pointers, timestamp } = entity
+
+    const logger = logs.getLogger('scenes-validator')
 
     let block: number
     try {
@@ -30,24 +32,34 @@ export const scenes: Validation = {
     const errors = []
     const lowerCasePointers = pointers.map((pointer) => pointer.toLowerCase())
 
+    const batch: [number, number][] = []
+
     for (const pointer of lowerCasePointers) {
       const pointerParts: string[] = pointer.split(',')
       if (pointerParts.length === 2) {
         const x: number = parseInt(pointerParts[0], 10)
         const y: number = parseInt(pointerParts[1], 10)
-        try {
-          const hasAccess = await subGraphs.L1.checker.checkLAND(ethAddress, x, y, block)
-          if (!hasAccess) {
-            errors.push(`The provided Eth Address does not have access to the following parcel: (${x},${y})`)
-          }
-        } catch (e) {
-          errors.push(`The provided Eth Address does not have access to the following parcel: (${x},${y}). ${e}`)
-        }
+
+        batch.push([x, y])
       } else {
         errors.push(
           `Scene pointers should only contain two integers separated by a comma, for example (10,10) or (120,-45). Invalid pointer: ${pointer}`
         )
       }
+    }
+
+    try {
+      const access = await subGraphs.L1.checker.checkLAND(ethAddress, batch, block)
+      for (let i = 0; i < batch.length; i++) {
+        const [x, y] = batch[i]
+        const hasAccess = access[i]
+        if (!hasAccess) {
+          errors.push(`The provided Eth Address does not have access to the following parcel: (${x},${y})`)
+        }
+      }
+    } catch (err: any) {
+      logger.error(err)
+      return fromErrors(`Cannot validate deployment`)
     }
 
     return fromErrors(...errors)
