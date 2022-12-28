@@ -517,9 +517,9 @@
     multiformats "^9.6.3"
 
 "@dcl/schemas@^5.4.2":
-  version "5.29.0"
-  resolved "https://registry.yarnpkg.com/@dcl/schemas/-/schemas-5.29.0.tgz#434bd1642fd0e66933d308b309d2b710d3233e04"
-  integrity sha512-nLGFpIa3wRqlqoBuGpJGxgwsWMcKuTuphq6pf7PPjuv6ZyveUeaklKBl77VEfQvInAexMIqtljxsfA/ISZdkkw==
+  version "5.31.0"
+  resolved "https://registry.yarnpkg.com/@dcl/schemas/-/schemas-5.31.0.tgz#2f0eff5243a1fecd864fb60660d609834c318607"
+  integrity sha512-hptlcPSUWtYgtbXaMYs/znlh1LLb2snBNJYc1u0Ng4wBs4XdpyEN1kgSAsNWUl4XmX5NSoW8t24E+fJ5BjWQIA==
   dependencies:
     ajv "^8.11.0"
     ajv-errors "^3.0.0"
@@ -1826,9 +1826,9 @@
     prom-client "^14.1.0"
 
 "@well-known-components/thegraph-component@^1.2.0":
-  version "1.3.2"
-  resolved "https://registry.yarnpkg.com/@well-known-components/thegraph-component/-/thegraph-component-1.3.2.tgz#299ac90495e7af518952c86ee98ba35910d66a04"
-  integrity sha512-E6jzQ3CKxOY7G5E8bMHXwhYu6JCYh0P1vdOoPZqrEZdeOeeJkwb7gyNie6rJsNQcw5Fy8DG4VLy9crlWvi5sFg==
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@well-known-components/thegraph-component/-/thegraph-component-1.4.1.tgz#bf4f0e0fc1eb0401d2cdc30a2d4a7d94ba7fd536"
+  integrity sha512-NwMHs+rS9L+CcB6Nxx+74Q9daK/3A1Hoav9loO5Eyw0T+LEu3PHdGY+hf3bzFMYpILByrMoX656E9DhT7/GHaQ==
   dependencies:
     "@well-known-components/http-server" "^1.1.0"
     "@well-known-components/interfaces" "^1.1.0"
