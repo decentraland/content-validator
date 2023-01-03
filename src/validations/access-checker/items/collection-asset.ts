@@ -1,35 +1,10 @@
 import { hashV0, hashV1 } from '@dcl/hashing'
-import { EthAddress } from '@dcl/schemas'
 import { BlockchainCollectionV1Asset, BlockchainCollectionV2Asset } from '@dcl/urn-resolver'
-import { ILoggerComponent } from '@well-known-components/interfaces'
-import { ISubgraphComponent } from '@well-known-components/thegraph-component'
-import {
-  ContentValidatorComponents,
-  DeploymentToValidate,
-  EntityWithEthAddress,
-  OK,
-  validationFailed
-} from '../../../types'
+import { ContentValidatorComponents, DeploymentToValidate, OK, validationFailed } from '../../../types'
 import { AssetValidation } from './items'
-import { BlockSearch } from '@dcl/block-indexer'
 
 const L1_NETWORKS = ['mainnet', 'kovan', 'rinkeby', 'goerli']
 const L2_NETWORKS = ['matic', 'mumbai']
-
-type ItemPermissionsData = {
-  collectionCreator: string
-  collectionManagers: string[]
-  itemManagers: string[]
-  isApproved: boolean
-  isCompleted: boolean
-  contentHash: string
-  committee: EthAddress[]
-}
-
-type ItemCollections = {
-  collections: ItemCollection[]
-  accounts: { id: EthAddress }[]
-}
 
 type CollectionItem = {
   managers: string[]
@@ -44,68 +19,29 @@ export type ItemCollection = {
   items: CollectionItem[]
 }
 
-async function getCollectionItems(
-  components: Pick<ContentValidatorComponents, 'externalCalls'>,
-  subgraph: ISubgraphComponent,
-  collection: string,
-  itemId: string,
-  block: number
-): Promise<ItemPermissionsData> {
-  const query = `
-         query getCollectionRoles($collection: String!, $itemId: String!, $block: Int!) {
-            collections(where:{ id: $collection }, block: { number: $block }) {
-              creator
-              managers
-              isApproved
-              isCompleted
-              items(where:{ id: $itemId }) {
-                managers
-                contentHash
-              }
-            }
+export const v1andV2collectionAssetValidation: AssetValidation = {
+  async validateAsset(
+    components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'theGraphClient' | 'subGraphs'>,
+    asset: BlockchainCollectionV1Asset | BlockchainCollectionV2Asset,
+    deployment: DeploymentToValidate
+  ) {
+    const { externalCalls, subGraphs } = components
+    const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
+    const logger = components.logs.getLogger('collection asset access validation')
+    const network = asset.network
 
-            accounts(where:{ isCommitteeMember: true }, block: { number: $block }) {
-              id
-            }
-        }`
-
-  const result = await subgraph.query<ItemCollections>(query, {
-    collection,
-    itemId: `${collection}-${itemId}`,
-    block
-  })
-  const collectionResult = result.collections[0]
-  const itemResult = collectionResult?.items[0]
-  return {
-    collectionCreator: collectionResult?.creator,
-    collectionManagers: collectionResult?.managers,
-    isApproved: collectionResult?.isApproved,
-    isCompleted: collectionResult?.isCompleted,
-    itemManagers: itemResult?.managers,
-    contentHash: itemResult?.contentHash,
-    committee: result.accounts.map(({ id }) => id.toLowerCase())
-  }
-}
-
-async function hasPermission(
-  components: Pick<ContentValidatorComponents, 'externalCalls'>,
-  subgraph: ISubgraphComponent,
-  collection: string,
-  itemId: string,
-  block: number,
-  entity: EntityWithEthAddress,
-  logger: ILoggerComponent.ILogger
-): Promise<boolean> {
-  try {
-    const { content, metadata } = entity
-    const permissions: ItemPermissionsData = await getCollectionItems(components, subgraph, collection, itemId, block)
-    const ethAddressLowercase = entity.ethAddress.toLowerCase()
-
-    if (!!permissions.contentHash) {
-      const deployedByCommittee = permissions.committee.includes(ethAddressLowercase)
-      if (!deployedByCommittee) {
-        logger.debug(`The eth address ${ethAddressLowercase} is not part of committee.`)
+    if (L1_NETWORKS.includes(network)) {
+      // L1 collections are deployed by Decentraland Address
+      const isAllowlistedCollection = asset.uri.toString().startsWith('urn:decentraland:ethereum:collections-v1')
+      if (!externalCalls.isAddressOwnedByDecentraland(ethAddress) || !isAllowlistedCollection) {
+        return validationFailed(
+          `The provided Eth Address '${ethAddress}' does not have access to the following item: '${asset.uri}'`
+        )
       }
+      return OK
+    } else if (L2_NETWORKS.includes(network)) {
+      const { timestamp, content, metadata } = deployment.entity
+
       const calculateHashes = () => {
         // Compare both by key and hash
         const compare = (a: { key: string; hash: string }, b: { key: string; hash: string }) => {
@@ -118,111 +54,37 @@ async function hasPermission(
         const buffer = Buffer.from(JSON.stringify({ content: contentAsJson, metadata }))
         return Promise.all([hashV0(buffer), hashV1(buffer)])
       }
-      const hashes = await calculateHashes()
-      const contentHashIsOk = hashes.includes(permissions.contentHash)
-      if (!contentHashIsOk) {
-        logger.debug(
-          `The hash ${permissions.contentHash} doesn't match any of the calculated hashes: ${JSON.stringify(hashes)}.`
-        )
+
+      let hasAccess = false
+      try {
+        const block = await subGraphs.l2BlockSearch.findBlockForTimestamp(timestamp)
+        if (!block) {
+          throw new Error(`block not found for timestamp ${timestamp}`)
+        }
+        // NOTE(hugo): I'm calculating both hashes so I can make one RPC request (they are processed together as a batch),
+        // this may not be the right call, since it's possible to argue that a
+        // hash call is more expensive than a RPC call, but since I have no
+        // data to make a better decision, I think this is good enough
+        const [hashV0, hashV1] = await calculateHashes()
+        const [hashV0Valid, hashV1Valid] = await Promise.all([
+          subGraphs.L2.checker.validateWearables(ethAddress, asset.contractAddress!, asset.id, hashV0, block.block),
+          subGraphs.L2.checker.validateWearables(ethAddress, asset.contractAddress!, asset.id, hashV1, block.block)
+        ])
+
+        hasAccess = hashV0Valid || hashV1Valid
+      } catch (err: any) {
+        logger.error(err)
       }
-      return deployedByCommittee && contentHashIsOk
-    } else {
-      const addressHasAccess =
-        (permissions.collectionCreator && permissions.collectionCreator === ethAddressLowercase) ||
-        (permissions.collectionManagers && permissions.collectionManagers.includes(ethAddressLowercase)) ||
-        (permissions.itemManagers && permissions.itemManagers.includes(ethAddressLowercase))
 
-      // Deployments to the content server are made after the collection is completed, so that the committee can then approve it.
-      // That's why isCompleted must be true, but isApproved must be false. After the committee approves the wearable, there can't be any more changes
-      const isCollectionValid = !permissions.isApproved && permissions.isCompleted
-
-      return addressHasAccess && isCollectionValid
-    }
-  } catch (error) {
-    logger.error(`Error checking permission for (${collection}-${itemId}) at block ${block}. Error: ${error}`)
-    return false
-  }
-}
-
-async function checkCollectionAccess(
-  components: Pick<ContentValidatorComponents, 'externalCalls' | 'theGraphClient'>,
-  collectionsSubgraph: ISubgraphComponent,
-  collection: string,
-  itemId: string,
-  entity: EntityWithEthAddress,
-  logger: ILoggerComponent.ILogger,
-  blockSearch: BlockSearch
-): Promise<boolean> {
-  const { timestamp } = entity
-  try {
-    const { blockNumberAtDeployment, blockNumberFiveMinBeforeDeployment } =
-      await components.theGraphClient.findBlocksForTimestamp(timestamp, blockSearch)
-    // It could happen that the subgraph hasn't synced yet, so someone who just lost access still managed to make a deployment. The problem would be that when other catalysts perform
-    // the same check, the subgraph might have synced and the deployment is no longer valid. So, in order to prevent inconsistencies between catalysts, we will allow all deployments that
-    // have access now, or had access 5 minutes ago.
-
-    const hasPermissionOnBlock = async (blockNumber: number | undefined) =>
-      !!blockNumber &&
-      (await hasPermission(components, collectionsSubgraph, collection, itemId, blockNumber, entity, logger))
-    return (
-      (await hasPermissionOnBlock(blockNumberAtDeployment)) ||
-      (await hasPermissionOnBlock(blockNumberFiveMinBeforeDeployment))
-    )
-  } catch (error) {
-    logger.error(
-      `Error checking wearable access (${collection}, ${itemId}, ${entity.ethAddress}, ${timestamp}). Error: ${error}`
-    )
-    return false
-  }
-}
-
-export const v1andV2collectionAssetValidation: AssetValidation = {
-  async validateAsset(
-    components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'theGraphClient' | 'subGraphs'>,
-    asset: BlockchainCollectionV1Asset | BlockchainCollectionV2Asset,
-    deployment: DeploymentToValidate
-  ) {
-    const { externalCalls, subGraphs } = components
-    const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
-    const logger = components.logs.getLogger('collection asset access validation')
-    // L1 or L2 so contractAddress is present
-    const collection = asset.contractAddress!
-    const network = asset.network
-
-    const isL1 = L1_NETWORKS.includes(network)
-    const isL2 = L2_NETWORKS.includes(network)
-    if (!isL1 && !isL2) return validationFailed(`Found an unknown network on the urn '${network}'`)
-
-    const collectionsSubgraphUrl = isL1 ? subGraphs.L1.collections : subGraphs.L2.collections
-
-    const hasAccess = await checkCollectionAccess(
-      components,
-      collectionsSubgraphUrl,
-      collection,
-      asset.id,
-      {
-        ...deployment.entity,
-        ethAddress
-      },
-      logger,
-      isL1 ? components.subGraphs.l1BlockSearch : components.subGraphs.l2BlockSearch
-    )
-
-    if (!hasAccess) {
-      if (isL2)
+      if (!hasAccess) {
         return validationFailed(
           `The provided Eth Address '${ethAddress}' does not have access to the following item: (${asset.contractAddress}, ${asset.id})`
         )
-
-      // L1 collections are deployed by Decentraland Address
-      const isAllowlistedCollection = asset.uri.toString().startsWith('urn:decentraland:ethereum:collections-v1')
-      if (!externalCalls.isAddressOwnedByDecentraland(ethAddress) || !isAllowlistedCollection) {
-        return validationFailed(
-          `The provided Eth Address '${ethAddress}' does not have access to the following item: '${asset.uri}'`
-        )
       }
+      return OK
+    } else {
+      return validationFailed(`Found an unknown network on the urn '${network}'`)
     }
-    return OK
   },
   canValidate(asset): asset is BlockchainCollectionV1Asset | BlockchainCollectionV2Asset {
     return asset.type === 'blockchain-collection-v1-asset' || asset.type === 'blockchain-collection-v2-asset'

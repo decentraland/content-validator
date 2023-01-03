@@ -6,7 +6,8 @@ import {
   buildLogger,
   buildSubGraphs,
   createMockBlockRepository,
-  createMockChecker,
+  createMockL1Checker,
+  createMockL2Checker,
   createMockSubgraphComponent
 } from '../../setup/mock'
 
@@ -48,7 +49,7 @@ describe('TheGraphClient', () => {
     it('When no block for current timestamp, it should continue and check the block from 5 minute before', async () => {
       const subGraphs = buildSubGraphs({
         L1: {
-          checker: createMockChecker(),
+          checker: createMockL1Checker(),
           collections: createMockSubgraphComponent(),
           ensOwner: createMockSubgraphComponent(
             jest.fn().mockImplementation(async (_query, _variables) => {
@@ -88,7 +89,7 @@ describe('TheGraphClient', () => {
     it('When current block has not been indexed yet, it should continue and check the block from 5 minute before', async () => {
       const subGraphs = buildSubGraphs({
         L1: {
-          checker: createMockChecker(),
+          checker: createMockL1Checker(),
           collections: createMockSubgraphComponent(),
           ensOwner: createMockSubgraphComponent(
             jest.fn().mockImplementation(async (_query, _variables) => {
@@ -125,7 +126,7 @@ describe('TheGraphClient', () => {
     it('When both current and 5-min before blocks have not been indexed yet, it should report error', async () => {
       const subGraphs = buildSubGraphs({
         L1: {
-          checker: createMockChecker(),
+          checker: createMockL1Checker(),
           collections: createMockSubgraphComponent(),
           ensOwner: createMockSubgraphComponent(jest.fn().mockRejectedValue('error'))
         }
@@ -146,7 +147,7 @@ describe('TheGraphClient', () => {
     it('When no block for current timestamp, it should continue and check the block from 5 minute before', async () => {
       const subGraphs = buildSubGraphs({
         L1: {
-          checker: createMockChecker(),
+          checker: createMockL1Checker(),
           collections: createMockSubgraphComponent(
             jest.fn().mockResolvedValue({
               items: [
@@ -159,6 +160,7 @@ describe('TheGraphClient', () => {
           ensOwner: createMockSubgraphComponent(jest.fn().mockRejectedValue('error'))
         },
         L2: {
+          checker: createMockL2Checker(),
           thirdPartyRegistry: createMockSubgraphComponent(),
           collections: createMockSubgraphComponent(
             jest.fn().mockResolvedValue({
@@ -202,7 +204,7 @@ describe('TheGraphClient', () => {
     it('When current block has not been indexed yet, it should continue and check the block from 5 minute before', async () => {
       const subGraphs = buildSubGraphs({
         L1: {
-          checker: createMockChecker(),
+          checker: createMockL1Checker(),
           collections: createMockSubgraphComponent(
             jest.fn().mockImplementation(async (_query, _variables) => {
               if (_variables['block'] === 123500) {
@@ -221,6 +223,7 @@ describe('TheGraphClient', () => {
           ensOwner: createMockSubgraphComponent()
         },
         L2: {
+          checker: createMockL2Checker(),
           thirdPartyRegistry: createMockSubgraphComponent(),
           collections: createMockSubgraphComponent(
             jest.fn().mockResolvedValue({
@@ -263,11 +266,12 @@ describe('TheGraphClient', () => {
     it('When both current and 5-min before blocks have not been indexed yet, it should report error', async () => {
       const subGraphs = buildSubGraphs({
         L1: {
-          checker: createMockChecker(),
+          checker: createMockL1Checker(),
           collections: createMockSubgraphComponent(jest.fn().mockRejectedValue('error')),
           ensOwner: createMockSubgraphComponent()
         },
         L2: {
+          checker: createMockL2Checker(),
           thirdPartyRegistry: createMockSubgraphComponent(),
           collections: createMockSubgraphComponent(jest.fn().mockRejectedValue('error'))
         }

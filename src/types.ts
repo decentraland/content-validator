@@ -125,8 +125,23 @@ export const fromErrors = (...errors: Errors): ValidationResponse => ({
 /**
  * @public
  */
-export type Checker = {
+export type L1Checker = {
   checkLAND(ethAddress: string, parcels: [number, number][], block: number): Promise<boolean[]>
+}
+
+/**
+ * @public
+ */
+export type L2Checker = {
+  validateWearables(
+    ethAddress: string,
+    contractAddress: string,
+    assetId: string,
+    hash: string,
+    block: number
+  ): Promise<boolean>
+
+  validateThirdParty(ethAddress: string, tpId: string, root: Buffer, block: number): Promise<boolean>
 }
 
 /**
@@ -135,13 +150,13 @@ export type Checker = {
  */
 export type SubGraphs = {
   L1: {
-    checker: Checker
+    checker: L1Checker
     collections: ISubgraphComponent
     ensOwner: ISubgraphComponent
   }
   L2: {
+    checker: L2Checker
     collections: ISubgraphComponent
-    thirdPartyRegistry: ISubgraphComponent
   }
   l1BlockSearch: BlockSearch
   l2BlockSearch: BlockSearch

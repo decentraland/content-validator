@@ -1,7 +1,7 @@
 import { IConfigComponent, ILoggerComponent } from '@well-known-components/interfaces'
 import { ISubgraphComponent } from '@well-known-components/thegraph-component'
 import { createTheGraphClient } from '../../src'
-import { Checker, ContentValidatorComponents, ExternalCalls, QueryGraph, SubGraphs } from '../../src/types'
+import { ContentValidatorComponents, ExternalCalls, L1Checker, L2Checker, QueryGraph, SubGraphs } from '../../src/types'
 import { ItemCollection } from '../../src/validations/access-checker/items/collection-asset'
 import { createConfigComponent } from '@well-known-components/env-config-provider'
 import { BlockInfo, BlockRepository, createAvlBlockSearch, metricsDefinitions } from '@dcl/block-indexer'
@@ -17,9 +17,15 @@ export const buildLogger = (): ILoggerComponent => ({
   })
 })
 
-export function createMockChecker(): Checker {
+export function createMockL1Checker(): L1Checker {
   return {
     checkLAND: jest.fn()
+  }
+}
+
+export function createMockL2Checker(): L2Checker {
+  return {
+    validateWearables: jest.fn()
   }
 }
 
@@ -84,11 +90,12 @@ export function buildSubGraphs(subGraphs?: Partial<SubGraphs>): SubGraphs {
   const logs = buildLogger()
   return {
     L1: {
-      checker: createMockChecker(),
+      checker: createMockL1Checker(),
       collections: createMockSubgraphComponent(),
       ensOwner: createMockSubgraphComponent()
     },
     L2: {
+      checker: createMockL2Checker(),
       collections: createMockSubgraphComponent(),
       thirdPartyRegistry: createMockSubgraphComponent()
     },
@@ -154,10 +161,11 @@ export function buildMockedQueryGraph(collection?: Partial<ItemCollection>, _mer
           accounts: [{ id: COMMITTEE_MEMBER }]
         })
       ),
-      checker: createMockChecker(),
+      checker: createMockL1Checker(),
       ensOwner: createMockSubgraphComponent()
     },
     L2: {
+      checker: createMockL2Checker(),
       thirdPartyRegistry: createMockSubgraphComponent(),
       collections: createMockSubgraphComponent(
         jest.fn().mockResolvedValueOnce({
@@ -195,11 +203,12 @@ export const fetcherWithValidCollectionAndCreator = (address: string): SubGraphs
 export function fetcherWithThirdPartyMerkleRoot(root: string): SubGraphs {
   return buildSubGraphs({
     L1: {
-      checker: createMockChecker(),
+      checker: createMockL1Checker(),
       collections: createMockSubgraphComponent(),
       ensOwner: createMockSubgraphComponent()
     },
     L2: {
+      checker: createMockL2Checker(),
       thirdPartyRegistry: createMockSubgraphComponent(
         jest.fn().mockResolvedValueOnce({
           thirdParties: [
@@ -217,11 +226,12 @@ export function fetcherWithThirdPartyMerkleRoot(root: string): SubGraphs {
 export const fetcherWithThirdPartyEmptyMerkleRoots = (): SubGraphs =>
   buildSubGraphs({
     L1: {
-      checker: createMockChecker(),
+      checker: createMockL1Checker(),
       collections: createMockSubgraphComponent(),
       ensOwner: createMockSubgraphComponent()
     },
     L2: {
+      checker: createMockL2Checker(),
       thirdPartyRegistry: createMockSubgraphComponent(
         jest.fn().mockResolvedValueOnce({
           thirdParties: []
@@ -269,7 +279,7 @@ export function fetcherWithItemsOwnership(
 ): SubGraphs {
   return buildSubGraphs({
     L1: {
-      checker: createMockChecker(),
+      checker: createMockL1Checker(),
       collections: createMockSubgraphComponent(
         jest.fn().mockResolvedValue({
           items: ethereum ?? defaultEthereum
@@ -282,6 +292,7 @@ export function fetcherWithItemsOwnership(
       )
     },
     L2: {
+      checker: createMockL2Checker(),
       thirdPartyRegistry: createMockSubgraphComponent(
         jest.fn().mockResolvedValue({
           thirdParties: []
