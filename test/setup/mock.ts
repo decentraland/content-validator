@@ -25,7 +25,8 @@ export function createMockL1Checker(): L1Checker {
 
 export function createMockL2Checker(): L2Checker {
   return {
-    validateWearables: jest.fn()
+    validateWearables: jest.fn(),
+    validateThirdParty: jest.fn()
   }
 }
 
@@ -96,8 +97,7 @@ export function buildSubGraphs(subGraphs?: Partial<SubGraphs>): SubGraphs {
     },
     L2: {
       checker: createMockL2Checker(),
-      collections: createMockSubgraphComponent(),
-      thirdPartyRegistry: createMockSubgraphComponent()
+      collections: createMockSubgraphComponent()
     },
     l1BlockSearch: createAvlBlockSearch({
       logs,
@@ -166,7 +166,6 @@ export function buildMockedQueryGraph(collection?: Partial<ItemCollection>, _mer
     },
     L2: {
       checker: createMockL2Checker(),
-      thirdPartyRegistry: createMockSubgraphComponent(),
       collections: createMockSubgraphComponent(
         jest.fn().mockResolvedValueOnce({
           collections: [
@@ -198,47 +197,6 @@ export const fetcherWithValidCollectionAndCreator = (address: string): SubGraphs
     creator: address.toLowerCase(),
     isCompleted: true,
     isApproved: false
-  })
-
-export function fetcherWithThirdPartyMerkleRoot(root: string): SubGraphs {
-  return buildSubGraphs({
-    L1: {
-      checker: createMockL1Checker(),
-      collections: createMockSubgraphComponent(),
-      ensOwner: createMockSubgraphComponent()
-    },
-    L2: {
-      checker: createMockL2Checker(),
-      thirdPartyRegistry: createMockSubgraphComponent(
-        jest.fn().mockResolvedValueOnce({
-          thirdParties: [
-            {
-              root
-            }
-          ]
-        })
-      ),
-      collections: createMockSubgraphComponent()
-    }
-  })
-}
-
-export const fetcherWithThirdPartyEmptyMerkleRoots = (): SubGraphs =>
-  buildSubGraphs({
-    L1: {
-      checker: createMockL1Checker(),
-      collections: createMockSubgraphComponent(),
-      ensOwner: createMockSubgraphComponent()
-    },
-    L2: {
-      checker: createMockL2Checker(),
-      thirdPartyRegistry: createMockSubgraphComponent(
-        jest.fn().mockResolvedValueOnce({
-          thirdParties: []
-        })
-      ),
-      collections: createMockSubgraphComponent()
-    }
   })
 
 const defaultEns = [
@@ -293,11 +251,6 @@ export function fetcherWithItemsOwnership(
     },
     L2: {
       checker: createMockL2Checker(),
-      thirdPartyRegistry: createMockSubgraphComponent(
-        jest.fn().mockResolvedValue({
-          thirdParties: []
-        })
-      ),
       collections: createMockSubgraphComponent(
         jest.fn().mockResolvedValue({
           items: matic ?? defaultMatic

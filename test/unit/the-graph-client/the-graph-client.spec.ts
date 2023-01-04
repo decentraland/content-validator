@@ -161,7 +161,6 @@ describe('TheGraphClient', () => {
         },
         L2: {
           checker: createMockL2Checker(),
-          thirdPartyRegistry: createMockSubgraphComponent(),
           collections: createMockSubgraphComponent(
             jest.fn().mockResolvedValue({
               items: [
@@ -224,7 +223,6 @@ describe('TheGraphClient', () => {
         },
         L2: {
           checker: createMockL2Checker(),
-          thirdPartyRegistry: createMockSubgraphComponent(),
           collections: createMockSubgraphComponent(
             jest.fn().mockResolvedValue({
               items: [
@@ -272,7 +270,6 @@ describe('TheGraphClient', () => {
         },
         L2: {
           checker: createMockL2Checker(),
-          thirdPartyRegistry: createMockSubgraphComponent(),
           collections: createMockSubgraphComponent(jest.fn().mockRejectedValue('error'))
         }
       })

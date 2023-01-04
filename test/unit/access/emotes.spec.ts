@@ -4,8 +4,7 @@ import { VALID_THIRD_PARTY_EMOTE_METADATA_WITH_MERKLE_ROOT } from '../../setup/e
 import {
   buildComponents,
   buildExternalCalls,
-  fetcherWithThirdPartyEmptyMerkleRoots,
-  fetcherWithThirdPartyMerkleRoot,
+  buildSubGraphs,
   fetcherWithValidCollectionAndCreator
 } from '../../setup/mock'
 
@@ -133,10 +132,11 @@ describe('Access: emotes', () => {
   })
 
   describe(`Merkle Proofed (Third Party) Emote`, () => {
-    const { entity: metadata, root: merkleRoot } = VALID_THIRD_PARTY_EMOTE_METADATA_WITH_MERKLE_ROOT
+    const { entity: metadata } = VALID_THIRD_PARTY_EMOTE_METADATA_WITH_MERKLE_ROOT
 
     it(`When urn corresponds to a Third Party emotes and can verify merkle root with the proofs, validation pass`, async () => {
-      const subGraphs = fetcherWithThirdPartyMerkleRoot(merkleRoot)
+      const subGraphs = buildSubGraphs()
+      subGraphs.L2.checker.validateThirdParty = jest.fn(() => Promise.resolve(true))
 
       const deployment = buildThirdPartyEmoteDeployment(metadata.id, metadata)
 
@@ -145,7 +145,7 @@ describe('Access: emotes', () => {
     })
 
     it(`When urn corresponds to a Third Party emotes and metadata is modified, validation fails`, async () => {
-      const subGraphs = fetcherWithThirdPartyMerkleRoot(merkleRoot)
+      const subGraphs = buildSubGraphs()
 
       const deployment = buildThirdPartyEmoteDeployment(metadata.id, {
         ...metadata,
@@ -157,7 +157,7 @@ describe('Access: emotes', () => {
     })
 
     it(`When urn corresponds to a Third Party emotes, then L2 subgraph is used`, async () => {
-      const subGraphs = fetcherWithThirdPartyMerkleRoot(merkleRoot)
+      const subGraphs = buildSubGraphs()
 
       const deployment = buildThirdPartyEmoteDeployment(metadata.id, metadata)
 
@@ -165,12 +165,18 @@ describe('Access: emotes', () => {
       await emotes.validate(buildComponents({ subGraphs }), deployment)
 
       expect(l2BlockSearchSpy).toHaveBeenNthCalledWith(1, expect.anything())
-      expect(subGraphs.L2.thirdPartyRegistry.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
+      expect(subGraphs.L2.checker.validateThirdParty).toHaveBeenNthCalledWith(
+        1,
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+        expect.anything()
+      )
     })
 
     it(`When can't find any merkle proof, it should fail`, async () => {
       // When The Graph respond with no merkle proof
-      const subGraphs = fetcherWithThirdPartyEmptyMerkleRoots()
+      const subGraphs = buildSubGraphs()
 
       const deployment = buildThirdPartyEmoteDeployment(metadata.id, metadata)
 
@@ -179,7 +185,7 @@ describe('Access: emotes', () => {
     })
 
     it(`When merkle proof is not well formed, it should fail`, async () => {
-      const subGraphs = fetcherWithThirdPartyMerkleRoot(merkleRoot)
+      const subGraphs = buildSubGraphs()
 
       const deployment = buildThirdPartyEmoteDeployment(metadata.id, {
         ...metadata,
@@ -191,7 +197,7 @@ describe('Access: emotes', () => {
     })
 
     it(`When requiredKeys are not a subset of the hashingKeys, it should fail`, async () => {
-      const subGraphs = fetcherWithThirdPartyMerkleRoot(merkleRoot)
+      const subGraphs = buildSubGraphs()
 
       const deployment = buildThirdPartyEmoteDeployment(metadata.id, {
         ...metadata,
@@ -206,7 +212,7 @@ describe('Access: emotes', () => {
     })
 
     it(`When entityHash doesn’t match the calculated hash, it should fail`, async () => {
-      const subGraphs = fetcherWithThirdPartyMerkleRoot(merkleRoot)
+      const subGraphs = buildSubGraphs()
 
       const deployment = buildThirdPartyEmoteDeployment(metadata.id, {
         ...metadata,
