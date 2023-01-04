@@ -8,7 +8,7 @@ import {
   createMockBlockRepository,
   createMockL1Checker,
   createMockL2Checker,
-  createMockSubgraphComponent
+  createMockSubgraphComponent,
 } from '../../setup/mock'
 
 const currentTimestamp = 1000
@@ -23,8 +23,8 @@ describe('TheGraphClient', () => {
       l1BlockSearch: createAvlBlockSearch({
         logs,
         metrics,
-        blockRepository: createMockBlockRepository(10, {})
-      })
+        blockRepository: createMockBlockRepository(10, {}),
+      }),
     })
     subGraphs.l1BlockSearch.findBlockForTimestamp = jest.fn().mockImplementation(() => {
       throw new Error('error')
@@ -51,25 +51,12 @@ describe('TheGraphClient', () => {
         L1: {
           checker: createMockL1Checker(),
           collections: createMockSubgraphComponent(),
-          ensOwner: createMockSubgraphComponent(
-            jest.fn().mockImplementation(async (_query, _variables) => {
-              if (_variables['block'] === 123400) {
-                return Promise.resolve({
-                  names: [
-                    {
-                      name: 'Some Name'
-                    }
-                  ]
-                })
-              }
-            })
-          )
         },
         l1BlockSearch: createAvlBlockSearch({
           logs,
           metrics,
-          blockRepository: createMockBlockRepository(10, {})
-        })
+          blockRepository: createMockBlockRepository(10, {}),
+        }),
       })
 
       subGraphs.l1BlockSearch.findBlockForTimestamp = jest.fn().mockImplementation((t) => {
@@ -78,11 +65,14 @@ describe('TheGraphClient', () => {
         }
         return { timestamp: bounds.lower, block: 123400 }
       })
+      subGraphs.L1.checker.checkNames = jest.fn((_ethAddress, _name, block) => {
+        return Promise.resolve([block === 123400])
+      })
 
       const { theGraphClient } = buildComponents({ subGraphs })
 
       await expect(theGraphClient.ownsNamesAtTimestamp('0x1', ['Some Name'], currentTimestamp)).resolves.toEqual({
-        result: true
+        result: true,
       })
     })
 
@@ -91,22 +81,7 @@ describe('TheGraphClient', () => {
         L1: {
           checker: createMockL1Checker(),
           collections: createMockSubgraphComponent(),
-          ensOwner: createMockSubgraphComponent(
-            jest.fn().mockImplementation(async (_query, _variables) => {
-              if (_variables['block'] === 123500) {
-                return Promise.reject('error')
-              } else {
-                return Promise.resolve({
-                  names: [
-                    {
-                      name: 'Some Name'
-                    }
-                  ]
-                })
-              }
-            })
-          )
-        }
+        },
       })
 
       subGraphs.l1BlockSearch.findBlockForTimestamp = jest.fn().mockImplementation((t) => {
@@ -116,10 +91,14 @@ describe('TheGraphClient', () => {
         return { timestamp: bounds.lower, block: 123400 }
       })
 
+      subGraphs.L1.checker.checkNames = jest.fn((_ethAddress, _name, block) => {
+        return Promise.resolve([block === 123400])
+      })
+
       const { theGraphClient } = buildComponents({ subGraphs })
 
       await expect(theGraphClient.ownsNamesAtTimestamp('0x1', ['Some Name'], currentTimestamp)).resolves.toEqual({
-        result: true
+        result: true,
       })
     })
 
@@ -128,8 +107,7 @@ describe('TheGraphClient', () => {
         L1: {
           checker: createMockL1Checker(),
           collections: createMockSubgraphComponent(),
-          ensOwner: createMockSubgraphComponent(jest.fn().mockRejectedValue('error'))
-        }
+        },
       })
       const { theGraphClient } = buildComponents({ subGraphs })
 
@@ -138,7 +116,7 @@ describe('TheGraphClient', () => {
       })
 
       await expect(theGraphClient.ownsNamesAtTimestamp('0x1', ['Some Name'], 10)).resolves.toEqual({
-        result: false
+        result: false,
       })
     })
   })
@@ -152,12 +130,11 @@ describe('TheGraphClient', () => {
             jest.fn().mockResolvedValue({
               items: [
                 {
-                  urn: 'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet'
-                }
-              ]
+                  urn: 'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet',
+                },
+              ],
             })
           ),
-          ensOwner: createMockSubgraphComponent(jest.fn().mockRejectedValue('error'))
         },
         L2: {
           checker: createMockL2Checker(),
@@ -165,12 +142,12 @@ describe('TheGraphClient', () => {
             jest.fn().mockResolvedValue({
               items: [
                 {
-                  urn: 'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
-                }
-              ]
+                  urn: 'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2',
+                },
+              ],
             })
-          )
-        }
+          ),
+        },
       })
 
       subGraphs.l1BlockSearch.findBlockForTimestamp = jest.fn().mockImplementation((t) => {
@@ -193,7 +170,7 @@ describe('TheGraphClient', () => {
           '0x1',
           [
             'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet',
-            'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
+            'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2',
           ],
           currentTimestamp
         )
@@ -212,14 +189,13 @@ describe('TheGraphClient', () => {
                 return Promise.resolve({
                   items: [
                     {
-                      urn: 'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet'
-                    }
-                  ]
+                      urn: 'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet',
+                    },
+                  ],
                 })
               }
             })
           ),
-          ensOwner: createMockSubgraphComponent()
         },
         L2: {
           checker: createMockL2Checker(),
@@ -227,12 +203,12 @@ describe('TheGraphClient', () => {
             jest.fn().mockResolvedValue({
               items: [
                 {
-                  urn: 'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
-                }
-              ]
+                  urn: 'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2',
+                },
+              ],
             })
-          )
-        }
+          ),
+        },
       })
       const { theGraphClient } = buildComponents({ subGraphs })
 
@@ -254,7 +230,7 @@ describe('TheGraphClient', () => {
           '0x1',
           [
             'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet',
-            'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
+            'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2',
           ],
           currentTimestamp
         )
@@ -266,12 +242,11 @@ describe('TheGraphClient', () => {
         L1: {
           checker: createMockL1Checker(),
           collections: createMockSubgraphComponent(jest.fn().mockRejectedValue('error')),
-          ensOwner: createMockSubgraphComponent()
         },
         L2: {
           checker: createMockL2Checker(),
-          collections: createMockSubgraphComponent(jest.fn().mockRejectedValue('error'))
-        }
+          collections: createMockSubgraphComponent(jest.fn().mockRejectedValue('error')),
+        },
       })
       const { theGraphClient } = buildComponents({ subGraphs })
 
@@ -292,7 +267,7 @@ describe('TheGraphClient', () => {
           '0x1',
           [
             'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet',
-            'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
+            'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2',
           ],
           currentTimestamp
         )

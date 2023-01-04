@@ -111,7 +111,7 @@ export const OK: ValidationResponse = { ok: true }
  */
 export const validationFailed = (...error: string[]): ValidationResponse => ({
   ok: false,
-  errors: error
+  errors: error,
 })
 
 /**
@@ -119,7 +119,7 @@ export const validationFailed = (...error: string[]): ValidationResponse => ({
  */
 export const fromErrors = (...errors: Errors): ValidationResponse => ({
   ok: errors.length === 0,
-  errors: errors.length > 0 ? errors : undefined
+  errors: errors.length > 0 ? errors : undefined,
 })
 
 /**
@@ -127,6 +127,7 @@ export const fromErrors = (...errors: Errors): ValidationResponse => ({
  */
 export type L1Checker = {
   checkLAND(ethAddress: string, parcels: [number, number][], block: number): Promise<boolean[]>
+  checkNames(ethAddress: string, names: string[], block: number): Promise<boolean[]>
 }
 
 /**
@@ -152,7 +153,6 @@ export type SubGraphs = {
   L1: {
     checker: L1Checker
     collections: ISubgraphComponent
-    ensOwner: ISubgraphComponent
   }
   L2: {
     checker: L2Checker

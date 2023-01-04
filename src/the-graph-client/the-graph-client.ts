@@ -19,7 +19,7 @@ export function timestampBounds(timestampMs: number) {
 
   return {
     upper: timestampSec,
-    lower: timestamp5MinAgo
+    lower: timestamp5MinAgo,
   }
 }
 
@@ -49,24 +49,15 @@ export const createTheGraphClient = (
         return permissionError()
       }
 
-      const runOwnedNamesOnBlockQuery = async (blockNumber: number) => {
-        const query: Query<{ names: { name: string }[] }, Set<string>> = {
-          description: 'check for names ownership',
-          subgraph: components.subGraphs.L1.ensOwner,
-          query: QUERY_NAMES_FOR_ADDRESS_AT_BLOCK,
-          mapper: (response: { names: { name: string }[] }): Set<string> =>
-            new Set(response.names.map(({ name }) => name))
-        }
-        return runQuery(query, {
-          block: blockNumber,
-          ethAddress,
-          nameList: namesToCheck
-        })
-      }
-
       try {
-        const ownedNames = await runOwnedNamesOnBlockQuery(blockNumber)
-        const notOwned = namesToCheck.filter((name) => !ownedNames.has(name))
+        const result = await components.subGraphs.L1.checker.checkNames(ethAddress, namesToCheck, blockNumber)
+        const notOwned: string[] = []
+
+        for (let i = 0; i < namesToCheck.length; i++) {
+          if (!result[i]) {
+            notOwned.push(namesToCheck[i])
+          }
+        }
         return notOwned.length > 0 ? permissionError(notOwned) : permissionOk()
       } catch {
         logger.error(`Error retrieving names owned by address ${ethAddress} at block ${blockNumber}`)
@@ -106,14 +97,14 @@ export const createTheGraphClient = (
     }
     return {
       ethereum,
-      matic
+      matic,
     }
   }
 
   const permissionOk = (): PermissionResult => ({ result: true })
   const permissionError = (failing?: string[]): PermissionResult => ({
     result: false,
-    failing: failing
+    failing: failing,
   })
 
   const ownsItemsAtTimestamp = async (
@@ -143,7 +134,7 @@ export const createTheGraphClient = (
 
     const [ethereumItemsOwnership, maticItemsOwnership] = await Promise.all([
       ethereumItemsOwnersPromise,
-      maticItemsOwnersPromise
+      maticItemsOwnersPromise,
     ])
 
     if (ethereumItemsOwnership.result && maticItemsOwnership.result) return permissionOk()
@@ -175,12 +166,13 @@ export const createTheGraphClient = (
           description: 'check for items ownership',
           subgraph: collectionsSubgraph,
           query: QUERY_ITEMS_FOR_ADDRESS_AT_BLOCK,
-          mapper: (response: { items: { urn: string }[] }): Set<string> => new Set(response.items.map(({ urn }) => urn))
+          mapper: (response: { items: { urn: string }[] }): Set<string> =>
+            new Set(response.items.map(({ urn }) => urn)),
         }
         return runQuery(query, {
           block: blockNumber,
           ethAddress,
-          urnList: urnsToCheck
+          urnList: urnsToCheck,
         })
       }
 
@@ -215,7 +207,7 @@ export const createTheGraphClient = (
 
     const result = await Promise.all([
       blockSearch.findBlockForTimestamp(upper),
-      blockSearch.findBlockForTimestamp(lower)
+      blockSearch.findBlockForTimestamp(lower),
     ])
 
     const blockNumberAtDeployment = result[0]
@@ -225,20 +217,20 @@ export const createTheGraphClient = (
       // Mimic the way TheGraph was calculating this
       blockNumberFiveMinBeforeDeployment = {
         ...blockNumberFiveMinBeforeDeployment,
-        block: blockNumberFiveMinBeforeDeployment.block + 1
+        block: blockNumberFiveMinBeforeDeployment.block + 1,
       }
     }
 
     return {
       blockNumberAtDeployment: blockNumberAtDeployment?.block,
-      blockNumberFiveMinBeforeDeployment: blockNumberFiveMinBeforeDeployment?.block
+      blockNumberFiveMinBeforeDeployment: blockNumberFiveMinBeforeDeployment?.block,
     }
   }
 
   return {
     ownsNamesAtTimestamp,
     ownsItemsAtTimestamp,
-    findBlocksForTimestamp
+    findBlocksForTimestamp,
   }
 }
 

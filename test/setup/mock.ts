@@ -13,20 +13,21 @@ export const buildLogger = (): ILoggerComponent => ({
     info() {},
     warn() {},
     error() {},
-    log() {}
-  })
+    log() {},
+  }),
 })
 
 export function createMockL1Checker(): L1Checker {
   return {
-    checkLAND: jest.fn()
+    checkLAND: jest.fn(),
+    checkNames: jest.fn((_ethAddress, names) => Promise.resolve(names.map(() => false))),
   }
 }
 
 export function createMockL2Checker(): L2Checker {
   return {
     validateWearables: jest.fn(),
-    validateThirdParty: jest.fn()
+    validateThirdParty: jest.fn(),
   }
 }
 
@@ -45,7 +46,7 @@ export const buildComponents = (components?: Partial<ContentValidatorComponents>
     logs,
     theGraphClient,
     externalCalls,
-    subGraphs
+    subGraphs,
   }
 }
 
@@ -58,11 +59,11 @@ export const buildExternalCalls = (externalCalls?: Partial<ExternalCalls>): Exte
   validateSignature: () => Promise.resolve({ ok: true }),
   ownerAddress: () => '',
   isAddressOwnedByDecentraland: () => false,
-  ...externalCalls
+  ...externalCalls,
 })
 
 export const createMockSubgraphComponent = (mock?: QueryGraph): ISubgraphComponent => ({
-  query: mock ?? (jest.fn() as jest.MockedFunction<QueryGraph>)
+  query: mock ?? (jest.fn() as jest.MockedFunction<QueryGraph>),
 })
 
 export function createMockBlockRepository(currentBlock: number, blocks: Record<number, number>) {
@@ -70,18 +71,18 @@ export function createMockBlockRepository(currentBlock: number, blocks: Record<n
     currentBlock(): Promise<BlockInfo> {
       return Promise.resolve({
         block: currentBlock,
-        timestamp: blocks[currentBlock]
+        timestamp: blocks[currentBlock],
       })
     },
     findBlock(block: number): Promise<BlockInfo> {
       if (block in blocks) {
         return Promise.resolve({
           block,
-          timestamp: blocks[block]
+          timestamp: blocks[block],
         })
       }
       throw Error(`Block ${block} could not be retrieved.`)
-    }
+    },
   }
   return blockRepository
 }
@@ -93,11 +94,10 @@ export function buildSubGraphs(subGraphs?: Partial<SubGraphs>): SubGraphs {
     L1: {
       checker: createMockL1Checker(),
       collections: createMockSubgraphComponent(),
-      ensOwner: createMockSubgraphComponent()
     },
     L2: {
       checker: createMockL2Checker(),
-      collections: createMockSubgraphComponent()
+      collections: createMockSubgraphComponent(),
     },
     l1BlockSearch: createAvlBlockSearch({
       logs,
@@ -113,8 +113,8 @@ export function buildSubGraphs(subGraphs?: Partial<SubGraphs>): SubGraphs {
         8: 80,
         9: 90,
         10: 100,
-        11: 110
-      })
+        11: 110,
+      }),
     }),
     l2BlockSearch: createAvlBlockSearch({
       logs,
@@ -130,10 +130,10 @@ export function buildSubGraphs(subGraphs?: Partial<SubGraphs>): SubGraphs {
         8: 80,
         9: 90,
         10: 100,
-        11: 110
-      })
+        11: 110,
+      }),
     }),
-    ...subGraphs
+    ...subGraphs,
   }
 }
 
@@ -152,17 +152,16 @@ export function buildMockedQueryGraph(collection?: Partial<ItemCollection>, _mer
               items: [
                 {
                   managers: [],
-                  contentHash: ''
-                }
+                  contentHash: '',
+                },
               ],
-              ...collection
-            }
+              ...collection,
+            },
           ],
-          accounts: [{ id: COMMITTEE_MEMBER }]
+          accounts: [{ id: COMMITTEE_MEMBER }],
         })
       ),
       checker: createMockL1Checker(),
-      ensOwner: createMockSubgraphComponent()
     },
     L2: {
       checker: createMockL2Checker(),
@@ -177,16 +176,16 @@ export function buildMockedQueryGraph(collection?: Partial<ItemCollection>, _mer
               items: [
                 {
                   managers: [],
-                  contentHash: ''
-                }
+                  contentHash: '',
+                },
               ],
-              ...collection
-            }
+              ...collection,
+            },
           ],
-          accounts: [{ id: COMMITTEE_MEMBER }]
+          accounts: [{ id: COMMITTEE_MEMBER }],
         })
-      )
-    }
+      ),
+    },
   })
 }
 
@@ -196,37 +195,37 @@ export const fetcherWithValidCollectionAndCreator = (address: string): SubGraphs
   buildMockedQueryGraph({
     creator: address.toLowerCase(),
     isCompleted: true,
-    isApproved: false
+    isApproved: false,
   })
 
 const defaultEns = [
   {
-    name: 'Some Name'
-  }
+    name: 'Some Name',
+  },
 ]
 
 const defaultEthereum = [
   {
-    urn: 'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet'
-  }
+    urn: 'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet',
+  },
 ]
 
 const defaultMatic = [
   {
-    urn: 'urn:decentraland:matic:collections-v2:0xf6f601efee04e74cecac02c8c5bdc8cc0fc1c721:0'
+    urn: 'urn:decentraland:matic:collections-v2:0xf6f601efee04e74cecac02c8c5bdc8cc0fc1c721:0',
   },
   {
-    urn: 'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
+    urn: 'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2',
   },
   {
-    urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa4:0'
+    urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa4:0',
   },
   {
-    urn: 'urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:19'
+    urn: 'urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:19',
   },
   {
-    urn: 'urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:2'
-  }
+    urn: 'urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:2',
+  },
 ]
 
 export function fetcherWithItemsOwnership(
@@ -240,22 +239,17 @@ export function fetcherWithItemsOwnership(
       checker: createMockL1Checker(),
       collections: createMockSubgraphComponent(
         jest.fn().mockResolvedValue({
-          items: ethereum ?? defaultEthereum
+          items: ethereum ?? defaultEthereum,
         })
       ),
-      ensOwner: createMockSubgraphComponent(
-        jest.fn().mockResolvedValue({
-          names: ens ?? defaultEns
-        })
-      )
     },
     L2: {
       checker: createMockL2Checker(),
       collections: createMockSubgraphComponent(
         jest.fn().mockResolvedValue({
-          items: matic ?? defaultMatic
+          items: matic ?? defaultMatic,
         })
-      )
-    }
+      ),
+    },
   })
 }
