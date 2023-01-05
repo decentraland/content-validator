@@ -4,6 +4,8 @@
 
 ```ts
 
+/// <reference types="node" />
+
 import { AuthChain } from '@dcl/schemas';
 import { BlockSearch } from '@dcl/block-indexer';
 import { Entity } from '@dcl/schemas';
@@ -21,11 +23,6 @@ export type BlockInformation = {
 
 // @public (undocumented)
 export const calculateDeploymentSize: (deployment: DeploymentToValidate, externalCalls: ExternalCalls) => Promise<number | string>;
-
-// @public (undocumented)
-export type Checker = {
-    checkLAND(ethAddress: string, parcels: [number, number][], block: number): Promise<boolean[]>;
-};
 
 // @public (undocumented)
 export type ConditionalValidation = {
@@ -78,6 +75,18 @@ export type ExternalCalls = {
 export const fromErrors: (...errors: Errors) => ValidationResponse;
 
 // @public (undocumented)
+export type L1Checker = {
+    checkLAND(ethAddress: string, parcels: [number, number][], block: number): Promise<boolean[]>;
+    checkNames(ethAddress: string, names: string[], block: number): Promise<boolean[]>;
+};
+
+// @public (undocumented)
+export type L2Checker = {
+    validateWearables(ethAddress: string, contractAddress: string, assetId: string, hash: string, block: number): Promise<boolean>;
+    validateThirdParty(ethAddress: string, tpId: string, root: Buffer, block: number): Promise<boolean>;
+};
+
+// @public (undocumented)
 export type LocalDeploymentAuditInfo = {
     authChain: AuthChain;
 };
@@ -97,13 +106,12 @@ export const statelessValidations: readonly [Validation, Validation, Validation]
 // @public
 export type SubGraphs = {
     L1: {
-        checker: Checker;
+        checker: L1Checker;
         collections: ISubgraphComponent;
-        ensOwner: ISubgraphComponent;
     };
     L2: {
+        checker: L2Checker;
         collections: ISubgraphComponent;
-        thirdPartyRegistry: ISubgraphComponent;
     };
     l1BlockSearch: BlockSearch;
     l2BlockSearch: BlockSearch;
@@ -149,7 +157,7 @@ export type Warnings = string[];
 
 // Warnings were encountered during analysis:
 //
-// src/types.ts:154:3 - (ae-forgotten-export) The symbol "PermissionResult" needs to be exported by the entry point index.d.ts
+// src/types.ts:169:3 - (ae-forgotten-export) The symbol "PermissionResult" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 
