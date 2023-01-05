@@ -19,7 +19,7 @@ export function timestampBounds(timestampMs: number) {
 
   return {
     upper: timestampSec,
-    lower: timestamp5MinAgo,
+    lower: timestamp5MinAgo
   }
 }
 
@@ -97,14 +97,14 @@ export const createTheGraphClient = (
     }
     return {
       ethereum,
-      matic,
+      matic
     }
   }
 
   const permissionOk = (): PermissionResult => ({ result: true })
   const permissionError = (failing?: string[]): PermissionResult => ({
     result: false,
-    failing: failing,
+    failing: failing
   })
 
   const ownsItemsAtTimestamp = async (
@@ -134,7 +134,7 @@ export const createTheGraphClient = (
 
     const [ethereumItemsOwnership, maticItemsOwnership] = await Promise.all([
       ethereumItemsOwnersPromise,
-      maticItemsOwnersPromise,
+      maticItemsOwnersPromise
     ])
 
     if (ethereumItemsOwnership.result && maticItemsOwnership.result) return permissionOk()
@@ -166,13 +166,12 @@ export const createTheGraphClient = (
           description: 'check for items ownership',
           subgraph: collectionsSubgraph,
           query: QUERY_ITEMS_FOR_ADDRESS_AT_BLOCK,
-          mapper: (response: { items: { urn: string }[] }): Set<string> =>
-            new Set(response.items.map(({ urn }) => urn)),
+          mapper: (response: { items: { urn: string }[] }): Set<string> => new Set(response.items.map(({ urn }) => urn))
         }
         return runQuery(query, {
           block: blockNumber,
           ethAddress,
-          urnList: urnsToCheck,
+          urnList: urnsToCheck
         })
       }
 
@@ -207,7 +206,7 @@ export const createTheGraphClient = (
 
     const result = await Promise.all([
       blockSearch.findBlockForTimestamp(upper),
-      blockSearch.findBlockForTimestamp(lower),
+      blockSearch.findBlockForTimestamp(lower)
     ])
 
     const blockNumberAtDeployment = result[0]
@@ -217,33 +216,22 @@ export const createTheGraphClient = (
       // Mimic the way TheGraph was calculating this
       blockNumberFiveMinBeforeDeployment = {
         ...blockNumberFiveMinBeforeDeployment,
-        block: blockNumberFiveMinBeforeDeployment.block + 1,
+        block: blockNumberFiveMinBeforeDeployment.block + 1
       }
     }
 
     return {
       blockNumberAtDeployment: blockNumberAtDeployment?.block,
-      blockNumberFiveMinBeforeDeployment: blockNumberFiveMinBeforeDeployment?.block,
+      blockNumberFiveMinBeforeDeployment: blockNumberFiveMinBeforeDeployment?.block
     }
   }
 
   return {
     ownsNamesAtTimestamp,
     ownsItemsAtTimestamp,
-    findBlocksForTimestamp,
+    findBlocksForTimestamp
   }
 }
-
-const QUERY_NAMES_FOR_ADDRESS_AT_BLOCK = `
-query getNftNamesForBlock($block: Int!, $ethAddress: String!, $nameList: [String!]) {
-  names: nfts(
-    block: {number: $block}
-    where: {owner: $ethAddress, category: ens, name_in: $nameList}
-    first: 1000
-  ) {
-    name
-  }
-}`
 
 const QUERY_ITEMS_FOR_ADDRESS_AT_BLOCK = `
 query getNftItemsForBlock($block: Int!, $ethAddress: String!, $urnList: [String!]) {
