@@ -65,12 +65,12 @@ export const createTheGraphClient = (
       }
     }
 
-    const permissionMostRecentBlock = await hasPermissionOnBlock(blocks.blockNumberAtDeployment)
+    const permissionMostRecentBlock = await hasPermissionOnBlock(blocks.blockAtDeployment)
     if (permissionMostRecentBlock.result) {
       return permissionMostRecentBlock
     }
 
-    return await hasPermissionOnBlock(blocks.blockNumberFiveMinBeforeDeployment)
+    return await hasPermissionOnBlock(blocks.blockFiveMinBeforeDeployment)
   }
 
   type URNsByNetwork = {
@@ -180,17 +180,17 @@ export const createTheGraphClient = (
         const notOwned = urnsToCheck.filter((name) => !ownedItems.has(name))
         return notOwned.length > 0 ? permissionError(notOwned) : permissionOk()
       } catch (error) {
-        logger.error(`Error retrieving items owned by address ${ethAddress} at block ${blocks.blockNumberAtDeployment}`)
+        logger.error(`Error retrieving items owned by address ${ethAddress} at block ${blocks.blockAtDeployment}`)
         return permissionError()
       }
     }
 
-    const permissionMostRecentBlock = await hasPermissionOnBlock(blocks.blockNumberAtDeployment)
+    const permissionMostRecentBlock = await hasPermissionOnBlock(blocks.blockAtDeployment)
     if (permissionMostRecentBlock.result) {
       return permissionMostRecentBlock
     }
 
-    return await hasPermissionOnBlock(blocks.blockNumberFiveMinBeforeDeployment)
+    return await hasPermissionOnBlock(blocks.blockFiveMinBeforeDeployment)
   }
 
   const runQuery = async <QueryResult, ReturnType>(
@@ -221,8 +221,8 @@ export const createTheGraphClient = (
     }
 
     return {
-      blockNumberAtDeployment: blockNumberAtDeployment?.block,
-      blockNumberFiveMinBeforeDeployment: blockNumberFiveMinBeforeDeployment?.block
+      blockAtDeployment: blockNumberAtDeployment?.block,
+      blockFiveMinBeforeDeployment: blockNumberFiveMinBeforeDeployment?.block
     }
   }
 

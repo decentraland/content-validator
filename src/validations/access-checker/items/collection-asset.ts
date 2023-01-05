@@ -55,23 +55,32 @@ export const v1andV2collectionAssetValidation: AssetValidation = {
         return Promise.all([hashV0(buffer), hashV1(buffer)])
       }
 
+      const validateWearable = async (hash: string, block: number) => {
+        return subGraphs.L2.checker.validateWearables(ethAddress, asset.contractAddress!, asset.id, hash, block)
+      }
+
       let hasAccess = false
       try {
-        const block = await subGraphs.l2BlockSearch.findBlockForTimestamp(timestamp)
-        if (!block) {
-          throw new Error(`block not found for timestamp ${timestamp}`)
-        }
+        const { blockAtDeployment, blockFiveMinBeforeDeployment } =
+          await components.theGraphClient.findBlocksForTimestamp(timestamp, components.subGraphs.l2BlockSearch)
+
         // NOTE(hugo): I'm calculating both hashes so I can make one RPC request (they are processed together as a batch),
         // this may not be the right call, since it's possible to argue that a
         // hash call is more expensive than a RPC call, but since I have no
         // data to make a better decision, I think this is good enough
-        const [hashV0, hashV1] = await calculateHashes()
-        const [hashV0Valid, hashV1Valid] = await Promise.all([
-          subGraphs.L2.checker.validateWearables(ethAddress, asset.contractAddress!, asset.id, hashV0, block.block),
-          subGraphs.L2.checker.validateWearables(ethAddress, asset.contractAddress!, asset.id, hashV1, block.block)
-        ])
+        const hashes = await calculateHashes()
 
-        hasAccess = hashV0Valid || hashV1Valid
+        const batch: Promise<boolean>[] = []
+        for (const hash of hashes) {
+          if (blockAtDeployment) {
+            batch.push(validateWearable(hash, blockAtDeployment))
+          }
+          if (blockFiveMinBeforeDeployment) {
+            batch.push(validateWearable(hash, blockFiveMinBeforeDeployment))
+          }
+        }
+
+        hasAccess = (await Promise.all(batch)).some((r) => r)
       } catch (err: any) {
         logger.error(err)
       }

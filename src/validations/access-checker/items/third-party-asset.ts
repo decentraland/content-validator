@@ -21,29 +21,35 @@ export const thirdPartyAssetValidation: AssetValidation = {
     asset: BlockchainCollectionThirdParty,
     deployment: DeploymentToValidate
   ) {
-    const logger = components.logs.getLogger('collection asset access validation')
+    const { checker } = components.subGraphs.L2
 
     const { timestamp } = deployment.entity
     let verified = false
 
     if (isThirdParty(deployment.entity.metadata)) {
       // This should always happen as the metadata validation ran before
+      const metadata = deployment.entity.metadata as ThirdPartyProps
+      const merkleProof = metadata.merkleProof
 
-      const block = await components.subGraphs.l2BlockSearch.findBlockForTimestamp(timestamp)
-      if (block) {
-        const metadata = deployment.entity.metadata as ThirdPartyProps
-        const merkleProof = metadata.merkleProof
+      const ethAddress = components.externalCalls.ownerAddress(deployment.auditInfo)
 
-        const ethAddress = components.externalCalls.ownerAddress(deployment.auditInfo)
+      const thirdPartyId = getThirdPartyId(asset)
 
-        const thirdPartyId = getThirdPartyId(asset)
+      const bufferedProofs = merkleProof.proof.map((value) => toHexBuffer(value))
+      const root = generateRoot(merkleProof.index, merkleProof.entityHash, bufferedProofs)
 
-        const bufferedProofs = merkleProof.proof.map((value) => toHexBuffer(value))
-        const root = generateRoot(merkleProof.index, merkleProof.entityHash, bufferedProofs)
-        verified = await components.subGraphs.L2.checker.validateThirdParty(ethAddress, thirdPartyId, root, block.block)
-      } else {
-        logger.warn(`Cannot find block for timestamp ${timestamp}`)
+      const { blockAtDeployment, blockFiveMinBeforeDeployment } =
+        await components.theGraphClient.findBlocksForTimestamp(timestamp, components.subGraphs.l2BlockSearch)
+
+      const batch: Promise<boolean>[] = []
+      if (blockAtDeployment) {
+        batch.push(checker.validateThirdParty(ethAddress, thirdPartyId, root, blockAtDeployment))
       }
+      if (blockFiveMinBeforeDeployment) {
+        batch.push(checker.validateThirdParty(ethAddress, thirdPartyId, root, blockFiveMinBeforeDeployment))
+      }
+
+      verified = (await Promise.all(batch)).some((r) => r)
     }
 
     if (!verified) {
