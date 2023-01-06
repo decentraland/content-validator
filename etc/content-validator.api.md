@@ -17,8 +17,8 @@ import { Variables } from '@well-known-components/thegraph-component';
 
 // @public (undocumented)
 export type BlockInformation = {
-    blockNumberAtDeployment: number | undefined;
-    blockNumberFiveMinBeforeDeployment: number | undefined;
+    blockAtDeployment: number | undefined;
+    blockFiveMinBeforeDeployment: number | undefined;
 };
 
 // @public (undocumented)
