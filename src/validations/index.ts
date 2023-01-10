@@ -1,4 +1,5 @@
 import { DeploymentToValidate, ExternalCalls } from '../types'
+import { adr45 } from './ADR45'
 import { access } from './access-checker/access'
 import { content } from './content'
 import { entityStructure } from './entity-structure'
@@ -41,7 +42,7 @@ export const statefulValidations = [signature, access, size, wearable, emote, pr
  * Stateless validations that are run on a deployment.
  * @public
  */
-export const statelessValidations = [entityStructure, ipfsHashing, metadata] as const
+export const statelessValidations = [entityStructure, ipfsHashing, metadata, adr45] as const
 
 /**
  * All validations that are run on a deployment.
