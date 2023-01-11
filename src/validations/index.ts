@@ -10,6 +10,7 @@ import { metadata } from './metadata-schema'
 import { profile } from './profile'
 import { signature } from './signature'
 import { size } from './size'
+import { scene } from './scene'
 
 /**
  * @public
@@ -36,7 +37,7 @@ export const calculateDeploymentSize = async (
  * Stateful validations that are run on a deployment.
  * @public
  */
-export const statefulValidations = [signature, access, size, wearable, emote, profile, content] as const
+export const statefulValidations = [signature, access, size, wearable, emote, profile, scene, content] as const
 
 /**
  * Stateless validations that are run on a deployment.

@@ -86,7 +86,7 @@ export type QueryGraph = <T = any>(query: string, variables?: Variables, remaini
 export const statefulValidations: readonly [Validation, Validation, Validation, Validation, Validation, Validation, Validation];
 
 // @public
-export const statelessValidations: readonly [Validation, Validation, Validation, Validation];
+export const statelessValidations: readonly [Validation, Validation, Validation];
 
 // @public
 export type SubGraphs = {
@@ -130,7 +130,7 @@ export type ValidationResponse = {
 };
 
 // @public
-export const validations: readonly [Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation];
+export const validations: readonly [Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation];
 
 // @public
 export interface Validator {
