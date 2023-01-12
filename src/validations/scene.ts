@@ -6,6 +6,10 @@ function sceneHasWorldConfiguration(deployment: DeploymentToValidate): boolean {
   return deployment.entity.metadata?.worldConfiguration !== undefined
 }
 
+/**
+ * Validate that given scene deployment does not contain worldConfiguration section
+ * @public
+ */
 export const noWorldsConfiguration: Validation = validationAfterADR173({
   validate: async (components, deployment) => {
     if (sceneHasWorldConfiguration(deployment)) {
@@ -16,7 +20,7 @@ export const noWorldsConfiguration: Validation = validationAfterADR173({
 })
 
 /**
- * Validate that given profile deployment includes the face256 file with the correct size
- * * @public
+ * Validate that given scene deployment is valid
+ * @public
  */
 export const scene: Validation = validationForType(EntityType.SCENE, validationGroup(noWorldsConfiguration))
