@@ -18,12 +18,6 @@ export const VALID_SCENE_METADATA: Scene = {
     parcels: ['0,24'],
     base: '0,24'
   },
-  // worldConfiguration: {
-  //   skybox: 36000,
-  //   minimapVisible: false,
-  //   fixedAdapter: 'offline:offline',
-  //   name: 'mariano.dcl.eth'
-  // },
   source: {
     version: 1,
     origin: 'builder',
