@@ -53,7 +53,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result: ValidationResponse = await faceThumbnail.validate(components, deployment)
+      const result: ValidationResponse = await faceThumbnail(components, deployment)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Couldn't find thumbnail file with hash: ${hash}`)
@@ -70,7 +70,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await faceThumbnail.validate(components, deployment)
+      const result = await faceThumbnail(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Couldn't find thumbnail file with hash: ${hash}`)
     })
@@ -86,7 +86,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await faceThumbnail.validate(components, deployment)
+      const result = await faceThumbnail(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Couldn't parse face256 thumbnail, please check image format.`)
     })
@@ -102,7 +102,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await faceThumbnail.validate(components, deployment)
+      const result = await faceThumbnail(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Invalid face256 thumbnail image size (width = 1 / height = 1)`)
     })
@@ -119,7 +119,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await faceThumbnail.validate(components, deployment)
+      const result = await faceThumbnail(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Invalid or unknown image format. Only 'PNG' format is accepted.`)
     })
@@ -135,7 +135,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await faceThumbnail.validate(components, deployment)
+      const result = await faceThumbnail(components, deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -154,7 +154,7 @@ describe('Profiles', () => {
         isContentStoredAlready: async () => new Map([[hash, true]])
       })
 
-      const result = await faceThumbnail.validate(buildComponents({ externalCalls }), deployment)
+      const result = await faceThumbnail(buildComponents({ externalCalls }), deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -169,7 +169,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await wearableUrns.validate(components, deployment)
+      const result = await wearableUrns(components, deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -190,7 +190,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await wearableUrns.validate(components, deployment)
+      const result = await wearableUrns(components, deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -211,7 +211,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await wearableUrns.validate(components, deployment)
+      const result = await wearableUrns(components, deployment)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
@@ -229,7 +229,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await profile.validate(components, deployment)
+      const result = await profile(components, deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -244,7 +244,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await wearableUrns.validate(components, deployment)
+      const result = await wearableUrns(components, deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -265,7 +265,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await wearableUrns.validate(components, deployment)
+      const result = await wearableUrns(components, deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -286,7 +286,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await wearableUrns.validate(components, deployment)
+      const result = await wearableUrns(components, deployment)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
@@ -304,7 +304,7 @@ describe('Profiles', () => {
         timestamp: ADR_74_TIMESTAMP + 1
       })
       const deployment = buildDeployment({ entity })
-      const result = await profileMustHaveEmotes.validate(components, deployment)
+      const result = await profileMustHaveEmotes(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain('Profile must have emotes after ADR 74.')
     })
@@ -319,7 +319,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await emoteUrns.validate(components, deployment)
+      const result = await emoteUrns(components, deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -335,7 +335,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await emoteUrns.validate(components, deployment)
+      const result = await emoteUrns(components, deployment)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
@@ -353,7 +353,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await emoteUrns.validate(components, deployment)
+      const result = await emoteUrns(components, deployment)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
@@ -371,7 +371,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await emoteUrns.validate(components, deployment)
+      const result = await emoteUrns(components, deployment)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
@@ -391,7 +391,7 @@ describe('Profiles', () => {
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await profileSlotsAreNotRepeated.validate(components, deployment)
+      const result = await profileSlotsAreNotRepeated(components, deployment)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain('Emote slots should not be repeated.')

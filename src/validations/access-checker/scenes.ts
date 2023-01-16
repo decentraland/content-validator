@@ -1,6 +1,6 @@
 import { EthAddress } from '@dcl/schemas'
 import ms from 'ms'
-import { ExternalCalls, fromErrors, Validation } from '../../types'
+import { ContentValidatorComponents, DeploymentToValidate, ExternalCalls, fromErrors } from '../../types'
 
 type Timestamp = number
 type AddressSnapshot = {
@@ -36,300 +36,302 @@ type Authorization = {
  * Checks if the given address has access to the given parcel at the given timestamp.
  * @public
  */
-export const scenes: Validation = {
-  validate: async ({ externalCalls, logs, subGraphs }, deployment) => {
-    const logger = logs.getLogger('scenes access validator')
-    const getAuthorizations = async (
-      owner: EthAddress,
-      operator: EthAddress,
-      timestamp: Timestamp
-    ): Promise<Authorization[]> => {
-      const query = `
-            query GetAuthorizations($owner: String!, $operator: String!, $timestamp: Int!) {
-                authorizations(
-                        where: {
-                            owner: $owner,
-                            operator: $operator,
-                            createdAt_lte: $timestamp
-                        },
-                        orderBy: timestamp,
-                        orderDirection: desc
-                    ) {
-                    type
-                    isApproved
-                }
-            }`
+export async function scenes(
+  components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'subGraphs'>,
+  deployment: DeploymentToValidate
+) {
+  const { externalCalls, subGraphs, logs } = components
+  const logger = logs.getLogger('scenes access validator')
+  const getAuthorizations = async (
+    owner: EthAddress,
+    operator: EthAddress,
+    timestamp: Timestamp
+  ): Promise<Authorization[]> => {
+    const query = `
+          query GetAuthorizations($owner: String!, $operator: String!, $timestamp: Int!) {
+              authorizations(
+                      where: {
+                          owner: $owner,
+                          operator: $operator,
+                          createdAt_lte: $timestamp
+                      },
+                      orderBy: timestamp,
+                      orderDirection: desc
+                  ) {
+                  type
+                  isApproved
+              }
+          }`
 
-      const variables = {
-        owner,
-        operator,
-        timestamp: Math.floor(timestamp / 1000) // js(ms) -> UNIX(s)
-      }
-
-      try {
-        return (
-          await subGraphs.L1.landManager.query<{
-            authorizations: Authorization[]
-          }>(query, variables)
-        ).authorizations
-      } catch (error) {
-        logger.error(`Error fetching authorizations for ${owner}`)
-        throw error
-      }
+    const variables = {
+      owner,
+      operator,
+      timestamp: Math.floor(timestamp / 1000) // js(ms) -> UNIX(s)
     }
 
-    const getEstate = async (estateId: string, timestamp: Timestamp): Promise<Estate | undefined> => {
-      /**
-       * You can use `owner`, `operator` and `updateOperator` to check the current value for that estate.
-       * Keep in mind that each association (owners, operators, etc) is capped to a thousand (1000) results.
-       * For more information, you can use the query explorer at https://thegraph.com/explorer/subgraph/decentraland/land-manager
-       */
-
-      const query = `
-            query GetEstate($estateId: String!, $timestamp: Int!) {
-                estates(where:{ id: $estateId }) {
-                    id
-                    owners(
-                            where: { createdAt_lte: $timestamp },
-                            orderBy: timestamp,
-                            orderDirection: desc,
-                            first: 1
-                        ) {
-                        address
-                    }
-                    operators(
-                            where: { createdAt_lte: $timestamp },
-                            orderBy: timestamp,
-                            orderDirection: desc,
-                            first: 1
-                        ) {
-                        address
-                    }
-                    updateOperators(
-                            where: { createdAt_lte: $timestamp },
-                            orderBy: timestamp,
-                            orderDirection: desc,
-                            first: 1
-                        ) {
-                        address
-                    }
-                }
-            }`
-
-      const variables = {
-        estateId,
-        timestamp: Math.floor(timestamp / 1000) // UNIX
-      }
-
-      try {
-        return (
-          await subGraphs.L1.landManager.query<{
-            estates: Estate[]
-          }>(query, variables)
-        ).estates[0]
-      } catch (error) {
-        logger.error(`Error fetching estate (${estateId})`)
-        throw error
-      }
-    }
-
-    const getParcel = async (x: number, y: number, timestamp: Timestamp): Promise<Parcel | undefined> => {
-      /**
-       * You can use `owner`, `operator` and `updateOperator` to check the current value for that parcel.
-       * Keep in mind that each association (owners, operators, etc) is capped to a thousand (1000) results.
-       * For more information, you can use the query explorer at https://thegraph.com/explorer/subgraph/decentraland/land-manager
-       */
-
-      const query = `
-            query GetParcel($x: Int!, $y: Int!, $timestamp: Int!) {
-                parcels(where:{ x: $x, y: $y }) {
-                    estates(
-                            where: { createdAt_lte: $timestamp },
-                            orderBy: createdAt,
-                            orderDirection: desc,
-                            first: 1
-                        ) {
-                        estateId
-                    }
-                    owners(
-                            where: { createdAt_lte: $timestamp },
-                            orderBy: timestamp,
-                            orderDirection: desc,
-                            first: 1
-                        ) {
-                        address
-                    }
-                    operators(
-                            where: { createdAt_lte: $timestamp },
-                            orderBy: timestamp,
-                            orderDirection: desc,
-                            first: 1
-                        ) {
-                        address
-                    }
-                    updateOperators(
-                            where: { createdAt_lte: $timestamp },
-                            orderBy: timestamp,
-                            orderDirection: desc,
-                            first: 1
-                        ) {
-                        address
-                    }
-                }
-            }`
-
-      const variables = {
-        x,
-        y,
-        timestamp: Math.floor(timestamp / 1000) // UNIX
-      }
-
-      try {
-        const r = await subGraphs.L1.landManager.query<{
-          parcels: Parcel[]
+    try {
+      return (
+        await subGraphs.L1.landManager.query<{
+          authorizations: Authorization[]
         }>(query, variables)
-
-        if (r.parcels && r.parcels.length) return r.parcels[0]
-
-        logger.error(`Error fetching parcel (${x}, ${y}, ${timestamp}): ${JSON.stringify(r)}`)
-        throw new Error(`Error fetching parcel (${x}, ${y}), ${timestamp}`)
-      } catch (error) {
-        logger.error(`Error fetching parcel (${x}, ${y}, ${timestamp})`)
-        throw error
-      }
+      ).authorizations
+    } catch (error) {
+      logger.error(`Error fetching authorizations for ${owner}`)
+      throw error
     }
-
-    const hasAccessThroughAuthorizations = async (
-      owner: EthAddress,
-      ethAddress: EthAddress,
-      timestamp: Timestamp
-    ): Promise<boolean> => {
-      /* You also get access if you received:
-       *   - an authorization with isApproved and type Operator, ApprovalForAll or UpdateManager
-       * at that time
-       */
-      const authorizations = await getAuthorizations(owner.toLowerCase(), ethAddress.toLowerCase(), timestamp)
-
-      const firstOperatorAuthorization = authorizations.find((authorization) => authorization.type === 'Operator')
-      const firstApprovalForAllAuthorization = authorizations.find(
-        (authorization) => authorization.type === 'ApprovalForAll'
-      )
-      const firstUpdateManagerAuthorization = authorizations.find(
-        (authorization) => authorization.type === 'UpdateManager'
-      )
-
-      if (
-        firstOperatorAuthorization?.isApproved ||
-        firstApprovalForAllAuthorization?.isApproved ||
-        firstUpdateManagerAuthorization?.isApproved
-      ) {
-        return true
-      }
-
-      return false
-    }
-
-    const hasAccessThroughFirstLevelAuthorities = async (
-      target: AuthorizationHistory,
-      ethAddress: EthAddress
-    ): Promise<boolean> => {
-      const firstLevelAuthorities = [...target.owners, ...target.operators, ...target.updateOperators]
-        .filter((addressSnapshot) => addressSnapshot.address)
-        .map((addressSnapshot) => addressSnapshot.address.toLowerCase())
-      return firstLevelAuthorities.includes(ethAddress.toLowerCase())
-    }
-
-    const isEstateUpdateAuthorized = async (
-      estateId: number,
-      timestamp: Timestamp,
-      ethAddress: EthAddress
-    ): Promise<boolean> => {
-      const estate = await getEstate(estateId.toString(), timestamp)
-      if (estate) {
-        return (
-          (await hasAccessThroughFirstLevelAuthorities(estate, ethAddress)) ||
-          (await hasAccessThroughAuthorizations(estate.owners[0].address, ethAddress, timestamp))
-        )
-      }
-      throw new Error(`Couldn\'t find the state ${estateId}`)
-    }
-
-    const isParcelUpdateAuthorized = async (
-      x: number,
-      y: number,
-      timestamp: Timestamp,
-      ethAddress: EthAddress,
-      _externalCalls: ExternalCalls
-    ): Promise<boolean> => {
-      /* You get direct access if you were the:
-       *   - owner
-       *   - operator
-       *   - update operator
-       * at that time
-       */
-      const parcel = await getParcel(x, y, timestamp)
-      if (parcel) {
-        const belongsToEstate: boolean =
-          parcel.estates != undefined && parcel.estates.length > 0 && parcel.estates[0].estateId != undefined
-
-        return (
-          (await hasAccessThroughFirstLevelAuthorities(parcel, ethAddress)) ||
-          (await hasAccessThroughAuthorizations(parcel.owners[0].address, ethAddress, timestamp)) ||
-          (belongsToEstate && (await isEstateUpdateAuthorized(parcel.estates[0].estateId, timestamp, ethAddress)))
-        )
-      }
-      throw new Error(`Parcel(${x},${y},${timestamp}) not found`)
-    }
-
-    const checkParcelAccess = async (
-      x: number,
-      y: number,
-      timestamp: Timestamp,
-      ethAddress: EthAddress,
-      externalCalls: ExternalCalls
-    ): Promise<boolean> => {
-      try {
-        return await retry(() => isParcelUpdateAuthorized(x, y, timestamp, ethAddress, externalCalls), 5, '0.1s')
-      } catch (error) {
-        logger.error(`Error checking parcel access (${x}, ${y}, ${timestamp}, ${ethAddress}).`)
-        throw error
-      }
-    }
-
-    const SCENE_LOOKBACK_TIME = ms('5m')
-
-    const { entity } = deployment
-    const { pointers, timestamp } = entity
-    const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
-
-    const errors = []
-    const lowerCasePointers = pointers.map((pointer) => pointer.toLowerCase())
-
-    for (const pointer of lowerCasePointers) {
-      const pointerParts: string[] = pointer.split(',')
-      if (pointerParts.length === 2) {
-        const x: number = parseInt(pointerParts[0], 10)
-        const y: number = parseInt(pointerParts[1], 10)
-        try {
-          // Check that the address has access (we check both the present and the 5 min into the past to avoid synchronization issues in the blockchain)
-          const hasAccess =
-            (await checkParcelAccess(x, y, timestamp, ethAddress, externalCalls)) ||
-            (await checkParcelAccess(x, y, timestamp - SCENE_LOOKBACK_TIME, ethAddress, externalCalls))
-          if (!hasAccess) {
-            errors.push(`The provided Eth Address does not have access to the following parcel: (${x},${y})`)
-          }
-        } catch (e) {
-          errors.push(`The provided Eth Address does not have access to the following parcel: (${x},${y}). ${e}`)
-        }
-      } else {
-        errors.push(
-          `Scene pointers should only contain two integers separated by a comma, for example (10,10) or (120,-45). Invalid pointer: ${pointer}`
-        )
-      }
-    }
-
-    return fromErrors(...errors)
   }
+
+  const getEstate = async (estateId: string, timestamp: Timestamp): Promise<Estate | undefined> => {
+    /**
+     * You can use `owner`, `operator` and `updateOperator` to check the current value for that estate.
+     * Keep in mind that each association (owners, operators, etc) is capped to a thousand (1000) results.
+     * For more information, you can use the query explorer at https://thegraph.com/explorer/subgraph/decentraland/land-manager
+     */
+
+    const query = `
+          query GetEstate($estateId: String!, $timestamp: Int!) {
+              estates(where:{ id: $estateId }) {
+                  id
+                  owners(
+                          where: { createdAt_lte: $timestamp },
+                          orderBy: timestamp,
+                          orderDirection: desc,
+                          first: 1
+                      ) {
+                      address
+                  }
+                  operators(
+                          where: { createdAt_lte: $timestamp },
+                          orderBy: timestamp,
+                          orderDirection: desc,
+                          first: 1
+                      ) {
+                      address
+                  }
+                  updateOperators(
+                          where: { createdAt_lte: $timestamp },
+                          orderBy: timestamp,
+                          orderDirection: desc,
+                          first: 1
+                      ) {
+                      address
+                  }
+              }
+          }`
+
+    const variables = {
+      estateId,
+      timestamp: Math.floor(timestamp / 1000) // UNIX
+    }
+
+    try {
+      return (
+        await subGraphs.L1.landManager.query<{
+          estates: Estate[]
+        }>(query, variables)
+      ).estates[0]
+    } catch (error) {
+      logger.error(`Error fetching estate (${estateId})`)
+      throw error
+    }
+  }
+
+  const getParcel = async (x: number, y: number, timestamp: Timestamp): Promise<Parcel | undefined> => {
+    /**
+     * You can use `owner`, `operator` and `updateOperator` to check the current value for that parcel.
+     * Keep in mind that each association (owners, operators, etc) is capped to a thousand (1000) results.
+     * For more information, you can use the query explorer at https://thegraph.com/explorer/subgraph/decentraland/land-manager
+     */
+
+    const query = `
+          query GetParcel($x: Int!, $y: Int!, $timestamp: Int!) {
+              parcels(where:{ x: $x, y: $y }) {
+                  estates(
+                          where: { createdAt_lte: $timestamp },
+                          orderBy: createdAt,
+                          orderDirection: desc,
+                          first: 1
+                      ) {
+                      estateId
+                  }
+                  owners(
+                          where: { createdAt_lte: $timestamp },
+                          orderBy: timestamp,
+                          orderDirection: desc,
+                          first: 1
+                      ) {
+                      address
+                  }
+                  operators(
+                          where: { createdAt_lte: $timestamp },
+                          orderBy: timestamp,
+                          orderDirection: desc,
+                          first: 1
+                      ) {
+                      address
+                  }
+                  updateOperators(
+                          where: { createdAt_lte: $timestamp },
+                          orderBy: timestamp,
+                          orderDirection: desc,
+                          first: 1
+                      ) {
+                      address
+                  }
+              }
+          }`
+
+    const variables = {
+      x,
+      y,
+      timestamp: Math.floor(timestamp / 1000) // UNIX
+    }
+
+    try {
+      const r = await subGraphs.L1.landManager.query<{
+        parcels: Parcel[]
+      }>(query, variables)
+
+      if (r.parcels && r.parcels.length) return r.parcels[0]
+
+      logger.error(`Error fetching parcel (${x}, ${y}, ${timestamp}): ${JSON.stringify(r)}`)
+      throw new Error(`Error fetching parcel (${x}, ${y}), ${timestamp}`)
+    } catch (error) {
+      logger.error(`Error fetching parcel (${x}, ${y}, ${timestamp})`)
+      throw error
+    }
+  }
+
+  const hasAccessThroughAuthorizations = async (
+    owner: EthAddress,
+    ethAddress: EthAddress,
+    timestamp: Timestamp
+  ): Promise<boolean> => {
+    /* You also get access if you received:
+     *   - an authorization with isApproved and type Operator, ApprovalForAll or UpdateManager
+     * at that time
+     */
+    const authorizations = await getAuthorizations(owner.toLowerCase(), ethAddress.toLowerCase(), timestamp)
+
+    const firstOperatorAuthorization = authorizations.find((authorization) => authorization.type === 'Operator')
+    const firstApprovalForAllAuthorization = authorizations.find(
+      (authorization) => authorization.type === 'ApprovalForAll'
+    )
+    const firstUpdateManagerAuthorization = authorizations.find(
+      (authorization) => authorization.type === 'UpdateManager'
+    )
+
+    if (
+      firstOperatorAuthorization?.isApproved ||
+      firstApprovalForAllAuthorization?.isApproved ||
+      firstUpdateManagerAuthorization?.isApproved
+    ) {
+      return true
+    }
+
+    return false
+  }
+
+  const hasAccessThroughFirstLevelAuthorities = async (
+    target: AuthorizationHistory,
+    ethAddress: EthAddress
+  ): Promise<boolean> => {
+    const firstLevelAuthorities = [...target.owners, ...target.operators, ...target.updateOperators]
+      .filter((addressSnapshot) => addressSnapshot.address)
+      .map((addressSnapshot) => addressSnapshot.address.toLowerCase())
+    return firstLevelAuthorities.includes(ethAddress.toLowerCase())
+  }
+
+  const isEstateUpdateAuthorized = async (
+    estateId: number,
+    timestamp: Timestamp,
+    ethAddress: EthAddress
+  ): Promise<boolean> => {
+    const estate = await getEstate(estateId.toString(), timestamp)
+    if (estate) {
+      return (
+        (await hasAccessThroughFirstLevelAuthorities(estate, ethAddress)) ||
+        (await hasAccessThroughAuthorizations(estate.owners[0].address, ethAddress, timestamp))
+      )
+    }
+    throw new Error(`Couldn\'t find the state ${estateId}`)
+  }
+
+  const isParcelUpdateAuthorized = async (
+    x: number,
+    y: number,
+    timestamp: Timestamp,
+    ethAddress: EthAddress,
+    _externalCalls: ExternalCalls
+  ): Promise<boolean> => {
+    /* You get direct access if you were the:
+     *   - owner
+     *   - operator
+     *   - update operator
+     * at that time
+     */
+    const parcel = await getParcel(x, y, timestamp)
+    if (parcel) {
+      const belongsToEstate: boolean =
+        parcel.estates != undefined && parcel.estates.length > 0 && parcel.estates[0].estateId != undefined
+
+      return (
+        (await hasAccessThroughFirstLevelAuthorities(parcel, ethAddress)) ||
+        (await hasAccessThroughAuthorizations(parcel.owners[0].address, ethAddress, timestamp)) ||
+        (belongsToEstate && (await isEstateUpdateAuthorized(parcel.estates[0].estateId, timestamp, ethAddress)))
+      )
+    }
+    throw new Error(`Parcel(${x},${y},${timestamp}) not found`)
+  }
+
+  const checkParcelAccess = async (
+    x: number,
+    y: number,
+    timestamp: Timestamp,
+    ethAddress: EthAddress,
+    externalCalls: ExternalCalls
+  ): Promise<boolean> => {
+    try {
+      return await retry(() => isParcelUpdateAuthorized(x, y, timestamp, ethAddress, externalCalls), 5, '0.1s')
+    } catch (error) {
+      logger.error(`Error checking parcel access (${x}, ${y}, ${timestamp}, ${ethAddress}).`)
+      throw error
+    }
+  }
+
+  const SCENE_LOOKBACK_TIME = ms('5m')
+
+  const { entity } = deployment
+  const { pointers, timestamp } = entity
+  const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
+
+  const errors = []
+  const lowerCasePointers = pointers.map((pointer) => pointer.toLowerCase())
+
+  for (const pointer of lowerCasePointers) {
+    const pointerParts: string[] = pointer.split(',')
+    if (pointerParts.length === 2) {
+      const x: number = parseInt(pointerParts[0], 10)
+      const y: number = parseInt(pointerParts[1], 10)
+      try {
+        // Check that the address has access (we check both the present and the 5 min into the past to avoid synchronization issues in the blockchain)
+        const hasAccess =
+          (await checkParcelAccess(x, y, timestamp, ethAddress, externalCalls)) ||
+          (await checkParcelAccess(x, y, timestamp - SCENE_LOOKBACK_TIME, ethAddress, externalCalls))
+        if (!hasAccess) {
+          errors.push(`The provided Eth Address does not have access to the following parcel: (${x},${y})`)
+        }
+      } catch (e) {
+        errors.push(`The provided Eth Address does not have access to the following parcel: (${x},${y}). ${e}`)
+      }
+    } else {
+      errors.push(
+        `Scene pointers should only contain two integers separated by a comma, for example (10,10) or (120,-45). Invalid pointer: ${pointer}`
+      )
+    }
+  }
+
+  return fromErrors(...errors)
 }
 
 /** @internal */

@@ -1,6 +1,6 @@
 import { Avatar, EntityType, Profile } from '@dcl/schemas'
-import { fromErrors, Validation } from '../types'
-import { validationAfterADR158, validationAfterADR45, validationGroup } from './validations'
+import { ContentValidatorComponents, DeploymentToValidate, fromErrors, ValidateFn } from '../types'
+import { validateAfterADR158, validateAfterADR45, validateAll } from './validations'
 
 const correspondsToASnapshot = (fileName: string, hash: string, metadata: Profile) => {
   const fileNameWithoutExtension = fileName.replace(/.[^/.]+$/, '')
@@ -11,43 +11,45 @@ const correspondsToASnapshot = (fileName: string, hash: string, metadata: Profil
   )
 }
 
-export const allHashesWereUploadedOrStored: Validation = {
-  async validate(components, deployment) {
-    const { entity, files } = deployment
-    const errors: string[] = []
-    if (entity.content) {
-      const alreadyStoredHashes = await components.externalCalls.isContentStoredAlready(
-        entity.content?.map((file) => file.hash) ?? []
-      )
+export async function allHashesWereUploadedOrStored(
+  components: ContentValidatorComponents,
+  deployment: DeploymentToValidate
+) {
+  const { entity, files } = deployment
+  const errors: string[] = []
+  if (entity.content) {
+    const alreadyStoredHashes = await components.externalCalls.isContentStoredAlready(
+      entity.content?.map((file) => file.hash) ?? []
+    )
 
-      for (const { hash } of entity.content) {
-        // Validate that all hashes in entity were uploaded, or were already stored on the service
-        if (!(files.has(hash) || alreadyStoredHashes.get(hash))) {
-          errors.push(`This hash is referenced in the entity but was not uploaded or previously available: ${hash}`)
-        }
+    for (const { hash } of entity.content) {
+      // Validate that all hashes in entity were uploaded, or were already stored on the service
+      if (!(files.has(hash) || alreadyStoredHashes.get(hash))) {
+        errors.push(`This hash is referenced in the entity but was not uploaded or previously available: ${hash}`)
       }
     }
-    return fromErrors(...errors)
   }
+  return fromErrors(...errors)
 }
 
-export const allHashesInUploadedFilesAreReportedInTheEntity: Validation = {
-  async validate(_components, deployment) {
-    const { entity, files } = deployment
-    const errors: string[] = []
-    // Validate that all hashes that belong to uploaded files are actually reported on the entity
-    const entityHashes = new Set(entity.content?.map(({ hash }) => hash) ?? [])
-    for (const [hash] of files) {
-      if (!entityHashes.has(hash) && hash !== entity.id) {
-        errors.push(`This hash was uploaded but is not referenced in the entity: ${hash}`)
-      }
+export async function allHashesInUploadedFilesAreReportedInTheEntity(
+  components: ContentValidatorComponents,
+  deployment: DeploymentToValidate
+) {
+  const { entity, files } = deployment
+  const errors: string[] = []
+  // Validate that all hashes that belong to uploaded files are actually reported on the entity
+  const entityHashes = new Set(entity.content?.map(({ hash }) => hash) ?? [])
+  for (const [hash] of files) {
+    if (!entityHashes.has(hash) && hash !== entity.id) {
+      errors.push(`This hash was uploaded but is not referenced in the entity: ${hash}`)
     }
-    return fromErrors(...errors)
   }
+  return fromErrors(...errors)
 }
 
-export const allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45: Validation = validationAfterADR45({
-  async validate(_components, deployment) {
+export const allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45: ValidateFn = validateAfterADR45(
+  async (components: ContentValidatorComponents, deployment: DeploymentToValidate) => {
     const { entity } = deployment
     const errors: string[] = []
     for (const { file, hash } of entity.content ?? []) {
@@ -62,10 +64,10 @@ export const allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45: Vali
     }
     return fromErrors(...errors)
   }
-})
+)
 
-export const allMandatoryContentFilesArePresent: Validation = validationAfterADR158({
-  async validate(_components, deployment) {
+export const allMandatoryContentFilesArePresent: ValidateFn = validateAfterADR158(
+  async (components: ContentValidatorComponents, deployment: DeploymentToValidate) => {
     const { entity } = deployment
     const errors: string[] = []
     if (entity.type === EntityType.PROFILE) {
@@ -79,13 +81,13 @@ export const allMandatoryContentFilesArePresent: Validation = validationAfterADR
     }
     return fromErrors(...errors)
   }
-})
+)
 
 /**
  * Validate that uploaded and reported hashes are corrects and files corresponds to snapshots
  * @public
  */
-export const content: Validation = validationGroup(
+export const content: ValidateFn = validateAll(
   allHashesWereUploadedOrStored,
   allHashesInUploadedFilesAreReportedInTheEntity,
   allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45,

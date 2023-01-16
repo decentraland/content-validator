@@ -1,13 +1,13 @@
 import { Avatar, EntityType } from '@dcl/schemas'
 import { parseUrn } from '@dcl/urn-resolver'
 import sharp from 'sharp'
-import { DeploymentToValidate, OK, Validation, validationFailed } from '../types'
+import { ContentValidatorComponents, DeploymentToValidate, OK, ValidateFn, validationFailed } from '../types'
 import {
-  validationAfterADR45,
-  validationAfterADR74,
-  validationAfterADR75,
-  validationForType,
-  validationGroup
+  validateAfterADR45,
+  validateAfterADR74,
+  validateAfterADR75,
+  validateAll,
+  validateIfTypeMatches
 } from './validations'
 
 /** Validate that given profile deployment includes a face256 thumbnail with valid size */
@@ -15,8 +15,9 @@ const defaultThumbnailSize = 256
 
 export const isOldEmote = (wearable: string): boolean => /^[a-z]+$/i.test(wearable)
 
-export const faceThumbnail: Validation = validationAfterADR45({
-  validate: async ({ externalCalls }, deployment) => {
+export const faceThumbnail: ValidateFn = validateAfterADR45(
+  async (components: ContentValidatorComponents, deployment: DeploymentToValidate) => {
+    const { externalCalls } = components
     const errors: string[] = []
     const allAvatars: any[] = deployment.entity.metadata?.avatars ?? []
 
@@ -45,10 +46,10 @@ export const faceThumbnail: Validation = validationAfterADR45({
     }
     return errors.length > 0 ? validationFailed(...errors) : OK
   }
-})
+)
 
-export const wearableUrns: Validation = validationAfterADR75({
-  validate: async (components, deployment) => {
+export const wearableUrns: ValidateFn = validateAfterADR75(
+  async (components: ContentValidatorComponents, deployment: DeploymentToValidate) => {
     const allAvatars: any[] = deployment.entity.metadata?.avatars ?? []
     for (const avatar of allAvatars) {
       for (const pointer of avatar.avatar.wearables) {
@@ -63,10 +64,10 @@ export const wearableUrns: Validation = validationAfterADR75({
     }
     return OK
   }
-})
+)
 
-export const emoteUrns: Validation = validationAfterADR74({
-  validate: async (components, deployment) => {
+export const emoteUrns: ValidateFn = validateAfterADR74(
+  async (components: ContentValidatorComponents, deployment: DeploymentToValidate) => {
     const allAvatars = deployment.entity.metadata?.avatars ?? []
     for (const avatar of allAvatars) {
       const allEmotes = avatar.avatar.emotes ?? []
@@ -84,7 +85,7 @@ export const emoteUrns: Validation = validationAfterADR74({
     }
     return OK
   }
-})
+)
 
 function profileHasEmotes(deployment: DeploymentToValidate) {
   const allAvatars: Avatar[] = deployment.entity.metadata?.avatars ?? []
@@ -96,20 +97,20 @@ function profileHasEmotes(deployment: DeploymentToValidate) {
   return false
 }
 
-export const profileMustHaveEmotes: Validation = validationAfterADR74({
-  validate: async (components, deployment) => {
+export const profileMustHaveEmotes: ValidateFn = validateAfterADR74(
+  async (components: ContentValidatorComponents, deployment: DeploymentToValidate) => {
     if (!profileHasEmotes(deployment)) {
       return validationFailed('Profile must have emotes after ADR 74.')
     }
     return OK
   }
-})
+)
 
 /**
  * Validate that given profile deployment includes the face256 file with the correct size
  * * @public
  */
-export const profile: Validation = validationForType(
+export const profile: ValidateFn = validateIfTypeMatches(
   EntityType.PROFILE,
-  validationGroup(faceThumbnail, wearableUrns, emoteUrns, profileMustHaveEmotes)
+  validateAll(faceThumbnail, wearableUrns, emoteUrns, profileMustHaveEmotes)
 )

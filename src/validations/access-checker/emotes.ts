@@ -1,15 +1,12 @@
-import { ContentValidatorComponents } from '../..'
-import { Validation } from '../../types'
+import { ContentValidatorComponents, DeploymentToValidate } from '../..'
 import { itemsValidation } from './items/items'
 
-export const emotes: Validation = {
-  validate: async (
-    components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'theGraphClient'>,
-    deployment
-  ) => {
-    return itemsValidation.validate(components, deployment, [
-      'blockchain-collection-v2-asset',
-      'blockchain-collection-third-party'
-    ])
-  }
+export async function emotes(
+  components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'theGraphClient'>,
+  deployment: DeploymentToValidate
+) {
+  return itemsValidation.validate(components, deployment, [
+    'blockchain-collection-v2-asset',
+    'blockchain-collection-third-party'
+  ])
 }

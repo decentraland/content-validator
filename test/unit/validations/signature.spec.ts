@@ -10,7 +10,7 @@ describe('Signature', () => {
       validateSignature: () => Promise.resolve({ ok: false, message: testMessage })
     })
 
-    const result = await signature.validate(buildComponents({ externalCalls }), deployment)
+    const result = await signature(buildComponents({ externalCalls }), deployment)
 
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain(`The signature is invalid. ${testMessage}`)
@@ -22,7 +22,7 @@ describe('Signature', () => {
       validateSignature: () => Promise.resolve({ ok: true })
     })
 
-    const result = await signature.validate(buildComponents({ externalCalls }), deployment)
+    const result = await signature(buildComponents({ externalCalls }), deployment)
 
     expect(result.ok).toBeTruthy()
   })

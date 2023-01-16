@@ -51,7 +51,7 @@ describe('Wearables', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await thumbnailMaxSizeIsNotExceeded.validate(components, deployment)
+      const result = await thumbnailMaxSizeIsNotExceeded(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Couldn't find hash for thumbnail file with name: ${fileName}`)
     })
@@ -67,7 +67,7 @@ describe('Wearables', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await thumbnailMaxSizeIsNotExceeded.validate(components, deployment)
+      const result = await thumbnailMaxSizeIsNotExceeded(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Couldn't find thumbnail file with hash: ${hash}`)
     })
@@ -83,7 +83,7 @@ describe('Wearables', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await thumbnailMaxSizeIsNotExceeded.validate(components, deployment)
+      const result = await thumbnailMaxSizeIsNotExceeded(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Couldn't parse thumbnail, please check image format.`)
     })
@@ -99,7 +99,7 @@ describe('Wearables', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await thumbnailMaxSizeIsNotExceeded.validate(components, deployment)
+      const result = await thumbnailMaxSizeIsNotExceeded(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Invalid thumbnail image size (width = 1025 / height = 1025)`)
     })
@@ -116,7 +116,7 @@ describe('Wearables', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result: ValidationResponse = await thumbnailMaxSizeIsNotExceeded.validate(components, deployment)
+      const result: ValidationResponse = await thumbnailMaxSizeIsNotExceeded(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Invalid or unknown image format. Only 'PNG' format is accepted.`)
     })
@@ -132,7 +132,7 @@ describe('Wearables', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await thumbnailMaxSizeIsNotExceeded.validate(components, deployment)
+      const result = await thumbnailMaxSizeIsNotExceeded(components, deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -151,7 +151,7 @@ describe('Wearables', () => {
         isContentStoredAlready: async () => new Map([[hash, true]])
       })
 
-      const result = await thumbnailMaxSizeIsNotExceeded.validate(buildComponents({ externalCalls }), deployment)
+      const result = await thumbnailMaxSizeIsNotExceeded(buildComponents({ externalCalls }), deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -177,7 +177,7 @@ describe('Wearables', () => {
         timestamp
       })
       const deployment = buildDeployment({ entity, files })
-      const result = await deploymentMaxSizeExcludingThumbnailIsNotExceeded.validate(components, deployment)
+      const result = await deploymentMaxSizeExcludingThumbnailIsNotExceeded(components, deployment)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
@@ -203,7 +203,7 @@ describe('Wearables', () => {
         timestamp
       })
       const deployment = buildDeployment({ entity, files })
-      const result = await size.validate(components, deployment)
+      const result = await size(components, deployment)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
@@ -229,7 +229,7 @@ describe('Wearables', () => {
         timestamp
       })
       const deployment = buildDeployment({ entity, files })
-      const result = await deploymentMaxSizeExcludingThumbnailIsNotExceeded.validate(components, deployment)
+      const result = await deploymentMaxSizeExcludingThumbnailIsNotExceeded(components, deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -252,7 +252,7 @@ describe('Wearables', () => {
         content
       })
       const deployment = buildDeployment({ entity, files })
-      const result = await wearableRepresentationContent.validate(components, deployment)
+      const result = await wearableRepresentationContent(components, deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -274,7 +274,7 @@ describe('Wearables', () => {
         content
       })
       const deployment = buildDeployment({ entity, files })
-      const result = await wearableRepresentationContent.validate(components, deployment)
+      const result = await wearableRepresentationContent(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Representation content: 'file1' is not one of the content files`)
     })
@@ -293,7 +293,7 @@ describe('Wearables', () => {
         content: []
       })
       const deployment = buildDeployment({ entity })
-      const result = await wearableRepresentationContent.validate(components, deployment)
+      const result = await wearableRepresentationContent(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`No wearable representations found`)
     })
@@ -305,7 +305,7 @@ describe('Wearables', () => {
         content: []
       })
       const deployment = buildDeployment({ entity })
-      const result = await wearableRepresentationContent.validate(components, deployment)
+      const result = await wearableRepresentationContent(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`No content found`)
     })
