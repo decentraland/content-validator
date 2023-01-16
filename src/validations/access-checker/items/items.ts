@@ -68,42 +68,40 @@ async function parseUrnNoFail(urn: string): Promise<SupportedAsset | null> {
   return null
 }
 
-export const itemsValidation = {
-  validate: async (
-    components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'theGraphClient'>,
-    deployment: DeploymentToValidate,
-    validUrnTypesForItem: UrnType[]
-  ) => {
-    const { pointers } = deployment.entity
+export async function itemsValidation(
+  components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'theGraphClient'>,
+  deployment: DeploymentToValidate,
+  validUrnTypesForItem: UrnType[]
+) {
+  const { pointers } = deployment.entity
 
-    const resolvedPointers: SupportedAsset[] = []
-    // deduplicate pointer resolution
-    for (const pointer of pointers) {
-      const parsed = await parseUrnNoFail(pointer)
-      if (!parsed)
-        return validationFailed(
-          `Item pointers should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{id}). Invalid pointer: (${pointer})`
-        )
-
-      if (!alreadySeen(resolvedPointers, parsed)) resolvedPointers.push(parsed)
-    }
-
-    if (resolvedPointers.length > 1)
-      return validationFailed(`Only one pointer is allowed when you create an item. Received: ${pointers}`)
-
-    const parsedAsset = resolvedPointers[0]
-
-    if (!validUrnTypesForItem.includes(parsedAsset.type)) {
+  const resolvedPointers: SupportedAsset[] = []
+  // deduplicate pointer resolution
+  for (const pointer of pointers) {
+    const parsed = await parseUrnNoFail(pointer)
+    if (!parsed)
       return validationFailed(
-        `For the entity type: ${deployment.entity.type}, the asset with urn type: ${parsedAsset.type} is invalid. Valid urn types for this entity: ${validUrnTypesForItem}`
+        `Item pointers should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{id}). Invalid pointer: (${pointer})`
       )
-    }
 
-    for (const validation of assetValidations) {
-      if (validation.canValidate(parsedAsset)) {
-        return validation.validateAsset(components, parsedAsset, deployment)
-      }
-    }
-    throw new Error('This should never happen. There is no validations for the asset.')
+    if (!alreadySeen(resolvedPointers, parsed)) resolvedPointers.push(parsed)
   }
+
+  if (resolvedPointers.length > 1)
+    return validationFailed(`Only one pointer is allowed when you create an item. Received: ${pointers}`)
+
+  const parsedAsset = resolvedPointers[0]
+
+  if (!validUrnTypesForItem.includes(parsedAsset.type)) {
+    return validationFailed(
+      `For the entity type: ${deployment.entity.type}, the asset with urn type: ${parsedAsset.type} is invalid. Valid urn types for this entity: ${validUrnTypesForItem}`
+    )
+  }
+
+  for (const validation of assetValidations) {
+    if (validation.canValidate(parsedAsset)) {
+      return validation.validateAsset(components, parsedAsset, deployment)
+    }
+  }
+  throw new Error('This should never happen. There is no validations for the asset.')
 }

@@ -5,7 +5,7 @@ export async function emotes(
   components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'theGraphClient'>,
   deployment: DeploymentToValidate
 ) {
-  return itemsValidation.validate(components, deployment, [
+  return itemsValidation(components, deployment, [
     'blockchain-collection-v2-asset',
     'blockchain-collection-third-party'
   ])
