@@ -1,4 +1,5 @@
 import { DeploymentToValidate, ExternalCalls } from '../types'
+import { adr45 } from './ADR45'
 import { access } from './access-checker/access'
 import { content } from './content'
 import { entityStructure } from './entity-structure'
@@ -9,6 +10,7 @@ import { metadata } from './metadata-schema'
 import { profile } from './profile'
 import { signature } from './signature'
 import { size } from './size'
+import { scene } from './scene'
 
 /**
  * @public
@@ -35,13 +37,13 @@ export const calculateDeploymentSize = async (
  * Stateful validations that are run on a deployment.
  * @public
  */
-export const statefulValidations = [signature, access, size, wearable, emote, profile, content] as const
+export const statefulValidations = [signature, access, size, wearable, emote, profile, scene, content] as const
 
 /**
  * Stateless validations that are run on a deployment.
  * @public
  */
-export const statelessValidations = [entityStructure, ipfsHashing, metadata] as const
+export const statelessValidations = [entityStructure, ipfsHashing, metadata, adr45] as const
 
 /**
  * All validations that are run on a deployment.
