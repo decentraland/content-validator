@@ -9,7 +9,6 @@ import { ADR_45_TIMESTAMP, LEGACY_CONTENT_MIGRATION_TIMESTAMP } from './timestam
  * @public
  */
 export async function size(components: ContentValidatorComponents, deployment: DeploymentToValidate) {
-  const { externalCalls } = components
   const { entity } = deployment
   if (entity.timestamp <= LEGACY_CONTENT_MIGRATION_TIMESTAMP) return OK
 
@@ -21,7 +20,7 @@ export async function size(components: ContentValidatorComponents, deployment: D
   const maxSizeInBytes = maxSizeInMB * 1024 * 1024
   let totalSize = 0
   if (entity.timestamp > ADR_45_TIMESTAMP) {
-    const result = await calculateDeploymentSize(deployment, externalCalls)
+    const result = await calculateDeploymentSize(deployment, components.externalCalls)
     if (typeof result === 'string') return validationFailed(result)
     totalSize = result
   } else {

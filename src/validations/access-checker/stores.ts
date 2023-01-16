@@ -17,9 +17,8 @@ export async function stores(
   components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'theGraphClient'>,
   deployment: DeploymentToValidate
 ) {
-  const { externalCalls } = components
   const pointers = deployment.entity.pointers
-  const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
+  const ethAddress = components.externalCalls.ownerAddress(deployment.auditInfo)
 
   if (pointers.length !== 1)
     return validationFailed(`Only one pointer is allowed when you create a Store. Received: ${pointers}`)

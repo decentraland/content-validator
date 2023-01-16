@@ -9,9 +9,8 @@ export async function pointerIsValid(
   components: Pick<ContentValidatorComponents, 'externalCalls'>,
   deployment: DeploymentToValidate
 ) {
-  const { externalCalls } = components
   const pointers = deployment.entity.pointers
-  const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
+  const ethAddress = components.externalCalls.ownerAddress(deployment.auditInfo)
 
   if (pointers.length !== 1)
     return validationFailed(`Only one pointer is allowed when you create a Profile. Received: ${pointers}`)
@@ -19,7 +18,7 @@ export async function pointerIsValid(
   const pointer: string = pointers[0].toLowerCase()
 
   if (pointer.startsWith('default')) {
-    if (!externalCalls.isAddressOwnedByDecentraland(ethAddress))
+    if (!components.externalCalls.isAddressOwnedByDecentraland(ethAddress))
       return validationFailed(`Only Decentraland can add or modify default profiles`)
   } else if (!EthAddress.validate(pointer)) {
     return validationFailed(`The given pointer is not a valid ethereum address.`)

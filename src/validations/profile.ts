@@ -17,7 +17,6 @@ export const isOldEmote = (wearable: string): boolean => /^[a-z]+$/i.test(wearab
 
 export const faceThumbnail: ValidateFn = validateAfterADR45(
   async (components: ContentValidatorComponents, deployment: DeploymentToValidate) => {
-    const { externalCalls } = components
     const errors: string[] = []
     const allAvatars: any[] = deployment.entity.metadata?.avatars ?? []
 
@@ -25,7 +24,7 @@ export const faceThumbnail: ValidateFn = validateAfterADR45(
       const hash = avatar.avatar.snapshots.face256
       if (!hash) return validationFailed(`Couldn't find hash for face256 thumbnail file with name: 'face256'`)
 
-      const isAlreadyStored = (await externalCalls.isContentStoredAlready([hash])).get(hash) ?? false
+      const isAlreadyStored = (await components.externalCalls.isContentStoredAlready([hash])).get(hash) ?? false
       if (isAlreadyStored) {
         return OK
       }

@@ -177,13 +177,13 @@ async function checkCollectionAccess(
 
 export const v1andV2collectionAssetValidation: AssetValidation = {
   async validateAsset(
-    components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'theGraphClient' | 'subGraphs'>,
+    components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'subGraphs' | 'theGraphClient'>,
     asset: BlockchainCollectionV1Asset | BlockchainCollectionV2Asset,
     deployment: DeploymentToValidate
   ) {
-    const { externalCalls, subGraphs } = components
+    const { externalCalls, subGraphs, logs } = components
     const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
-    const logger = components.logs.getLogger('collection asset access validation')
+    const logger = logs.getLogger('collection asset access validation')
     // L1 or L2 so contractAddress is present
     const collection = asset.contractAddress!
     const network = asset.network

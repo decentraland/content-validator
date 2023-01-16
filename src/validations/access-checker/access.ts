@@ -24,9 +24,8 @@ export async function access(components: ContentValidatorComponents, deployment:
     return OK
   }
 
-  const { externalCalls } = components
   const deployedBeforeDCLLaunch = deployment.entity.timestamp <= LEGACY_CONTENT_MIGRATION_TIMESTAMP
-  const address = externalCalls.ownerAddress(deployment.auditInfo)
+  const address = components.externalCalls.ownerAddress(deployment.auditInfo)
 
   // Default scenes were removed from the Content Servers after https://github.com/decentraland/catalyst/issues/878
   if (isDefaultScene(deployment.entity)) {
@@ -35,7 +34,7 @@ export async function access(components: ContentValidatorComponents, deployment:
     )
   }
   // Legacy entities still need to be synchronized
-  if (deployedBeforeDCLLaunch && externalCalls.isAddressOwnedByDecentraland(address)) return OK
+  if (deployedBeforeDCLLaunch && components.externalCalls.isAddressOwnedByDecentraland(address)) return OK
 
   return accessCheckers[deployment.entity.type](components, deployment)
 }

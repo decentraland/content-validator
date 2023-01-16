@@ -11,7 +11,6 @@ export async function deploymentMaxSizeExcludingThumbnailIsNotExceeded(
   components: Pick<ContentValidatorComponents, 'externalCalls'>,
   deployment: DeploymentToValidate
 ) {
-  const { externalCalls } = components
   const entity = deployment.entity
   const maxSizeInMB = entityParameters[entity.type]?.maxSizeInMB
   if (!maxSizeInMB) return validationFailed(`Type ${entity.type} is not supported yet`)
@@ -22,7 +21,7 @@ export async function deploymentMaxSizeExcludingThumbnailIsNotExceeded(
   const thumbnailHash = entity.content?.find(({ file }) => file === metadata.thumbnail)?.hash
   if (!thumbnailHash) return validationFailed("Couldn't find the thumbnail hash")
 
-  const totalDeploymentSizeInB = await calculateDeploymentSize(deployment, externalCalls)
+  const totalDeploymentSizeInB = await calculateDeploymentSize(deployment, components.externalCalls)
   if (typeof totalDeploymentSizeInB === 'string') return validationFailed(totalDeploymentSizeInB)
   const thumbnailSize = deployment.files.get(thumbnailHash)?.byteLength ?? 0
   const modelSize = totalDeploymentSizeInB - thumbnailSize
@@ -40,7 +39,7 @@ export async function deploymentMaxSizeExcludingThumbnailIsNotExceeded(
 /** Validate that given item deployment includes a thumbnail with valid format and size */
 const maxThumbnailSizeInB = 1024
 export async function thumbnailMaxSizeIsNotExceeded(
-  components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'theGraphClient'>,
+  components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs'>,
   deployment: DeploymentToValidate
 ) {
   const { externalCalls, logs } = components
