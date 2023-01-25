@@ -59,5 +59,5 @@ export const scenes: Validation = {
     }
 
     return fromErrors(...errors)
-  },
+  }
 }
