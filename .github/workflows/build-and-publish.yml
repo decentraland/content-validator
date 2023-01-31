@@ -77,7 +77,7 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
             # Test this pull request
-            - The `@dcl/content-validator` package can be tested by running
+            - The package can be tested by running
                ```bash
                yarn upgrade "${{ steps.url-generator.outputs.body }}"
                ```
