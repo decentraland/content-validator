@@ -12,7 +12,7 @@ jobs:
   check_and_build:
     runs-on: ubuntu-latest
     outputs:
-      dcl_content_validator_s3_bucket_key: ${{ steps.publish_dcl_content_validator.outputs.s3-bucket-key }}
+      s3_bucket_key: ${{ steps.publish_package.outputs.s3-bucket-key }}
     steps:
       - uses: actions/checkout@v2
       - name: install
@@ -25,7 +25,7 @@ jobs:
         run: yarn lint:check
       - name: publish packages
         uses: menduz/oddish-action@master
-        id: publish_dcl_content_validator
+        id: publish_package
         with:
           registry-url: 'https://registry.npmjs.org'
           access: public
@@ -34,7 +34,7 @@ jobs:
 
           ## publish every package to s3
           s3-bucket: ${{ secrets.SDK_TEAM_S3_BUCKET }}
-          s3-bucket-key-prefix: '@dcl/content-validator/branch/${{ steps.myref.outputs.branch }}'
+          s3-bucket-key-prefix: '@dcl/${{ github.event.repository_name }}/branch/${{ steps.myref.outputs.branch }}'
 
           ## inform gitlab after publishing to proceed with CDN propagation
           gitlab-token: ${{ secrets.GITLAB_TOKEN }}
@@ -67,7 +67,7 @@ jobs:
       - name: Generate S3 URL
         id: url-generator
         run: |
-          body=$(echo ${{ secrets.SDK_TEAM_S3_BASE_URL }})/${{ needs.check_and_build.outputs.dcl_content_validator_s3_bucket_key }}
+          body=$(echo ${{ secrets.SDK_TEAM_S3_BASE_URL }})/${{ needs.check_and_build.outputs.s3_bucket_key }}
           echo ::set-output name=body::$body
 
       - name: Create or update comment
