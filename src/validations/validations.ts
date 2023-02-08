@@ -1,9 +1,9 @@
 import { EntityType } from '@dcl/schemas'
-import { ContentValidatorComponents, DeploymentToValidate, OK, Validation, ValidationResponse } from '../types'
+import { ContentValidatorComponents, DeploymentToValidate, OK, ValidateFn } from '../types'
 import {
   ADR_158_TIMESTAMP,
-  ADR_45_TIMESTAMP,
   ADR_173_TIMESTAMP,
+  ADR_45_TIMESTAMP,
   ADR_74_TIMESTAMP,
   ADR_75_TIMESTAMP
 } from './timestamps'
