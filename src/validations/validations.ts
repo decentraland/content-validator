@@ -1,6 +1,12 @@
 import { EntityType } from '@dcl/schemas'
-import { ContentValidatorComponents, DeploymentToValidate, OK, ValidateFn } from '../types'
-import { ADR_158_TIMESTAMP, ADR_45_TIMESTAMP, ADR_74_TIMESTAMP, ADR_75_TIMESTAMP } from './timestamps'
+import { ContentValidatorComponents, DeploymentToValidate, OK, Validation, ValidationResponse } from '../types'
+import {
+  ADR_158_TIMESTAMP,
+  ADR_45_TIMESTAMP,
+  ADR_173_TIMESTAMP,
+  ADR_74_TIMESTAMP,
+  ADR_75_TIMESTAMP
+} from './timestamps'
 
 export function validateAll(...validationFns: ValidateFn[]): ValidateFn {
   return async (components: ContentValidatorComponents, deployment: DeploymentToValidate) => {
@@ -39,6 +45,10 @@ export function validateAfterADR74(validate: ValidateFn): ValidateFn {
 
 export function validateAfterADR158(validate: ValidateFn): ValidateFn {
   return validateIfConditionMet((deployment) => deployment.entity.timestamp >= ADR_158_TIMESTAMP, validate)
+}
+
+export function validateAfterADR173(validate: ValidateFn): ValidateFn {
+  return validateIfConditionMet((deployment) => deployment.entity.timestamp >= ADR_173_TIMESTAMP, validate)
 }
 
 export function validateIfTypeMatches(entityType: EntityType, validate: ValidateFn) {

@@ -83,7 +83,7 @@ export const OK: ValidationResponse;
 export type QueryGraph = <T = any>(query: string, variables?: Variables, remainingAttempts?: number) => Promise<T>;
 
 // @public
-export const statefulValidations: readonly [Validation, Validation, Validation, Validation, Validation, Validation, Validation];
+export const statefulValidations: readonly [Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation];
 
 // @public
 export const statelessValidations: readonly [Validation, Validation, Validation, Validation];
@@ -130,7 +130,7 @@ export type ValidationResponse = {
 };
 
 // @public
-export const validations: readonly [Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation];
+export const validations: readonly [Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation];
 
 // @public
 export interface Validator {
