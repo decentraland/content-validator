@@ -1,6 +1,6 @@
 import { EntityType } from '@dcl/schemas'
-import { DeploymentToValidate, OK, Validation, validationFailed } from '../types'
-import { validationAfterADR173, validationForType, validationGroup } from './validations'
+import { ContentValidatorComponents, DeploymentToValidate, OK, ValidateFn, validationFailed } from '../types'
+import { validateAfterADR173, validateIfTypeMatches } from './validations'
 
 function sceneHasWorldConfiguration(deployment: DeploymentToValidate): boolean {
   return deployment.entity.metadata?.worldConfiguration !== undefined
@@ -10,17 +10,16 @@ function sceneHasWorldConfiguration(deployment: DeploymentToValidate): boolean {
  * Validate that given scene deployment does not contain worldConfiguration section
  * @public
  */
-export const noWorldsConfiguration: Validation = validationAfterADR173({
-  validate: async (components, deployment) => {
+export const noWorldsConfiguration: ValidateFn = validateAfterADR173(
+  async (components: ContentValidatorComponents, deployment: DeploymentToValidate) => {
     if (sceneHasWorldConfiguration(deployment)) {
       return validationFailed('Scenes cannot have worldConfiguration section after ADR 173.')
     }
     return OK
   }
-})
-
+)
 /**
  * Validate that given scene deployment is valid
  * @public
  */
-export const scene: Validation = validationForType(EntityType.SCENE, validationGroup(noWorldsConfiguration))
+export const scene: ValidateFn = validateIfTypeMatches(EntityType.SCENE, noWorldsConfiguration)

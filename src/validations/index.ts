@@ -1,6 +1,6 @@
 import { DeploymentToValidate, ExternalCalls } from '../types'
-import { adr45 } from './ADR45'
 import { access } from './access-checker/access'
+import { adr45 } from './ADR45'
 import { content } from './content'
 import { entityStructure } from './entity-structure'
 import { ipfsHashing } from './ipfs-hashing'
@@ -15,10 +15,10 @@ import { scene } from './scene'
 /**
  * @public
  */
-export const calculateDeploymentSize = async (
+export async function calculateDeploymentSize(
   deployment: DeploymentToValidate,
   externalCalls: ExternalCalls
-): Promise<number | string> => {
+): Promise<number | string> {
   let totalSize = 0
   for (const hash of new Set(deployment.entity.content?.map((item) => item.hash) ?? [])) {
     const uploadedFile = deployment.files.get(hash)
@@ -37,16 +37,17 @@ export const calculateDeploymentSize = async (
  * Stateful validations that are run on a deployment.
  * @public
  */
-export const statefulValidations = [signature, access, size, wearable, emote, profile, scene, content] as const
+
+export const statefulValidateFns = [signature, access, size, wearable, emote, profile, scene, content] as const
 
 /**
  * Stateless validations that are run on a deployment.
  * @public
  */
-export const statelessValidations = [entityStructure, ipfsHashing, metadata, adr45] as const
+export const statelessValidateFns = [entityStructure, ipfsHashing, metadata, adr45] as const
 
 /**
  * All validations that are run on a deployment.
  * @public
  */
-export const validations = [...statelessValidations, ...statefulValidations] as const
+export const validateFns = [...statelessValidateFns, ...statefulValidateFns] as const

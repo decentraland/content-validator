@@ -1,9 +1,9 @@
+import { createConfigComponent } from '@well-known-components/env-config-provider'
 import { IConfigComponent, ILoggerComponent } from '@well-known-components/interfaces'
 import { ISubgraphComponent } from '@well-known-components/thegraph-component'
 import { createTheGraphClient } from '../../src'
 import { ContentValidatorComponents, ExternalCalls, QueryGraph, SubGraphs } from '../../src/types'
 import { ItemCollection } from '../../src/validations/access-checker/items/collection-asset'
-import { createConfigComponent } from '@well-known-components/env-config-provider'
 
 export const buildLogger = (): ILoggerComponent => ({
   getLogger: () => ({

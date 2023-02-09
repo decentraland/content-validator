@@ -1,6 +1,7 @@
 import { ContentValidatorComponents, OK, Validator } from './types'
-import { validations } from './validations'
+import { validateFns } from './validations'
 
+export { createTheGraphClient } from './the-graph-client/the-graph-client'
 export * from './types'
 export * from './validations'
 
@@ -15,8 +16,8 @@ export const createValidator = (
 
   return {
     validate: async (deployment) => {
-      for (const validation of validations) {
-        const result = await validation.validate(components, deployment)
+      for (const validate of validateFns) {
+        const result = await validate(components, deployment)
         if (!result.ok) {
           logs.debug(`Validation failed:\n${result.errors?.join('\n')}`)
           return result
@@ -26,5 +27,3 @@ export const createValidator = (
     }
   }
 }
-
-export { createTheGraphClient } from './the-graph-client/the-graph-client'

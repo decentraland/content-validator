@@ -1,14 +1,14 @@
 import { IPFSv2 } from '@dcl/schemas'
 import { ContentValidatorComponents } from '..'
-import { fromErrors, Validation } from '../types'
-import { validationAfterADR45 } from './validations'
+import { DeploymentToValidate, fromErrors, ValidateFn } from '../types'
+import { validateAfterADR45 } from './validations'
 
 /**
  * Validate that all hashes used by the entity were actually IPFS hashes
  * @public
  */
-export const ipfsHashing: Validation = validationAfterADR45({
-  validate: (components: ContentValidatorComponents, deployment) => {
+export const ipfsHashing: ValidateFn = validateAfterADR45(
+  (components: ContentValidatorComponents, deployment: DeploymentToValidate) => {
     const { entity } = deployment
 
     const hashesInContent = entity.content?.map(({ hash }) => hash) ?? []
@@ -20,4 +20,4 @@ export const ipfsHashing: Validation = validationAfterADR45({
 
     return fromErrors(...errors)
   }
-})
+)
