@@ -156,18 +156,17 @@ describe('Access: emotes', () => {
       expect(response.ok).toBeFalsy()
     })
 
-    it(`When urn corresponds to a Third Party emotes, then L2 subgraph is used`, async () => {
+    it(`When urn corresponds to a Third Party emotes, then L2Checker is used`, async () => {
       const subGraphs = buildSubGraphs()
 
       const deployment = buildThirdPartyEmoteDeployment(metadata.id, metadata)
 
       const l2BlockSearchSpy = jest.spyOn(subGraphs.l2BlockSearch, 'findBlockForTimestamp')
-      await emotes.validate(buildComponents({ subGraphs }), deployment)
+      await emotes(buildComponents({ subGraphs }), deployment)
 
       expect(l2BlockSearchSpy).toHaveBeenNthCalledWith(1, expect.anything())
       expect(subGraphs.L2.checker.validateThirdParty).toHaveBeenNthCalledWith(
-        1,
-        expect.anything(),
+        2,
         expect.anything(),
         expect.anything(),
         expect.anything()

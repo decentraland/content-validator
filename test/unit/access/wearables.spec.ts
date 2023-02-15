@@ -172,8 +172,7 @@ describe('Access: wearables', () => {
 
       expect(l2BlockSearchSpy).toHaveBeenNthCalledWith(1, expect.anything())
       expect(subGraphs.L2.checker.validateThirdParty).toHaveBeenNthCalledWith(
-        1,
-        expect.anything(),
+        2,
         expect.anything(),
         expect.anything(),
         expect.anything()
