@@ -31,7 +31,8 @@ export async function pointerIsValid(
 }
 
 function allClaimedNames(entity: Entity): string[] {
-  return entity.metadata.avatars
+  const allAvatars = entity.metadata?.avatars ?? []
+  return allAvatars
     .filter((avatar: Avatar) => avatar.hasClaimedName)
     .map((avatar: Avatar) => avatar.name)
     .filter((name: string) => name && name.trim().length > 0)
@@ -68,7 +69,8 @@ async function sanitizeUrn(urn: string): Promise<string | undefined> {
 
 async function allOnChainWearableUrns(entity: Entity) {
   const allWearablesInProfilePromises: Promise<string | undefined>[] = []
-  for (const avatar of entity.metadata.avatars) {
+  const allAvatars = entity.metadata?.avatars ?? []
+  for (const avatar of allAvatars) {
     for (const wearableId of avatar.avatar.wearables) {
       if (!isBaseAvatar(wearableId) && !isOldEmote(wearableId)) {
         allWearablesInProfilePromises.push(sanitizeUrn(wearableId))
