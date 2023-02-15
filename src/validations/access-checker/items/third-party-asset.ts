@@ -21,6 +21,7 @@ export const thirdPartyAssetValidation: AssetValidation = {
     asset: BlockchainCollectionThirdParty,
     deployment: DeploymentToValidate
   ) {
+    const logger = components.logs.getLogger('third-party-asset-validation')
     const { checker } = components.subGraphs.L2
 
     const { timestamp } = deployment.entity
@@ -31,8 +32,6 @@ export const thirdPartyAssetValidation: AssetValidation = {
       const metadata = deployment.entity.metadata as ThirdPartyProps
       const merkleProof = metadata.merkleProof
 
-      const ethAddress = components.externalCalls.ownerAddress(deployment.auditInfo)
-
       const thirdPartyId = getThirdPartyId(asset)
 
       const bufferedProofs = merkleProof.proof.map((value) => toHexBuffer(value))
@@ -41,15 +40,22 @@ export const thirdPartyAssetValidation: AssetValidation = {
       const { blockAtDeployment, blockFiveMinBeforeDeployment } =
         await components.theGraphClient.findBlocksForTimestamp(timestamp, components.subGraphs.l2BlockSearch)
 
-      const batch: Promise<boolean>[] = []
-      if (blockAtDeployment) {
-        batch.push(checker.validateThirdParty(ethAddress, thirdPartyId, root, blockAtDeployment))
-      }
-      if (blockFiveMinBeforeDeployment) {
-        batch.push(checker.validateThirdParty(ethAddress, thirdPartyId, root, blockFiveMinBeforeDeployment))
+      const validateThirdParty = async (block: number) => {
+        try {
+          return await checker.validateThirdParty(thirdPartyId, root, block)
+        } catch (err: any) {
+          logger.warn(err)
+          return false
+        }
       }
 
-      verified = (await Promise.all(batch)).some((r) => r)
+      if (blockAtDeployment) {
+        verified = await validateThirdParty(blockAtDeployment)
+      }
+
+      if (!verified && blockFiveMinBeforeDeployment) {
+        verified = await validateThirdParty(blockFiveMinBeforeDeployment)
+      }
     }
 
     if (!verified) {

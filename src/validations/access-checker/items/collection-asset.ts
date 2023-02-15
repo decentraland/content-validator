@@ -55,34 +55,33 @@ export const v1andV2collectionAssetValidation: AssetValidation = {
         return Promise.all([hashV0(buffer), hashV1(buffer)])
       }
 
-      const validateWearable = async (hash: string, block: number) => {
-        return subGraphs.L2.checker.validateWearables(ethAddress, asset.contractAddress!, asset.id, hash, block)
+      const validateWearable = async (hashes: string[], block: number) => {
+        try {
+          return await subGraphs.L2.checker.validateWearables(
+            ethAddress,
+            asset.contractAddress!,
+            asset.id,
+            hashes,
+            block
+          )
+        } catch (err: any) {
+          logger.warn(err)
+          return false
+        }
       }
 
       let hasAccess = false
-      try {
-        const { blockAtDeployment, blockFiveMinBeforeDeployment } =
-          await components.theGraphClient.findBlocksForTimestamp(timestamp, components.subGraphs.l2BlockSearch)
+      const { blockAtDeployment, blockFiveMinBeforeDeployment } =
+        await components.theGraphClient.findBlocksForTimestamp(timestamp, components.subGraphs.l2BlockSearch)
 
-        // NOTE(hugo): I'm calculating both hashes so I can make one RPC request (they are processed together as a batch),
-        // this may not be the right call, since it's possible to argue that a
-        // hash call is more expensive than a RPC call, but since I have no
-        // data to make a better decision, I think this is good enough
-        const hashes = await calculateHashes()
+      const hashes = await calculateHashes()
 
-        const batch: Promise<boolean>[] = []
-        for (const hash of hashes) {
-          if (blockAtDeployment) {
-            batch.push(validateWearable(hash, blockAtDeployment))
-          }
-          if (blockFiveMinBeforeDeployment) {
-            batch.push(validateWearable(hash, blockFiveMinBeforeDeployment))
-          }
-        }
+      if (blockAtDeployment) {
+        hasAccess = await validateWearable(hashes, blockAtDeployment)
+      }
 
-        hasAccess = (await Promise.all(batch)).some((r) => r)
-      } catch (err: any) {
-        logger.error(err)
+      if (!hasAccess && blockFiveMinBeforeDeployment) {
+        hasAccess = await validateWearable(hashes, blockFiveMinBeforeDeployment)
       }
 
       if (!hasAccess) {

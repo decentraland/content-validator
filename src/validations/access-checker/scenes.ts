@@ -1,4 +1,3 @@
-import ms from 'ms'
 import { fromErrors, Validation } from '../../types'
 
 /**

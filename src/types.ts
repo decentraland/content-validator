@@ -138,11 +138,11 @@ export type L2Checker = {
     ethAddress: string,
     contractAddress: string,
     assetId: string,
-    hash: string,
+    hashes: string[],
     block: number
   ): Promise<boolean>
 
-  validateThirdParty(ethAddress: string, tpId: string, root: Buffer, block: number): Promise<boolean>
+  validateThirdParty(tpId: string, root: Buffer, block: number): Promise<boolean>
 }
 
 /**
