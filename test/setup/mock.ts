@@ -1,3 +1,4 @@
+import { createConfigComponent } from '@well-known-components/env-config-provider'
 import { IConfigComponent, ILoggerComponent } from '@well-known-components/interfaces'
 import { ISubgraphComponent } from '@well-known-components/thegraph-component'
 import { createTheGraphClient } from '../../src'

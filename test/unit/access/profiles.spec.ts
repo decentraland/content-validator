@@ -11,7 +11,7 @@ describe('Access: profiles', () => {
     const deployment = buildProfileDeployment(['Default10'])
     const externalCalls = buildExternalCalls()
 
-    const response = await profiles.validate(buildComponents({ externalCalls }), deployment)
+    const response = await profiles(buildComponents({ externalCalls }), deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain('Only Decentraland can add or modify default profiles')
   })
@@ -24,7 +24,7 @@ describe('Access: profiles', () => {
       ownerAddress: () => someValidAddress
     })
 
-    const response = await profiles.validate(buildComponents({ externalCalls }), deployment)
+    const response = await profiles(buildComponents({ externalCalls }), deployment)
     expect(response.ok).toBeTruthy()
   })
 
@@ -35,7 +35,7 @@ describe('Access: profiles', () => {
       ownerAddress: () => someAddress
     })
 
-    const response = await profiles.validate(buildComponents({ externalCalls }), deployment)
+    const response = await profiles(buildComponents({ externalCalls }), deployment)
     expect(response.ok).toBeTruthy()
   })
 
@@ -46,7 +46,7 @@ describe('Access: profiles', () => {
       ownerAddress: () => 'some-address'
     })
 
-    const response = await profiles.validate(buildComponents({ externalCalls }), deployment)
+    const response = await profiles(buildComponents({ externalCalls }), deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(`Only one pointer is allowed when you create a Profile. Received: ${addresses}`)
   })
@@ -60,7 +60,7 @@ describe('Access: profiles', () => {
       ownerAddress: () => address
     })
 
-    const response = await profiles.validate(buildComponents({ externalCalls }), deployment)
+    const response = await profiles(buildComponents({ externalCalls }), deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       `You can only alter your own profile. The pointer address and the signer address are different (pointer:${pointer} signer: ${address}).`
@@ -76,7 +76,7 @@ describe('Access: profiles', () => {
       ownerAddress: () => address
     })
 
-    const response = await profiles.validate(buildComponents({ externalCalls }), deployment)
+    const response = await profiles(buildComponents({ externalCalls }), deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain('The given pointer is not a valid ethereum address.')
   })
@@ -99,7 +99,7 @@ describe('Access: profiles', () => {
       ownerAddress: () => someAddress
     })
 
-    const response = await profiles.validate(buildComponents({ externalCalls, subGraphs }), deployment)
+    const response = await profiles(buildComponents({ externalCalls, subGraphs }), deployment)
     expect(response.ok).toBeTruthy()
   })
 
@@ -119,7 +119,7 @@ describe('Access: profiles', () => {
       ownerAddress: () => someAddress
     })
 
-    const response = await profiles.validate(buildComponents({ externalCalls, subGraphs }), deployment)
+    const response = await profiles(buildComponents({ externalCalls, subGraphs }), deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       'The following names (Some Name) are not owned by the address 0x862f109696d7121438642a78b3caa38f476db08b).'
@@ -150,7 +150,7 @@ describe('Access: profiles', () => {
       ownerAddress: () => someAddress
     })
 
-    const response = await profiles.validate(buildComponents({ externalCalls, subGraphs }), deployment)
+    const response = await profiles(buildComponents({ externalCalls, subGraphs }), deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       'The following items (urn:decentraland:matic:collections-v2:0xf6f601efee04e74cecac02c8c5bdc8cc0fc1c721:0, urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:2, urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:19) are not owned by the address 0x862f109696d7121438642a78b3caa38f476db08b).'
@@ -178,7 +178,7 @@ describe('Access: profiles', () => {
       ownerAddress: () => someAddress
     })
 
-    const response = await profiles.validate(buildComponents({ externalCalls, subGraphs }), deployment)
+    const response = await profiles(buildComponents({ externalCalls, subGraphs }), deployment)
     expect(response.ok).toBeTruthy()
   })
 
@@ -204,7 +204,7 @@ describe('Access: profiles', () => {
       ownerAddress: () => someAddress
     })
 
-    const response = await profiles.validate(buildComponents({ externalCalls, subGraphs }), deployment)
+    const response = await profiles(buildComponents({ externalCalls, subGraphs }), deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       'The following items (urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:1) are not owned by the address 0x862f109696d7121438642a78b3caa38f476db08b).'

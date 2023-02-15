@@ -84,22 +84,10 @@ export type ValidationResponse = {
 /**
  * @public
  */
-export type Validation = {
-  validate: (
-    components: ContentValidatorComponents,
-    deployment: DeploymentToValidate
-  ) => ValidationResponse | Promise<ValidationResponse>
-}
-
-/**
- * @public
- */
-export type ConditionalValidation = {
-  predicate: (
-    components: ContentValidatorComponents,
-    deployment: DeploymentToValidate
-  ) => ValidationResponse | Promise<ValidationResponse>
-}
+export type ValidateFn = (
+  components: ContentValidatorComponents,
+  deployment: DeploymentToValidate
+) => ValidationResponse | Promise<ValidationResponse>
 
 /**
  * @public

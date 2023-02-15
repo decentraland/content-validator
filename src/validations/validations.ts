@@ -1,63 +1,56 @@
 import { EntityType } from '@dcl/schemas'
-import { ContentValidatorComponents, DeploymentToValidate, OK, Validation, ValidationResponse } from '../types'
+import { ContentValidatorComponents, DeploymentToValidate, OK, ValidateFn } from '../types'
 import {
   ADR_158_TIMESTAMP,
-  ADR_45_TIMESTAMP,
   ADR_173_TIMESTAMP,
+  ADR_45_TIMESTAMP,
   ADR_74_TIMESTAMP,
   ADR_75_TIMESTAMP
 } from './timestamps'
 
-export function validationGroup(...validations: Validation[]): Validation {
-  return {
-    async validate(
-      components: ContentValidatorComponents,
-      deployment: DeploymentToValidate
-    ): Promise<ValidationResponse> {
-      for (const validation of validations) {
-        const response = await validation.validate(components, deployment)
-        if (!response.ok) return response
-      }
-      return OK
+export function validateAll(...validationFns: ValidateFn[]): ValidateFn {
+  return async (components: ContentValidatorComponents, deployment: DeploymentToValidate) => {
+    for (const validateFn of validationFns) {
+      const response = await validateFn(components, deployment)
+      if (!response.ok) return response
     }
+    return OK
   }
 }
 
-export function conditionalValidation(
+export function validateIfConditionMet(
   condition: (deployment: DeploymentToValidate) => boolean | Promise<boolean>,
-  validation: Validation
-): Validation {
-  return {
-    async validate(components: ContentValidatorComponents, deployment: DeploymentToValidate) {
-      const conditionIsMet = await condition(deployment)
-      if (conditionIsMet) {
-        return validation.validate(components, deployment)
-      }
-      return OK
+  validateFn: ValidateFn
+): ValidateFn {
+  return async (components: ContentValidatorComponents, deployment: DeploymentToValidate) => {
+    const conditionIsMet = await condition(deployment)
+    if (conditionIsMet) {
+      return validateFn(components, deployment)
     }
+    return OK
   }
 }
 
-export function validationAfterADR45(validation: Validation): Validation {
-  return conditionalValidation((deployment) => deployment.entity.timestamp >= ADR_45_TIMESTAMP, validation)
+export function validateAfterADR45(validate: ValidateFn): ValidateFn {
+  return validateIfConditionMet((deployment) => deployment.entity.timestamp >= ADR_45_TIMESTAMP, validate)
 }
 
-export function validationAfterADR75(validation: Validation): Validation {
-  return conditionalValidation((deployment) => deployment.entity.timestamp >= ADR_75_TIMESTAMP, validation)
+export function validateAfterADR75(validate: ValidateFn): ValidateFn {
+  return validateIfConditionMet((deployment) => deployment.entity.timestamp >= ADR_75_TIMESTAMP, validate)
 }
 
-export function validationAfterADR74(validation: Validation): Validation {
-  return conditionalValidation((deployment) => deployment.entity.timestamp >= ADR_74_TIMESTAMP, validation)
+export function validateAfterADR74(validate: ValidateFn): ValidateFn {
+  return validateIfConditionMet((deployment) => deployment.entity.timestamp >= ADR_74_TIMESTAMP, validate)
 }
 
-export function validationAfterADR158(validation: Validation): Validation {
-  return conditionalValidation((deployment) => deployment.entity.timestamp >= ADR_158_TIMESTAMP, validation)
+export function validateAfterADR158(validate: ValidateFn): ValidateFn {
+  return validateIfConditionMet((deployment) => deployment.entity.timestamp >= ADR_158_TIMESTAMP, validate)
 }
 
-export function validationAfterADR173(validation: Validation): Validation {
-  return conditionalValidation((deployment) => deployment.entity.timestamp >= ADR_173_TIMESTAMP, validation)
+export function validateAfterADR173(validate: ValidateFn): ValidateFn {
+  return validateIfConditionMet((deployment) => deployment.entity.timestamp >= ADR_173_TIMESTAMP, validate)
 }
 
-export function validationForType(entityType: EntityType, validation: Validation) {
-  return conditionalValidation((deployment) => deployment.entity.type === entityType, validation)
+export function validateIfTypeMatches(entityType: EntityType, validate: ValidateFn) {
+  return validateIfConditionMet((deployment) => deployment.entity.type === entityType, validate)
 }

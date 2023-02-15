@@ -96,5 +96,5 @@ export const v1andV2collectionAssetValidation: AssetValidation = {
   },
   canValidate(asset): asset is BlockchainCollectionV1Asset | BlockchainCollectionV2Asset {
     return asset.type === 'blockchain-collection-v1-asset' || asset.type === 'blockchain-collection-v2-asset'
-  }
+  },
 }

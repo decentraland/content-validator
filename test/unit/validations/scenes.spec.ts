@@ -1,10 +1,10 @@
 import { EntityType } from '@dcl/schemas'
 import { ValidationResponse } from '../../../src'
+import { noWorldsConfiguration } from '../../../src/validations/scene'
 import { ADR_173_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
 import { buildComponents } from '../../setup/mock'
-import { noWorldsConfiguration } from '../../../src/validations/scene'
 import { VALID_SCENE_METADATA } from '../../setup/scenes'
 
 describe('Scenes', () => {
@@ -20,7 +20,7 @@ describe('Scenes', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result: ValidationResponse = await noWorldsConfiguration.validate(components, deployment)
+      const result: ValidationResponse = await noWorldsConfiguration(components, deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -39,7 +39,7 @@ describe('Scenes', () => {
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result: ValidationResponse = await noWorldsConfiguration.validate(components, deployment)
+      const result: ValidationResponse = await noWorldsConfiguration(components, deployment)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain('Scenes cannot have worldConfiguration section after ADR 173.')

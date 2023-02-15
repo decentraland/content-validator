@@ -12,7 +12,7 @@ describe('Access: scenes', () => {
       ownerAddress: () => '0xAddress'
     })
 
-    const response = await scenes.validate(buildComponents({ externalCalls }), deployment)
+    const response = await scenes(buildComponents({ externalCalls }), deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       'Scene pointers should only contain two integers separated by a comma, for example (10,10) or (120,-45). Invalid pointer: default10'
@@ -27,7 +27,7 @@ describe('Access: scenes', () => {
       ownerAddress: () => '0xAddress'
     })
 
-    const response = await scenes.validate(buildComponents({ externalCalls }), deployment)
+    const response = await scenes(buildComponents({ externalCalls }), deployment)
     expect(response.ok).toBeFalsy()
   })
 
@@ -39,7 +39,7 @@ describe('Access: scenes', () => {
       ownerAddress: () => '0xAddress'
     })
 
-    const response = await scenes.validate(buildComponents({ externalCalls }), deployment)
+    const response = await scenes(buildComponents({ externalCalls }), deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       'Scene pointers should only contain two integers separated by a comma, for example (10,10) or (120,-45). Invalid pointer: invalid-pointer'
@@ -60,7 +60,7 @@ describe('Access: scenes', () => {
         ownerAddress
       })
 
-      const response = await access.validate(buildComponents({ config, externalCalls }), deployment)
+      const response = await access(buildComponents({ config, externalCalls }), deployment)
       expect(response.ok).toBeFalsy()
       expect(ownerAddress).toHaveBeenCalled()
     })
@@ -76,7 +76,7 @@ describe('Access: scenes', () => {
         ownerAddress
       })
 
-      const response = await access.validate(buildComponents({ config, externalCalls }), deployment)
+      const response = await access(buildComponents({ config, externalCalls }), deployment)
       expect(response.ok).toBeTruthy()
       expect(ownerAddress).not.toHaveBeenCalled()
     })

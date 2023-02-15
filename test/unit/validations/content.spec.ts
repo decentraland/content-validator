@@ -28,7 +28,7 @@ describe('Content', () => {
 
     const deployment = buildDeployment({ entity })
 
-    const result = await allHashesWereUploadedOrStored.validate(components, deployment)
+    const result = await allHashesWereUploadedOrStored(components, deployment)
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain(notAvailableHashMessage('hash'))
   })
@@ -57,7 +57,7 @@ describe('Content', () => {
       isContentStoredAlready: () => Promise.resolve(new Map([['hash', true]]))
     })
 
-    const result = await content.validate(buildComponents({ externalCalls }), deployment)
+    const result = await content(buildComponents({ externalCalls }), deployment)
     expect(result.ok).toBeTruthy()
   })
 
@@ -68,7 +68,7 @@ describe('Content', () => {
     const files = new Map([['hash', Buffer.from([])]])
     const deployment = buildDeployment({ entity, files })
 
-    const result = await allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45.validate(components, deployment)
+    const result = await allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45(components, deployment)
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain(
       "This file is not expected: 'name' or its hash is invalid: 'hash'. Please, include only valid snapshot files."
@@ -86,7 +86,7 @@ describe('Content', () => {
     ])
     const deployment = buildDeployment({ entity, files })
 
-    const result = await allHashesInUploadedFilesAreReportedInTheEntity.validate(components, deployment)
+    const result = await allHashesInUploadedFilesAreReportedInTheEntity(components, deployment)
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain(notReferencedHashMessage('hash-2'))
   })
@@ -105,7 +105,7 @@ describe('Content', () => {
       })
 
       const deployment = buildDeployment({ entity, files })
-      const result = await content.validate(components, deployment)
+      const result = await content(components, deployment)
       expect(result.ok).toBeTruthy()
     })
 
@@ -122,10 +122,7 @@ describe('Content', () => {
       })
 
       const deployment = buildDeployment({ entity, files })
-      const result = await allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45.validate(
-        components,
-        deployment
-      )
+      const result = await allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `This file is not expected: '${expectedFile}' or its hash is invalid: '${invalidHash}'. Please, include only valid snapshot files.`
@@ -145,10 +142,7 @@ describe('Content', () => {
       })
 
       const deployment = buildDeployment({ entity, files })
-      const result = await allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45.validate(
-        components,
-        deployment
-      )
+      const result = await allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `This file is not expected: '${unexpectedFile}' or its hash is invalid: '${hash}'. Please, include only valid snapshot files.`
@@ -168,10 +162,7 @@ describe('Content', () => {
       })
 
       const deployment = buildDeployment({ entity, files })
-      const result = await allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45.validate(
-        components,
-        deployment
-      )
+      const result = await allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45(components, deployment)
       expect(result.ok).toBeTruthy()
     })
   })
@@ -185,7 +176,7 @@ describe('Content', () => {
       })
 
       const deployment = buildDeployment({ entity })
-      const result = await allMandatoryContentFilesArePresent.validate(components, deployment)
+      const result = await allMandatoryContentFilesArePresent(components, deployment)
       expect(result.ok).toBeTruthy()
     })
 
@@ -197,7 +188,7 @@ describe('Content', () => {
       })
 
       const deployment = buildDeployment({ entity })
-      const result = await allMandatoryContentFilesArePresent.validate(components, deployment)
+      const result = await allMandatoryContentFilesArePresent(components, deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain("Profile entity is missing file 'body.png'")
       expect(result.errors).toContain("Profile entity is missing file 'face256.png'")
@@ -220,7 +211,7 @@ describe('Content', () => {
       })
 
       const deployment = buildDeployment({ entity, files })
-      const result = await allMandatoryContentFilesArePresent.validate(components, deployment)
+      const result = await allMandatoryContentFilesArePresent(components, deployment)
       expect(result.ok).toBeTruthy()
     })
   })

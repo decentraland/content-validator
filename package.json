@@ -28,7 +28,9 @@
   "prettier": {
     "printWidth": 120,
     "semi": false,
-    "singleQuote": true
+    "singleQuote": true,
+    "trailingComma": "none",
+    "tabWidth": 2
   },
   "homepage": "https://github.com/decentraland/content-validator#readme",
   "devDependencies": {
@@ -54,7 +56,7 @@
     "@dcl/block-indexer": "1.0.0-20230123163606.commit-b38fa52",
     "@dcl/content-hash-tree": "^1.1.4",
     "@dcl/hashing": "1.1.3",
-    "@dcl/schemas": "^6.4.0",
+    "@dcl/schemas": "^6.4.1",
     "@dcl/urn-resolver": "2.0.3",
     "@well-known-components/interfaces": "^1.1.3",
     "@well-known-components/logger": "^3.0.0",
