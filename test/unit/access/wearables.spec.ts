@@ -116,7 +116,7 @@ describe('Access: wearables', () => {
     ])
 
     const l2BlockSearchSpy = jest.spyOn(subGraphs.l2BlockSearch, 'findBlockForTimestamp')
-    await wearables.validate(buildComponents({ externalCalls, subGraphs }), deployment)
+    await wearables(buildComponents({ externalCalls, subGraphs }), deployment)
 
     expect(l2BlockSearchSpy).toHaveBeenNthCalledWith(1, expect.anything())
     expect(subGraphs.L2.checker.validateWearables).toHaveBeenNthCalledWith(
@@ -168,7 +168,7 @@ describe('Access: wearables', () => {
       const deployment = buildThirdPartyWearableDeployment(metadata.id, metadata)
 
       const l2BlockSearchSpy = jest.spyOn(subGraphs.l2BlockSearch, 'findBlockForTimestamp')
-      await wearables.validate(buildComponents({ subGraphs }), deployment)
+      await wearables(buildComponents({ subGraphs }), deployment)
 
       expect(l2BlockSearchSpy).toHaveBeenNthCalledWith(1, expect.anything())
       expect(subGraphs.L2.checker.validateThirdParty).toHaveBeenNthCalledWith(
