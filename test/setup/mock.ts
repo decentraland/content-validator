@@ -4,7 +4,6 @@ import { ISubgraphComponent } from '@well-known-components/thegraph-component'
 import { createTheGraphClient } from '../../src'
 import { ContentValidatorComponents, ExternalCalls, L1Checker, L2Checker, QueryGraph, SubGraphs } from '../../src/types'
 import { ItemCollection } from '../../src/validations/access-checker/items/collection-asset'
-import { createConfigComponent } from '@well-known-components/env-config-provider'
 import { BlockInfo, BlockRepository, createAvlBlockSearch, metricsDefinitions } from '@dcl/block-indexer'
 import { createTestMetricsComponent } from '@well-known-components/metrics'
 
