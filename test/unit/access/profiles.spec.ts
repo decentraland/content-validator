@@ -1,5 +1,5 @@
-import { EntityType } from '@dcl/schemas'
-import { profiles } from '../../../src/validations/access-checker/profiles'
+import { EntityType, EthAddress } from '@dcl/schemas'
+import { ownsNames, profiles } from '../../../src/validations/access-checker/profiles'
 import { ADR_74_TIMESTAMP, ADR_75_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment, buildProfileDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
@@ -208,5 +208,75 @@ describe('Access: profiles', () => {
     expect(response.errors).toContain(
       'The following items (urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:1) are not owned by the address 0x862f109696d7121438642a78b3caa38f476db08b).'
     )
+  })
+})
+
+describe('ownsNames', () => {
+  it('claimed names are checked against the graph client after ADR 75', async () => {
+    const someValidAddress = '0x71c7656ec7ab88b098defb751b7401b5f6d8976f'
+    const deployment = buildProfileDeployment(['Default10'])
+    deployment.entity.timestamp = ADR_75_TIMESTAMP
+    deployment.entity.metadata = VALID_PROFILE_METADATA
+    const externalCalls = buildExternalCalls({
+      isAddressOwnedByDecentraland: () => true,
+      ownerAddress: () => someValidAddress
+    })
+
+    const components = buildComponents({ externalCalls })
+    const theGraphSpy = jest
+      .spyOn(components.theGraphClient, 'ownsNamesAtTimestamp')
+      .mockImplementation(async (ethAddress: EthAddress) => {
+        const result = ethAddress === someValidAddress ? true : false
+        return {
+          result
+        }
+      })
+    await ownsNames(components, deployment)
+    expect(theGraphSpy).toBeCalled()
+  })
+
+  it('claimed names are not checked against the graph client before ADR 75', async () => {
+    const someValidAddress = '0x71c7656ec7ab88b098defb751b7401b5f6d8976f'
+    const deployment = buildProfileDeployment(['Default10'])
+    deployment.entity.timestamp = ADR_75_TIMESTAMP - 1
+    deployment.entity.metadata = VALID_PROFILE_METADATA
+    const externalCalls = buildExternalCalls({
+      isAddressOwnedByDecentraland: () => true,
+      ownerAddress: () => someValidAddress
+    })
+
+    const components = buildComponents({ externalCalls })
+    const theGraphSpy = jest
+      .spyOn(components.theGraphClient, 'ownsNamesAtTimestamp')
+      .mockImplementation(async (ethAddress: EthAddress) => {
+        const result = ethAddress === someValidAddress ? true : false
+        return {
+          result
+        }
+      })
+    await ownsNames(components, deployment)
+    expect(theGraphSpy).not.toBeCalled()
+  })
+
+  it('claimed names valid in the graph are sucessful', async () => {
+    const someValidAddress = '0x71c7656ec7ab88b098defb751b7401b5f6d8976f'
+    const deployment = buildProfileDeployment(['Default10'])
+    deployment.entity.timestamp = ADR_75_TIMESTAMP - 1
+    deployment.entity.metadata = VALID_PROFILE_METADATA
+    const externalCalls = buildExternalCalls({
+      isAddressOwnedByDecentraland: () => true,
+      ownerAddress: () => someValidAddress
+    })
+
+    const components = buildComponents({ externalCalls })
+    jest.spyOn(components.theGraphClient, 'ownsNamesAtTimestamp').mockImplementation(async (ethAddress: EthAddress) => {
+      const result = ethAddress === someValidAddress ? true : false
+      return {
+        result
+      }
+    })
+
+    const response = await ownsNames(components, deployment)
+    expect(response.ok).toBeTruthy()
   })
 })
