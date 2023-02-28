@@ -1,12 +1,11 @@
 import { EntityType } from '@dcl/schemas'
 import sharp from 'sharp'
-import { ValidationResponse } from '../../../../src'
 import {
-  deploymentMaxSizeExcludingThumbnailIsNotExceeded,
-  thumbnailMaxSizeIsNotExceeded
+  createDeploymentMaxSizeExcludingThumbnailIsNotExceededValidateFn,
+  createThumbnailMaxSizeIsNotExceededValidateFn,
 } from '../../../../src/validations/items/items'
-import { wearableRepresentationContent } from '../../../../src/validations/items/wearables'
-import { size } from '../../../../src/validations/size'
+import { wearableRepresentationContentValidateFn } from '../../../../src/validations/items/wearables'
+import { createSizeValidateFn } from '../../../../src/validations/size'
 import { ADR_45_TIMESTAMP } from '../../../../src/validations/timestamps'
 import { buildDeployment } from '../../../setup/deployments'
 import { buildEntity } from '../../../setup/entity'
@@ -16,6 +15,7 @@ import { VALID_WEARABLE_METADATA } from '../../../setup/wearable'
 describe('Wearables', () => {
   const timestamp = ADR_45_TIMESTAMP + 1
   const components = buildComponents()
+  const thumbnailMaxSizeValidateFn = createThumbnailMaxSizeIsNotExceededValidateFn(components)
   describe('Thumbnail:', () => {
     let validThumbnailBuffer: Buffer
     let invalidThumbnailBuffer: Buffer
@@ -28,8 +28,8 @@ describe('Wearables', () => {
           width: size,
           height: size,
           channels: 4,
-          background: { r: 255, g: 0, b: 0, alpha: 0.5 }
-        }
+          background: { r: 255, g: 0, b: 0, alpha: 0.5 },
+        },
       })
       if (format) {
         image = format === 'png' ? image.png() : image.jpeg()
@@ -47,11 +47,11 @@ describe('Wearables', () => {
       const entity = buildEntity({
         type: EntityType.WEARABLE,
         metadata: VALID_WEARABLE_METADATA,
-        timestamp
+        timestamp,
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await thumbnailMaxSizeIsNotExceeded(components, deployment)
+      const result = await thumbnailMaxSizeValidateFn(deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Couldn't find hash for thumbnail file with name: ${fileName}`)
     })
@@ -63,11 +63,11 @@ describe('Wearables', () => {
         type: EntityType.WEARABLE,
         metadata: VALID_WEARABLE_METADATA,
         content,
-        timestamp
+        timestamp,
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await thumbnailMaxSizeIsNotExceeded(components, deployment)
+      const result = await thumbnailMaxSizeValidateFn(deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Couldn't find thumbnail file with hash: ${hash}`)
     })
@@ -79,11 +79,11 @@ describe('Wearables', () => {
         type: EntityType.WEARABLE,
         metadata: VALID_WEARABLE_METADATA,
         content,
-        timestamp
+        timestamp,
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await thumbnailMaxSizeIsNotExceeded(components, deployment)
+      const result = await thumbnailMaxSizeValidateFn(deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Couldn't parse thumbnail, please check image format.`)
     })
@@ -95,11 +95,11 @@ describe('Wearables', () => {
         type: EntityType.WEARABLE,
         metadata: VALID_WEARABLE_METADATA,
         content,
-        timestamp
+        timestamp,
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await thumbnailMaxSizeIsNotExceeded(components, deployment)
+      const result = await thumbnailMaxSizeValidateFn(deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Invalid thumbnail image size (width = 1025 / height = 1025)`)
     })
@@ -112,11 +112,11 @@ describe('Wearables', () => {
         type: EntityType.WEARABLE,
         metadata: VALID_WEARABLE_METADATA,
         content,
-        timestamp
+        timestamp,
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result: ValidationResponse = await thumbnailMaxSizeIsNotExceeded(components, deployment)
+      const result = await thumbnailMaxSizeValidateFn(deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Invalid or unknown image format. Only 'PNG' format is accepted.`)
     })
@@ -128,11 +128,11 @@ describe('Wearables', () => {
         type: EntityType.WEARABLE,
         metadata: VALID_WEARABLE_METADATA,
         content,
-        timestamp
+        timestamp,
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await thumbnailMaxSizeIsNotExceeded(components, deployment)
+      const result = await thumbnailMaxSizeValidateFn(deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -143,15 +143,16 @@ describe('Wearables', () => {
         type: EntityType.WEARABLE,
         metadata: VALID_WEARABLE_METADATA,
         content,
-        timestamp
+        timestamp,
       })
       const deployment = buildDeployment({ entity })
 
       const externalCalls = buildExternalCalls({
-        isContentStoredAlready: async () => new Map([[hash, true]])
+        isContentStoredAlready: async () => new Map([[hash, true]]),
       })
 
-      const result = await thumbnailMaxSizeIsNotExceeded(buildComponents({ externalCalls }), deployment)
+      const validateFn = createThumbnailMaxSizeIsNotExceededValidateFn(buildComponents({ externalCalls }))
+      const result = await validateFn(deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -163,21 +164,22 @@ describe('Wearables', () => {
       const content = [
         { file: 'A', hash: 'A' },
         { file: 'C', hash: 'C' },
-        { file: 'thumbnail.png', hash: 'thumbnail' }
+        { file: 'thumbnail.png', hash: 'thumbnail' },
       ]
       const files = new Map([
         ['A', withSize(1)],
         ['C', withSize(1.5)],
-        ['thumbnail', Buffer.alloc(1)]
+        ['thumbnail', Buffer.alloc(1)],
       ])
       const entity = buildEntity({
         type: EntityType.WEARABLE,
         metadata: { thumbnail: 'thumbnail.png' },
         content,
-        timestamp
+        timestamp,
       })
       const deployment = buildDeployment({ entity, files })
-      const result = await deploymentMaxSizeExcludingThumbnailIsNotExceeded(components, deployment)
+      const validateFn = createDeploymentMaxSizeExcludingThumbnailIsNotExceededValidateFn(components)
+      const result = await validateFn(deployment)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
@@ -189,21 +191,23 @@ describe('Wearables', () => {
       const content = [
         { file: 'A', hash: 'A' },
         { file: 'C', hash: 'C' },
-        { file: 'thumbnail.png', hash: 'thumbnail' }
+        { file: 'thumbnail.png', hash: 'thumbnail' },
       ]
       const files = new Map([
         ['A', withSize(1)],
         ['C', withSize(1)],
-        ['thumbnail', withSize(2)]
+        ['thumbnail', withSize(2)],
       ])
       const entity = buildEntity({
         type: EntityType.WEARABLE,
         metadata: { thumbnail: 'thumbnail.png' },
         content,
-        timestamp
+        timestamp,
       })
       const deployment = buildDeployment({ entity, files })
-      const result = await size(components, deployment)
+
+      const validateFn = createSizeValidateFn(components)
+      const result = await validateFn(deployment)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
@@ -215,21 +219,22 @@ describe('Wearables', () => {
       const content = [
         { file: 'A', hash: 'A' },
         { file: 'C', hash: 'C' },
-        { file: 'thumbnail.png', hash: 'thumbnail' }
+        { file: 'thumbnail.png', hash: 'thumbnail' },
       ]
       const files = new Map([
         ['A', withSize(1)],
         ['C', withSize(1)],
-        ['thumbnail', withSize(0.9)]
+        ['thumbnail', withSize(0.9)],
       ])
       const entity = buildEntity({
         type: EntityType.WEARABLE,
         metadata: { thumbnail: 'thumbnail.png' },
         content,
-        timestamp
+        timestamp,
       })
       const deployment = buildDeployment({ entity, files })
-      const result = await deploymentMaxSizeExcludingThumbnailIsNotExceeded(components, deployment)
+      const validateFn = createDeploymentMaxSizeExcludingThumbnailIsNotExceededValidateFn(components)
+      const result = await validateFn(deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -239,20 +244,20 @@ describe('Wearables', () => {
       const withSize = (size: number) => Buffer.alloc(size * 1024 * 1024)
       const content = [
         { file: 'file1', hash: '1' },
-        { file: 'file2', hash: '2' }
+        { file: 'file2', hash: '2' },
       ]
       const files = new Map([
         ['file1', withSize(1)],
-        ['file2', withSize(0.9)]
+        ['file2', withSize(0.9)],
       ])
       const entity = buildEntity({
         type: EntityType.WEARABLE,
         // this metadata includes representations pointing to file1 and file2
         metadata: VALID_WEARABLE_METADATA,
-        content
+        content,
       })
       const deployment = buildDeployment({ entity, files })
-      const result = await wearableRepresentationContent(components, deployment)
+      const result = await wearableRepresentationContentValidateFn(deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -261,20 +266,20 @@ describe('Wearables', () => {
       const withSize = (size: number) => Buffer.alloc(size * 1024 * 1024)
       const content = [
         { file: 'notFile1', hash: '1' },
-        { file: 'file2', hash: '2' }
+        { file: 'file2', hash: '2' },
       ]
       const files = new Map([
         ['notFile1', withSize(1)],
-        ['file2', withSize(0.9)]
+        ['file2', withSize(0.9)],
       ])
       const entity = buildEntity({
         type: EntityType.WEARABLE,
         // this metadata includes representations pointing to file1 and file2
         metadata: VALID_WEARABLE_METADATA,
-        content
+        content,
       })
       const deployment = buildDeployment({ entity, files })
-      const result = await wearableRepresentationContent(components, deployment)
+      const result = await wearableRepresentationContentValidateFn(deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Representation content: 'file1' is not one of the content files`)
     })
@@ -287,13 +292,13 @@ describe('Wearables', () => {
           ...wearableWithoutData,
           data: {
             ...data,
-            representations: []
-          }
+            representations: [],
+          },
         },
-        content: []
+        content: [],
       })
       const deployment = buildDeployment({ entity })
-      const result = await wearableRepresentationContent(components, deployment)
+      const result = await wearableRepresentationContentValidateFn(deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`No wearable representations found`)
     })
@@ -302,10 +307,10 @@ describe('Wearables', () => {
       const entity = buildEntity({
         type: EntityType.WEARABLE,
         metadata: VALID_WEARABLE_METADATA,
-        content: []
+        content: [],
       })
       const deployment = buildDeployment({ entity })
-      const result = await wearableRepresentationContent(components, deployment)
+      const result = await wearableRepresentationContentValidateFn(deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`No content found`)
     })

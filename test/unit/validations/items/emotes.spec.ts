@@ -1,12 +1,15 @@
 import { EntityType } from '@dcl/schemas'
 import sharp from 'sharp'
 import { ValidationResponse } from '../../../../src'
-import { emoteRepresentationContent, wasCreatedAfterADR74 } from '../../../../src/validations/items/emotes'
 import {
-  deploymentMaxSizeExcludingThumbnailIsNotExceeded,
-  thumbnailMaxSizeIsNotExceeded
+  emoteRepresentationContentValidateFn,
+  wasCreatedAfterADR74ValidateFn,
+} from '../../../../src/validations/items/emotes'
+import {
+  createDeploymentMaxSizeExcludingThumbnailIsNotExceededValidateFn,
+  createThumbnailMaxSizeIsNotExceededValidateFn,
 } from '../../../../src/validations/items/items'
-import { size } from '../../../../src/validations/size'
+import { createSizeValidateFn } from '../../../../src/validations/size'
 import { ADR_74_TIMESTAMP } from '../../../../src/validations/timestamps'
 import { buildDeployment } from '../../../setup/deployments'
 import { VALID_STANDARD_EMOTE_METADATA } from '../../../setup/emotes'
@@ -28,8 +31,8 @@ describe('Emotes', () => {
           width: size,
           height: size,
           channels: 4,
-          background: { r: 255, g: 0, b: 0, alpha: 0.5 }
-        }
+          background: { r: 255, g: 0, b: 0, alpha: 0.5 },
+        },
       })
       if (format) {
         image = format === 'png' ? image.png() : image.jpeg()
@@ -47,11 +50,12 @@ describe('Emotes', () => {
       const entity = buildEntity({
         type: EntityType.EMOTE,
         metadata: VALID_STANDARD_EMOTE_METADATA,
-        timestamp: timestampAfterADR74
+        timestamp: timestampAfterADR74,
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await thumbnailMaxSizeIsNotExceeded(components, deployment)
+      const validateFn = createThumbnailMaxSizeIsNotExceededValidateFn(components)
+      const result = await validateFn(deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Couldn't find hash for thumbnail file with name: ${fileName}`)
     })
@@ -63,11 +67,12 @@ describe('Emotes', () => {
         type: EntityType.EMOTE,
         metadata: VALID_STANDARD_EMOTE_METADATA,
         content,
-        timestamp: timestampAfterADR74
+        timestamp: timestampAfterADR74,
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await thumbnailMaxSizeIsNotExceeded(components, deployment)
+      const validateFn = createThumbnailMaxSizeIsNotExceededValidateFn(components)
+      const result = await validateFn(deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Couldn't find thumbnail file with hash: ${hash}`)
     })
@@ -79,11 +84,12 @@ describe('Emotes', () => {
         type: EntityType.EMOTE,
         metadata: VALID_STANDARD_EMOTE_METADATA,
         content,
-        timestamp: timestampAfterADR74
+        timestamp: timestampAfterADR74,
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await thumbnailMaxSizeIsNotExceeded(components, deployment)
+      const validateFn = createThumbnailMaxSizeIsNotExceededValidateFn(components)
+      const result = await validateFn(deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Couldn't parse thumbnail, please check image format.`)
     })
@@ -95,11 +101,12 @@ describe('Emotes', () => {
         type: EntityType.EMOTE,
         metadata: VALID_STANDARD_EMOTE_METADATA,
         content,
-        timestamp: timestampAfterADR74
+        timestamp: timestampAfterADR74,
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await thumbnailMaxSizeIsNotExceeded(components, deployment)
+      const validateFn = createThumbnailMaxSizeIsNotExceededValidateFn(components)
+      const result = await validateFn(deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Invalid thumbnail image size (width = 1025 / height = 1025)`)
     })
@@ -112,11 +119,12 @@ describe('Emotes', () => {
         type: EntityType.EMOTE,
         metadata: VALID_STANDARD_EMOTE_METADATA,
         content,
-        timestamp: timestampAfterADR74
+        timestamp: timestampAfterADR74,
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result: ValidationResponse = await thumbnailMaxSizeIsNotExceeded(components, deployment)
+      const validateFn = createThumbnailMaxSizeIsNotExceededValidateFn(components)
+      const result = await validateFn(deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Invalid or unknown image format. Only 'PNG' format is accepted.`)
     })
@@ -128,11 +136,12 @@ describe('Emotes', () => {
         type: EntityType.EMOTE,
         metadata: VALID_STANDARD_EMOTE_METADATA,
         content,
-        timestamp: timestampAfterADR74
+        timestamp: timestampAfterADR74,
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await thumbnailMaxSizeIsNotExceeded(components, deployment)
+      const validateFn = createThumbnailMaxSizeIsNotExceededValidateFn(components)
+      const result = await validateFn(deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -143,15 +152,16 @@ describe('Emotes', () => {
         type: EntityType.EMOTE,
         metadata: VALID_STANDARD_EMOTE_METADATA,
         content,
-        timestamp: timestampAfterADR74
+        timestamp: timestampAfterADR74,
       })
       const deployment = buildDeployment({ entity })
 
       const externalCalls = buildExternalCalls({
-        isContentStoredAlready: async () => new Map([[hash, true]])
+        isContentStoredAlready: async () => new Map([[hash, true]]),
       })
 
-      const result = await thumbnailMaxSizeIsNotExceeded(buildComponents({ externalCalls }), deployment)
+      const validateFn = createThumbnailMaxSizeIsNotExceededValidateFn(buildComponents({ externalCalls }))
+      const result = await validateFn(deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -163,21 +173,22 @@ describe('Emotes', () => {
       const content = [
         { file: 'A', hash: 'A' },
         { file: 'C', hash: 'C' },
-        { file: 'thumbnail.png', hash: 'thumbnail' }
+        { file: 'thumbnail.png', hash: 'thumbnail' },
       ]
       const files = new Map([
         ['A', withSize(1)],
         ['C', withSize(1.5)],
-        ['thumbnail', Buffer.alloc(1)]
+        ['thumbnail', Buffer.alloc(1)],
       ])
       const entity = buildEntity({
         type: EntityType.EMOTE,
         metadata: { thumbnail: 'thumbnail.png' },
         content,
-        timestamp: timestampAfterADR74
+        timestamp: timestampAfterADR74,
       })
       const deployment = buildDeployment({ entity, files })
-      const result = await deploymentMaxSizeExcludingThumbnailIsNotExceeded(components, deployment)
+      const validateFn = createDeploymentMaxSizeExcludingThumbnailIsNotExceededValidateFn(components)
+      const result = await validateFn(deployment)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
@@ -189,21 +200,22 @@ describe('Emotes', () => {
       const content = [
         { file: 'A', hash: 'A' },
         { file: 'C', hash: 'C' },
-        { file: 'thumbnail.png', hash: 'thumbnail' }
+        { file: 'thumbnail.png', hash: 'thumbnail' },
       ]
       const files = new Map([
         ['A', withSize(1)],
         ['C', withSize(1)],
-        ['thumbnail', withSize(2)]
+        ['thumbnail', withSize(2)],
       ])
       const entity = buildEntity({
         type: EntityType.EMOTE,
         metadata: { thumbnail: 'thumbnail.png' },
         content,
-        timestamp: timestampAfterADR74
+        timestamp: timestampAfterADR74,
       })
       const deployment = buildDeployment({ entity, files })
-      const result = await size(components, deployment)
+      const validateFn = createSizeValidateFn(components)
+      const result = await validateFn(deployment)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
@@ -215,21 +227,22 @@ describe('Emotes', () => {
       const content = [
         { file: 'A', hash: 'A' },
         { file: 'C', hash: 'C' },
-        { file: 'thumbnail.png', hash: 'thumbnail' }
+        { file: 'thumbnail.png', hash: 'thumbnail' },
       ]
       const files = new Map([
         ['A', withSize(1)],
         ['C', withSize(1)],
-        ['thumbnail', withSize(0.9)]
+        ['thumbnail', withSize(0.9)],
       ])
       const entity = buildEntity({
         type: EntityType.EMOTE,
         metadata: { thumbnail: 'thumbnail.png' },
         content,
-        timestamp: timestampAfterADR74
+        timestamp: timestampAfterADR74,
       })
       const deployment = buildDeployment({ entity, files })
-      const result = await deploymentMaxSizeExcludingThumbnailIsNotExceeded(components, deployment)
+      const validateFn = createDeploymentMaxSizeExcludingThumbnailIsNotExceededValidateFn(components)
+      const result = await validateFn(deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -240,20 +253,20 @@ describe('Emotes', () => {
       const withSize = (size: number) => Buffer.alloc(size * 1024 * 1024)
       const content = [
         { file: 'file1', hash: '1' },
-        { file: 'file2', hash: '2' }
+        { file: 'file2', hash: '2' },
       ]
       const files = new Map([
         ['file1', withSize(1)],
-        ['file2', withSize(0.9)]
+        ['file2', withSize(0.9)],
       ])
       const entity = buildEntity({
         type: EntityType.EMOTE,
         // this metadata includes representations pointing to file1 and file2
         metadata: VALID_STANDARD_EMOTE_METADATA,
-        content
+        content,
       })
       const deployment = buildDeployment({ entity, files })
-      const result = await emoteRepresentationContent(components, deployment)
+      const result = await emoteRepresentationContentValidateFn(deployment)
       expect(result.ok).toBeTruthy()
     })
 
@@ -261,20 +274,20 @@ describe('Emotes', () => {
       const withSize = (size: number) => Buffer.alloc(size * 1024 * 1024)
       const content = [
         { file: 'notFile1', hash: '1' },
-        { file: 'file2', hash: '2' }
+        { file: 'file2', hash: '2' },
       ]
       const files = new Map([
         ['notFile1', withSize(1)],
-        ['file2', withSize(0.9)]
+        ['file2', withSize(0.9)],
       ])
       const entity = buildEntity({
         type: EntityType.EMOTE,
         // this metadata includes representations pointing to file1 and file2
         metadata: VALID_STANDARD_EMOTE_METADATA,
-        content
+        content,
       })
       const deployment = buildDeployment({ entity, files })
-      const result = await emoteRepresentationContent(components, deployment)
+      const result = await emoteRepresentationContentValidateFn(deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Representation content: 'file1' is not one of the content files`)
     })
@@ -287,16 +300,16 @@ describe('Emotes', () => {
           ...emoteWithoutData,
           emoteDataADR74: {
             ...emoteDataADR74,
-            representations: []
-          }
+            representations: [],
+          },
         },
         content: [
           { file: 'notFile1', hash: '1' },
-          { file: 'file2', hash: '2' }
-        ]
+          { file: 'file2', hash: '2' },
+        ],
       })
       const deployment = buildDeployment({ entity })
-      const result = await emoteRepresentationContent(components, deployment)
+      const result = await emoteRepresentationContentValidateFn(deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`No emote representations found`)
     })
@@ -305,10 +318,10 @@ describe('Emotes', () => {
       const entity = buildEntity({
         type: EntityType.EMOTE,
         metadata: VALID_STANDARD_EMOTE_METADATA,
-        content: []
+        content: [],
       })
       const deployment = buildDeployment({ entity })
-      const result = await emoteRepresentationContent(components, deployment)
+      const result = await emoteRepresentationContentValidateFn(deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`No content found`)
     })
@@ -320,10 +333,10 @@ describe('Emotes', () => {
         type: EntityType.EMOTE,
         metadata: VALID_STANDARD_EMOTE_METADATA,
         content: [{ file: 'file1', hash: '1' }],
-        timestamp: timestampAfterADR74
+        timestamp: timestampAfterADR74,
       })
       const deployment = buildDeployment({ entity })
-      const result = await wasCreatedAfterADR74(components, deployment)
+      const result = await wasCreatedAfterADR74ValidateFn(deployment)
       expect(result.ok).toBeTruthy()
     })
     it('emote validation with timestamp before adr 74 fails', async () => {
@@ -331,10 +344,10 @@ describe('Emotes', () => {
         type: EntityType.EMOTE,
         metadata: VALID_STANDARD_EMOTE_METADATA,
         content: [{ file: 'file1', hash: '1' }],
-        timestamp: ADR_74_TIMESTAMP - 1
+        timestamp: ADR_74_TIMESTAMP - 1,
       })
       const deployment = buildDeployment({ entity })
-      const result = await wasCreatedAfterADR74(components, deployment)
+      const result = await wasCreatedAfterADR74ValidateFn(deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `The emote timestamp ${ADR_74_TIMESTAMP - 1} is before ADR 74. Emotes did not exist before ADR 74.`

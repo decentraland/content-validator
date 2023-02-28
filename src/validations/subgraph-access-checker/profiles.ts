@@ -132,18 +132,3 @@ export function createItemOwnershipValidateFn({
     return OK
   }
 }
-
-export function createProfileSlotsAreNotRepeatedValidateFn(): ValidateFn {
-  return async function validateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
-    const allAvatars: Avatar[] = deployment.entity.metadata?.avatars ?? []
-    const allEmotes: { slot: number }[] = allAvatars.flatMap((avatar) => avatar.avatar.emotes ?? [])
-    const usedSlots = new Set()
-    for (const { slot } of allEmotes) {
-      if (usedSlots.has(slot)) {
-        return validationFailed('Emote slots should not be repeated.')
-      }
-      usedSlots.add(slot)
-    }
-    return OK
-  }
-}

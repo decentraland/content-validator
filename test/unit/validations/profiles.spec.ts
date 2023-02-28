@@ -1,13 +1,13 @@
 import { EntityType } from '@dcl/schemas'
 import sharp from 'sharp'
 import { ValidationResponse } from '../../../src'
-import { profileSlotsAreNotRepeated } from '../../../src/validations/access-checker/profiles'
 import {
-  emoteUrns,
-  faceThumbnail,
-  profile,
-  profileMustHaveEmotes,
-  wearableUrns
+  emoteUrnsValidateFn,
+  createFaceThumbnailValidateFn,
+  profileMustHaveEmotesValidateFn,
+  wearableUrnsValidateFn,
+  profileSlotsAreNotRepeatedValidateFn,
+  createProfileValidateFn,
 } from '../../../src/validations/profile'
 import { ADR_45_TIMESTAMP, ADR_74_TIMESTAMP, ADR_75_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment } from '../../setup/deployments'
@@ -18,6 +18,8 @@ import { validProfileMetadataWithEmotes, VALID_PROFILE_METADATA } from '../../se
 describe('Profiles', () => {
   const timestamp = ADR_45_TIMESTAMP + 1
   const components = buildComponents()
+  const faceThumbnailValidateFn = createFaceThumbnailValidateFn(components)
+
   describe('Thumbnail face256:', () => {
     let validThumbnailBuffer: Buffer
     let invalidThumbnailBuffer: Buffer
@@ -30,8 +32,8 @@ describe('Profiles', () => {
           width: size,
           height: size,
           channels: 4,
-          background: { r: 255, g: 0, b: 0, alpha: 0.5 }
-        }
+          background: { r: 255, g: 0, b: 0, alpha: 0.5 },
+        },
       })
       if (format) {
         image = format === 'png' ? image.png() : image.jpeg()
@@ -49,11 +51,11 @@ describe('Profiles', () => {
       const entity = buildEntity({
         type: EntityType.PROFILE,
         metadata: VALID_PROFILE_METADATA,
-        timestamp
+        timestamp,
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result: ValidationResponse = await faceThumbnail(components, deployment)
+      const result: ValidationResponse = await faceThumbnailValidateFn(deployment)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Couldn't find thumbnail file with hash: ${hash}`)
@@ -66,11 +68,11 @@ describe('Profiles', () => {
         type: EntityType.PROFILE,
         metadata: VALID_PROFILE_METADATA,
         content,
-        timestamp
+        timestamp,
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await faceThumbnail(components, deployment)
+      const result = await faceThumbnailValidateFn(deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Couldn't find thumbnail file with hash: ${hash}`)
     })
@@ -82,11 +84,11 @@ describe('Profiles', () => {
         type: EntityType.PROFILE,
         metadata: VALID_PROFILE_METADATA,
         content,
-        timestamp
+        timestamp,
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await faceThumbnail(components, deployment)
+      const result = await faceThumbnailValidateFn(deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Couldn't parse face256 thumbnail, please check image format.`)
     })
@@ -98,11 +100,11 @@ describe('Profiles', () => {
         type: EntityType.PROFILE,
         metadata: VALID_PROFILE_METADATA,
         content,
-        timestamp
+        timestamp,
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await faceThumbnail(components, deployment)
+      const result = await faceThumbnailValidateFn(deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Invalid face256 thumbnail image size (width = 1 / height = 1)`)
     })
@@ -115,11 +117,11 @@ describe('Profiles', () => {
         type: EntityType.PROFILE,
         metadata: VALID_PROFILE_METADATA,
         content,
-        timestamp
+        timestamp,
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await faceThumbnail(components, deployment)
+      const result = await faceThumbnailValidateFn(deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`Invalid or unknown image format. Only 'PNG' format is accepted.`)
     })
@@ -131,11 +133,11 @@ describe('Profiles', () => {
         type: EntityType.PROFILE,
         metadata: VALID_PROFILE_METADATA,
         content,
-        timestamp
+        timestamp,
       })
       const deployment = buildDeployment({ entity, files })
 
-      const result = await faceThumbnail(components, deployment)
+      const result = await faceThumbnailValidateFn(deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -146,15 +148,16 @@ describe('Profiles', () => {
         type: EntityType.PROFILE,
         metadata: VALID_PROFILE_METADATA,
         content,
-        timestamp
+        timestamp,
       })
       const deployment = buildDeployment({ entity })
 
       const externalCalls = buildExternalCalls({
-        isContentStoredAlready: async () => new Map([[hash, true]])
+        isContentStoredAlready: async () => new Map([[hash, true]]),
       })
 
-      const result = await faceThumbnail(buildComponents({ externalCalls }), deployment)
+      const validateFn = createFaceThumbnailValidateFn(buildComponents({ externalCalls }))
+      const result = await validateFn(deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -165,11 +168,11 @@ describe('Profiles', () => {
       const entity = buildEntity({
         type: EntityType.PROFILE,
         metadata: VALID_PROFILE_METADATA,
-        timestamp
+        timestamp,
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await wearableUrns(components, deployment)
+      const result = await wearableUrnsValidateFn(deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -181,16 +184,16 @@ describe('Profiles', () => {
           avatars: [
             {
               avatar: {
-                wearables: ['raiseHand']
-              }
-            }
-          ]
+                wearables: ['raiseHand'],
+              },
+            },
+          ],
         },
-        timestamp: ADR_75_TIMESTAMP + 1
+        timestamp: ADR_75_TIMESTAMP + 1,
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await wearableUrns(components, deployment)
+      const result = await wearableUrnsValidateFn(deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -202,16 +205,16 @@ describe('Profiles', () => {
           avatars: [
             {
               avatar: {
-                wearables: ['urn:decentraland:tucu-tucu:base-avatars:tall_front_01']
-              }
-            }
-          ]
+                wearables: ['urn:decentraland:tucu-tucu:base-avatars:tall_front_01'],
+              },
+            },
+          ],
         },
-        timestamp: ADR_75_TIMESTAMP + 1
+        timestamp: ADR_75_TIMESTAMP + 1,
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await wearableUrns(components, deployment)
+      const result = await wearableUrnsValidateFn(deployment)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
@@ -225,11 +228,12 @@ describe('Profiles', () => {
       const entity = buildEntity({
         type: EntityType.SCENE,
         metadata: VALID_PROFILE_METADATA,
-        timestamp
+        timestamp,
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await profile(components, deployment)
+      const validateFn = createProfileValidateFn(components)
+      const result = await validateFn(deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -240,11 +244,11 @@ describe('Profiles', () => {
       const entity = buildEntity({
         type: EntityType.PROFILE,
         metadata: VALID_PROFILE_METADATA,
-        timestamp
+        timestamp,
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await wearableUrns(components, deployment)
+      const result = await wearableUrnsValidateFn(deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -256,16 +260,16 @@ describe('Profiles', () => {
           avatars: [
             {
               avatar: {
-                wearables: ['raiseHand']
-              }
-            }
-          ]
+                wearables: ['raiseHand'],
+              },
+            },
+          ],
         },
-        timestamp: ADR_75_TIMESTAMP + 1
+        timestamp: ADR_75_TIMESTAMP + 1,
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await wearableUrns(components, deployment)
+      const result = await wearableUrnsValidateFn(deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -277,16 +281,16 @@ describe('Profiles', () => {
           avatars: [
             {
               avatar: {
-                wearables: ['urn:decentraland:tucu-tucu:base-avatars:tall_front_01']
-              }
-            }
-          ]
+                wearables: ['urn:decentraland:tucu-tucu:base-avatars:tall_front_01'],
+              },
+            },
+          ],
         },
-        timestamp: ADR_75_TIMESTAMP + 1
+        timestamp: ADR_75_TIMESTAMP + 1,
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await wearableUrns(components, deployment)
+      const result = await wearableUrnsValidateFn(deployment)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
@@ -301,10 +305,10 @@ describe('Profiles', () => {
         type: EntityType.PROFILE,
         // VALID_PROFILE_METADATA does not have "emotes" property
         metadata: VALID_PROFILE_METADATA,
-        timestamp: ADR_74_TIMESTAMP + 1
+        timestamp: ADR_74_TIMESTAMP + 1,
       })
       const deployment = buildDeployment({ entity })
-      const result = await profileMustHaveEmotes(components, deployment)
+      const result = await profileMustHaveEmotesValidateFn(deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain('Profile must have emotes after ADR 74.')
     })
@@ -313,13 +317,13 @@ describe('Profiles', () => {
       const entity = buildEntity({
         type: EntityType.PROFILE,
         metadata: validProfileMetadataWithEmotes([
-          { slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }
+          { slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' },
         ]),
-        timestamp: ADR_74_TIMESTAMP + 1
+        timestamp: ADR_74_TIMESTAMP + 1,
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await emoteUrns(components, deployment)
+      const result = await emoteUrnsValidateFn(deployment)
 
       expect(result.ok).toBeTruthy()
     })
@@ -331,11 +335,11 @@ describe('Profiles', () => {
           // the urn below is invalid
           [{ slot: 0, urn: 'urn:decentraland:tucu-tucu:base-avatars:tall_front_01' }]
         ),
-        timestamp: ADR_74_TIMESTAMP + 1
+        timestamp: ADR_74_TIMESTAMP + 1,
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await emoteUrns(components, deployment)
+      const result = await emoteUrnsValidateFn(deployment)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
@@ -347,13 +351,13 @@ describe('Profiles', () => {
       const entity = buildEntity({
         type: EntityType.PROFILE,
         metadata: validProfileMetadataWithEmotes([
-          { slot: -1, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }
+          { slot: -1, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' },
         ]),
-        timestamp: ADR_74_TIMESTAMP + 1
+        timestamp: ADR_74_TIMESTAMP + 1,
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await emoteUrns(components, deployment)
+      const result = await emoteUrnsValidateFn(deployment)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
@@ -365,13 +369,13 @@ describe('Profiles', () => {
       const entity = buildEntity({
         type: EntityType.PROFILE,
         metadata: validProfileMetadataWithEmotes([
-          { slot: 10, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }
+          { slot: 10, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' },
         ]),
-        timestamp: ADR_74_TIMESTAMP + 1
+        timestamp: ADR_74_TIMESTAMP + 1,
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await emoteUrns(components, deployment)
+      const result = await emoteUrnsValidateFn(deployment)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
@@ -385,13 +389,13 @@ describe('Profiles', () => {
         metadata: validProfileMetadataWithEmotes([
           { slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' },
           { slot: 1, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' },
-          { slot: 1, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }
+          { slot: 1, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' },
         ]),
-        timestamp: ADR_74_TIMESTAMP + 1
+        timestamp: ADR_74_TIMESTAMP + 1,
       })
       const deployment = buildDeployment({ entity })
 
-      const result = await profileSlotsAreNotRepeated(components, deployment)
+      const result = await profileSlotsAreNotRepeatedValidateFn(deployment)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain('Emote slots should not be repeated.')

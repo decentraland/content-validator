@@ -12,12 +12,7 @@ import {
 import { LEGACY_CONTENT_MIGRATION_TIMESTAMP } from '../timestamps'
 import { validateAll } from '../validations'
 import { createEmoteValidateFn } from './emotes'
-import {
-  createItemOwnershipValidateFn,
-  createNamesOwnershipValidateFn,
-  createPointerValidateFn,
-  createProfileSlotsAreNotRepeatedValidateFn,
-} from './profiles'
+import { createItemOwnershipValidateFn, createNamesOwnershipValidateFn, createPointerValidateFn } from './profiles'
 import { createSceneValidateFn } from './scenes'
 import { createStoreValidateFn } from './stores'
 import { createWearableValidateFn } from './wearables'
@@ -43,8 +38,7 @@ export async function createSubgraphAccessCheckerComponent(
     [EntityType.PROFILE]: validateAll(
       createPointerValidateFn({ externalCalls }),
       createNamesOwnershipValidateFn({ externalCalls, theGraphClient }),
-      createItemOwnershipValidateFn({ externalCalls, theGraphClient }),
-      createProfileSlotsAreNotRepeatedValidateFn()
+      createItemOwnershipValidateFn({ externalCalls, theGraphClient })
     ),
     [EntityType.SCENE]: createSceneValidateFn({ externalCalls, subGraphs, logs }),
     [EntityType.WEARABLE]: createWearableValidateFn({ externalCalls, logs, theGraphClient }),

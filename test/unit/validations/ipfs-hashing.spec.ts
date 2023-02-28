@@ -1,5 +1,5 @@
 import { hashV1 } from '@dcl/hashing'
-import { ipfsHashing } from '../../../src/validations/ipfs-hashing'
+import { ipfsHashingValidateFn } from '../../../src/validations/ipfs-hashing'
 import { ADR_45_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
@@ -11,11 +11,11 @@ describe('IPFS hashing', () => {
   it(`When an entity's id is not an ipfs hash, then it fails`, async () => {
     const entity = buildEntity({
       id: 'QmTBPcZLFQf1rZpZg2T8nMDwWRoqeftRdvkaexgAECaqHp',
-      timestamp
+      timestamp,
     })
     const deployment = buildDeployment({ entity })
 
-    const result = await ipfsHashing(components, deployment)
+    const result = await ipfsHashingValidateFn(deployment)
 
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain(
@@ -27,13 +27,13 @@ describe('IPFS hashing', () => {
     const content = [
       {
         file: 'someFile',
-        hash: 'QmTBPcZLFQf1rZpZg2T8nMDwWRoqeftRdvkaexgAECaqHp'
-      }
+        hash: 'QmTBPcZLFQf1rZpZg2T8nMDwWRoqeftRdvkaexgAECaqHp',
+      },
     ]
     const entity = buildEntity({ timestamp, content })
     const deployment = buildDeployment({ entity })
 
-    const result = await ipfsHashing(components, deployment)
+    const result = await ipfsHashingValidateFn(deployment)
 
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain(
@@ -45,12 +45,12 @@ describe('IPFS hashing', () => {
     const someHash = await hashV1(Buffer.from('some file'))
     const entity = buildEntity({
       content: [{ file: 'someFile.png', hash: someHash }],
-      timestamp
+      timestamp,
     })
 
     const deployment = buildDeployment({ entity })
 
-    const result = await ipfsHashing(components, deployment)
+    const result = await ipfsHashingValidateFn(deployment)
     expect(result.ok).toBeTruthy()
   })
 
@@ -58,13 +58,13 @@ describe('IPFS hashing', () => {
     const content = [
       {
         file: 'someFile',
-        hash: 'QmTBPcZLFQf1rZpZg2T8nMDwWRoqeftRdvkaexgAECaqHp'
-      }
+        hash: 'QmTBPcZLFQf1rZpZg2T8nMDwWRoqeftRdvkaexgAECaqHp',
+      },
     ]
     const entity = buildEntity({ content, timestamp: ADR_45_TIMESTAMP - 1 })
     const deployment = buildDeployment({ entity })
 
-    const result = await ipfsHashing(components, deployment)
+    const result = await ipfsHashingValidateFn(deployment)
 
     expect(result.ok).toBeTruthy()
   })

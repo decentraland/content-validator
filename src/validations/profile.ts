@@ -114,6 +114,21 @@ export const profileMustHaveEmotesValidateFn = validateAfterADR74(async function
   return OK
 })
 
+export async function profileSlotsAreNotRepeatedValidateFn(
+  deployment: DeploymentToValidate
+): Promise<ValidationResponse> {
+  const allAvatars: Avatar[] = deployment.entity.metadata?.avatars ?? []
+  const allEmotes: { slot: number }[] = allAvatars.flatMap((avatar) => avatar.avatar.emotes ?? [])
+  const usedSlots = new Set()
+  for (const { slot } of allEmotes) {
+    if (usedSlots.has(slot)) {
+      return validationFailed('Emote slots should not be repeated.')
+    }
+    usedSlots.add(slot)
+  }
+  return OK
+}
+
 export function createProfileValidateFn(components: ContentValidatorComponents): ValidateFn {
   /**
    * Validate that given profile deployment includes the face256 file with the correct size
@@ -125,7 +140,8 @@ export function createProfileValidateFn(components: ContentValidatorComponents):
       createFaceThumbnailValidateFn(components),
       wearableUrnsValidateFn,
       emoteUrnsValidateFn,
-      profileMustHaveEmotesValidateFn
+      profileMustHaveEmotesValidateFn,
+      profileSlotsAreNotRepeatedValidateFn
     )
   )
 }

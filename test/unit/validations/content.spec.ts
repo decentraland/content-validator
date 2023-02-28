@@ -1,9 +1,9 @@
 import {
-  allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45,
-  allHashesInUploadedFilesAreReportedInTheEntity,
-  allHashesWereUploadedOrStored,
-  allMandatoryContentFilesArePresent,
-  content
+  allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45ValidateFn,
+  allHashesInUploadedFilesAreReportedInTheEntityValidateFn,
+  allMandatoryContentFilesArePresentValidateFn,
+  createAllHashesWereUploadedOrStoredValidateFn,
+  createContentValidateFn,
 } from '../../../src/validations/content'
 import { ADR_158_TIMESTAMP, ADR_45_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment } from '../../setup/deployments'
@@ -23,12 +23,12 @@ describe('Content', () => {
   const components = buildComponents()
   it(`When a hash that was not uploaded and not present is referenced, it is reported`, async () => {
     const entity = buildEntity({
-      content: [{ file: 'name', hash: 'hash' }]
+      content: [{ file: 'name', hash: 'hash' }],
     })
 
     const deployment = buildDeployment({ entity })
 
-    const result = await allHashesWereUploadedOrStored(components, deployment)
+    const result = await createAllHashesWereUploadedOrStoredValidateFn(components)(deployment)
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain(notAvailableHashMessage('hash'))
   })
@@ -37,7 +37,7 @@ describe('Content', () => {
     const entity = buildEntity({
       content: [
         { file: 'body.png', hash: 'hash' },
-        { file: 'face256.png', hash: 'hash' }
+        { file: 'face256.png', hash: 'hash' },
       ],
       metadata: {
         avatars: [
@@ -45,30 +45,31 @@ describe('Content', () => {
             avatar: {
               snapshots: {
                 body: 'hash',
-                face256: 'hash'
-              }
-            }
-          }
-        ]
-      }
+                face256: 'hash',
+              },
+            },
+          },
+        ],
+      },
     })
     const deployment = buildDeployment({ entity })
     const externalCalls = buildExternalCalls({
-      isContentStoredAlready: () => Promise.resolve(new Map([['hash', true]]))
+      isContentStoredAlready: () => Promise.resolve(new Map([['hash', true]])),
     })
 
-    const result = await content(buildComponents({ externalCalls }), deployment)
+    const validateFn = createContentValidateFn(buildComponents({ externalCalls }))
+    const result = await validateFn(deployment)
     expect(result.ok).toBeTruthy()
   })
 
   it(`When a hash that was uploaded wasn't already stored, then an error is returned`, async () => {
     const entity = buildEntity({
-      content: [{ file: 'name', hash: 'hash' }]
+      content: [{ file: 'name', hash: 'hash' }],
     })
     const files = new Map([['hash', Buffer.from([])]])
     const deployment = buildDeployment({ entity, files })
 
-    const result = await allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45(components, deployment)
+    const result = await allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45ValidateFn(deployment)
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain(
       "This file is not expected: 'name' or its hash is invalid: 'hash'. Please, include only valid snapshot files."
@@ -77,16 +78,16 @@ describe('Content', () => {
 
   it('When a hash is uploaded but not referenced, it is reported', async () => {
     const entity = buildEntity({
-      content: [{ file: 'name', hash: 'hash' }]
+      content: [{ file: 'name', hash: 'hash' }],
     })
 
     const files = new Map([
       ['hash-1', Buffer.from([])],
-      ['hash-2', Buffer.from([])]
+      ['hash-2', Buffer.from([])],
     ])
     const deployment = buildDeployment({ entity, files })
 
-    const result = await allHashesInUploadedFilesAreReportedInTheEntity(components, deployment)
+    const result = await allHashesInUploadedFilesAreReportedInTheEntityValidateFn(deployment)
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain(notReferencedHashMessage('hash-2'))
   })
@@ -101,11 +102,12 @@ describe('Content', () => {
       const entity = buildEntity({
         metadata: VALID_PROFILE_METADATA,
         content: contentItems,
-        timestamp: ADR_45_TIMESTAMP + 1
+        timestamp: ADR_45_TIMESTAMP + 1,
       })
 
       const deployment = buildDeployment({ entity, files })
-      const result = await content(components, deployment)
+      const validateFn = createContentValidateFn(components)
+      const result = await validateFn(deployment)
       expect(result.ok).toBeTruthy()
     })
 
@@ -118,11 +120,11 @@ describe('Content', () => {
       const entity = buildEntity({
         metadata: VALID_PROFILE_METADATA,
         content: contentItems,
-        timestamp: ADR_45_TIMESTAMP + 1
+        timestamp: ADR_45_TIMESTAMP + 1,
       })
 
       const deployment = buildDeployment({ entity, files })
-      const result = await allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45(components, deployment)
+      const result = await allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45ValidateFn(deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `This file is not expected: '${expectedFile}' or its hash is invalid: '${invalidHash}'. Please, include only valid snapshot files.`
@@ -138,11 +140,11 @@ describe('Content', () => {
       const entity = buildEntity({
         metadata: VALID_PROFILE_METADATA,
         content: contentItems,
-        timestamp: ADR_45_TIMESTAMP + 1
+        timestamp: ADR_45_TIMESTAMP + 1,
       })
 
       const deployment = buildDeployment({ entity, files })
-      const result = await allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45(components, deployment)
+      const result = await allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45ValidateFn(deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
         `This file is not expected: '${unexpectedFile}' or its hash is invalid: '${hash}'. Please, include only valid snapshot files.`
@@ -158,11 +160,11 @@ describe('Content', () => {
       const entity = buildEntity({
         metadata: VALID_PROFILE_METADATA,
         content: contentItems,
-        timestamp: ADR_45_TIMESTAMP - 1
+        timestamp: ADR_45_TIMESTAMP - 1,
       })
 
       const deployment = buildDeployment({ entity, files })
-      const result = await allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45(components, deployment)
+      const result = await allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45ValidateFn(deployment)
       expect(result.ok).toBeTruthy()
     })
   })
@@ -172,11 +174,11 @@ describe('Content', () => {
       const entity = buildEntity({
         metadata: VALID_PROFILE_METADATA,
         content: [],
-        timestamp: ADR_158_TIMESTAMP - 1
+        timestamp: ADR_158_TIMESTAMP - 1,
       })
 
       const deployment = buildDeployment({ entity })
-      const result = await allMandatoryContentFilesArePresent(components, deployment)
+      const result = await allMandatoryContentFilesArePresentValidateFn(deployment)
       expect(result.ok).toBeTruthy()
     })
 
@@ -184,11 +186,11 @@ describe('Content', () => {
       const entity = buildEntity({
         metadata: VALID_PROFILE_METADATA,
         content: [],
-        timestamp: ADR_158_TIMESTAMP + 1
+        timestamp: ADR_158_TIMESTAMP + 1,
       })
 
       const deployment = buildDeployment({ entity })
-      const result = await allMandatoryContentFilesArePresent(components, deployment)
+      const result = await allMandatoryContentFilesArePresentValidateFn(deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain("Profile entity is missing file 'body.png'")
       expect(result.errors).toContain("Profile entity is missing file 'face256.png'")
@@ -201,17 +203,17 @@ describe('Content', () => {
 
       const contentItems = [
         { file: faceFile, hash },
-        { file: bodyFile, hash }
+        { file: bodyFile, hash },
       ]
       const files = new Map([[hash, Buffer.from([])]])
       const entity = buildEntity({
         metadata: VALID_PROFILE_METADATA,
         content: contentItems,
-        timestamp: ADR_158_TIMESTAMP + 1
+        timestamp: ADR_158_TIMESTAMP + 1,
       })
 
       const deployment = buildDeployment({ entity, files })
-      const result = await allMandatoryContentFilesArePresent(components, deployment)
+      const result = await allMandatoryContentFilesArePresentValidateFn(deployment)
       expect(result.ok).toBeTruthy()
     })
   })
