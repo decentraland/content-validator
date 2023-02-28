@@ -1,9 +1,16 @@
 import { createConfigComponent } from '@well-known-components/env-config-provider'
 import { IConfigComponent, ILoggerComponent } from '@well-known-components/interfaces'
 import { ISubgraphComponent } from '@well-known-components/thegraph-component'
-import { ContentValidatorComponents, ExternalCalls, QueryGraph, SubGraphs, ValidateFn } from '../../src/types'
+import {
+  ContentValidatorComponents,
+  ExternalCalls,
+  QueryGraph,
+  SubgraphAccessCheckerComponents,
+  SubGraphs,
+  ValidateFn,
+} from '../../src/types'
 import { ItemCollection } from '../../src/validations/subgraph-access-checker/items/collection-asset'
-// import { createTheGraphClient } from '../../src/validations/subgraph-access-checker/the-graph-client'
+import { createTheGraphClient } from '../../src/validations/subgraph-access-checker/the-graph-client'
 
 export const buildLogger = (): ILoggerComponent => ({
   getLogger: () => ({
@@ -35,6 +42,21 @@ export const buildComponents = (components?: Partial<ContentValidatorComponents>
     accessChecker,
     // theGraphClient,
     // subGraphs,
+  }
+}
+
+export const buildSubgraphAccessCheckerComponents = (
+  components?: Partial<SubgraphAccessCheckerComponents>
+): SubgraphAccessCheckerComponents => {
+  const basicComponents = buildComponents(components)
+  const subGraphs = components?.subGraphs ?? buildSubGraphs()
+  const theGraphClient =
+    components?.theGraphClient ?? createTheGraphClient({ logs: basicComponents.logs, subGraphs, ...components })
+
+  return {
+    ...basicComponents,
+    theGraphClient,
+    subGraphs,
   }
 }
 

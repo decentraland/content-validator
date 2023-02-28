@@ -158,7 +158,7 @@ export type ContentValidatorComponents = {
   accessChecker: AccessCheckerComponent
 }
 
-export type SubgraphAccessCheckerComponents = Pick<ContentValidatorComponents, 'externalCalls' | 'logs'> & {
+export type SubgraphAccessCheckerComponents = Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'config'> & {
   theGraphClient: TheGraphClient
   subGraphs: SubGraphs
 }

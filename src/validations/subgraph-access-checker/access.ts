@@ -12,38 +12,35 @@ import {
 import { LEGACY_CONTENT_MIGRATION_TIMESTAMP } from '../timestamps'
 import { validateAll } from '../validations'
 import { createEmoteValidateFn } from './emotes'
-import { createItemOwnershipValidateFn, createNamesOwnershipValidateFn, createPointerValidateFn } from './profiles'
+import {
+  createItemOwnershipValidateFn,
+  createNamesOwnershipValidateFn,
+  createPointerValidateFn,
+  createProfileValidateFn,
+} from './profiles'
 import { createSceneValidateFn } from './scenes'
 import { createStoreValidateFn } from './stores'
 import { createWearableValidateFn } from './wearables'
-
-export type AccessCheckerConfig = SubgraphAccessCheckerComponents & {
-  config: IConfigComponent
-}
 
 /**
  * Validate that the pointers are valid, and that the Ethereum address has write access to them
  * @public
  */
 export async function createSubgraphAccessCheckerComponent(
-  checkerConfig: AccessCheckerConfig
+  components: SubgraphAccessCheckerComponents
 ): Promise<AccessCheckerComponent> {
-  const { config, externalCalls, theGraphClient, subGraphs, logs } = checkerConfig
+  const { config, externalCalls } = components
 
   if ((await config.getString('IGNORE_BLOCKCHAIN_ACCESS_CHECKS')) === 'true') {
     return { checkAccess: (_deployment: DeploymentToValidate) => Promise.resolve(OK) }
   }
 
   const accessCheckers: Record<EntityType, ValidateFn> = {
-    [EntityType.PROFILE]: validateAll(
-      createPointerValidateFn({ externalCalls }),
-      createNamesOwnershipValidateFn({ externalCalls, theGraphClient }),
-      createItemOwnershipValidateFn({ externalCalls, theGraphClient })
-    ),
-    [EntityType.SCENE]: createSceneValidateFn({ externalCalls, subGraphs, logs }),
-    [EntityType.WEARABLE]: createWearableValidateFn({ externalCalls, logs, theGraphClient }),
-    [EntityType.STORE]: createStoreValidateFn({ externalCalls, logs, theGraphClient }),
-    [EntityType.EMOTE]: createEmoteValidateFn({ externalCalls, logs, theGraphClient }),
+    [EntityType.PROFILE]: createProfileValidateFn(components),
+    [EntityType.SCENE]: createSceneValidateFn(components),
+    [EntityType.WEARABLE]: createWearableValidateFn(components),
+    [EntityType.STORE]: createStoreValidateFn(components),
+    [EntityType.EMOTE]: createEmoteValidateFn(components),
   }
 
   async function checkAccess(deployment: DeploymentToValidate): Promise<ValidationResponse> {

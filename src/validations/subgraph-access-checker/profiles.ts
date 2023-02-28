@@ -10,7 +10,7 @@ import {
 } from '../../types'
 import { isOldEmote } from '../profile'
 import { ADR_74_TIMESTAMP, ADR_75_TIMESTAMP } from '../timestamps'
-import { validateAfterADR75 } from '../validations'
+import { validateAfterADR75, validateAll } from '../validations'
 
 export function createPointerValidateFn(
   components: Pick<SubgraphAccessCheckerComponents, 'externalCalls'>
@@ -131,4 +131,14 @@ export function createItemOwnershipValidateFn({
 
     return OK
   }
+}
+
+export function createProfileValidateFn(
+  components: Pick<SubgraphAccessCheckerComponents, 'theGraphClient' | 'externalCalls'>
+) {
+  return validateAll(
+    createPointerValidateFn(components),
+    createNamesOwnershipValidateFn(components),
+    createItemOwnershipValidateFn(components)
+  )
 }
