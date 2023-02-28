@@ -3,7 +3,7 @@ import { parseUrn } from '@dcl/urn-resolver'
 import { ContentValidatorComponents, DeploymentToValidate, OK, ValidateFn, validationFailed } from '../../types'
 import { isOldEmote } from '../profile'
 import { ADR_74_TIMESTAMP, ADR_75_TIMESTAMP } from '../timestamps'
-import { validateAll } from '../validations'
+import { validateAfterADR75, validateAll } from '../validations'
 
 export async function pointerIsValid(
   components: Pick<ContentValidatorComponents, 'externalCalls'>,
@@ -37,22 +37,21 @@ function allClaimedNames(entity: Entity): string[] {
     .filter((name: string) => name && name.trim().length > 0)
 }
 
-export async function ownsNames(
-  components: Pick<ContentValidatorComponents, 'externalCalls' | 'theGraphClient'>,
-  deployment: DeploymentToValidate
-) {
-  const { externalCalls, theGraphClient } = components
-  const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
-  const names = allClaimedNames(deployment.entity)
-  const namesCheckResult = await theGraphClient.ownsNamesAtTimestamp(ethAddress, names, deployment.entity.timestamp)
-  if (!namesCheckResult.result)
-    return validationFailed(
-      `The following names (${namesCheckResult.failing?.join(
-        ', '
-      )}) are not owned by the address ${ethAddress.toLowerCase()}).`
-    )
-  return OK
-}
+export const ownsNames: ValidateFn = validateAfterADR75(
+  async (components: ContentValidatorComponents, deployment: DeploymentToValidate) => {
+    const { externalCalls, theGraphClient } = components
+    const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
+    const names = allClaimedNames(deployment.entity)
+    const namesCheckResult = await theGraphClient.ownsNamesAtTimestamp(ethAddress, names, deployment.entity.timestamp)
+    if (!namesCheckResult.result)
+      return validationFailed(
+        `The following names (${namesCheckResult.failing?.join(
+          ', '
+        )}) are not owned by the address ${ethAddress.toLowerCase()}).`
+      )
+    return OK
+  }
+)
 
 function isBaseAvatar(urn: string): boolean {
   return urn.includes('base-avatars')

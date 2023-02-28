@@ -19,12 +19,7 @@ export type BlockInformation = {
 };
 
 // @public (undocumented)
-export const calculateDeploymentSize: (deployment: DeploymentToValidate, externalCalls: ExternalCalls) => Promise<number | string>;
-
-// @public (undocumented)
-export type ConditionalValidation = {
-    predicate: (components: ContentValidatorComponents, deployment: DeploymentToValidate) => ValidationResponse | Promise<ValidationResponse>;
-};
+export function calculateDeploymentSize(deployment: DeploymentToValidate, externalCalls: ExternalCalls): Promise<number | string>;
 
 // @public
 export type ContentValidatorComponents = {
@@ -82,11 +77,18 @@ export const OK: ValidationResponse;
 // @public
 export type QueryGraph = <T = any>(query: string, variables?: Variables, remainingAttempts?: number) => Promise<T>;
 
+// Warning: (ae-forgotten-export) The symbol "signature" needs to be exported by the entry point index.d.ts
+// Warning: (ae-forgotten-export) The symbol "access" needs to be exported by the entry point index.d.ts
+// Warning: (ae-forgotten-export) The symbol "size" needs to be exported by the entry point index.d.ts
+//
 // @public
-export const statefulValidations: readonly [Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation];
+export const statefulValidateFns: readonly [typeof signature, typeof access, typeof size, ValidateFn, ValidateFn, ValidateFn, ValidateFn];
 
+// Warning: (ae-forgotten-export) The symbol "entityStructure" needs to be exported by the entry point index.d.ts
+// Warning: (ae-forgotten-export) The symbol "adr45" needs to be exported by the entry point index.d.ts
+//
 // @public
-export const statelessValidations: readonly [Validation, Validation, Validation, Validation];
+export const statelessValidateFns: readonly [typeof entityStructure, ValidateFn, ValidateFn, typeof adr45];
 
 // @public
 export type SubGraphs = {
@@ -111,9 +113,10 @@ export type TheGraphClient = {
 };
 
 // @public (undocumented)
-export type Validation = {
-    validate: (components: ContentValidatorComponents, deployment: DeploymentToValidate) => ValidationResponse | Promise<ValidationResponse>;
-};
+export type ValidateFn = (deployment: DeploymentToValidate, components: ContentValidatorComponents) => ValidationResponse | Promise<ValidationResponse>;
+
+// @public
+export const validateFns: readonly [typeof entityStructure, ValidateFn, ValidateFn, typeof adr45, typeof signature, typeof access, typeof size, ValidateFn, ValidateFn, ValidateFn, ValidateFn];
 
 // @public (undocumented)
 export type ValidationArgs = {
@@ -130,9 +133,6 @@ export type ValidationResponse = {
 };
 
 // @public
-export const validations: readonly [Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation, Validation];
-
-// @public
 export interface Validator {
     // (undocumented)
     validate(deployment: DeploymentToValidate): Promise<ValidationResponse>;
@@ -143,7 +143,7 @@ export type Warnings = string[];
 
 // Warnings were encountered during analysis:
 //
-// src/types.ts:146:3 - (ae-forgotten-export) The symbol "PermissionResult" needs to be exported by the entry point index.d.ts
+// src/types.ts:138:3 - (ae-forgotten-export) The symbol "PermissionResult" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 
