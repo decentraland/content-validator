@@ -7,7 +7,7 @@ import {
   fetcherWithoutAccess,
   fetcherWithThirdPartyEmptyMerkleRoots,
   fetcherWithThirdPartyMerkleRoot,
-  fetcherWithValidCollectionAndCreator,
+  fetcherWithValidCollectionAndCreator
 } from '../../setup/mock'
 
 describe('Access: emotes', () => {
@@ -27,7 +27,7 @@ describe('Access: emotes', () => {
   it('When there is more than one pointer set, then validation fails', async () => {
     const pointers = [
       'urn:decentraland:ethereum:collections-v1:atari_launch:a',
-      'urn:decentraland:ethereum:collections-v1:atari_launch:b',
+      'urn:decentraland:ethereum:collections-v1:atari_launch:b'
     ]
     const deployment = buildEmoteDeployment(pointers)
     const externalCalls = buildExternalCalls()
@@ -41,11 +41,11 @@ describe('Access: emotes', () => {
   it('When several pointers resolve to the same URN then accept both but fail with the access', async () => {
     const pointers = [
       'urn:decentraland:ethereum:collections-v2:0x4c290f486bae507719c562b6b524bdb71a2570c9:1',
-      'urn:decentraland:ethereum:collections-v2:0x4c290f486bae507719c562b6b524bdb71a2570c9:1',
+      'urn:decentraland:ethereum:collections-v2:0x4c290f486bae507719c562b6b524bdb71a2570c9:1'
     ]
     const deployment = buildEmoteDeployment(pointers)
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => 'some address',
+      ownerAddress: () => 'some address'
     })
 
     const validateFn = createEmoteValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
@@ -59,11 +59,11 @@ describe('Access: emotes', () => {
   it('When several pointers resolve to the same URN then accept both 2', async () => {
     const pointers = [
       'urn:decentraland:ethereum:collections-v2:0x4c290f486bae507719c562b6b524bdb71a2570c9:1',
-      'urn:decentraland:ethereum:collections-v2:0x4c290f486bae507719c562b6b524bdb71a2570c9:1',
+      'urn:decentraland:ethereum:collections-v2:0x4c290f486bae507719c562b6b524bdb71a2570c9:1'
     ]
     const deployment = buildEmoteDeployment(pointers)
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => 'some address',
+      ownerAddress: () => 'some address'
     })
 
     const validateFn = createEmoteValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
@@ -78,11 +78,11 @@ describe('Access: emotes', () => {
     const ethAddress = 'address'
     const subGraphs = fetcherWithValidCollectionAndCreator(ethAddress)
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => ethAddress,
+      ownerAddress: () => ethAddress
     })
 
     const deployment = buildEmoteDeployment([
-      'urn:decentraland:mumbai:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1',
+      'urn:decentraland:mumbai:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
     const validateFn = createEmoteValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls, subGraphs }))
@@ -96,11 +96,11 @@ describe('Access: emotes', () => {
     const ethAddress = 'address'
     const subGraphs = fetcherWithoutAccess()
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => ethAddress,
+      ownerAddress: () => ethAddress
     })
 
     const deployment = buildEmoteDeployment([
-      'urn:decentraland:ethereum:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1',
+      'urn:decentraland:ethereum:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
     const validateFn = createEmoteValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls, subGraphs }))
@@ -114,11 +114,11 @@ describe('Access: emotes', () => {
     const ethAddress = 'address'
     const subGraphs = fetcherWithoutAccess()
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => ethAddress,
+      ownerAddress: () => ethAddress
     })
 
     const deployment = buildEmoteDeployment([
-      'urn:decentraland:mumbai:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1',
+      'urn:decentraland:mumbai:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
     const validateFn = createEmoteValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls, subGraphs }))
@@ -133,11 +133,11 @@ describe('Access: emotes', () => {
     const ethAddress = 'address'
     const subGraphs = fetcherWithoutAccess()
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => ethAddress,
+      ownerAddress: () => ethAddress
     })
 
     const deployment = buildEmoteDeployment([
-      'urn:decentraland:ethereum:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1',
+      'urn:decentraland:ethereum:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
     const validateFn = createEmoteValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls, subGraphs }))
@@ -152,7 +152,7 @@ describe('Access: emotes', () => {
     const pointers = ['urn:decentraland:ethereum:collections-v1:dgtble_headspace:dgtble_hoodi_linetang_upper_body']
     const deployment = buildEmoteDeployment(pointers)
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => 'some address',
+      ownerAddress: () => 'some address'
     })
 
     const validateFn = createEmoteValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
@@ -167,7 +167,7 @@ describe('Access: emotes', () => {
     const pointers = ['urn:decentraland:off-chain:base-avatars:BaseFemale']
     const deployment = buildEmoteDeployment(pointers)
     const externalCalls = buildExternalCalls({
-      isAddressOwnedByDecentraland: () => true,
+      isAddressOwnedByDecentraland: () => true
     })
 
     const validateFn = createEmoteValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
@@ -196,7 +196,7 @@ describe('Access: emotes', () => {
 
       const deployment = buildThirdPartyEmoteDeployment(metadata.id, {
         ...metadata,
-        content: {},
+        content: {}
       })
 
       const validateFn = createEmoteValidateFn(buildSubgraphAccessCheckerComponents({ subGraphs }))
@@ -232,7 +232,7 @@ describe('Access: emotes', () => {
 
       const deployment = buildThirdPartyEmoteDeployment(metadata.id, {
         ...metadata,
-        merkleProof: { proof: [], index: 0, hashingKeys: [], entityHash: '' },
+        merkleProof: { proof: [], index: 0, hashingKeys: [], entityHash: '' }
       })
 
       const validateFn = createEmoteValidateFn(buildSubgraphAccessCheckerComponents({ subGraphs }))
@@ -247,8 +247,8 @@ describe('Access: emotes', () => {
         ...metadata,
         merkleProof: {
           ...metadata.merkleProof,
-          hashingKeys: ['id', 'description'],
-        },
+          hashingKeys: ['id', 'description']
+        }
       })
 
       const validateFn = createEmoteValidateFn(buildSubgraphAccessCheckerComponents({ subGraphs }))
@@ -261,7 +261,7 @@ describe('Access: emotes', () => {
 
       const deployment = buildThirdPartyEmoteDeployment(metadata.id, {
         ...metadata,
-        merkleProof: { ...metadata.merkleProof, entityHash: 'someInvalidHash' },
+        merkleProof: { ...metadata.merkleProof, entityHash: 'someInvalidHash' }
       })
 
       const validateFn = createEmoteValidateFn(buildSubgraphAccessCheckerComponents({ subGraphs }))

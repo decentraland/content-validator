@@ -5,7 +5,7 @@ import {
   buildComponents,
   buildConfig,
   buildExternalCalls,
-  buildSubgraphAccessCheckerComponents,
+  buildSubgraphAccessCheckerComponents
 } from '../../setup/mock'
 
 describe('Access: scenes', () => {
@@ -14,7 +14,7 @@ describe('Access: scenes', () => {
     const deployment = buildSceneDeployment(pointers)
     const externalCalls = buildExternalCalls({
       isAddressOwnedByDecentraland: () => false,
-      ownerAddress: () => '0xAddress',
+      ownerAddress: () => '0xAddress'
     })
 
     const validateFn = createSceneValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
@@ -30,7 +30,7 @@ describe('Access: scenes', () => {
     const deployment = buildSceneDeployment(pointers)
     const externalCalls = buildExternalCalls({
       isAddressOwnedByDecentraland: () => true,
-      ownerAddress: () => '0xAddress',
+      ownerAddress: () => '0xAddress'
     })
 
     const validateFn = createSceneValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
@@ -43,7 +43,7 @@ describe('Access: scenes', () => {
     const deployment = buildSceneDeployment(pointers)
     const externalCalls = buildExternalCalls({
       isAddressOwnedByDecentraland: () => true,
-      ownerAddress: () => '0xAddress',
+      ownerAddress: () => '0xAddress'
     })
 
     const validateFn = createSceneValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
@@ -59,13 +59,13 @@ describe('Access: scenes', () => {
       const pointers = ['Default10']
       const deployment = buildSceneDeployment(pointers)
       const config = buildConfig({
-        IGNORE_BLOCKCHAIN_ACCESS_CHECKS: 'false',
+        IGNORE_BLOCKCHAIN_ACCESS_CHECKS: 'false'
       })
       const ownerAddress = jest.fn()
       ownerAddress.mockResolvedValue('0xAddress')
       const externalCalls = buildExternalCalls({
         isAddressOwnedByDecentraland: () => true,
-        ownerAddress,
+        ownerAddress
       })
 
       const checker = createSubgraphAccessCheckerComponent(
@@ -80,11 +80,11 @@ describe('Access: scenes', () => {
       const pointers = ['Default10']
       const deployment = buildSceneDeployment(pointers)
       const config = buildConfig({
-        IGNORE_BLOCKCHAIN_ACCESS_CHECKS: 'true',
+        IGNORE_BLOCKCHAIN_ACCESS_CHECKS: 'true'
       })
       const ownerAddress = jest.fn()
       const externalCalls = buildExternalCalls({
-        ownerAddress,
+        ownerAddress
       })
 
       const checker = createSubgraphAccessCheckerComponent(

@@ -3,7 +3,7 @@ import {
   BlockchainCollectionV1Asset,
   BlockchainCollectionV2Asset,
   OffChainAsset,
-  parseUrn,
+  parseUrn
 } from '@dcl/urn-resolver'
 import { DeploymentToValidate } from '../../..'
 import {
@@ -11,7 +11,7 @@ import {
   SubgraphAccessCheckerComponents,
   ValidateFn,
   validationFailed,
-  ValidationResponse,
+  ValidationResponse
 } from '../../../types'
 import { v1andV2collectionAssetValidation } from './collection-asset'
 import { offChainAssetValidation } from './off-chain-asset'

@@ -44,8 +44,8 @@ describe('Metadata Schema', () => {
       main: 'bin/main.js',
       scene: {
         base: '0,0',
-        parcels: ['0,0'],
-      },
+        parcels: ['0,0']
+      }
     }
     testType(EntityType.SCENE, validMetadata, invalidMetadata, undefined, ["must have required property 'main'"])
   })
@@ -75,7 +75,7 @@ describe('Metadata Schema', () => {
     const entity = buildEntity({
       type: EntityType.PROFILE,
       metadata: invalidMetadata,
-      timestamp: PRE_ADR_45_TIMESTAMP,
+      timestamp: PRE_ADR_45_TIMESTAMP
     })
     const deployment = buildDeployment({ entity })
     const result = await metadataValidateFn(deployment)

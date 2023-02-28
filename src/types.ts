@@ -95,7 +95,7 @@ export const OK: ValidationResponse = { ok: true }
  */
 export const validationFailed = (...error: string[]): ValidationResponse => ({
   ok: false,
-  errors: error,
+  errors: error
 })
 
 /**
@@ -103,7 +103,7 @@ export const validationFailed = (...error: string[]): ValidationResponse => ({
  */
 export const fromErrors = (...errors: Errors): ValidationResponse => ({
   ok: errors.length === 0,
-  errors: errors.length > 0 ? errors : undefined,
+  errors: errors.length > 0 ? errors : undefined
 })
 
 /**

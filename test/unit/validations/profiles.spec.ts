@@ -7,7 +7,7 @@ import {
   profileMustHaveEmotesValidateFn,
   wearableUrnsValidateFn,
   profileSlotsAreNotRepeatedValidateFn,
-  createProfileValidateFn,
+  createProfileValidateFn
 } from '../../../src/validations/profile'
 import { ADR_45_TIMESTAMP, ADR_74_TIMESTAMP, ADR_75_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment } from '../../setup/deployments'
@@ -32,8 +32,8 @@ describe('Profiles', () => {
           width: size,
           height: size,
           channels: 4,
-          background: { r: 255, g: 0, b: 0, alpha: 0.5 },
-        },
+          background: { r: 255, g: 0, b: 0, alpha: 0.5 }
+        }
       })
       if (format) {
         image = format === 'png' ? image.png() : image.jpeg()
@@ -51,7 +51,7 @@ describe('Profiles', () => {
       const entity = buildEntity({
         type: EntityType.PROFILE,
         metadata: VALID_PROFILE_METADATA,
-        timestamp,
+        timestamp
       })
       const deployment = buildDeployment({ entity, files })
 
@@ -68,7 +68,7 @@ describe('Profiles', () => {
         type: EntityType.PROFILE,
         metadata: VALID_PROFILE_METADATA,
         content,
-        timestamp,
+        timestamp
       })
       const deployment = buildDeployment({ entity, files })
 
@@ -84,7 +84,7 @@ describe('Profiles', () => {
         type: EntityType.PROFILE,
         metadata: VALID_PROFILE_METADATA,
         content,
-        timestamp,
+        timestamp
       })
       const deployment = buildDeployment({ entity, files })
 
@@ -100,7 +100,7 @@ describe('Profiles', () => {
         type: EntityType.PROFILE,
         metadata: VALID_PROFILE_METADATA,
         content,
-        timestamp,
+        timestamp
       })
       const deployment = buildDeployment({ entity, files })
 
@@ -117,7 +117,7 @@ describe('Profiles', () => {
         type: EntityType.PROFILE,
         metadata: VALID_PROFILE_METADATA,
         content,
-        timestamp,
+        timestamp
       })
       const deployment = buildDeployment({ entity, files })
 
@@ -133,7 +133,7 @@ describe('Profiles', () => {
         type: EntityType.PROFILE,
         metadata: VALID_PROFILE_METADATA,
         content,
-        timestamp,
+        timestamp
       })
       const deployment = buildDeployment({ entity, files })
 
@@ -148,12 +148,12 @@ describe('Profiles', () => {
         type: EntityType.PROFILE,
         metadata: VALID_PROFILE_METADATA,
         content,
-        timestamp,
+        timestamp
       })
       const deployment = buildDeployment({ entity })
 
       const externalCalls = buildExternalCalls({
-        isContentStoredAlready: async () => new Map([[hash, true]]),
+        isContentStoredAlready: async () => new Map([[hash, true]])
       })
 
       const validateFn = createFaceThumbnailValidateFn(buildComponents({ externalCalls }))
@@ -168,7 +168,7 @@ describe('Profiles', () => {
       const entity = buildEntity({
         type: EntityType.PROFILE,
         metadata: VALID_PROFILE_METADATA,
-        timestamp,
+        timestamp
       })
       const deployment = buildDeployment({ entity })
 
@@ -184,12 +184,12 @@ describe('Profiles', () => {
           avatars: [
             {
               avatar: {
-                wearables: ['raiseHand'],
-              },
-            },
-          ],
+                wearables: ['raiseHand']
+              }
+            }
+          ]
         },
-        timestamp: ADR_75_TIMESTAMP + 1,
+        timestamp: ADR_75_TIMESTAMP + 1
       })
       const deployment = buildDeployment({ entity })
 
@@ -205,12 +205,12 @@ describe('Profiles', () => {
           avatars: [
             {
               avatar: {
-                wearables: ['urn:decentraland:tucu-tucu:base-avatars:tall_front_01'],
-              },
-            },
-          ],
+                wearables: ['urn:decentraland:tucu-tucu:base-avatars:tall_front_01']
+              }
+            }
+          ]
         },
-        timestamp: ADR_75_TIMESTAMP + 1,
+        timestamp: ADR_75_TIMESTAMP + 1
       })
       const deployment = buildDeployment({ entity })
 
@@ -228,7 +228,7 @@ describe('Profiles', () => {
       const entity = buildEntity({
         type: EntityType.SCENE,
         metadata: VALID_PROFILE_METADATA,
-        timestamp,
+        timestamp
       })
       const deployment = buildDeployment({ entity })
 
@@ -244,7 +244,7 @@ describe('Profiles', () => {
       const entity = buildEntity({
         type: EntityType.PROFILE,
         metadata: VALID_PROFILE_METADATA,
-        timestamp,
+        timestamp
       })
       const deployment = buildDeployment({ entity })
 
@@ -260,12 +260,12 @@ describe('Profiles', () => {
           avatars: [
             {
               avatar: {
-                wearables: ['raiseHand'],
-              },
-            },
-          ],
+                wearables: ['raiseHand']
+              }
+            }
+          ]
         },
-        timestamp: ADR_75_TIMESTAMP + 1,
+        timestamp: ADR_75_TIMESTAMP + 1
       })
       const deployment = buildDeployment({ entity })
 
@@ -281,12 +281,12 @@ describe('Profiles', () => {
           avatars: [
             {
               avatar: {
-                wearables: ['urn:decentraland:tucu-tucu:base-avatars:tall_front_01'],
-              },
-            },
-          ],
+                wearables: ['urn:decentraland:tucu-tucu:base-avatars:tall_front_01']
+              }
+            }
+          ]
         },
-        timestamp: ADR_75_TIMESTAMP + 1,
+        timestamp: ADR_75_TIMESTAMP + 1
       })
       const deployment = buildDeployment({ entity })
 
@@ -305,7 +305,7 @@ describe('Profiles', () => {
         type: EntityType.PROFILE,
         // VALID_PROFILE_METADATA does not have "emotes" property
         metadata: VALID_PROFILE_METADATA,
-        timestamp: ADR_74_TIMESTAMP + 1,
+        timestamp: ADR_74_TIMESTAMP + 1
       })
       const deployment = buildDeployment({ entity })
       const result = await profileMustHaveEmotesValidateFn(deployment)
@@ -317,9 +317,9 @@ describe('Profiles', () => {
       const entity = buildEntity({
         type: EntityType.PROFILE,
         metadata: validProfileMetadataWithEmotes([
-          { slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' },
+          { slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }
         ]),
-        timestamp: ADR_74_TIMESTAMP + 1,
+        timestamp: ADR_74_TIMESTAMP + 1
       })
       const deployment = buildDeployment({ entity })
 
@@ -335,7 +335,7 @@ describe('Profiles', () => {
           // the urn below is invalid
           [{ slot: 0, urn: 'urn:decentraland:tucu-tucu:base-avatars:tall_front_01' }]
         ),
-        timestamp: ADR_74_TIMESTAMP + 1,
+        timestamp: ADR_74_TIMESTAMP + 1
       })
       const deployment = buildDeployment({ entity })
 
@@ -351,9 +351,9 @@ describe('Profiles', () => {
       const entity = buildEntity({
         type: EntityType.PROFILE,
         metadata: validProfileMetadataWithEmotes([
-          { slot: -1, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' },
+          { slot: -1, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }
         ]),
-        timestamp: ADR_74_TIMESTAMP + 1,
+        timestamp: ADR_74_TIMESTAMP + 1
       })
       const deployment = buildDeployment({ entity })
 
@@ -369,9 +369,9 @@ describe('Profiles', () => {
       const entity = buildEntity({
         type: EntityType.PROFILE,
         metadata: validProfileMetadataWithEmotes([
-          { slot: 10, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' },
+          { slot: 10, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }
         ]),
-        timestamp: ADR_74_TIMESTAMP + 1,
+        timestamp: ADR_74_TIMESTAMP + 1
       })
       const deployment = buildDeployment({ entity })
 
@@ -389,9 +389,9 @@ describe('Profiles', () => {
         metadata: validProfileMetadataWithEmotes([
           { slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' },
           { slot: 1, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' },
-          { slot: 1, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' },
+          { slot: 1, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }
         ]),
-        timestamp: ADR_74_TIMESTAMP + 1,
+        timestamp: ADR_74_TIMESTAMP + 1
       })
       const deployment = buildDeployment({ entity })
 

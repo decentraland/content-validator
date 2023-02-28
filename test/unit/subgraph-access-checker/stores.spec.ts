@@ -7,7 +7,7 @@ describe('Access: stores', () => {
     const someAddress = '0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c'
     const deployment = buildStoreDeployment(['urn:decentraland:off-chain:marketplace-stores:' + someAddress])
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => someAddress,
+      ownerAddress: () => someAddress
     })
 
     const validateFn = createStoreValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
@@ -19,7 +19,7 @@ describe('Access: stores', () => {
     const addresses = ['some-address-1', 'some-address=2']
     const deployment = buildStoreDeployment(addresses)
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => 'some-address',
+      ownerAddress: () => 'some-address'
     })
 
     const validateFn = createStoreValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
@@ -35,7 +35,7 @@ describe('Access: stores', () => {
 
     const deployment = buildStoreDeployment([pointer])
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => address,
+      ownerAddress: () => address
     })
 
     const validateFn = createStoreValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))

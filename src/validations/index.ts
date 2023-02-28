@@ -47,6 +47,6 @@ export function createValidateFns(components: ContentValidatorComponents): Valid
     entityStructureValidationFn,
     ipfsHashingValidateFn,
     metadataValidateFn,
-    adr45ValidateFn,
+    adr45ValidateFn
   ]
 }

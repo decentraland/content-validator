@@ -12,7 +12,7 @@ function correspondsToASnapshot(fileName: string, hash: string, metadata: Profil
 }
 
 export function createAllHashesWereUploadedOrStoredValidateFn({
-  externalCalls,
+  externalCalls
 }: Pick<ContentValidatorComponents, 'externalCalls'>): ValidateFn {
   return async function validateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
     const { entity, files } = deployment

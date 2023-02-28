@@ -7,7 +7,7 @@ import {
   SubgraphAccessCheckerComponents,
   ValidateFn,
   validationFailed,
-  ValidationResponse,
+  ValidationResponse
 } from '../../types'
 import { LEGACY_CONTENT_MIGRATION_TIMESTAMP } from '../timestamps'
 import { validateAll } from '../validations'
@@ -16,7 +16,7 @@ import {
   createItemOwnershipValidateFn,
   createNamesOwnershipValidateFn,
   createPointerValidateFn,
-  createProfileValidateFn,
+  createProfileValidateFn
 } from './profiles'
 import { createSceneValidateFn } from './scenes'
 import { createStoreValidateFn } from './stores'
@@ -40,7 +40,7 @@ export async function createSubgraphAccessCheckerComponent(
     [EntityType.SCENE]: createSceneValidateFn(components),
     [EntityType.WEARABLE]: createWearableValidateFn(components),
     [EntityType.STORE]: createStoreValidateFn(components),
-    [EntityType.EMOTE]: createEmoteValidateFn(components),
+    [EntityType.EMOTE]: createEmoteValidateFn(components)
   }
 
   async function checkAccess(deployment: DeploymentToValidate): Promise<ValidationResponse> {
@@ -66,6 +66,6 @@ export async function createSubgraphAccessCheckerComponent(
   }
 
   return {
-    checkAccess,
+    checkAccess
   }
 }

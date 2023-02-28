@@ -11,7 +11,7 @@ describe('IPFS hashing', () => {
   it(`When an entity's id is not an ipfs hash, then it fails`, async () => {
     const entity = buildEntity({
       id: 'QmTBPcZLFQf1rZpZg2T8nMDwWRoqeftRdvkaexgAECaqHp',
-      timestamp,
+      timestamp
     })
     const deployment = buildDeployment({ entity })
 
@@ -27,8 +27,8 @@ describe('IPFS hashing', () => {
     const content = [
       {
         file: 'someFile',
-        hash: 'QmTBPcZLFQf1rZpZg2T8nMDwWRoqeftRdvkaexgAECaqHp',
-      },
+        hash: 'QmTBPcZLFQf1rZpZg2T8nMDwWRoqeftRdvkaexgAECaqHp'
+      }
     ]
     const entity = buildEntity({ timestamp, content })
     const deployment = buildDeployment({ entity })
@@ -45,7 +45,7 @@ describe('IPFS hashing', () => {
     const someHash = await hashV1(Buffer.from('some file'))
     const entity = buildEntity({
       content: [{ file: 'someFile.png', hash: someHash }],
-      timestamp,
+      timestamp
     })
 
     const deployment = buildDeployment({ entity })
@@ -58,8 +58,8 @@ describe('IPFS hashing', () => {
     const content = [
       {
         file: 'someFile',
-        hash: 'QmTBPcZLFQf1rZpZg2T8nMDwWRoqeftRdvkaexgAECaqHp',
-      },
+        hash: 'QmTBPcZLFQf1rZpZg2T8nMDwWRoqeftRdvkaexgAECaqHp'
+      }
     ]
     const entity = buildEntity({ content, timestamp: ADR_45_TIMESTAMP - 1 })
     const deployment = buildDeployment({ entity })

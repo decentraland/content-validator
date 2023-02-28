@@ -7,14 +7,14 @@ import {
   OK,
   ValidateFn,
   validationFailed,
-  ValidationResponse,
+  ValidationResponse
 } from '../types'
 import {
   validateAfterADR45,
   validateAfterADR74,
   validateAfterADR75,
   validateAll,
-  validateIfTypeMatches,
+  validateIfTypeMatches
 } from './validations'
 
 /** Validate that given profile deployment includes a face256 thumbnail with valid size */

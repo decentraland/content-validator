@@ -5,7 +5,7 @@ import {
   ADR_173_TIMESTAMP,
   ADR_45_TIMESTAMP,
   ADR_74_TIMESTAMP,
-  ADR_75_TIMESTAMP,
+  ADR_75_TIMESTAMP
 } from './timestamps'
 
 export function validateAll(...validationFns: ValidateFn[]): ValidateFn {

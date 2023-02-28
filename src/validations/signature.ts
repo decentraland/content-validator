@@ -4,7 +4,7 @@ import {
   OK,
   ValidateFn,
   validationFailed,
-  ValidationResponse,
+  ValidationResponse
 } from '../types'
 
 /**

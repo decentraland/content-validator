@@ -8,6 +8,6 @@ export function createWearableValidateFn(
     'off-chain',
     'blockchain-collection-v1-asset',
     'blockchain-collection-v2-asset',
-    'blockchain-collection-third-party',
+    'blockchain-collection-third-party'
   ])
 }

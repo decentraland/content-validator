@@ -6,7 +6,7 @@ import {
   SubgraphAccessCheckerComponents,
   ValidateFn,
   validationFailed,
-  ValidationResponse,
+  ValidationResponse
 } from '../../types'
 import { isOldEmote } from '../profile'
 import { ADR_74_TIMESTAMP, ADR_75_TIMESTAMP } from '../timestamps'
@@ -40,7 +40,7 @@ export function createPointerValidateFn(
 
 export function createNamesOwnershipValidateFn({
   externalCalls,
-  theGraphClient,
+  theGraphClient
 }: Pick<SubgraphAccessCheckerComponents, 'externalCalls' | 'theGraphClient'>): ValidateFn {
   async function validateFn(deployment: DeploymentToValidate) {
     const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
@@ -63,7 +63,7 @@ export function createNamesOwnershipValidateFn({
 
 export function createItemOwnershipValidateFn({
   externalCalls,
-  theGraphClient,
+  theGraphClient
 }: Pick<SubgraphAccessCheckerComponents, 'externalCalls' | 'theGraphClient'>): ValidateFn {
   async function sanitizeUrn(urn: string): Promise<string | undefined> {
     if (!urn.startsWith('dcl://')) {

@@ -1,7 +1,7 @@
 import { EntityType, EthAddress } from '@dcl/schemas'
 import {
   createNamesOwnershipValidateFn,
-  createProfileValidateFn,
+  createProfileValidateFn
 } from '../../../src/validations/subgraph-access-checker/profiles'
 import { ADR_74_TIMESTAMP, ADR_75_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment, buildProfileDeployment } from '../../setup/deployments'
@@ -10,7 +10,7 @@ import {
   buildComponents,
   buildExternalCalls,
   buildSubgraphAccessCheckerComponents,
-  fetcherWithItemsOwnership,
+  fetcherWithItemsOwnership
 } from '../../setup/mock'
 import { validProfileMetadataWithEmotes, VALID_PROFILE_METADATA } from '../../setup/profiles'
 
@@ -30,7 +30,7 @@ describe('Access: profiles', () => {
     const deployment = buildProfileDeployment(['Default10'])
     const externalCalls = buildExternalCalls({
       isAddressOwnedByDecentraland: () => true,
-      ownerAddress: () => someValidAddress,
+      ownerAddress: () => someValidAddress
     })
 
     const validateFn = createProfileValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
@@ -42,7 +42,7 @@ describe('Access: profiles', () => {
     const someAddress = '0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c'
     const deployment = buildProfileDeployment([someAddress])
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => someAddress,
+      ownerAddress: () => someAddress
     })
 
     const validateFn = createProfileValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
@@ -54,7 +54,7 @@ describe('Access: profiles', () => {
     const addresses = ['some-address-1', 'some-address=2']
     const deployment = buildProfileDeployment(addresses)
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => 'some-address',
+      ownerAddress: () => 'some-address'
     })
 
     const validateFn = createProfileValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
@@ -69,7 +69,7 @@ describe('Access: profiles', () => {
 
     const deployment = buildProfileDeployment([pointer])
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => address,
+      ownerAddress: () => address
     })
 
     const validateFn = createProfileValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
@@ -86,7 +86,7 @@ describe('Access: profiles', () => {
 
     const deployment = buildProfileDeployment([pointer])
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => address,
+      ownerAddress: () => address
     })
 
     const validateFn = createProfileValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
@@ -102,13 +102,13 @@ describe('Access: profiles', () => {
       type: EntityType.PROFILE,
       metadata: VALID_PROFILE_METADATA,
       timestamp: ADR_75_TIMESTAMP + 1,
-      pointers: [someAddress],
+      pointers: [someAddress]
     })
     const deployment = buildDeployment({ entity })
 
     const subGraphs = fetcherWithItemsOwnership('0x862f109696d7121438642a78b3caa38f476db08b')
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => someAddress,
+      ownerAddress: () => someAddress
     })
 
     const validateFn = createProfileValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls, subGraphs }))
@@ -123,17 +123,17 @@ describe('Access: profiles', () => {
       type: EntityType.PROFILE,
       metadata: VALID_PROFILE_METADATA,
       timestamp: ADR_75_TIMESTAMP + 1,
-      pointers: [someAddress],
+      pointers: [someAddress]
     })
     const deployment = buildDeployment({ entity })
 
     const subGraphs = fetcherWithItemsOwnership('0x862f109696d7121438642a78b3caa38f476db08b', [
       {
-        name: "Someone else's name",
-      },
+        name: "Someone else's name"
+      }
     ])
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => someAddress,
+      ownerAddress: () => someAddress
     })
 
     const validateFn = createProfileValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls, subGraphs }))
@@ -151,20 +151,20 @@ describe('Access: profiles', () => {
       type: EntityType.PROFILE,
       metadata: VALID_PROFILE_METADATA,
       timestamp: ADR_75_TIMESTAMP + 1,
-      pointers: [someAddress],
+      pointers: [someAddress]
     })
     const deployment = buildDeployment({ entity })
 
     const subGraphs = fetcherWithItemsOwnership('0x862f109696d7121438642a78b3caa38f476db08b', undefined, undefined, [
       {
-        urn: 'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2',
+        urn: 'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
       },
       {
-        urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa4:0',
-      },
+        urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa4:0'
+      }
     ])
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => someAddress,
+      ownerAddress: () => someAddress
     })
 
     const validateFn = createProfileValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls, subGraphs }))
@@ -181,18 +181,18 @@ describe('Access: profiles', () => {
     const entity = buildEntity({
       type: EntityType.PROFILE,
       metadata: validProfileMetadataWithEmotes([
-        { slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' },
+        { slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }
       ]),
       timestamp: ADR_74_TIMESTAMP + 1,
-      pointers: [someAddress],
+      pointers: [someAddress]
     })
     const deployment = buildDeployment({ entity })
 
     const subGraphs = fetcherWithItemsOwnership('0x862f109696d7121438642a78b3caa38f476db08b', undefined, undefined, [
-      { urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' },
+      { urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }
     ])
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => someAddress,
+      ownerAddress: () => someAddress
     })
 
     const validateFn = createProfileValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls, subGraphs }))
@@ -207,18 +207,18 @@ describe('Access: profiles', () => {
       type: EntityType.PROFILE,
       metadata: validProfileMetadataWithEmotes([
         { slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' },
-        { slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:1' },
+        { slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:1' }
       ]),
       timestamp: ADR_74_TIMESTAMP + 1,
-      pointers: [someAddress],
+      pointers: [someAddress]
     })
     const deployment = buildDeployment({ entity })
 
     const subGraphs = fetcherWithItemsOwnership('0x862f109696d7121438642a78b3caa38f476db08b', undefined, undefined, [
-      { urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' },
+      { urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }
     ])
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => someAddress,
+      ownerAddress: () => someAddress
     })
 
     const validateFn = createProfileValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls, subGraphs }))
@@ -238,7 +238,7 @@ describe('ownsNames', () => {
     deployment.entity.metadata = VALID_PROFILE_METADATA
     const externalCalls = buildExternalCalls({
       isAddressOwnedByDecentraland: () => true,
-      ownerAddress: () => someValidAddress,
+      ownerAddress: () => someValidAddress
     })
 
     const components = buildSubgraphAccessCheckerComponents({ externalCalls })
@@ -247,7 +247,7 @@ describe('ownsNames', () => {
       .mockImplementation(async (ethAddress: EthAddress) => {
         const result = ethAddress === someValidAddress ? true : false
         return {
-          result,
+          result
         }
       })
 
@@ -263,7 +263,7 @@ describe('ownsNames', () => {
     deployment.entity.metadata = VALID_PROFILE_METADATA
     const externalCalls = buildExternalCalls({
       isAddressOwnedByDecentraland: () => true,
-      ownerAddress: () => someValidAddress,
+      ownerAddress: () => someValidAddress
     })
 
     const components = buildSubgraphAccessCheckerComponents({ externalCalls })
@@ -272,7 +272,7 @@ describe('ownsNames', () => {
       .mockImplementation(async (ethAddress: EthAddress) => {
         const result = ethAddress === someValidAddress ? true : false
         return {
-          result,
+          result
         }
       })
     const validateFn = createNamesOwnershipValidateFn(components)
@@ -287,14 +287,14 @@ describe('ownsNames', () => {
     deployment.entity.metadata = VALID_PROFILE_METADATA
     const externalCalls = buildExternalCalls({
       isAddressOwnedByDecentraland: () => true,
-      ownerAddress: () => someValidAddress,
+      ownerAddress: () => someValidAddress
     })
 
     const components = buildSubgraphAccessCheckerComponents({ externalCalls })
     jest.spyOn(components.theGraphClient, 'ownsNamesAtTimestamp').mockImplementation(async (ethAddress: EthAddress) => {
       const result = ethAddress === someValidAddress ? true : false
       return {
-        result,
+        result
       }
     })
 

@@ -14,7 +14,7 @@ describe('Scenes', () => {
       const entity = buildEntity({
         type: EntityType.SCENE,
         metadata: VALID_SCENE_METADATA,
-        timestamp,
+        timestamp
       })
       const deployment = buildDeployment({ entity, files })
 
@@ -30,10 +30,10 @@ describe('Scenes', () => {
         metadata: {
           ...VALID_SCENE_METADATA,
           worldConfiguration: {
-            name: 'some-name.dcl.eth',
-          },
+            name: 'some-name.dcl.eth'
+          }
         },
-        timestamp,
+        timestamp
       })
       const deployment = buildDeployment({ entity, files })
 

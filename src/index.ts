@@ -23,6 +23,6 @@ export const createValidator = (
         }
       }
       return OK
-    },
+    }
   }
 }

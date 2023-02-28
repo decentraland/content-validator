@@ -8,7 +8,7 @@ import {
   OK,
   ValidateFn,
   validationFailed,
-  ValidationResponse,
+  ValidationResponse
 } from '../../types'
 import { entityParameters } from '../ADR51'
 import { validateAfterADR45, validateAll, validateIfConditionMet } from '../validations'
@@ -77,7 +77,7 @@ export function createThumbnailMaxSizeIsNotExceededValidateFn(
       }
       // otherwise, thumbnail was already uploaded and won't be validated again
       logger.debug(`Thumbnail file with hash: ${hash} is not in the deployment, but it is already stored`, {
-        type: deployment.entity.type,
+        type: deployment.entity.type
       })
       return OK
     }

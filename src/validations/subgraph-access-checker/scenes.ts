@@ -5,7 +5,7 @@ import {
   ExternalCalls,
   fromErrors,
   SubgraphAccessCheckerComponents,
-  ValidationResponse,
+  ValidationResponse
 } from '../../types'
 
 type Timestamp = number
@@ -45,7 +45,7 @@ type Authorization = {
 export function createSceneValidateFn({
   externalCalls,
   subGraphs,
-  logs,
+  logs
 }: Pick<SubgraphAccessCheckerComponents, 'externalCalls' | 'logs' | 'subGraphs'>) {
   const logger = logs.getLogger('scenes access validator')
 
@@ -76,7 +76,7 @@ export function createSceneValidateFn({
       const variables = {
         owner,
         operator,
-        timestamp: Math.floor(timestamp / 1000), // js(ms) -> UNIX(s)
+        timestamp: Math.floor(timestamp / 1000) // js(ms) -> UNIX(s)
       }
 
       try {
@@ -131,7 +131,7 @@ export function createSceneValidateFn({
 
       const variables = {
         estateId,
-        timestamp: Math.floor(timestamp / 1000), // UNIX
+        timestamp: Math.floor(timestamp / 1000) // UNIX
       }
 
       try {
@@ -194,7 +194,7 @@ export function createSceneValidateFn({
       const variables = {
         x,
         y,
-        timestamp: Math.floor(timestamp / 1000), // UNIX
+        timestamp: Math.floor(timestamp / 1000) // UNIX
       }
 
       try {

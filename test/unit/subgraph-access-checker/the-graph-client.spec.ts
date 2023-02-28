@@ -11,8 +11,8 @@ describe('TheGraphClient', () => {
           })
         ),
         landManager: createMockSubgraphComponent(),
-        ensOwner: createMockSubgraphComponent(),
-      },
+        ensOwner: createMockSubgraphComponent()
+      }
     })
 
     const { theGraphClient } = buildSubgraphAccessCheckerComponents({ subGraphs })
@@ -27,12 +27,12 @@ describe('TheGraphClient', () => {
         blocks: createMockSubgraphComponent(
           jest.fn().mockResolvedValueOnce({
             max: [],
-            min: [],
+            min: []
           })
         ),
         landManager: createMockSubgraphComponent(),
-        ensOwner: createMockSubgraphComponent(),
-      },
+        ensOwner: createMockSubgraphComponent()
+      }
     })
 
     const { theGraphClient } = buildSubgraphAccessCheckerComponents({ subGraphs })
@@ -50,7 +50,7 @@ describe('TheGraphClient', () => {
           blocks: createMockSubgraphComponent(
             jest.fn().mockResolvedValueOnce({
               min: [{ number: 123400 }],
-              max: [],
+              max: []
             })
           ),
           landManager: createMockSubgraphComponent(),
@@ -60,19 +60,19 @@ describe('TheGraphClient', () => {
                 return Promise.resolve({
                   names: [
                     {
-                      name: 'Some Name',
-                    },
-                  ],
+                      name: 'Some Name'
+                    }
+                  ]
                 })
               }
             })
-          ),
-        },
+          )
+        }
       })
       const { theGraphClient } = buildSubgraphAccessCheckerComponents({ subGraphs })
 
       await expect(theGraphClient.ownsNamesAtTimestamp('0x1', ['Some Name'], 10)).resolves.toEqual({
-        result: true,
+        result: true
       })
     })
 
@@ -83,7 +83,7 @@ describe('TheGraphClient', () => {
           blocks: createMockSubgraphComponent(
             jest.fn().mockResolvedValueOnce({
               min: [{ number: 123400 }],
-              max: [{ number: 123500 }],
+              max: [{ number: 123500 }]
             })
           ),
           landManager: createMockSubgraphComponent(),
@@ -95,19 +95,19 @@ describe('TheGraphClient', () => {
                 return Promise.resolve({
                   names: [
                     {
-                      name: 'Some Name',
-                    },
-                  ],
+                      name: 'Some Name'
+                    }
+                  ]
                 })
               }
             })
-          ),
-        },
+          )
+        }
       })
       const { theGraphClient } = buildSubgraphAccessCheckerComponents({ subGraphs })
 
       await expect(theGraphClient.ownsNamesAtTimestamp('0x1', ['Some Name'], 10)).resolves.toEqual({
-        result: true,
+        result: true
       })
     })
 
@@ -118,17 +118,17 @@ describe('TheGraphClient', () => {
           blocks: createMockSubgraphComponent(
             jest.fn().mockResolvedValueOnce({
               min: [{ number: 123400 }],
-              max: [{ number: 123500 }],
+              max: [{ number: 123500 }]
             })
           ),
           landManager: createMockSubgraphComponent(),
-          ensOwner: createMockSubgraphComponent(jest.fn().mockRejectedValue('error')),
-        },
+          ensOwner: createMockSubgraphComponent(jest.fn().mockRejectedValue('error'))
+        }
       })
       const { theGraphClient } = buildSubgraphAccessCheckerComponents({ subGraphs })
 
       await expect(theGraphClient.ownsNamesAtTimestamp('0x1', ['Some Name'], 10)).resolves.toEqual({
-        result: false,
+        result: false
       })
     })
   })
@@ -141,38 +141,38 @@ describe('TheGraphClient', () => {
             jest.fn().mockResolvedValue({
               items: [
                 {
-                  urn: 'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet',
-                },
-              ],
+                  urn: 'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet'
+                }
+              ]
             })
           ),
           blocks: createMockSubgraphComponent(
             jest.fn().mockResolvedValueOnce({
               min: [{ number: 123400 }],
-              max: [],
+              max: []
             })
           ),
           landManager: createMockSubgraphComponent(),
-          ensOwner: createMockSubgraphComponent(jest.fn().mockRejectedValue('error')),
+          ensOwner: createMockSubgraphComponent(jest.fn().mockRejectedValue('error'))
         },
         L2: {
           thirdPartyRegistry: createMockSubgraphComponent(),
           blocks: createMockSubgraphComponent(
             jest.fn().mockResolvedValueOnce({
               min: [{ number: 123400 }],
-              max: [],
+              max: []
             })
           ),
           collections: createMockSubgraphComponent(
             jest.fn().mockResolvedValue({
               items: [
                 {
-                  urn: 'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2',
-                },
-              ],
+                  urn: 'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
+                }
+              ]
             })
-          ),
-        },
+          )
+        }
       })
       const { theGraphClient } = buildSubgraphAccessCheckerComponents({ subGraphs })
 
@@ -181,7 +181,7 @@ describe('TheGraphClient', () => {
           '0x1',
           [
             'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet',
-            'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2',
+            'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
           ],
           10
         )
@@ -199,9 +199,9 @@ describe('TheGraphClient', () => {
                 return Promise.resolve({
                   items: [
                     {
-                      urn: 'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet',
-                    },
-                  ],
+                      urn: 'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet'
+                    }
+                  ]
                 })
               }
             })
@@ -209,30 +209,30 @@ describe('TheGraphClient', () => {
           blocks: createMockSubgraphComponent(
             jest.fn().mockResolvedValueOnce({
               min: [{ number: 123400 }],
-              max: [{ number: 123500 }],
+              max: [{ number: 123500 }]
             })
           ),
           landManager: createMockSubgraphComponent(),
-          ensOwner: createMockSubgraphComponent(),
+          ensOwner: createMockSubgraphComponent()
         },
         L2: {
           thirdPartyRegistry: createMockSubgraphComponent(),
           blocks: createMockSubgraphComponent(
             jest.fn().mockResolvedValueOnce({
               min: [{ number: 123400 }],
-              max: [{ number: 123500 }],
+              max: [{ number: 123500 }]
             })
           ),
           collections: createMockSubgraphComponent(
             jest.fn().mockResolvedValue({
               items: [
                 {
-                  urn: 'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2',
-                },
-              ],
+                  urn: 'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
+                }
+              ]
             })
-          ),
-        },
+          )
+        }
       })
       const { theGraphClient } = buildSubgraphAccessCheckerComponents({ subGraphs })
 
@@ -241,7 +241,7 @@ describe('TheGraphClient', () => {
           '0x1',
           [
             'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet',
-            'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2',
+            'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
           ],
           10
         )
@@ -259,22 +259,22 @@ describe('TheGraphClient', () => {
           blocks: createMockSubgraphComponent(
             jest.fn().mockResolvedValueOnce({
               min: [{ number: 123400 }],
-              max: [{ number: 123500 }],
+              max: [{ number: 123500 }]
             })
           ),
           landManager: createMockSubgraphComponent(),
-          ensOwner: createMockSubgraphComponent(),
+          ensOwner: createMockSubgraphComponent()
         },
         L2: {
           thirdPartyRegistry: createMockSubgraphComponent(),
           blocks: createMockSubgraphComponent(
             jest.fn().mockResolvedValueOnce({
               min: [{ number: 123400 }],
-              max: [{ number: 123500 }],
+              max: [{ number: 123500 }]
             })
           ),
-          collections: createMockSubgraphComponent(jest.fn().mockRejectedValue('error')),
-        },
+          collections: createMockSubgraphComponent(jest.fn().mockRejectedValue('error'))
+        }
       })
       const { theGraphClient } = buildSubgraphAccessCheckerComponents({ subGraphs })
 
@@ -283,7 +283,7 @@ describe('TheGraphClient', () => {
           '0x1',
           [
             'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet',
-            'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2',
+            'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
           ],
           10
         )

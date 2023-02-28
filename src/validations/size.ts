@@ -5,7 +5,7 @@ import {
   OK,
   ValidateFn,
   validationFailed,
-  ValidationResponse,
+  ValidationResponse
 } from '../types'
 import { entityParameters } from './ADR51'
 import { ADR_45_TIMESTAMP, LEGACY_CONTENT_MIGRATION_TIMESTAMP } from './timestamps'
@@ -39,7 +39,7 @@ export function createSizeValidateFn(components: ContentValidatorComponents): Va
       errors = [
         `The deployment is too big. The maximum allowed size per pointer is ${maxSizeInMB} MB for ${
           entity.type
-        }. You can upload up to ${entity.pointers.length * maxSizeInBytes} bytes but you tried to upload ${totalSize}.`,
+        }. You can upload up to ${entity.pointers.length * maxSizeInBytes} bytes but you tried to upload ${totalSize}.`
       ]
     }
     return errors.length > 0 ? validationFailed(...errors) : OK

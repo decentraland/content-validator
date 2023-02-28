@@ -6,7 +6,7 @@ import {
   fetcherWithoutAccess,
   fetcherWithThirdPartyEmptyMerkleRoots,
   fetcherWithThirdPartyMerkleRoot,
-  fetcherWithValidCollectionAndCreator,
+  fetcherWithValidCollectionAndCreator
 } from '../../setup/mock'
 import { VALID_THIRD_PARTY_WEARABLE } from '../../setup/wearable'
 
@@ -27,7 +27,7 @@ describe('Access: wearables', () => {
   it('When there is more than one pointer set, then validation fails', async () => {
     const pointers = [
       'urn:decentraland:ethereum:collections-v1:atari_launch:a',
-      'urn:decentraland:ethereum:collections-v1:atari_launch:b',
+      'urn:decentraland:ethereum:collections-v1:atari_launch:b'
     ]
     const deployment = buildWearableDeployment(pointers)
     const externalCalls = buildExternalCalls()
@@ -41,11 +41,11 @@ describe('Access: wearables', () => {
   it('When several pointers resolve to the same URN then accept both but fail with the access', async () => {
     const pointers = [
       'urn:decentraland:ethereum:collections-v1:atari_launch:atari_red_upper_body',
-      'urn:decentraland:ethereum:collections-v1:0x4c290f486bae507719c562b6b524bdb71a2570c9:atari_red_upper_body',
+      'urn:decentraland:ethereum:collections-v1:0x4c290f486bae507719c562b6b524bdb71a2570c9:atari_red_upper_body'
     ]
     const deployment = buildWearableDeployment(pointers)
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => 'some address',
+      ownerAddress: () => 'some address'
     })
 
     const validateFn = createWearableValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
@@ -59,11 +59,11 @@ describe('Access: wearables', () => {
   it('When several pointers resolve to the same URN then accept both 2', async () => {
     const pointers = [
       'urn:decentraland:ethereum:collections-v1:dgtble_headspace:dgtble_hoodi_linetang_upper_body',
-      'urn:decentraland:ethereum:collections-v1:0x574f64ac2e7215cba9752b85fc73030f35166bc0:dgtble_hoodi_linetang_upper_body',
+      'urn:decentraland:ethereum:collections-v1:0x574f64ac2e7215cba9752b85fc73030f35166bc0:dgtble_hoodi_linetang_upper_body'
     ]
     const deployment = buildWearableDeployment(pointers)
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => 'some address',
+      ownerAddress: () => 'some address'
     })
 
     const validateFn = createWearableValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
@@ -78,7 +78,7 @@ describe('Access: wearables', () => {
     const pointers = ['urn:decentraland:ethereum:collections-v1:dgtble_headspace:dgtble_hoodi_linetang_upper_body']
     const deployment = buildWearableDeployment(pointers)
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => 'some address',
+      ownerAddress: () => 'some address'
     })
 
     const validateFn = createWearableValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
@@ -93,7 +93,7 @@ describe('Access: wearables', () => {
     const pointers = ['urn:decentraland:ethereum:collections-v1:dgtble_headspace:dgtble_hoodi_linetang_upper_body']
     const deployment = buildWearableDeployment(pointers)
     const externalCalls = buildExternalCalls({
-      isAddressOwnedByDecentraland: () => true,
+      isAddressOwnedByDecentraland: () => true
     })
 
     const validateFn = createWearableValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
@@ -105,7 +105,7 @@ describe('Access: wearables', () => {
     const pointers = ['urn:decentraland:off-chain:base-avatars:BaseFemale']
     const deployment = buildWearableDeployment(pointers)
     const externalCalls = buildExternalCalls({
-      isAddressOwnedByDecentraland: () => true,
+      isAddressOwnedByDecentraland: () => true
     })
 
     const validateFn = createWearableValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
@@ -117,11 +117,11 @@ describe('Access: wearables', () => {
     const ethAddress = 'address'
     const subGraphs = fetcherWithValidCollectionAndCreator(ethAddress)
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => ethAddress,
+      ownerAddress: () => ethAddress
     })
 
     const deployment = buildWearableDeployment([
-      'urn:decentraland:mumbai:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1',
+      'urn:decentraland:mumbai:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
     const validateFn = createWearableValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls, subGraphs }))
@@ -135,11 +135,11 @@ describe('Access: wearables', () => {
     const ethAddress = 'address'
     const subGraphs = fetcherWithoutAccess()
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => ethAddress,
+      ownerAddress: () => ethAddress
     })
 
     const deployment = buildWearableDeployment([
-      'urn:decentraland:ethereum:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1',
+      'urn:decentraland:ethereum:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
     const validateFn = createWearableValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls, subGraphs }))
@@ -153,11 +153,11 @@ describe('Access: wearables', () => {
     const ethAddress = 'address'
     const subGraphs = fetcherWithoutAccess()
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => ethAddress,
+      ownerAddress: () => ethAddress
     })
 
     const deployment = buildWearableDeployment([
-      'urn:decentraland:mumbai:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1',
+      'urn:decentraland:mumbai:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
     const validateFn = createWearableValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls, subGraphs }))
@@ -172,11 +172,11 @@ describe('Access: wearables', () => {
     const ethAddress = 'address'
     const subGraphs = fetcherWithoutAccess()
     const externalCalls = buildExternalCalls({
-      ownerAddress: () => ethAddress,
+      ownerAddress: () => ethAddress
     })
 
     const deployment = buildWearableDeployment([
-      'urn:decentraland:ethereum:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1',
+      'urn:decentraland:ethereum:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
     const validateFn = createWearableValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls, subGraphs }))
@@ -206,7 +206,7 @@ describe('Access: wearables', () => {
 
       const deployment = buildThirdPartyWearableDeployment(metadata.id, {
         ...metadata,
-        content: {},
+        content: {}
       })
 
       const validateFn = createWearableValidateFn(buildSubgraphAccessCheckerComponents({ subGraphs }))
@@ -241,7 +241,7 @@ describe('Access: wearables', () => {
 
       const deployment = buildThirdPartyWearableDeployment(metadata.id, {
         ...metadata,
-        merkleProof: { proof: [], index: 0, hashingKeys: [], entityHash: '' },
+        merkleProof: { proof: [], index: 0, hashingKeys: [], entityHash: '' }
       })
 
       const validateFn = createWearableValidateFn(buildSubgraphAccessCheckerComponents({ subGraphs }))
@@ -256,8 +256,8 @@ describe('Access: wearables', () => {
         ...metadata,
         merkleProof: {
           ...metadata.merkleProof,
-          hashingKeys: ['id', 'description'],
-        },
+          hashingKeys: ['id', 'description']
+        }
       })
 
       const validateFn = createWearableValidateFn(buildSubgraphAccessCheckerComponents({ subGraphs }))
@@ -270,7 +270,7 @@ describe('Access: wearables', () => {
 
       const deployment = buildThirdPartyWearableDeployment(metadata.id, {
         ...metadata,
-        merkleProof: { ...metadata.merkleProof, entityHash: 'someInvalidHash' },
+        merkleProof: { ...metadata.merkleProof, entityHash: 'someInvalidHash' }
       })
 
       const validateFn = createWearableValidateFn(buildSubgraphAccessCheckerComponents({ subGraphs }))

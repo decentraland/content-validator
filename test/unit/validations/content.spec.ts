@@ -3,7 +3,7 @@ import {
   allHashesInUploadedFilesAreReportedInTheEntityValidateFn,
   allMandatoryContentFilesArePresentValidateFn,
   createAllHashesWereUploadedOrStoredValidateFn,
-  createContentValidateFn,
+  createContentValidateFn
 } from '../../../src/validations/content'
 import { ADR_158_TIMESTAMP, ADR_45_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment } from '../../setup/deployments'
@@ -23,7 +23,7 @@ describe('Content', () => {
   const components = buildComponents()
   it(`When a hash that was not uploaded and not present is referenced, it is reported`, async () => {
     const entity = buildEntity({
-      content: [{ file: 'name', hash: 'hash' }],
+      content: [{ file: 'name', hash: 'hash' }]
     })
 
     const deployment = buildDeployment({ entity })
@@ -37,7 +37,7 @@ describe('Content', () => {
     const entity = buildEntity({
       content: [
         { file: 'body.png', hash: 'hash' },
-        { file: 'face256.png', hash: 'hash' },
+        { file: 'face256.png', hash: 'hash' }
       ],
       metadata: {
         avatars: [
@@ -45,16 +45,16 @@ describe('Content', () => {
             avatar: {
               snapshots: {
                 body: 'hash',
-                face256: 'hash',
-              },
-            },
-          },
-        ],
-      },
+                face256: 'hash'
+              }
+            }
+          }
+        ]
+      }
     })
     const deployment = buildDeployment({ entity })
     const externalCalls = buildExternalCalls({
-      isContentStoredAlready: () => Promise.resolve(new Map([['hash', true]])),
+      isContentStoredAlready: () => Promise.resolve(new Map([['hash', true]]))
     })
 
     const validateFn = createContentValidateFn(buildComponents({ externalCalls }))
@@ -64,7 +64,7 @@ describe('Content', () => {
 
   it(`When a hash that was uploaded wasn't already stored, then an error is returned`, async () => {
     const entity = buildEntity({
-      content: [{ file: 'name', hash: 'hash' }],
+      content: [{ file: 'name', hash: 'hash' }]
     })
     const files = new Map([['hash', Buffer.from([])]])
     const deployment = buildDeployment({ entity, files })
@@ -78,12 +78,12 @@ describe('Content', () => {
 
   it('When a hash is uploaded but not referenced, it is reported', async () => {
     const entity = buildEntity({
-      content: [{ file: 'name', hash: 'hash' }],
+      content: [{ file: 'name', hash: 'hash' }]
     })
 
     const files = new Map([
       ['hash-1', Buffer.from([])],
-      ['hash-2', Buffer.from([])],
+      ['hash-2', Buffer.from([])]
     ])
     const deployment = buildDeployment({ entity, files })
 
@@ -102,7 +102,7 @@ describe('Content', () => {
       const entity = buildEntity({
         metadata: VALID_PROFILE_METADATA,
         content: contentItems,
-        timestamp: ADR_45_TIMESTAMP + 1,
+        timestamp: ADR_45_TIMESTAMP + 1
       })
 
       const deployment = buildDeployment({ entity, files })
@@ -120,7 +120,7 @@ describe('Content', () => {
       const entity = buildEntity({
         metadata: VALID_PROFILE_METADATA,
         content: contentItems,
-        timestamp: ADR_45_TIMESTAMP + 1,
+        timestamp: ADR_45_TIMESTAMP + 1
       })
 
       const deployment = buildDeployment({ entity, files })
@@ -140,7 +140,7 @@ describe('Content', () => {
       const entity = buildEntity({
         metadata: VALID_PROFILE_METADATA,
         content: contentItems,
-        timestamp: ADR_45_TIMESTAMP + 1,
+        timestamp: ADR_45_TIMESTAMP + 1
       })
 
       const deployment = buildDeployment({ entity, files })
@@ -160,7 +160,7 @@ describe('Content', () => {
       const entity = buildEntity({
         metadata: VALID_PROFILE_METADATA,
         content: contentItems,
-        timestamp: ADR_45_TIMESTAMP - 1,
+        timestamp: ADR_45_TIMESTAMP - 1
       })
 
       const deployment = buildDeployment({ entity, files })
@@ -174,7 +174,7 @@ describe('Content', () => {
       const entity = buildEntity({
         metadata: VALID_PROFILE_METADATA,
         content: [],
-        timestamp: ADR_158_TIMESTAMP - 1,
+        timestamp: ADR_158_TIMESTAMP - 1
       })
 
       const deployment = buildDeployment({ entity })
@@ -186,7 +186,7 @@ describe('Content', () => {
       const entity = buildEntity({
         metadata: VALID_PROFILE_METADATA,
         content: [],
-        timestamp: ADR_158_TIMESTAMP + 1,
+        timestamp: ADR_158_TIMESTAMP + 1
       })
 
       const deployment = buildDeployment({ entity })
@@ -203,13 +203,13 @@ describe('Content', () => {
 
       const contentItems = [
         { file: faceFile, hash },
-        { file: bodyFile, hash },
+        { file: bodyFile, hash }
       ]
       const files = new Map([[hash, Buffer.from([])]])
       const entity = buildEntity({
         metadata: VALID_PROFILE_METADATA,
         content: contentItems,
-        timestamp: ADR_158_TIMESTAMP + 1,
+        timestamp: ADR_158_TIMESTAMP + 1
       })
 
       const deployment = buildDeployment({ entity, files })

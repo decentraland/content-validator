@@ -5,7 +5,7 @@ import {
   SubgraphAccessCheckerComponents,
   ValidateFn,
   validationFailed,
-  ValidationResponse,
+  ValidationResponse
 } from '../../types'
 
 async function parseUrnNoFail(pointer: string): Promise<OffChainAsset | undefined> {
