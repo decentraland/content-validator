@@ -1,5 +1,5 @@
 import { EntityType } from '@dcl/schemas'
-import { ContentValidatorComponents, DeploymentToValidate, OK, ValidateFn, validationFailed } from '../types'
+import { DeploymentToValidate, OK, ValidateFn, validationFailed, ValidationResponse } from '../types'
 import { entityParameters } from './ADR51'
 import { ADR_74_TIMESTAMP } from './timestamps'
 import { validateAfterADR45, validateAfterADR74, validateAll, validateIfTypeMatches } from './validations'
@@ -8,7 +8,10 @@ import { validateAfterADR45, validateAfterADR74, validateAll, validateIfTypeMatc
  * Validate entities metadata against its corresponding schema
  * @public
  */
-function metadataSchemaIsValid(components: ContentValidatorComponents, deployment: DeploymentToValidate) {
+
+export const metadataSchemaValidateFn = validateAfterADR45(async function validateFn(
+  deployment: DeploymentToValidate
+): Promise<ValidationResponse> {
   const { type, metadata } = deployment.entity
   const validator = entityParameters[type].validate
   if (validator(metadata)) {
@@ -16,7 +19,7 @@ function metadataSchemaIsValid(components: ContentValidatorComponents, deploymen
   }
   const errors = validator.errors?.map(($) => '' + $.message) || []
   return validationFailed(`The metadata for this entity type (${deployment.entity.type}) is not valid.`, ...errors)
-}
+})
 
 type ADR = {
   number: number
@@ -37,27 +40,26 @@ const ADRMetadataVersionTimelines: Record<EntityType, ADR[]> = {
   scene: [],
   profile: [],
   wearable: [],
-  store: []
+  store: [],
 }
 
+function validateIfEmote(validateFn: ValidateFn): ValidateFn {
+  return validateIfTypeMatches(EntityType.EMOTE, validateFn)
+}
 /**
  * This validation is being ran only for emotes  currently
  */
-function metadataVersionIsCorrectForTimestamp(
-  components: ContentValidatorComponents,
-  deployment: DeploymentToValidate
-) {
-  const entity = deployment.entity
-  const adrNumber = ADRMetadataVersionTimelines[entity.type].find((v) => v.timestamp < entity.timestamp)?.number
-  const expectedDataField = `${entity.type}DataADR${adrNumber}`
-  return `${expectedDataField}` in deployment.entity.metadata
-    ? OK
-    : validationFailed(
-        `'emoteData' field version is incorrect. It must be: '${expectedDataField} but it is: ${deployment.entity.metadata} `
-      )
-}
-
-export const metadata: ValidateFn = validateAll(
-  validateAfterADR45(metadataSchemaIsValid),
-  validateAfterADR74(validateIfTypeMatches(EntityType.EMOTE, metadataVersionIsCorrectForTimestamp))
+export const metadataVersionIsCorrectForTimestampValidateFn = validateIfEmote(
+  validateAfterADR74(async function validateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
+    const entity = deployment.entity
+    const adrNumber = ADRMetadataVersionTimelines[entity.type].find((v) => v.timestamp < entity.timestamp)?.number
+    const expectedDataField = `${entity.type}DataADR${adrNumber}`
+    return `${expectedDataField}` in deployment.entity.metadata
+      ? OK
+      : validationFailed(
+          `'emoteData' field version is incorrect. It must be: '${expectedDataField} but it is: ${deployment.entity.metadata} `
+        )
+  })
 )
+
+export const metadataValidateFn = validateAll(metadataSchemaValidateFn, metadataVersionIsCorrectForTimestampValidateFn)

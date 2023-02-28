@@ -1,7 +1,7 @@
 import { EthAddress } from '@dcl/schemas'
 import { parseUrn } from '@dcl/urn-resolver'
 import { ISubgraphComponent } from '@well-known-components/thegraph-component'
-import { BlockInformation, ContentValidatorComponents, TheGraphClient } from '../types'
+import { BlockInformation, SubgraphAccessCheckerComponents, TheGraphClient } from '../../types'
 
 export type PermissionResult = {
   result: boolean
@@ -12,7 +12,7 @@ export type PermissionResult = {
  * @public
  */
 export const createTheGraphClient = (
-  components: Pick<ContentValidatorComponents, 'logs' | 'subGraphs'>
+  components: Pick<SubgraphAccessCheckerComponents, 'logs' | 'subGraphs'>
 ): TheGraphClient => {
   const logger = components.logs.getLogger('TheGraphClient')
 
@@ -41,12 +41,12 @@ export const createTheGraphClient = (
           subgraph: components.subGraphs.L1.ensOwner,
           query: QUERY_NAMES_FOR_ADDRESS_AT_BLOCK,
           mapper: (response: { names: { name: string }[] }): Set<string> =>
-            new Set(response.names.map(({ name }) => name))
+            new Set(response.names.map(({ name }) => name)),
         }
         return runQuery(query, {
           block: blockNumber,
           ethAddress,
-          nameList: namesToCheck
+          nameList: namesToCheck,
         })
       }
 
@@ -92,14 +92,14 @@ export const createTheGraphClient = (
     }
     return {
       ethereum,
-      matic
+      matic,
     }
   }
 
   const permissionOk = (): PermissionResult => ({ result: true })
   const permissionError = (failing?: string[]): PermissionResult => ({
     result: false,
-    failing: failing
+    failing: failing,
   })
 
   const ownsItemsAtTimestamp = async (
@@ -129,7 +129,7 @@ export const createTheGraphClient = (
 
     const [ethereumItemsOwnership, maticItemsOwnership] = await Promise.all([
       ethereumItemsOwnersPromise,
-      maticItemsOwnersPromise
+      maticItemsOwnersPromise,
     ])
 
     if (ethereumItemsOwnership.result && maticItemsOwnership.result) return permissionOk()
@@ -161,12 +161,13 @@ export const createTheGraphClient = (
           description: 'check for items ownership',
           subgraph: collectionsSubgraph,
           query: QUERY_ITEMS_FOR_ADDRESS_AT_BLOCK,
-          mapper: (response: { items: { urn: string }[] }): Set<string> => new Set(response.items.map(({ urn }) => urn))
+          mapper: (response: { items: { urn: string }[] }): Set<string> =>
+            new Set(response.items.map(({ urn }) => urn)),
         }
         return runQuery(query, {
           block: blockNumber,
           ethAddress,
-          urnList: urnsToCheck
+          urnList: urnsToCheck,
         })
       }
 
@@ -218,9 +219,9 @@ export const createTheGraphClient = (
           blockNumberAtDeployment: !!blockNumberAtDeployment ? parseInt(blockNumberAtDeployment) : undefined,
           blockNumberFiveMinBeforeDeployment: !!blockNumberFiveMinBeforeDeployment
             ? parseInt(blockNumberFiveMinBeforeDeployment)
-            : undefined
+            : undefined,
         }
-      }
+      },
     }
 
     /*
@@ -232,14 +233,14 @@ export const createTheGraphClient = (
 
     return await runQuery(query, {
       timestamp: timestampSec,
-      timestamp5Min: timestamp5MinAgo
+      timestamp5Min: timestamp5MinAgo,
     })
   }
 
   return {
     ownsNamesAtTimestamp,
     ownsItemsAtTimestamp,
-    findBlocksForTimestamp
+    findBlocksForTimestamp,
   }
 }
 

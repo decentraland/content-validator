@@ -1,13 +1,12 @@
 import { EntityType, Wearable } from '@dcl/schemas'
 import { DeploymentToValidate } from '../..'
-import { ContentValidatorComponents, OK, ValidateFn, validationFailed } from '../../types'
+import { OK, validationFailed, ValidationResponse } from '../../types'
 import { validateIfTypeMatches } from '../validations'
 
 /** Validate wearable representations are referencing valid content */
-export async function wearableRepresentationContent(
-  components: ContentValidatorComponents,
+export async function wearableRepresentationContentValidateFn(
   deployment: DeploymentToValidate
-) {
+): Promise<ValidationResponse> {
   const { entity } = deployment
   const wearableMetadata = entity.metadata as Wearable
   const representations = wearableMetadata?.data?.representations
@@ -28,4 +27,4 @@ export async function wearableRepresentationContent(
  * Validate that given wearable deployment includes the thumbnail and doesn't exceed file sizes
  * * @public
  */
-export const wearable: ValidateFn = validateIfTypeMatches(EntityType.WEARABLE, wearableRepresentationContent)
+export const wearableValidateFn = validateIfTypeMatches(EntityType.WEARABLE, wearableRepresentationContentValidateFn)

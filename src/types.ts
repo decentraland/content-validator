@@ -1,7 +1,7 @@
 import { AuthChain, Entity, EthAddress } from '@dcl/schemas'
 import { IConfigComponent, ILoggerComponent } from '@well-known-components/interfaces'
 import { ISubgraphComponent, Variables } from '@well-known-components/thegraph-component'
-import { PermissionResult } from './the-graph-client/the-graph-client'
+import { PermissionResult } from './validations/subgraph-access-checker/the-graph-client'
 
 /**
  * @public
@@ -83,10 +83,7 @@ export type ValidationResponse = {
 /**
  * @public
  */
-export type ValidateFn = (
-  components: ContentValidatorComponents,
-  deployment: DeploymentToValidate
-) => ValidationResponse | Promise<ValidationResponse>
+export type ValidateFn = (deployment: DeploymentToValidate) => Promise<ValidationResponse>
 
 /**
  * @public
@@ -98,7 +95,7 @@ export const OK: ValidationResponse = { ok: true }
  */
 export const validationFailed = (...error: string[]): ValidationResponse => ({
   ok: false,
-  errors: error
+  errors: error,
 })
 
 /**
@@ -106,7 +103,7 @@ export const validationFailed = (...error: string[]): ValidationResponse => ({
  */
 export const fromErrors = (...errors: Errors): ValidationResponse => ({
   ok: errors.length === 0,
-  errors: errors.length > 0 ? errors : undefined
+  errors: errors.length > 0 ? errors : undefined,
 })
 
 /**
@@ -146,6 +143,10 @@ export type BlockInformation = {
   blockNumberFiveMinBeforeDeployment: number | undefined
 }
 
+export type AccessCheckerComponent = {
+  checkAccess(deployment: DeploymentToValidate): Promise<ValidationResponse>
+}
+
 /**
  * Components that can be used to validate deployments.
  * @public
@@ -153,7 +154,11 @@ export type BlockInformation = {
 export type ContentValidatorComponents = {
   config: IConfigComponent
   logs: ILoggerComponent
-  theGraphClient: TheGraphClient
   externalCalls: ExternalCalls
+  accessChecker: AccessCheckerComponent
+}
+
+export type SubgraphAccessCheckerComponents = Pick<ContentValidatorComponents, 'externalCalls' | 'logs'> & {
+  theGraphClient: TheGraphClient
   subGraphs: SubGraphs
 }

@@ -1,7 +1,6 @@
 import { ContentValidatorComponents, OK, Validator } from './types'
-import { validateFns } from './validations'
+import { createValidateFns } from './validations'
 
-export { createTheGraphClient } from './the-graph-client/the-graph-client'
 export * from './types'
 export * from './validations'
 
@@ -10,20 +9,25 @@ export * from './validations'
  * @public
  */
 export const createValidator = (
-  components: Pick<ContentValidatorComponents, 'config' | 'externalCalls' | 'logs' | 'theGraphClient' | 'subGraphs'>
+  components: Pick<ContentValidatorComponents, 'config' | 'externalCalls' | 'logs' | 'accessChecker'>
 ): Validator => {
   const logs = components.logs.getLogger('ContentValidator')
-
+  const validateFns = createValidateFns(components)
   return {
     validate: async (deployment) => {
       for (const validate of validateFns) {
-        const result = await validate(components, deployment)
+        const result = await validate(deployment)
         if (!result.ok) {
           logs.debug(`Validation failed:\n${result.errors?.join('\n')}`)
           return result
         }
       }
+      const accessCheckerResult = await components.accessChecker.checkAccess(deployment)
+      if (!accessCheckerResult.ok) {
+        logs.debug(`Validation failed:\n${accessCheckerResult.errors?.join('\n')}`)
+        return accessCheckerResult
+      }
       return OK
-    }
+    },
   }
 }
