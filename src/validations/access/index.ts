@@ -8,20 +8,8 @@ import {
   validationFailed,
   ValidationResponse
 } from '../../types'
-import { createPointerValidateFn } from './profiles'
 import { LEGACY_CONTENT_MIGRATION_TIMESTAMP } from '../timestamps'
-import { createStoreValidateFn } from './stores'
 
-function enrich(accessCheckers: Record<EntityType, ValidateFn>, entityType: EntityType, validateFn: ValidateFn) {
-  const oldFn = accessCheckers[entityType]
-  accessCheckers[entityType] = async (deployment: DeploymentToValidate): Promise<ValidationResponse> => {
-    const result = await validateFn(deployment)
-    if (!result.ok) {
-      return result
-    }
-    return oldFn(deployment)
-  }
-}
 /**
  * Validate that the pointers are valid, and that the Ethereum address has write access to them
  * @public
@@ -35,9 +23,6 @@ export async function createAccessCheckerComponent(
   if ((await config.getString('IGNORE_BLOCKCHAIN_ACCESS_CHECKS')) === 'true') {
     return { checkAccess: (_deployment: DeploymentToValidate) => Promise.resolve(OK) }
   }
-
-  enrich(accessCheckers, EntityType.PROFILE, createPointerValidateFn(components))
-  enrich(accessCheckers, EntityType.STORE, createStoreValidateFn(components))
 
   async function checkAccess(deployment: DeploymentToValidate): Promise<ValidationResponse> {
     const deployedBeforeDCLLaunch = deployment.entity.timestamp <= LEGACY_CONTENT_MIGRATION_TIMESTAMP

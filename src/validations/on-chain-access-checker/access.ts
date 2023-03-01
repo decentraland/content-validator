@@ -1,5 +1,6 @@
 import { EntityType } from '@dcl/schemas'
-import { OK, DeploymentToValidate, OnChainAccessCheckerComponents, ValidateFn } from '../../types'
+import { OnChainAccessCheckerComponents, ValidateFn } from '../../types'
+import { createStoreValidateFn } from '../access/stores'
 import { createEmoteValidateFn } from './emotes'
 import { createProfileValidateFn } from './profiles'
 import { createSceneValidateFn } from './scenes'
@@ -12,7 +13,7 @@ export function createOnChainAccessCheckValidateFns(
     [EntityType.PROFILE]: createProfileValidateFn(components),
     [EntityType.SCENE]: createSceneValidateFn(components),
     [EntityType.WEARABLE]: createWearableValidateFn(components),
-    [EntityType.STORE]: async (_d: DeploymentToValidate) => OK,
+    [EntityType.STORE]: createStoreValidateFn(components),
     [EntityType.EMOTE]: createEmoteValidateFn(components)
   }
 }

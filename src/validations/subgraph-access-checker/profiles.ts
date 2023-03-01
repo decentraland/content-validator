@@ -8,6 +8,7 @@ import {
   validationFailed,
   ValidationResponse
 } from '../../types'
+import { createPointerValidateFn } from '../access/profiles'
 import { isOldEmote } from '../profile'
 import { ADR_74_TIMESTAMP, ADR_75_TIMESTAMP } from '../timestamps'
 import { validateAfterADR75, validateAll } from '../validations'
@@ -110,5 +111,9 @@ export function createItemOwnershipValidateFn({
 export function createProfileValidateFn(
   components: Pick<SubgraphAccessCheckerComponents, 'theGraphClient' | 'externalCalls'>
 ) {
-  return validateAll(createNamesOwnershipValidateFn(components), createItemOwnershipValidateFn(components))
+  return validateAll(
+    createNamesOwnershipValidateFn(components),
+    createItemOwnershipValidateFn(components),
+    createPointerValidateFn(components)
+  )
 }
