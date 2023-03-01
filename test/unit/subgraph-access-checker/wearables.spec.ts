@@ -1,8 +1,8 @@
-import { wearables } from '../../../src/validations/access-checker/wearables'
+import { createWearableValidateFn } from '../../../src/validations/subgraph-access-checker/wearables'
 import { buildThirdPartyWearableDeployment, buildWearableDeployment } from '../../setup/deployments'
 import {
-  buildComponents,
   buildExternalCalls,
+  buildSubgraphAccessCheckerComponents,
   fetcherWithoutAccess,
   fetcherWithThirdPartyEmptyMerkleRoots,
   fetcherWithThirdPartyMerkleRoot,
@@ -16,7 +16,8 @@ describe('Access: wearables', () => {
     const deployment = buildWearableDeployment(pointers)
     const externalCalls = buildExternalCalls()
 
-    const response = await wearables(buildComponents({ externalCalls }), deployment)
+    const validateFn = createWearableValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
+    const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       'Item pointers should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{id}). Invalid pointer: (invalid-pointer)'
@@ -31,7 +32,8 @@ describe('Access: wearables', () => {
     const deployment = buildWearableDeployment(pointers)
     const externalCalls = buildExternalCalls()
 
-    const response = await wearables(buildComponents({ externalCalls }), deployment)
+    const validateFn = createWearableValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
+    const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(`Only one pointer is allowed when you create an item. Received: ${pointers}`)
   })
@@ -46,7 +48,8 @@ describe('Access: wearables', () => {
       ownerAddress: () => 'some address'
     })
 
-    const response = await wearables(buildComponents({ externalCalls }), deployment)
+    const validateFn = createWearableValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
+    const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       `The provided Eth Address 'some address' does not have access to the following item: 'urn:decentraland:ethereum:collections-v1:atari_launch:atari_red_upper_body'`
@@ -63,7 +66,8 @@ describe('Access: wearables', () => {
       ownerAddress: () => 'some address'
     })
 
-    const response = await wearables(buildComponents({ externalCalls }), deployment)
+    const validateFn = createWearableValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
+    const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       `The provided Eth Address 'some address' does not have access to the following item: 'urn:decentraland:ethereum:collections-v1:dgtble_headspace:dgtble_hoodi_linetang_upper_body'`
@@ -77,7 +81,8 @@ describe('Access: wearables', () => {
       ownerAddress: () => 'some address'
     })
 
-    const response = await wearables(buildComponents({ externalCalls }), deployment)
+    const validateFn = createWearableValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
+    const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       `The provided Eth Address 'some address' does not have access to the following item: 'urn:decentraland:ethereum:collections-v1:dgtble_headspace:dgtble_hoodi_linetang_upper_body'`
@@ -91,7 +96,8 @@ describe('Access: wearables', () => {
       isAddressOwnedByDecentraland: () => true
     })
 
-    const response = await wearables(buildComponents({ externalCalls }), deployment)
+    const validateFn = createWearableValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
+    const response = await validateFn(deployment)
     expect(response.ok).toBeTruthy()
   })
 
@@ -102,7 +108,8 @@ describe('Access: wearables', () => {
       isAddressOwnedByDecentraland: () => true
     })
 
-    const response = await wearables(buildComponents({ externalCalls }), deployment)
+    const validateFn = createWearableValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
+    const response = await validateFn(deployment)
     expect(response.ok).toBeTruthy()
   })
 
@@ -117,7 +124,8 @@ describe('Access: wearables', () => {
       'urn:decentraland:mumbai:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
-    await wearables(buildComponents({ externalCalls, subGraphs }), deployment)
+    const validateFn = createWearableValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls, subGraphs }))
+    await validateFn(deployment)
 
     expect(subGraphs.L2.blocks.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
     expect(subGraphs.L2.collections.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
@@ -134,7 +142,8 @@ describe('Access: wearables', () => {
       'urn:decentraland:ethereum:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
-    await wearables(buildComponents({ externalCalls, subGraphs }), deployment)
+    const validateFn = createWearableValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls, subGraphs }))
+    await validateFn(deployment)
 
     expect(subGraphs.L1.blocks.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
     expect(subGraphs.L1.collections.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
@@ -151,7 +160,8 @@ describe('Access: wearables', () => {
       'urn:decentraland:mumbai:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
-    await wearables(buildComponents({ externalCalls, subGraphs }), deployment)
+    const validateFn = createWearableValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls, subGraphs }))
+    await validateFn(deployment)
 
     expect(subGraphs.L2.blocks.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
     expect(subGraphs.L2.collections.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
@@ -169,7 +179,8 @@ describe('Access: wearables', () => {
       'urn:decentraland:ethereum:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
-    await wearables(buildComponents({ externalCalls, subGraphs }), deployment)
+    const validateFn = createWearableValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls, subGraphs }))
+    await validateFn(deployment)
 
     expect(subGraphs.L1.blocks.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
     expect(subGraphs.L1.collections.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
@@ -184,7 +195,9 @@ describe('Access: wearables', () => {
 
       const deployment = buildThirdPartyWearableDeployment(metadata.id, metadata)
 
-      const response = await wearables(buildComponents({ subGraphs }), deployment)
+      const validateFn = createWearableValidateFn(buildSubgraphAccessCheckerComponents({ subGraphs }))
+      const response = await validateFn(deployment)
+
       expect(response.ok).toBeTruthy()
     })
 
@@ -196,7 +209,8 @@ describe('Access: wearables', () => {
         content: {}
       })
 
-      const response = await wearables(buildComponents({ subGraphs }), deployment)
+      const validateFn = createWearableValidateFn(buildSubgraphAccessCheckerComponents({ subGraphs }))
+      const response = await validateFn(deployment)
       expect(response.ok).toBeFalsy()
     })
 
@@ -205,8 +219,8 @@ describe('Access: wearables', () => {
 
       const deployment = buildThirdPartyWearableDeployment(metadata.id, metadata)
 
-      await wearables(buildComponents({ subGraphs }), deployment)
-
+      const validateFn = createWearableValidateFn(buildSubgraphAccessCheckerComponents({ subGraphs }))
+      await validateFn(deployment)
       expect(subGraphs.L2.blocks.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
       expect(subGraphs.L2.thirdPartyRegistry.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
     })
@@ -217,7 +231,8 @@ describe('Access: wearables', () => {
 
       const deployment = buildThirdPartyWearableDeployment(metadata.id, metadata)
 
-      const response = await wearables(buildComponents({ subGraphs }), deployment)
+      const validateFn = createWearableValidateFn(buildSubgraphAccessCheckerComponents({ subGraphs }))
+      const response = await validateFn(deployment)
       expect(response.ok).toBeFalsy()
     })
 
@@ -229,7 +244,8 @@ describe('Access: wearables', () => {
         merkleProof: { proof: [], index: 0, hashingKeys: [], entityHash: '' }
       })
 
-      const response = await wearables(buildComponents({ subGraphs }), deployment)
+      const validateFn = createWearableValidateFn(buildSubgraphAccessCheckerComponents({ subGraphs }))
+      const response = await validateFn(deployment)
       expect(response.ok).toBeFalsy()
     })
 
@@ -244,7 +260,8 @@ describe('Access: wearables', () => {
         }
       })
 
-      const response = await wearables(buildComponents({ subGraphs }), deployment)
+      const validateFn = createWearableValidateFn(buildSubgraphAccessCheckerComponents({ subGraphs }))
+      const response = await validateFn(deployment)
       expect(response.ok).toBeFalsy()
     })
 
@@ -256,7 +273,8 @@ describe('Access: wearables', () => {
         merkleProof: { ...metadata.merkleProof, entityHash: 'someInvalidHash' }
       })
 
-      const response = await wearables(buildComponents({ subGraphs }), deployment)
+      const validateFn = createWearableValidateFn(buildSubgraphAccessCheckerComponents({ subGraphs }))
+      const response = await validateFn(deployment)
       expect(response.ok).toBeFalsy()
     })
   })

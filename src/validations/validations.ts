@@ -1,5 +1,5 @@
 import { EntityType } from '@dcl/schemas'
-import { ContentValidatorComponents, DeploymentToValidate, OK, ValidateFn } from '../types'
+import { DeploymentToValidate, OK, ValidateFn } from '../types'
 import {
   ADR_158_TIMESTAMP,
   ADR_173_TIMESTAMP,
@@ -9,9 +9,9 @@ import {
 } from './timestamps'
 
 export function validateAll(...validationFns: ValidateFn[]): ValidateFn {
-  return async (components: ContentValidatorComponents, deployment: DeploymentToValidate) => {
+  return async (deployment: DeploymentToValidate) => {
     for (const validateFn of validationFns) {
-      const response = await validateFn(components, deployment)
+      const response = await validateFn(deployment)
       if (!response.ok) return response
     }
     return OK
@@ -22,10 +22,10 @@ export function validateIfConditionMet(
   condition: (deployment: DeploymentToValidate) => boolean | Promise<boolean>,
   validateFn: ValidateFn
 ): ValidateFn {
-  return async (components: ContentValidatorComponents, deployment: DeploymentToValidate) => {
+  return async (deployment: DeploymentToValidate) => {
     const conditionIsMet = await condition(deployment)
     if (conditionIsMet) {
-      return validateFn(components, deployment)
+      return validateFn(deployment)
     }
     return OK
   }

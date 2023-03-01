@@ -1,7 +1,12 @@
-import { access } from '../../../src/validations/access-checker/access'
-import { scenes } from '../../../src/validations/access-checker/scenes'
+import { createSubgraphAccessCheckerComponent } from '../../../src/validations/subgraph-access-checker/access'
+import { createSceneValidateFn } from '../../../src/validations/subgraph-access-checker/scenes'
 import { buildSceneDeployment } from '../../setup/deployments'
-import { buildComponents, buildConfig, buildExternalCalls } from '../../setup/mock'
+import {
+  buildComponents,
+  buildConfig,
+  buildExternalCalls,
+  buildSubgraphAccessCheckerComponents
+} from '../../setup/mock'
 
 describe('Access: scenes', () => {
   it('When a non-decentraland address tries to deploy a default scene, then an error is returned', async () => {
@@ -12,7 +17,8 @@ describe('Access: scenes', () => {
       ownerAddress: () => '0xAddress'
     })
 
-    const response = await scenes(buildComponents({ externalCalls }), deployment)
+    const validateFn = createSceneValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
+    const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       'Scene pointers should only contain two integers separated by a comma, for example (10,10) or (120,-45). Invalid pointer: default10'
@@ -27,7 +33,8 @@ describe('Access: scenes', () => {
       ownerAddress: () => '0xAddress'
     })
 
-    const response = await scenes(buildComponents({ externalCalls }), deployment)
+    const validateFn = createSceneValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
+    const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
   })
 
@@ -39,7 +46,8 @@ describe('Access: scenes', () => {
       ownerAddress: () => '0xAddress'
     })
 
-    const response = await scenes(buildComponents({ externalCalls }), deployment)
+    const validateFn = createSceneValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
+    const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
       'Scene pointers should only contain two integers separated by a comma, for example (10,10) or (120,-45). Invalid pointer: invalid-pointer'
@@ -60,7 +68,10 @@ describe('Access: scenes', () => {
         ownerAddress
       })
 
-      const response = await access(buildComponents({ config, externalCalls }), deployment)
+      const checker = createSubgraphAccessCheckerComponent(
+        buildSubgraphAccessCheckerComponents({ externalCalls, config })
+      )
+      const response = await (await checker).checkAccess(deployment)
       expect(response.ok).toBeFalsy()
       expect(ownerAddress).toHaveBeenCalled()
     })
@@ -76,7 +87,10 @@ describe('Access: scenes', () => {
         ownerAddress
       })
 
-      const response = await access(buildComponents({ config, externalCalls }), deployment)
+      const checker = createSubgraphAccessCheckerComponent(
+        buildSubgraphAccessCheckerComponents({ externalCalls, config })
+      )
+      const response = await (await checker).checkAccess(deployment)
       expect(response.ok).toBeTruthy()
       expect(ownerAddress).not.toHaveBeenCalled()
     })

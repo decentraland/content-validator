@@ -1,7 +1,7 @@
 import { EthAddress } from '@dcl/schemas'
 import { parseUrn } from '@dcl/urn-resolver'
 import { ISubgraphComponent } from '@well-known-components/thegraph-component'
-import { BlockInformation, ContentValidatorComponents, TheGraphClient } from '../types'
+import { BlockInformation, SubgraphAccessCheckerComponents, TheGraphClient } from '../../types'
 
 export type PermissionResult = {
   result: boolean
@@ -12,7 +12,7 @@ export type PermissionResult = {
  * @public
  */
 export const createTheGraphClient = (
-  components: Pick<ContentValidatorComponents, 'logs' | 'subGraphs'>
+  components: Pick<SubgraphAccessCheckerComponents, 'logs' | 'subGraphs'>
 ): TheGraphClient => {
   const logger = components.logs.getLogger('TheGraphClient')
 

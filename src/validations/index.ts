@@ -1,16 +1,15 @@
-import { DeploymentToValidate, ExternalCalls } from '../types'
-import { access } from './access-checker/access'
-import { adr45 } from './ADR45'
-import { content } from './content'
-import { entityStructure } from './entity-structure'
-import { ipfsHashing } from './ipfs-hashing'
-import { emote } from './items/emotes'
-import { wearable } from './items/wearables'
-import { metadata } from './metadata-schema'
-import { profile } from './profile'
-import { signature } from './signature'
-import { size } from './size'
-import { scene } from './scene'
+import { ContentValidatorComponents, DeploymentToValidate, ExternalCalls, ValidateFn } from '../types'
+import { adr45ValidateFn } from './ADR45'
+import { createContentValidateFn } from './content'
+import { entityStructureValidationFn } from './entity-structure'
+import { ipfsHashingValidateFn } from './ipfs-hashing'
+import { emoteValidateFn } from './items/emotes'
+import { wearableValidateFn } from './items/wearables'
+import { metadataValidateFn } from './metadata-schema'
+import { createProfileValidateFn } from './profile'
+import { sceneValidateFn } from './scene'
+import { createSignatureValidateFn } from './signature'
+import { createSizeValidateFn } from './size'
 
 /**
  * @public
@@ -33,21 +32,21 @@ export async function calculateDeploymentSize(
   return totalSize
 }
 
-/**
- * Stateful validations that are run on a deployment.
- * @public
- */
+export function createValidateFns(components: ContentValidatorComponents): ValidateFn[] {
+  return [
+    // Stateful validations that are run on a deployment.
+    createSignatureValidateFn(components),
+    createSizeValidateFn(components),
+    wearableValidateFn,
+    emoteValidateFn,
+    createProfileValidateFn(components),
+    sceneValidateFn,
+    createContentValidateFn(components),
 
-export const statefulValidateFns = [signature, access, size, wearable, emote, profile, scene, content] as const
-
-/**
- * Stateless validations that are run on a deployment.
- * @public
- */
-export const statelessValidateFns = [entityStructure, ipfsHashing, metadata, adr45] as const
-
-/**
- * All validations that are run on a deployment.
- * @public
- */
-export const validateFns = [...statelessValidateFns, ...statefulValidateFns] as const
+    // Stateless validations that are run on a deployment.
+    entityStructureValidationFn,
+    ipfsHashingValidateFn,
+    metadataValidateFn,
+    adr45ValidateFn
+  ]
+}

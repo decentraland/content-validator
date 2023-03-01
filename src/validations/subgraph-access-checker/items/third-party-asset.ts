@@ -3,7 +3,7 @@ import { keccak256Hash } from '@dcl/hashing'
 import { isThirdParty, MerkleProof, ThirdPartyProps } from '@dcl/schemas'
 import { BlockchainCollectionThirdParty } from '@dcl/urn-resolver'
 import { ILoggerComponent } from '@well-known-components/interfaces'
-import { ContentValidatorComponents, DeploymentToValidate, OK, validationFailed } from '../../../types'
+import { SubgraphAccessCheckerComponents, DeploymentToValidate, OK, validationFailed } from '../../../types'
 import { AssetValidation } from './items'
 
 function toHexBuffer(value: string): Buffer {
@@ -46,7 +46,7 @@ async function verifyHash<T>(
 }
 
 async function getMerkleRoot(
-  components: Pick<ContentValidatorComponents, 'externalCalls' | 'subGraphs'>,
+  components: Pick<SubgraphAccessCheckerComponents, 'externalCalls' | 'subGraphs'>,
   block: number,
   thirdPartyId: string
 ): Promise<string | undefined> {
@@ -68,7 +68,7 @@ async function getMerkleRoot(
 }
 
 async function verifyMerkleProofedEntity(
-  components: Pick<ContentValidatorComponents, 'externalCalls' | 'theGraphClient' | 'subGraphs'>,
+  components: Pick<SubgraphAccessCheckerComponents, 'externalCalls' | 'theGraphClient' | 'subGraphs'>,
   urn: BlockchainCollectionThirdParty,
   deployment: DeploymentToValidate,
   logger: ILoggerComponent.ILogger
@@ -119,7 +119,7 @@ async function verifyMerkleProofedEntity(
 
 export const thirdPartyAssetValidation: AssetValidation = {
   async validateAsset(
-    components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'theGraphClient' | 'subGraphs'>,
+    components: Pick<SubgraphAccessCheckerComponents, 'externalCalls' | 'logs' | 'theGraphClient' | 'subGraphs'>,
     asset: BlockchainCollectionThirdParty,
     deployment: DeploymentToValidate
   ) {

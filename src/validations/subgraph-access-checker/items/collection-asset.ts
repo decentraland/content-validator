@@ -4,7 +4,7 @@ import { BlockchainCollectionV1Asset, BlockchainCollectionV2Asset } from '@dcl/u
 import { ILoggerComponent } from '@well-known-components/interfaces'
 import { ISubgraphComponent } from '@well-known-components/thegraph-component'
 import {
-  ContentValidatorComponents,
+  SubgraphAccessCheckerComponents,
   DeploymentToValidate,
   EntityWithEthAddress,
   OK,
@@ -44,7 +44,7 @@ export type ItemCollection = {
 }
 
 async function getCollectionItems(
-  components: Pick<ContentValidatorComponents, 'externalCalls'>,
+  components: Pick<SubgraphAccessCheckerComponents, 'externalCalls'>,
   subgraph: ISubgraphComponent,
   collection: string,
   itemId: string,
@@ -87,7 +87,7 @@ async function getCollectionItems(
 }
 
 async function hasPermission(
-  components: Pick<ContentValidatorComponents, 'externalCalls'>,
+  components: Pick<SubgraphAccessCheckerComponents, 'externalCalls'>,
   subgraph: ISubgraphComponent,
   collection: string,
   itemId: string,
@@ -144,7 +144,7 @@ async function hasPermission(
 }
 
 async function checkCollectionAccess(
-  components: Pick<ContentValidatorComponents, 'externalCalls' | 'theGraphClient'>,
+  components: Pick<SubgraphAccessCheckerComponents, 'externalCalls' | 'theGraphClient'>,
   blocksSubgraph: ISubgraphComponent,
   collectionsSubgraph: ISubgraphComponent,
   collection: string,
@@ -177,7 +177,7 @@ async function checkCollectionAccess(
 
 export const v1andV2collectionAssetValidation: AssetValidation = {
   async validateAsset(
-    components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'subGraphs' | 'theGraphClient'>,
+    components: Pick<SubgraphAccessCheckerComponents, 'externalCalls' | 'logs' | 'subGraphs' | 'theGraphClient'>,
     asset: BlockchainCollectionV1Asset | BlockchainCollectionV2Asset,
     deployment: DeploymentToValidate
   ) {

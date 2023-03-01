@@ -1,5 +1,5 @@
 import { hashV1 } from '@dcl/hashing'
-import { ipfsHashing } from '../../../src/validations/ipfs-hashing'
+import { ipfsHashingValidateFn } from '../../../src/validations/ipfs-hashing'
 import { ADR_45_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
@@ -15,7 +15,7 @@ describe('IPFS hashing', () => {
     })
     const deployment = buildDeployment({ entity })
 
-    const result = await ipfsHashing(components, deployment)
+    const result = await ipfsHashingValidateFn(deployment)
 
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain(
@@ -33,7 +33,7 @@ describe('IPFS hashing', () => {
     const entity = buildEntity({ timestamp, content })
     const deployment = buildDeployment({ entity })
 
-    const result = await ipfsHashing(components, deployment)
+    const result = await ipfsHashingValidateFn(deployment)
 
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain(
@@ -50,7 +50,7 @@ describe('IPFS hashing', () => {
 
     const deployment = buildDeployment({ entity })
 
-    const result = await ipfsHashing(components, deployment)
+    const result = await ipfsHashingValidateFn(deployment)
     expect(result.ok).toBeTruthy()
   })
 
@@ -64,7 +64,7 @@ describe('IPFS hashing', () => {
     const entity = buildEntity({ content, timestamp: ADR_45_TIMESTAMP - 1 })
     const deployment = buildDeployment({ entity })
 
-    const result = await ipfsHashing(components, deployment)
+    const result = await ipfsHashingValidateFn(deployment)
 
     expect(result.ok).toBeTruthy()
   })

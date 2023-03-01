@@ -1,6 +1,6 @@
-import { signature } from '../../../src/validations/signature'
 import { buildDeployment } from '../../setup/deployments'
 import { buildComponents, buildExternalCalls } from '../../setup/mock'
+import { createSignatureValidateFn } from '../../../src/validations/signature'
 
 describe('Signature', () => {
   it(`When can't validate signature, it's reported`, async () => {
@@ -10,7 +10,8 @@ describe('Signature', () => {
       validateSignature: () => Promise.resolve({ ok: false, message: testMessage })
     })
 
-    const result = await signature(buildComponents({ externalCalls }), deployment)
+    const validateFn = createSignatureValidateFn(buildComponents({ externalCalls }))
+    const result = await validateFn(deployment)
 
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain(`The signature is invalid. ${testMessage}`)
@@ -22,7 +23,8 @@ describe('Signature', () => {
       validateSignature: () => Promise.resolve({ ok: true })
     })
 
-    const result = await signature(buildComponents({ externalCalls }), deployment)
+    const validateFn = createSignatureValidateFn(buildComponents({ externalCalls }))
+    const result = await validateFn(deployment)
 
     expect(result.ok).toBeTruthy()
   })

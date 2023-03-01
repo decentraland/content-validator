@@ -1,8 +1,8 @@
 import { Avatar, EntityType, Profile } from '@dcl/schemas'
-import { ContentValidatorComponents, DeploymentToValidate, fromErrors, ValidateFn } from '../types'
+import { ContentValidatorComponents, DeploymentToValidate, fromErrors, ValidateFn, ValidationResponse } from '../types'
 import { validateAfterADR158, validateAfterADR45, validateAll } from './validations'
 
-const correspondsToASnapshot = (fileName: string, hash: string, metadata: Profile) => {
+function correspondsToASnapshot(fileName: string, hash: string, metadata: Profile) {
   const fileNameWithoutExtension = fileName.replace(/.[^/.]+$/, '')
 
   if (!metadata || !metadata.avatars) return false
@@ -11,31 +11,29 @@ const correspondsToASnapshot = (fileName: string, hash: string, metadata: Profil
   )
 }
 
-export async function allHashesWereUploadedOrStored(
-  components: ContentValidatorComponents,
-  deployment: DeploymentToValidate
-) {
-  const { entity, files } = deployment
-  const errors: string[] = []
-  if (entity.content) {
-    const alreadyStoredHashes = await components.externalCalls.isContentStoredAlready(
-      entity.content?.map((file) => file.hash) ?? []
-    )
+export function createAllHashesWereUploadedOrStoredValidateFn({
+  externalCalls
+}: Pick<ContentValidatorComponents, 'externalCalls'>): ValidateFn {
+  return async function validateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
+    const { entity, files } = deployment
+    const errors: string[] = []
+    if (entity.content) {
+      const alreadyStoredHashes = await externalCalls.isContentStoredAlready(
+        entity.content?.map((file) => file.hash) ?? []
+      )
 
-    for (const { hash } of entity.content) {
-      // Validate that all hashes in entity were uploaded, or were already stored on the service
-      if (!(files.has(hash) || alreadyStoredHashes.get(hash))) {
-        errors.push(`This hash is referenced in the entity but was not uploaded or previously available: ${hash}`)
+      for (const { hash } of entity.content) {
+        // Validate that all hashes in entity were uploaded, or were already stored on the service
+        if (!(files.has(hash) || alreadyStoredHashes.get(hash))) {
+          errors.push(`This hash is referenced in the entity but was not uploaded or previously available: ${hash}`)
+        }
       }
     }
+    return fromErrors(...errors)
   }
-  return fromErrors(...errors)
 }
 
-export async function allHashesInUploadedFilesAreReportedInTheEntity(
-  components: ContentValidatorComponents,
-  deployment: DeploymentToValidate
-) {
+export async function allHashesInUploadedFilesAreReportedInTheEntityValidateFn(deployment: DeploymentToValidate) {
   const { entity, files } = deployment
   const errors: string[] = []
   // Validate that all hashes that belong to uploaded files are actually reported on the entity
@@ -48,8 +46,8 @@ export async function allHashesInUploadedFilesAreReportedInTheEntity(
   return fromErrors(...errors)
 }
 
-export const allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45: ValidateFn = validateAfterADR45(
-  async (components: ContentValidatorComponents, deployment: DeploymentToValidate) => {
+export const allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45ValidateFn = validateAfterADR45(
+  async function validateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
     const { entity } = deployment
     const errors: string[] = []
     for (const { file, hash } of entity.content ?? []) {
@@ -66,30 +64,32 @@ export const allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45: Vali
   }
 )
 
-export const allMandatoryContentFilesArePresent: ValidateFn = validateAfterADR158(
-  async (components: ContentValidatorComponents, deployment: DeploymentToValidate) => {
-    const { entity } = deployment
-    const errors: string[] = []
-    if (entity.type === EntityType.PROFILE) {
-      const fileNames = entity.content.map((a) => a.file.toLowerCase())
-      if (!fileNames.includes('body.png')) {
-        errors.push(`Profile entity is missing file 'body.png'`)
-      }
-      if (!fileNames.includes('face256.png')) {
-        errors.push(`Profile entity is missing file 'face256.png'`)
-      }
+export const allMandatoryContentFilesArePresentValidateFn = validateAfterADR158(async function validateFn(
+  deployment: DeploymentToValidate
+): Promise<ValidationResponse> {
+  const { entity } = deployment
+  const errors: string[] = []
+  if (entity.type === EntityType.PROFILE) {
+    const fileNames = entity.content.map((a) => a.file.toLowerCase())
+    if (!fileNames.includes('body.png')) {
+      errors.push(`Profile entity is missing file 'body.png'`)
     }
-    return fromErrors(...errors)
+    if (!fileNames.includes('face256.png')) {
+      errors.push(`Profile entity is missing file 'face256.png'`)
+    }
   }
-)
+  return fromErrors(...errors)
+})
 
-/**
- * Validate that uploaded and reported hashes are corrects and files corresponds to snapshots
- * @public
- */
-export const content: ValidateFn = validateAll(
-  allHashesWereUploadedOrStored,
-  allHashesInUploadedFilesAreReportedInTheEntity,
-  allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45,
-  allMandatoryContentFilesArePresent
-)
+export function createContentValidateFn(components: ContentValidatorComponents): ValidateFn {
+  /**
+   * Validate that uploaded and reported hashes are corrects and files corresponds to snapshots
+   * @public
+   */
+  return validateAll(
+    createAllHashesWereUploadedOrStoredValidateFn(components),
+    allHashesInUploadedFilesAreReportedInTheEntityValidateFn,
+    allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45ValidateFn,
+    allMandatoryContentFilesArePresentValidateFn
+  )
+}

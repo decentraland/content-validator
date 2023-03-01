@@ -1,9 +1,9 @@
 import { Emote, EntityType } from '@dcl/schemas'
-import { ContentValidatorComponents, DeploymentToValidate, OK, ValidateFn, validationFailed } from '../../types'
+import { DeploymentToValidate, OK, validationFailed, ValidationResponse } from '../../types'
 import { ADR_74_TIMESTAMP } from '../timestamps'
 import { validateAll, validateIfTypeMatches } from '../validations'
 
-export async function wasCreatedAfterADR74(components: ContentValidatorComponents, deployment: DeploymentToValidate) {
+export async function wasCreatedAfterADR74ValidateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
   return deployment.entity.timestamp < ADR_74_TIMESTAMP
     ? validationFailed(
         `The emote timestamp ${deployment.entity.timestamp} is before ADR 74. Emotes did not exist before ADR 74.`
@@ -11,10 +11,7 @@ export async function wasCreatedAfterADR74(components: ContentValidatorComponent
     : OK
 }
 
-export async function emoteRepresentationContent(
-  components: ContentValidatorComponents,
-  deployment: DeploymentToValidate
-) {
+export async function emoteRepresentationContentValidateFn(deployment: DeploymentToValidate) {
   const { entity } = deployment
   const metadata = entity.metadata as Emote
   const representations = metadata?.emoteDataADR74?.representations
@@ -31,7 +28,7 @@ export async function emoteRepresentationContent(
   return OK
 }
 
-export const emote: ValidateFn = validateIfTypeMatches(
+export const emoteValidateFn = validateIfTypeMatches(
   EntityType.EMOTE,
-  validateAll(wasCreatedAfterADR74, emoteRepresentationContent)
+  validateAll(wasCreatedAfterADR74ValidateFn, emoteRepresentationContentValidateFn)
 )

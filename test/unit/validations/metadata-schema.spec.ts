@@ -1,5 +1,5 @@
 import { EntityType } from '@dcl/schemas'
-import { metadata } from '../../../src/validations/metadata-schema'
+import { metadataValidateFn } from '../../../src/validations/metadata-schema'
 import { ADR_45_TIMESTAMP, ADR_74_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment } from '../../setup/deployments'
 import { VALID_STANDARD_EMOTE_METADATA, VALID_THIRD_PARTY_EMOTE_METADATA_WITH_MERKLE_ROOT } from '../../setup/emotes'
@@ -22,13 +22,13 @@ describe('Metadata Schema', () => {
     it('when entity metadata is valid should not report errors', async () => {
       const entity = buildEntity({ type, metadata: validMetadata, timestamp })
       const deployment = buildDeployment({ entity })
-      const result = await metadata(buildComponents(), deployment)
+      const result = await metadataValidateFn(deployment)
       expect(result.ok).toBeTruthy()
     })
     it('when entity metadata is invalid should report an error', async () => {
       const entity = buildEntity({ type, metadata: invalidMetadata, timestamp })
       const deployment = buildDeployment({ entity })
-      const result = await metadata(buildComponents(), deployment)
+      const result = await metadataValidateFn(deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`The metadata for this entity type (${type}) is not valid.`)
       errors.forEach(($) => expect(result.errors).toContain($))
@@ -78,7 +78,7 @@ describe('Metadata Schema', () => {
       timestamp: PRE_ADR_45_TIMESTAMP
     })
     const deployment = buildDeployment({ entity })
-    const result = await metadata(buildComponents(), deployment)
+    const result = await metadataValidateFn(deployment)
 
     expect(result.ok).toBeTruthy()
   })

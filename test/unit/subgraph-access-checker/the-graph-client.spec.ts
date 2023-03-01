@@ -1,4 +1,4 @@
-import { buildComponents, buildSubGraphs, createMockSubgraphComponent } from '../../setup/mock'
+import { buildSubgraphAccessCheckerComponents, buildSubGraphs, createMockSubgraphComponent } from '../../setup/mock'
 
 describe('TheGraphClient', () => {
   it('When invocation to TheGraph throws an error, it is reported accordingly', async () => {
@@ -15,7 +15,7 @@ describe('TheGraphClient', () => {
       }
     })
 
-    const { theGraphClient } = buildComponents({ subGraphs })
+    const { theGraphClient } = buildSubgraphAccessCheckerComponents({ subGraphs })
 
     await expect(theGraphClient.ownsNamesAtTimestamp('0x1', ['Some Name'], 10)).rejects.toThrow('error')
   })
@@ -35,7 +35,7 @@ describe('TheGraphClient', () => {
       }
     })
 
-    const { theGraphClient } = buildComponents({ subGraphs })
+    const { theGraphClient } = buildSubgraphAccessCheckerComponents({ subGraphs })
 
     await expect(theGraphClient.findBlocksForTimestamp(subGraphs.L1.blocks, 10)).rejects.toThrow(
       'Failed to find blocks for the specific timestamp'
@@ -69,7 +69,7 @@ describe('TheGraphClient', () => {
           )
         }
       })
-      const { theGraphClient } = buildComponents({ subGraphs })
+      const { theGraphClient } = buildSubgraphAccessCheckerComponents({ subGraphs })
 
       await expect(theGraphClient.ownsNamesAtTimestamp('0x1', ['Some Name'], 10)).resolves.toEqual({
         result: true
@@ -104,7 +104,7 @@ describe('TheGraphClient', () => {
           )
         }
       })
-      const { theGraphClient } = buildComponents({ subGraphs })
+      const { theGraphClient } = buildSubgraphAccessCheckerComponents({ subGraphs })
 
       await expect(theGraphClient.ownsNamesAtTimestamp('0x1', ['Some Name'], 10)).resolves.toEqual({
         result: true
@@ -125,7 +125,7 @@ describe('TheGraphClient', () => {
           ensOwner: createMockSubgraphComponent(jest.fn().mockRejectedValue('error'))
         }
       })
-      const { theGraphClient } = buildComponents({ subGraphs })
+      const { theGraphClient } = buildSubgraphAccessCheckerComponents({ subGraphs })
 
       await expect(theGraphClient.ownsNamesAtTimestamp('0x1', ['Some Name'], 10)).resolves.toEqual({
         result: false
@@ -174,7 +174,7 @@ describe('TheGraphClient', () => {
           )
         }
       })
-      const { theGraphClient } = buildComponents({ subGraphs })
+      const { theGraphClient } = buildSubgraphAccessCheckerComponents({ subGraphs })
 
       await expect(
         theGraphClient.ownsItemsAtTimestamp(
@@ -234,7 +234,7 @@ describe('TheGraphClient', () => {
           )
         }
       })
-      const { theGraphClient } = buildComponents({ subGraphs })
+      const { theGraphClient } = buildSubgraphAccessCheckerComponents({ subGraphs })
 
       await expect(
         theGraphClient.ownsItemsAtTimestamp(
@@ -276,7 +276,7 @@ describe('TheGraphClient', () => {
           collections: createMockSubgraphComponent(jest.fn().mockRejectedValue('error'))
         }
       })
-      const { theGraphClient } = buildComponents({ subGraphs })
+      const { theGraphClient } = buildSubgraphAccessCheckerComponents({ subGraphs })
 
       await expect(
         theGraphClient.ownsItemsAtTimestamp(

@@ -1,5 +1,5 @@
 import { EntityType } from '@dcl/schemas'
-import { deploymentMaxSizeExcludingThumbnailIsNotExceeded } from '../../../../src/validations/items/items'
+import { createDeploymentMaxSizeExcludingThumbnailIsNotExceededValidateFn } from '../../../../src/validations/items/items'
 import { buildAuditInfo } from '../../../setup/deployments'
 import { buildComponents, buildExternalCalls } from '../../../setup/mock'
 
@@ -21,7 +21,8 @@ describe('deploymentMaxSizeExcludingThumbnailIsNotExceeded', () => {
       files: new Map()
     }
 
-    const result = await deploymentMaxSizeExcludingThumbnailIsNotExceeded(components, invalidDeployment as any)
+    const validateFn = createDeploymentMaxSizeExcludingThumbnailIsNotExceededValidateFn(components)
+    const result = await validateFn(invalidDeployment as any)
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain(`Type ${unsopportedType} is not supported yet`)
   })
@@ -40,7 +41,8 @@ describe('deploymentMaxSizeExcludingThumbnailIsNotExceeded', () => {
         }
       }
     }
-    const result = await deploymentMaxSizeExcludingThumbnailIsNotExceeded(components, invalidDeployment as any)
+    const validateFn = createDeploymentMaxSizeExcludingThumbnailIsNotExceededValidateFn(components)
+    const result = await validateFn(invalidDeployment as any)
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain("Couldn't find the thumbnail hash")
   })
@@ -66,10 +68,9 @@ describe('deploymentMaxSizeExcludingThumbnailIsNotExceeded', () => {
         fetchContentFileSize: () => Promise.resolve(undefined)
       })
     }
-    const result = await deploymentMaxSizeExcludingThumbnailIsNotExceeded(
-      buildComponents(components),
-      invalidDeployment as any
-    )
+    const validateFn = createDeploymentMaxSizeExcludingThumbnailIsNotExceededValidateFn(buildComponents(components))
+    const result = await validateFn(invalidDeployment as any)
+
     expect(result.ok).toBeFalsy()
     expect(result.errors).toContain(`Couldn't fetch content file with hash: ${thumbnailHash}`)
   })
