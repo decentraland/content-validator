@@ -29,9 +29,6 @@ export const buildComponents = (components?: Partial<ContentValidatorComponents>
 
   const logs = components?.logs ?? buildLogger()
 
-  // const subGraphs = components?.subGraphs ?? buildSubGraphs()
-  // const theGraphClient = components?.theGraphClient ?? createTheGraphClient({ logs, subGraphs, ...components })
-
   const accessChecker = {
     checkAccess: jest.fn() as jest.MockedFunction<ValidateFn>
   }
@@ -40,8 +37,6 @@ export const buildComponents = (components?: Partial<ContentValidatorComponents>
     logs,
     externalCalls,
     accessChecker
-    // theGraphClient,
-    // subGraphs,
   }
 }
 
