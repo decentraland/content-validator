@@ -1,4 +1,5 @@
-import { createOnChainAccessCheckerComponent } from '../../../src/validations/on-chain-access-checker/access'
+import { createOnChainAccessCheckValidateFns } from '../../../src/validations/on-chain-access-checker/access'
+import { createAccessCheckerComponent } from '../../../src/validations/access/index'
 import { createSceneValidateFn } from '../../../src/validations/on-chain-access-checker/scenes'
 import { buildSceneDeployment } from '../../setup/deployments'
 import { buildConfig, buildExternalCalls, buildOnChainAccessCheckerComponents } from '../../setup/mock'
@@ -63,9 +64,8 @@ describe('Access: scenes', () => {
         ownerAddress
       })
 
-      const checker = createOnChainAccessCheckerComponent(
-        buildOnChainAccessCheckerComponents({ externalCalls, config })
-      )
+      const components = buildOnChainAccessCheckerComponents({ externalCalls, config })
+      const checker = createAccessCheckerComponent(components, createOnChainAccessCheckValidateFns(components))
       const response = await (await checker).checkAccess(deployment)
       expect(response.ok).toBeFalsy()
       expect(ownerAddress).toHaveBeenCalled()
@@ -81,10 +81,8 @@ describe('Access: scenes', () => {
       const externalCalls = buildExternalCalls({
         ownerAddress
       })
-
-      const checker = createOnChainAccessCheckerComponent(
-        buildOnChainAccessCheckerComponents({ externalCalls, config })
-      )
+      const components = buildOnChainAccessCheckerComponents({ externalCalls, config })
+      const checker = createAccessCheckerComponent(components, createOnChainAccessCheckValidateFns(components))
       const response = await (await checker).checkAccess(deployment)
       expect(response.ok).toBeTruthy()
       expect(ownerAddress).not.toHaveBeenCalled()
