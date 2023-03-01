@@ -6,11 +6,17 @@ import {
   ExternalCalls,
   QueryGraph,
   SubgraphAccessCheckerComponents,
+  OnChainAccessCheckerComponents,
   SubGraphs,
-  ValidateFn
+  ValidateFn,
+  L1Checker,
+  L2Checker
 } from '../../src/types'
 import { ItemCollection } from '../../src/validations/subgraph-access-checker/items/collection-asset'
 import { createTheGraphClient } from '../../src/validations/subgraph-access-checker/the-graph-client'
+import { createOnChainClient } from '../../src/validations/on-chain-access-checker/the-graph-client'
+import { BlockInfo, BlockRepository, createAvlBlockSearch, metricsDefinitions } from '@dcl/block-indexer'
+import { createTestMetricsComponent } from '@well-known-components/metrics'
 
 export const buildLogger = (): ILoggerComponent => ({
   getLogger: () => ({
@@ -22,15 +28,12 @@ export const buildLogger = (): ILoggerComponent => ({
   })
 })
 
-export const buildComponents = (components?: Partial<ContentValidatorComponents>): ContentValidatorComponents => {
+export function buildComponents(components?: Partial<ContentValidatorComponents>): ContentValidatorComponents {
   const config = components?.config ?? buildConfig({})
 
   const externalCalls = components?.externalCalls ?? buildExternalCalls()
 
   const logs = components?.logs ?? buildLogger()
-
-  // const subGraphs = components?.subGraphs ?? buildSubGraphs()
-  // const theGraphClient = components?.theGraphClient ?? createTheGraphClient({ logs, subGraphs, ...components })
 
   const accessChecker = {
     checkAccess: jest.fn() as jest.MockedFunction<ValidateFn>
@@ -40,8 +43,6 @@ export const buildComponents = (components?: Partial<ContentValidatorComponents>
     logs,
     externalCalls,
     accessChecker
-    // theGraphClient,
-    // subGraphs,
   }
 }
 
@@ -57,6 +58,99 @@ export const buildSubgraphAccessCheckerComponents = (
     ...basicComponents,
     theGraphClient,
     subGraphs
+  }
+}
+export function createMockL1Checker(): L1Checker {
+  return {
+    checkLAND: jest.fn(),
+    checkNames: jest.fn((_ethAddress, names) => Promise.resolve(names.map(() => false)))
+  }
+}
+
+export function createMockL2Checker(): L2Checker {
+  return {
+    validateWearables: jest.fn(),
+    validateThirdParty: jest.fn()
+  }
+}
+export function createMockBlockRepository(currentBlock: number, blocks: Record<number, number>) {
+  const blockRepository: BlockRepository = {
+    currentBlock(): Promise<BlockInfo> {
+      return Promise.resolve({
+        block: currentBlock,
+        timestamp: blocks[currentBlock]
+      })
+    },
+    findBlock(block: number): Promise<BlockInfo> {
+      if (block in blocks) {
+        return Promise.resolve({
+          block,
+          timestamp: blocks[block]
+        })
+      }
+      throw Error(`Block ${block} could not be retrieved.`)
+    }
+  }
+  return blockRepository
+}
+
+export const buildOnChainAccessCheckerComponents = (
+  components?: Partial<OnChainAccessCheckerComponents>
+): OnChainAccessCheckerComponents => {
+  const basicComponents = buildComponents(components)
+  const { logs } = basicComponents
+  const metrics = createTestMetricsComponent(metricsDefinitions)
+  const L1 = components?.L1 ?? {
+    checker: createMockL1Checker(),
+    collections: createMockSubgraphComponent(),
+    blockSearch: createAvlBlockSearch({
+      logs,
+      metrics,
+      blockRepository: createMockBlockRepository(10, {
+        1: 10,
+        2: 20,
+        3: 30,
+        4: 40,
+        5: 50,
+        6: 60,
+        7: 70,
+        8: 80,
+        9: 90,
+        10: 100,
+        11: 110
+      })
+    })
+  }
+  const L2 = components?.L2 ?? {
+    checker: createMockL2Checker(),
+    collections: createMockSubgraphComponent(),
+    blockSearch: createAvlBlockSearch({
+      logs,
+      metrics,
+      blockRepository: createMockBlockRepository(10, {
+        1: 10,
+        2: 20,
+        3: 30,
+        4: 40,
+        5: 50,
+        6: 60,
+        7: 70,
+        8: 80,
+        9: 90,
+        10: 100,
+        11: 110
+      })
+    })
+  }
+
+  const client = components?.client ?? createOnChainClient({ logs: basicComponents.logs, L1, L2 })
+
+  return {
+    ...basicComponents,
+    ...components,
+    L1,
+    L2,
+    client
   }
 }
 
@@ -233,6 +327,22 @@ const defaultMatic = [
 const defaultBlocks = {
   min: [{ number: 123400 }],
   max: [{ number: 123500 }]
+}
+
+export function createCollectionsSubgraph(items: { urn: string }[]) {
+  return createMockSubgraphComponent(
+    jest.fn().mockResolvedValue({
+      items
+    })
+  )
+}
+
+export function createDefaultCollectionsL1Subgraph() {
+  return createCollectionsSubgraph(defaultEthereum)
+}
+
+export function createDefaultCollectionsL2Subgraph() {
+  return createCollectionsSubgraph(defaultMatic)
 }
 
 export const fetcherWithItemsOwnership = (

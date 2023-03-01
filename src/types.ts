@@ -2,6 +2,7 @@ import { AuthChain, Entity, EthAddress } from '@dcl/schemas'
 import { IConfigComponent, ILoggerComponent } from '@well-known-components/interfaces'
 import { ISubgraphComponent, Variables } from '@well-known-components/thegraph-component'
 import { PermissionResult } from './validations/subgraph-access-checker/the-graph-client'
+import { BlockSearch } from '@dcl/block-indexer'
 
 /**
  * @public
@@ -107,6 +108,29 @@ export const fromErrors = (...errors: Errors): ValidationResponse => ({
 })
 
 /**
+ * @public
+ */
+export type L1Checker = {
+  checkLAND(ethAddress: string, parcels: [number, number][], block: number): Promise<boolean[]>
+  checkNames(ethAddress: string, names: string[], block: number): Promise<boolean[]>
+}
+
+/**
+ * @public
+ */
+export type L2Checker = {
+  validateWearables(
+    ethAddress: string,
+    contractAddress: string,
+    assetId: string,
+    hashes: string[],
+    block: number
+  ): Promise<boolean>
+
+  validateThirdParty(tpId: string, root: Buffer, block: number): Promise<boolean>
+}
+
+/**
  * A list with all sub-graphs used for validations.
  * @public
  */
@@ -138,6 +162,17 @@ export type TheGraphClient = {
 /**
  * @public
  */
+export type OnChainClient = {
+  ownsNamesAtTimestamp: (ethAddress: EthAddress, namesToCheck: string[], timestamp: number) => Promise<PermissionResult>
+
+  ownsItemsAtTimestamp: (ethAddress: EthAddress, urnsToCheck: string[], timestamp: number) => Promise<PermissionResult>
+
+  findBlocksForTimestamp: (timestamp: number, blockSearch: BlockSearch) => Promise<BlockInformation>
+}
+
+/**
+ * @public
+ */
 export type BlockInformation = {
   blockNumberAtDeployment: number | undefined
   blockNumberFiveMinBeforeDeployment: number | undefined
@@ -161,4 +196,18 @@ export type ContentValidatorComponents = {
 export type SubgraphAccessCheckerComponents = Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'config'> & {
   theGraphClient: TheGraphClient
   subGraphs: SubGraphs
+}
+
+export type OnChainAccessCheckerComponents = Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'config'> & {
+  client: OnChainClient
+  L1: {
+    checker: L1Checker
+    collections: ISubgraphComponent
+    blockSearch: BlockSearch
+  }
+  L2: {
+    checker: L2Checker
+    collections: ISubgraphComponent
+    blockSearch: BlockSearch
+  }
 }

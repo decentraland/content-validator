@@ -3,7 +3,7 @@ import {
   AccessCheckerComponent,
   DeploymentToValidate,
   OK,
-  SubgraphAccessCheckerComponents,
+  OnChainAccessCheckerComponents,
   ValidateFn,
   validationFailed,
   ValidationResponse
@@ -19,8 +19,8 @@ import { createWearableValidateFn } from './wearables'
  * Validate that the pointers are valid, and that the Ethereum address has write access to them
  * @public
  */
-export async function createSubgraphAccessCheckerComponent(
-  components: SubgraphAccessCheckerComponents
+export async function createOnChainAccessCheckerComponent(
+  components: OnChainAccessCheckerComponents
 ): Promise<AccessCheckerComponent> {
   const { config, externalCalls } = components
 
