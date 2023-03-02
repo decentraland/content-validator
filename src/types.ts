@@ -64,21 +64,6 @@ export type ExternalCalls = {
 }
 
 /**
- * Validator interface to be used by any server.
- * @public
- */
-export interface Validator {
-  validate(deployment: DeploymentToValidate): Promise<ValidationResponse>
-}
-
-/**
- * @public
- */
-export type ValidationArgs = {
-  deployment: DeploymentToValidate
-}
-
-/**
  * @public
  */
 export type ValidationResponse = {
