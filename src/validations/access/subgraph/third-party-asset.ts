@@ -4,12 +4,12 @@ import { isThirdParty, MerkleProof, ThirdPartyProps } from '@dcl/schemas'
 import { BlockchainCollectionThirdParty } from '@dcl/urn-resolver'
 import { ILoggerComponent } from '@well-known-components/interfaces'
 import {
-  SubgraphAccessCheckerComponents,
   DeploymentToValidate,
-  ThirdPartyAssetValidateFn,
   OK,
+  SubgraphAccessCheckerComponents,
+  ThirdPartyAssetValidateFn,
   validationFailed
-} from '../../types'
+} from '../../../types'
 
 function toHexBuffer(value: string): Buffer {
   if (value.startsWith('0x')) {

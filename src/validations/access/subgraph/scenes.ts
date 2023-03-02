@@ -6,7 +6,7 @@ import {
   fromErrors,
   SubgraphAccessCheckerComponents,
   ValidationResponse
-} from '../../types'
+} from '../../../types'
 
 type Timestamp = number
 type AddressSnapshot = {

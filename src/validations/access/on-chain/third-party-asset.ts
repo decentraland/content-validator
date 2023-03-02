@@ -7,7 +7,7 @@ import {
   OnChainAccessCheckerComponents,
   ThirdPartyAssetValidateFn,
   validationFailed
-} from '../../types'
+} from '../../../types'
 
 function toHexBuffer(value: string): Buffer {
   if (value.startsWith('0x')) {

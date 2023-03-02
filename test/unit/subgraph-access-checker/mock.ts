@@ -1,10 +1,11 @@
-import { SubgraphAccessCheckerComponents, SubGraphs } from '../../../src'
+import { SubgraphAccessCheckerComponents, SubGraphs, ValidateFn } from '../../../src'
+import { createEmoteValidateFn, createWearableValidateFn } from '../../../src/validations/access/common/items'
 import {
   createV1andV2collectionAssetValidateFn,
   ItemCollection
-} from '../../../src/validations/subgraph-access-checker/collection-asset'
-import { createTheGraphClient } from '../../../src/validations/subgraph-access-checker/the-graph-client'
-import { createThirdPartyAssetValidateFn } from '../../../src/validations/subgraph-access-checker/third-party-asset'
+} from '../../../src/validations/access/subgraph/collection-asset'
+import { createTheGraphClient } from '../../../src/validations/access/subgraph/the-graph-client'
+import { createThirdPartyAssetValidateFn } from '../../../src/validations/access/subgraph/third-party-asset'
 import { buildComponents, createMockSubgraphComponent } from '../../setup/mock'
 
 const defaultEns = [
@@ -50,18 +51,8 @@ export const buildSubgraphAccessCheckerComponents = (
   const theGraphClient =
     provided?.theGraphClient ?? createTheGraphClient({ logs: basicComponents.logs, subGraphs, ...provided })
 
-  const { logs, externalCalls } = basicComponents
-
-  const thirdPartyAssetValidateFn =
-    provided?.thirdPartyAssetValidateFn ??
-    createThirdPartyAssetValidateFn({ logs, externalCalls, theGraphClient, subGraphs })
-  const v1andV2collectionAssetValidateFn =
-    provided?.v1andV2collectionAssetValidateFn ??
-    createV1andV2collectionAssetValidateFn({ logs, externalCalls, theGraphClient, subGraphs })
   return {
     ...basicComponents,
-    thirdPartyAssetValidateFn,
-    v1andV2collectionAssetValidateFn,
     theGraphClient,
     subGraphs
   }
@@ -233,4 +224,18 @@ export function buildSubGraphs(subGraphs?: Partial<SubGraphs>): SubGraphs {
     ...defaultSubGraphs,
     ...subGraphs
   }
+}
+
+export function buildWearableValidateFn(components: SubgraphAccessCheckerComponents): ValidateFn {
+  const thirdPartyAssetValidateFn = createThirdPartyAssetValidateFn(components)
+  const v1andV2collectionAssetValidateFn = createV1andV2collectionAssetValidateFn(components)
+
+  return createWearableValidateFn(components, v1andV2collectionAssetValidateFn, thirdPartyAssetValidateFn)
+}
+
+export function buildEmoteValidateFn(components: SubgraphAccessCheckerComponents): ValidateFn {
+  const thirdPartyAssetValidateFn = createThirdPartyAssetValidateFn(components)
+  const v1andV2collectionAssetValidateFn = createV1andV2collectionAssetValidateFn(components)
+
+  return createEmoteValidateFn(components, v1andV2collectionAssetValidateFn, thirdPartyAssetValidateFn)
 }

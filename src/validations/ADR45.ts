@@ -1,5 +1,5 @@
 import { Entity } from '@dcl/schemas'
-import { ContentValidatorComponents, DeploymentToValidate, OK, validationFailed, ValidationResponse } from '../types'
+import { DeploymentToValidate, OK, validationFailed, ValidationResponse } from '../types'
 import { ADR_45_TIMESTAMP } from './timestamps'
 
 const entityIsNotVersion3 = (entity: Entity) => entity.version !== 'v3'

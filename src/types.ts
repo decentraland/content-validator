@@ -1,13 +1,13 @@
-import { AuthChain, Entity, EthAddress } from '@dcl/schemas'
-import { IConfigComponent, ILoggerComponent } from '@well-known-components/interfaces'
-import { ISubgraphComponent, Variables } from '@well-known-components/thegraph-component'
-import { PermissionResult } from './validations/subgraph-access-checker/the-graph-client'
 import { BlockSearch } from '@dcl/block-indexer'
+import { AuthChain, Entity, EthAddress } from '@dcl/schemas'
 import {
   BlockchainCollectionThirdParty,
   BlockchainCollectionV1Asset,
   BlockchainCollectionV2Asset
 } from '@dcl/urn-resolver'
+import { ILoggerComponent } from '@well-known-components/interfaces'
+import { ISubgraphComponent, Variables } from '@well-known-components/thegraph-component'
+import { PermissionResult } from './validations/access/subgraph/the-graph-client'
 
 /**
  * @public
@@ -183,21 +183,14 @@ export type BlockInformation = {
   blockNumberFiveMinBeforeDeployment: number | undefined
 }
 
-export type AccessCheckerComponent = {
-  checkAccess(deployment: DeploymentToValidate): Promise<ValidationResponse>
-}
-
 /**
  * Components that can be used to validate deployments.
  * @public
  */
 export type ContentValidatorComponents = {
-  config: IConfigComponent
   logs: ILoggerComponent
   externalCalls: ExternalCalls
-  accessChecker: AccessCheckerComponent
-  v1andV2collectionAssetValidateFn: V1andV2collectionAssetValidateFn
-  thirdPartyAssetValidateFn: ThirdPartyAssetValidateFn
+  accessValidateFn: ValidateFn
 }
 
 export type SubgraphAccessCheckerComponents = ContentValidatorComponents & {

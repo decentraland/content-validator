@@ -2,18 +2,18 @@ import { EntityType, EthAddress } from '@dcl/schemas'
 import {
   createNamesOwnershipValidateFn,
   createProfileValidateFn
-} from '../../../src/validations/on-chain-access-checker/profiles'
+} from '../../../src/validations/access/on-chain/profiles'
 import { ADR_74_TIMESTAMP, ADR_75_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment, buildProfileDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
 import { buildExternalCalls } from '../../setup/mock'
+import { validProfileMetadataWithEmotes, VALID_PROFILE_METADATA } from '../../setup/profiles'
 import {
   buildOnChainAccessCheckerComponents,
   createCollectionsSubgraph,
   createDefaultCollectionsL1Subgraph,
   createDefaultCollectionsL2Subgraph
 } from './mock'
-import { validProfileMetadataWithEmotes, VALID_PROFILE_METADATA } from '../../setup/profiles'
 
 describe('Access: profiles', () => {
   it('When a non-decentraland address tries to deploy an default profile, then an error is returned', async () => {

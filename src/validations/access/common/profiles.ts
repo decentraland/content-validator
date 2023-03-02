@@ -2,11 +2,11 @@ import { EthAddress } from '@dcl/schemas'
 import {
   ContentValidatorComponents,
   DeploymentToValidate,
+  OK,
   ValidateFn,
   validationFailed,
-  ValidationResponse,
-  OK
-} from '../../types'
+  ValidationResponse
+} from '../../../types'
 
 export function createPointerValidateFn(components: Pick<ContentValidatorComponents, 'externalCalls'>): ValidateFn {
   return async function validateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {

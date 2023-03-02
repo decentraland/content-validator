@@ -1,8 +1,6 @@
-import { createAccessCheckerComponent } from '../../../src/validations/access/index'
-import { createSceneValidateFn } from '../../../src/validations/subgraph-access-checker/scenes'
-import { createSubgraphAccessCheckValidateFns } from '../../../src/validations/subgraph-access-checker/access'
+import { createSceneValidateFn } from '../../../src/validations/access/subgraph/scenes'
 import { buildSceneDeployment } from '../../setup/deployments'
-import { buildConfig, buildExternalCalls } from '../../setup/mock'
+import { buildExternalCalls } from '../../setup/mock'
 import { buildSubgraphAccessCheckerComponents } from './mock'
 
 describe('Access: scenes', () => {
@@ -49,44 +47,5 @@ describe('Access: scenes', () => {
     expect(response.errors).toContain(
       'Scene pointers should only contain two integers separated by a comma, for example (10,10) or (120,-45). Invalid pointer: invalid-pointer'
     )
-  })
-
-  describe('blockchain access check validations', () => {
-    it('When IGNORE_BLOCKCHAIN_ACCESS_CHECKS=false, then ownerAddress function is invoked', async () => {
-      const pointers = ['Default10']
-      const deployment = buildSceneDeployment(pointers)
-      const config = buildConfig({
-        IGNORE_BLOCKCHAIN_ACCESS_CHECKS: 'false'
-      })
-      const ownerAddress = jest.fn()
-      ownerAddress.mockResolvedValue('0xAddress')
-      const externalCalls = buildExternalCalls({
-        isAddressOwnedByDecentraland: () => true,
-        ownerAddress
-      })
-
-      const components = buildSubgraphAccessCheckerComponents({ externalCalls, config })
-      const checker = createAccessCheckerComponent(components, createSubgraphAccessCheckValidateFns(components))
-      const response = await (await checker).checkAccess(deployment)
-      expect(response.ok).toBeFalsy()
-      expect(ownerAddress).toHaveBeenCalled()
-    })
-
-    it('When IGNORE_BLOCKCHAIN_ACCESS_CHECKS=false, then ownerAddress function is not invoked', async () => {
-      const pointers = ['Default10']
-      const deployment = buildSceneDeployment(pointers)
-      const config = buildConfig({
-        IGNORE_BLOCKCHAIN_ACCESS_CHECKS: 'true'
-      })
-      const ownerAddress = jest.fn()
-      const externalCalls = buildExternalCalls({
-        ownerAddress
-      })
-      const components = buildSubgraphAccessCheckerComponents({ externalCalls, config })
-      const checker = createAccessCheckerComponent(components, createSubgraphAccessCheckValidateFns(components))
-      const response = await (await checker).checkAccess(deployment)
-      expect(response.ok).toBeTruthy()
-      expect(ownerAddress).not.toHaveBeenCalled()
-    })
   })
 })

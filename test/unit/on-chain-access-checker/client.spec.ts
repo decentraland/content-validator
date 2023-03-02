@@ -1,8 +1,8 @@
-import { createMockSubgraphComponent } from '../../setup/mock'
-import { buildOnChainAccessCheckerComponents, createMockBlockRepository } from './mock'
-import { timestampBounds } from '../../../src/validations/on-chain-access-checker/the-graph-client'
 import { createAvlBlockSearch, metricsDefinitions } from '@dcl/block-indexer'
 import { createTestMetricsComponent } from '@well-known-components/metrics'
+import { timestampBounds } from '../../../src/validations/access/on-chain/client'
+import { createMockSubgraphComponent } from '../../setup/mock'
+import { buildOnChainAccessCheckerComponents, createMockBlockRepository } from './mock'
 
 const currentTimestamp = 1000
 const bounds = timestampBounds(currentTimestamp)

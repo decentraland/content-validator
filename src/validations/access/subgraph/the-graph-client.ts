@@ -1,34 +1,19 @@
 import { EthAddress } from '@dcl/schemas'
 import { parseUrn } from '@dcl/urn-resolver'
 import { ISubgraphComponent } from '@well-known-components/thegraph-component'
-import { BlockInformation, OnChainAccessCheckerComponents, OnChainClient } from '../../types'
-import { BlockSearch } from '@dcl/block-indexer'
+import { BlockInformation, SubgraphAccessCheckerComponents, TheGraphClient } from '../../../types'
 
 export type PermissionResult = {
   result: boolean
   failing?: string[]
 }
 
-export function timestampBounds(timestampMs: number) {
-  /*
-   * This mimics original behavior of looking up to 8 seconds after the entity timestamp
-   * and up to 5 minutes and 7 seconds before
-   */
-  const timestampSec = Math.ceil(timestampMs / 1000) + 8
-  const timestamp5MinAgo = Math.max(timestampSec - 60 * 5 - 7, 0)
-
-  return {
-    upper: timestampSec,
-    lower: timestamp5MinAgo
-  }
-}
-
 /**
  * @public
  */
-export const createOnChainClient = (
-  components: Pick<OnChainAccessCheckerComponents, 'logs' | 'L1' | 'L2'>
-): OnChainClient => {
+export const createTheGraphClient = (
+  components: Pick<SubgraphAccessCheckerComponents, 'logs' | 'subGraphs'>
+): TheGraphClient => {
   const logger = components.logs.getLogger('TheGraphClient')
 
   const L1_NETWORKS = ['mainnet', 'kovan', 'rinkeby', 'goerli']
@@ -43,21 +28,31 @@ export const createOnChainClient = (
       return permissionOk()
     }
 
-    const blocks = await findBlocksForTimestamp(timestamp, components.L1.blockSearch)
+    const blocks = await findBlocksForTimestamp(components.subGraphs.L1.blocks, timestamp)
+
     const hasPermissionOnBlock = async (blockNumber: number | undefined): Promise<PermissionResult> => {
       if (!blockNumber) {
         return permissionError()
       }
 
-      try {
-        const result = await components.L1.checker.checkNames(ethAddress, namesToCheck, blockNumber)
-        const notOwned: string[] = []
-
-        for (let i = 0; i < namesToCheck.length; i++) {
-          if (!result[i]) {
-            notOwned.push(namesToCheck[i])
-          }
+      const runOwnedNamesOnBlockQuery = async (blockNumber: number) => {
+        const query: Query<{ names: { name: string }[] }, Set<string>> = {
+          description: 'check for names ownership',
+          subgraph: components.subGraphs.L1.ensOwner,
+          query: QUERY_NAMES_FOR_ADDRESS_AT_BLOCK,
+          mapper: (response: { names: { name: string }[] }): Set<string> =>
+            new Set(response.names.map(({ name }) => name))
         }
+        return runQuery(query, {
+          block: blockNumber,
+          ethAddress,
+          nameList: namesToCheck
+        })
+      }
+
+      try {
+        const ownedNames = await runOwnedNamesOnBlockQuery(blockNumber)
+        const notOwned = namesToCheck.filter((name) => !ownedNames.has(name))
         return notOwned.length > 0 ? permissionError(notOwned) : permissionOk()
       } catch {
         logger.error(`Error retrieving names owned by address ${ethAddress} at block ${blockNumber}`)
@@ -121,15 +116,15 @@ export const createOnChainClient = (
       ethAddress,
       ethereum,
       timestamp,
-      components.L1.collections,
-      components.L1.blockSearch
+      components.subGraphs.L1.blocks,
+      components.subGraphs.L1.collections
     )
     const maticItemsOwnersPromise = ownsItemsAtTimestampInBlockchain(
       ethAddress,
       matic,
       timestamp,
-      components.L2.collections,
-      components.L2.blockSearch
+      components.subGraphs.L2.blocks,
+      components.subGraphs.L2.collections
     )
 
     const [ethereumItemsOwnership, maticItemsOwnership] = await Promise.all([
@@ -147,14 +142,14 @@ export const createOnChainClient = (
     ethAddress: EthAddress,
     urnsToCheck: string[],
     timestamp: number,
-    collectionsSubgraph: ISubgraphComponent,
-    blockSearch: BlockSearch
+    blocksSubgraph: ISubgraphComponent,
+    collectionsSubgraph: ISubgraphComponent
   ): Promise<PermissionResult> => {
     if (urnsToCheck.length === 0) {
       return permissionOk()
     }
 
-    const blocks = await findBlocksForTimestamp(timestamp, blockSearch)
+    const blocks = await findBlocksForTimestamp(blocksSubgraph, timestamp)
 
     const hasPermissionOnBlock = async (blockNumber: number | undefined): Promise<PermissionResult> => {
       if (!blockNumber) {
@@ -201,29 +196,44 @@ export const createOnChainClient = (
     return query.mapper(response)
   }
 
-  const findBlocksForTimestamp = async (timestamp: number, blockSearch: BlockSearch): Promise<BlockInformation> => {
-    const { lower, upper } = timestampBounds(timestamp)
+  const findBlocksForTimestamp = async (subgraph: ISubgraphComponent, timestamp: number): Promise<BlockInformation> => {
+    const query: Query<
+      {
+        min: { number: string }[]
+        max: { number: string }[]
+      },
+      BlockInformation
+    > = {
+      description: 'fetch blocks for timestamp',
+      subgraph: subgraph,
+      query: QUERY_BLOCKS_FOR_TIMESTAMP,
+      mapper: (response) => {
+        const blockNumberAtDeployment = response.max[0]?.number
+        const blockNumberFiveMinBeforeDeployment = response.min[0]?.number
+        if (blockNumberAtDeployment === undefined && blockNumberFiveMinBeforeDeployment === undefined) {
+          throw new Error(`Failed to find blocks for the specific timestamp`)
+        }
 
-    const result = await Promise.all([
-      blockSearch.findBlockForTimestamp(upper),
-      blockSearch.findBlockForTimestamp(lower)
-    ])
-
-    const blockNumberAtDeployment = result[0]
-    let blockNumberFiveMinBeforeDeployment = result[1]
-
-    if (blockNumberFiveMinBeforeDeployment && blockNumberFiveMinBeforeDeployment.timestamp < lower) {
-      // Mimic the way TheGraph was calculating this
-      blockNumberFiveMinBeforeDeployment = {
-        ...blockNumberFiveMinBeforeDeployment,
-        block: blockNumberFiveMinBeforeDeployment.block + 1
+        return {
+          blockNumberAtDeployment: !!blockNumberAtDeployment ? parseInt(blockNumberAtDeployment) : undefined,
+          blockNumberFiveMinBeforeDeployment: !!blockNumberFiveMinBeforeDeployment
+            ? parseInt(blockNumberFiveMinBeforeDeployment)
+            : undefined
+        }
       }
     }
 
-    return {
-      blockNumberAtDeployment: blockNumberAtDeployment?.block,
-      blockNumberFiveMinBeforeDeployment: blockNumberFiveMinBeforeDeployment?.block
-    }
+    /*
+     * This mimics original behavior of looking up to 8 seconds after the entity timestamp
+     * and up to 5 minutes and 7 seconds before
+     */
+    const timestampSec = Math.ceil(timestamp / 1000) + 8
+    const timestamp5MinAgo = timestampSec - 60 * 5 - 7
+
+    return await runQuery(query, {
+      timestamp: timestampSec,
+      timestamp5Min: timestamp5MinAgo
+    })
   }
 
   return {
@@ -232,6 +242,37 @@ export const createOnChainClient = (
     findBlocksForTimestamp
   }
 }
+
+const QUERY_BLOCKS_FOR_TIMESTAMP = `
+query getBlockForTimestampRange($timestamp: Int!, $timestamp5Min: Int!) {
+  min: blocks(
+    where: {timestamp_gte: $timestamp5Min, timestamp_lte: $timestamp}
+    first: 1
+    orderBy: timestamp
+    orderDirection: desc
+  ) {
+    number
+  }
+  max: blocks(
+    where: {timestamp_gte: $timestamp5Min, timestamp_lte: $timestamp}
+    first: 1
+    orderBy: timestamp
+    orderDirection: asc
+  ) {
+    number
+  }
+}`
+
+const QUERY_NAMES_FOR_ADDRESS_AT_BLOCK = `
+query getNftNamesForBlock($block: Int!, $ethAddress: String!, $nameList: [String!]) {
+  names: nfts(
+    block: {number: $block}
+    where: {owner: $ethAddress, category: ens, name_in: $nameList}
+    first: 1000
+  ) {
+    name
+  }
+}`
 
 const QUERY_ITEMS_FOR_ADDRESS_AT_BLOCK = `
 query getNftItemsForBlock($block: Int!, $ethAddress: String!, $urnList: [String!]) {
