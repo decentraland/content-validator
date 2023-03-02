@@ -1,21 +1,9 @@
-<<<<<<<< HEAD:test/unit/on-chain-access-checker/scenes.spec.ts
 import { createOnChainAccessCheckValidateFns } from '../../../src/validations/on-chain-access-checker/access'
 import { createAccessCheckerComponent } from '../../../src/validations/access/index'
 import { createSceneValidateFn } from '../../../src/validations/on-chain-access-checker/scenes'
 import { buildSceneDeployment } from '../../setup/deployments'
 import { buildConfig, buildExternalCalls } from '../../setup/mock'
 import { buildOnChainAccessCheckerComponents } from './mock'
-========
-import { createSubgraphAccessCheckerComponent } from '../../../src/validations/subgraph-access-checker/access'
-import { createSceneValidateFn } from '../../../src/validations/subgraph-access-checker/scenes'
-import { buildSceneDeployment } from '../../setup/deployments'
-import {
-  buildComponents,
-  buildConfig,
-  buildExternalCalls,
-  buildSubgraphAccessCheckerComponents
-} from '../../setup/mock'
->>>>>>>> main:test/unit/subgraph-access-checker/scenes.spec.ts
 
 describe('Access: scenes', () => {
   it('When a non-decentraland address tries to deploy a default scene, then an error is returned', async () => {
@@ -26,11 +14,7 @@ describe('Access: scenes', () => {
       ownerAddress: () => '0xAddress'
     })
 
-<<<<<<<< HEAD:test/unit/on-chain-access-checker/scenes.spec.ts
     const validateFn = createSceneValidateFn(buildOnChainAccessCheckerComponents({ externalCalls }))
-========
-    const validateFn = createSceneValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
->>>>>>>> main:test/unit/subgraph-access-checker/scenes.spec.ts
     const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
@@ -46,11 +30,7 @@ describe('Access: scenes', () => {
       ownerAddress: () => '0xAddress'
     })
 
-<<<<<<<< HEAD:test/unit/on-chain-access-checker/scenes.spec.ts
     const validateFn = createSceneValidateFn(buildOnChainAccessCheckerComponents({ externalCalls }))
-========
-    const validateFn = createSceneValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
->>>>>>>> main:test/unit/subgraph-access-checker/scenes.spec.ts
     const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
   })
@@ -63,11 +43,7 @@ describe('Access: scenes', () => {
       ownerAddress: () => '0xAddress'
     })
 
-<<<<<<<< HEAD:test/unit/on-chain-access-checker/scenes.spec.ts
     const validateFn = createSceneValidateFn(buildOnChainAccessCheckerComponents({ externalCalls }))
-========
-    const validateFn = createSceneValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
->>>>>>>> main:test/unit/subgraph-access-checker/scenes.spec.ts
     const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
@@ -89,14 +65,8 @@ describe('Access: scenes', () => {
         ownerAddress
       })
 
-<<<<<<<< HEAD:test/unit/on-chain-access-checker/scenes.spec.ts
       const components = buildOnChainAccessCheckerComponents({ externalCalls, config })
       const checker = createAccessCheckerComponent(components, createOnChainAccessCheckValidateFns(components))
-========
-      const checker = createSubgraphAccessCheckerComponent(
-        buildSubgraphAccessCheckerComponents({ externalCalls, config })
-      )
->>>>>>>> main:test/unit/subgraph-access-checker/scenes.spec.ts
       const response = await (await checker).checkAccess(deployment)
       expect(response.ok).toBeFalsy()
       expect(ownerAddress).toHaveBeenCalled()
@@ -112,15 +82,8 @@ describe('Access: scenes', () => {
       const externalCalls = buildExternalCalls({
         ownerAddress
       })
-<<<<<<<< HEAD:test/unit/on-chain-access-checker/scenes.spec.ts
       const components = buildOnChainAccessCheckerComponents({ externalCalls, config })
       const checker = createAccessCheckerComponent(components, createOnChainAccessCheckValidateFns(components))
-========
-
-      const checker = createSubgraphAccessCheckerComponent(
-        buildSubgraphAccessCheckerComponents({ externalCalls, config })
-      )
->>>>>>>> main:test/unit/subgraph-access-checker/scenes.spec.ts
       const response = await (await checker).checkAccess(deployment)
       expect(response.ok).toBeTruthy()
       expect(ownerAddress).not.toHaveBeenCalled()

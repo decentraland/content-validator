@@ -44,10 +44,6 @@ export type ItemCollection = {
 }
 
 async function getCollectionItems(
-<<<<<<<< HEAD:src/validations/subgraph-access-checker/collection-asset.ts
-========
-  components: Pick<SubgraphAccessCheckerComponents, 'externalCalls'>,
->>>>>>>> main:src/validations/subgraph-access-checker/items/collection-asset.ts
   subgraph: ISubgraphComponent,
   collection: string,
   itemId: string,
@@ -90,10 +86,6 @@ async function getCollectionItems(
 }
 
 async function hasPermission(
-<<<<<<<< HEAD:src/validations/subgraph-access-checker/collection-asset.ts
-========
-  components: Pick<SubgraphAccessCheckerComponents, 'externalCalls'>,
->>>>>>>> main:src/validations/subgraph-access-checker/items/collection-asset.ts
   subgraph: ISubgraphComponent,
   collection: string,
   itemId: string,
@@ -180,16 +172,10 @@ async function checkCollectionAccess(
   }
 }
 
-<<<<<<<< HEAD:src/validations/subgraph-access-checker/collection-asset.ts
 export function createV1andV2collectionAssetValidateFn(
   components: Pick<SubgraphAccessCheckerComponents, 'externalCalls' | 'logs' | 'subGraphs' | 'theGraphClient'>
 ): V1andV2collectionAssetValidateFn {
   return async function validateFn(
-========
-export const v1andV2collectionAssetValidation: AssetValidation = {
-  async validateAsset(
-    components: Pick<SubgraphAccessCheckerComponents, 'externalCalls' | 'logs' | 'subGraphs' | 'theGraphClient'>,
->>>>>>>> main:src/validations/subgraph-access-checker/items/collection-asset.ts
     asset: BlockchainCollectionV1Asset | BlockchainCollectionV2Asset,
     deployment: DeploymentToValidate
   ) {
