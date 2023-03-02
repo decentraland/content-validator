@@ -1,13 +1,12 @@
 import { hashV0, hashV1 } from '@dcl/hashing'
 import { BlockchainCollectionV1Asset, BlockchainCollectionV2Asset } from '@dcl/urn-resolver'
 import {
-  ContentValidatorComponents,
   DeploymentToValidate,
   OK,
   OnChainAccessCheckerComponents,
+  V1andV2collectionAssetValidateFn,
   validationFailed
-} from '../../../types'
-import { AssetValidation } from './items'
+} from '../../types'
 
 const L1_NETWORKS = ['mainnet', 'kovan', 'rinkeby', 'goerli']
 const L2_NETWORKS = ['matic', 'mumbai']
@@ -25,14 +24,13 @@ export type ItemCollection = {
   items: CollectionItem[]
 }
 
-export const v1andV2collectionAssetValidation: AssetValidation = {
-  async validateAsset(
-    {
-      externalCalls,
-      L2,
-      client,
-      logs
-    }: Pick<OnChainAccessCheckerComponents, 'externalCalls' | 'logs' | 'client' | 'L2'>,
+export function createV1andV2collectionAssetValidateFn({
+  externalCalls,
+  L2,
+  client,
+  logs
+}: Pick<OnChainAccessCheckerComponents, 'externalCalls' | 'logs' | 'client' | 'L2'>): V1andV2collectionAssetValidateFn {
+  return async function validateFn(
     asset: BlockchainCollectionV1Asset | BlockchainCollectionV2Asset,
     deployment: DeploymentToValidate
   ) {
@@ -99,8 +97,5 @@ export const v1andV2collectionAssetValidation: AssetValidation = {
     } else {
       return validationFailed(`Found an unknown network on the urn '${network}'`)
     }
-  },
-  canValidate(asset): asset is BlockchainCollectionV1Asset | BlockchainCollectionV2Asset {
-    return asset.type === 'blockchain-collection-v1-asset' || asset.type === 'blockchain-collection-v2-asset'
   }
 }

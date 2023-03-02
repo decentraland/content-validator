@@ -8,9 +8,7 @@ export * from './validations'
  * Creates a validator instance with given external calls.
  * @public
  */
-export const createValidator = (
-  components: Pick<ContentValidatorComponents, 'config' | 'externalCalls' | 'logs' | 'accessChecker'>
-): Validator => {
+export const createValidator = (components: ContentValidatorComponents): Validator => {
   const logs = components.logs.getLogger('ContentValidator')
   const validateFns = [...createValidateFns(components), components.accessChecker.checkAccess]
   return {

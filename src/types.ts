@@ -3,6 +3,11 @@ import { IConfigComponent, ILoggerComponent } from '@well-known-components/inter
 import { ISubgraphComponent, Variables } from '@well-known-components/thegraph-component'
 import { PermissionResult } from './validations/subgraph-access-checker/the-graph-client'
 import { BlockSearch } from '@dcl/block-indexer'
+import {
+  BlockchainCollectionThirdParty,
+  BlockchainCollectionV1Asset,
+  BlockchainCollectionV2Asset
+} from '@dcl/urn-resolver'
 
 /**
  * @public
@@ -191,14 +196,16 @@ export type ContentValidatorComponents = {
   logs: ILoggerComponent
   externalCalls: ExternalCalls
   accessChecker: AccessCheckerComponent
+  v1andV2collectionAssetValidateFn: V1andV2collectionAssetValidateFn
+  thirdPartyAssetValidateFn: ThirdPartyAssetValidateFn
 }
 
-export type SubgraphAccessCheckerComponents = Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'config'> & {
+export type SubgraphAccessCheckerComponents = ContentValidatorComponents & {
   theGraphClient: TheGraphClient
   subGraphs: SubGraphs
 }
 
-export type OnChainAccessCheckerComponents = Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'config'> & {
+export type OnChainAccessCheckerComponents = ContentValidatorComponents & {
   client: OnChainClient
   L1: {
     checker: L1Checker
@@ -211,3 +218,13 @@ export type OnChainAccessCheckerComponents = Pick<ContentValidatorComponents, 'e
     blockSearch: BlockSearch
   }
 }
+
+export type V1andV2collectionAssetValidateFn = (
+  asset: BlockchainCollectionV1Asset | BlockchainCollectionV2Asset,
+  deployment: DeploymentToValidate
+) => Promise<ValidationResponse>
+
+export type ThirdPartyAssetValidateFn = (
+  asset: BlockchainCollectionThirdParty,
+  deployment: DeploymentToValidate
+) => Promise<ValidationResponse>

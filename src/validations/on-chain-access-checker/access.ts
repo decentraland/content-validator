@@ -1,10 +1,9 @@
 import { EntityType } from '@dcl/schemas'
 import { OnChainAccessCheckerComponents, ValidateFn } from '../../types'
+import { createEmoteValidateFn, createWearableValidateFn } from '../access/items'
 import { createStoreValidateFn } from '../access/stores'
-import { createEmoteValidateFn } from './emotes'
 import { createProfileValidateFn } from './profiles'
 import { createSceneValidateFn } from './scenes'
-import { createWearableValidateFn } from './wearables'
 
 export function createOnChainAccessCheckValidateFns(
   components: OnChainAccessCheckerComponents

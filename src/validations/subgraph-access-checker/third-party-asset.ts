@@ -3,8 +3,13 @@ import { keccak256Hash } from '@dcl/hashing'
 import { isThirdParty, MerkleProof, ThirdPartyProps } from '@dcl/schemas'
 import { BlockchainCollectionThirdParty } from '@dcl/urn-resolver'
 import { ILoggerComponent } from '@well-known-components/interfaces'
-import { SubgraphAccessCheckerComponents, DeploymentToValidate, OK, validationFailed } from '../../../types'
-import { AssetValidation } from './items'
+import {
+  SubgraphAccessCheckerComponents,
+  DeploymentToValidate,
+  OK,
+  validationFailed,
+  ThirdPartyAssetValidateFn
+} from '../../types'
 
 function toHexBuffer(value: string): Buffer {
   if (value.startsWith('0x')) {
@@ -117,12 +122,10 @@ async function verifyMerkleProofedEntity(
   return validMerkleProofedEntity
 }
 
-export const thirdPartyAssetValidation: AssetValidation = {
-  async validateAsset(
-    components: Pick<SubgraphAccessCheckerComponents, 'externalCalls' | 'logs' | 'theGraphClient' | 'subGraphs'>,
-    asset: BlockchainCollectionThirdParty,
-    deployment: DeploymentToValidate
-  ) {
+export function createThirdPartyAssetValidateFn(
+  components: Pick<SubgraphAccessCheckerComponents, 'externalCalls' | 'logs' | 'theGraphClient' | 'subGraphs'>
+): ThirdPartyAssetValidateFn {
+  return async function validateFn(asset: BlockchainCollectionThirdParty, deployment: DeploymentToValidate) {
     const logger = components.logs.getLogger('collection asset access validation')
     // Third Party wearables are validated doing merkle tree based verification proof
     const verified = await verifyMerkleProofedEntity(components, asset, deployment, logger)
@@ -130,8 +133,5 @@ export const thirdPartyAssetValidation: AssetValidation = {
       return validationFailed(`Couldn't verify merkle proofed entity`)
     }
     return OK
-  },
-  canValidate(asset): asset is BlockchainCollectionThirdParty {
-    return asset.type === 'blockchain-collection-third-party'
   }
 }

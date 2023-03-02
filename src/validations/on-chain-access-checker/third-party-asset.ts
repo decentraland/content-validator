@@ -1,8 +1,13 @@
 import { generateRoot } from '@dcl/content-hash-tree'
 import { isThirdParty, ThirdPartyProps } from '@dcl/schemas'
 import { BlockchainCollectionThirdParty } from '@dcl/urn-resolver'
-import { DeploymentToValidate, OK, OnChainAccessCheckerComponents, validationFailed } from '../../../types'
-import { AssetValidation } from './items'
+import {
+  DeploymentToValidate,
+  OK,
+  OnChainAccessCheckerComponents,
+  ThirdPartyAssetValidateFn,
+  validationFailed
+} from '../../types'
 
 function toHexBuffer(value: string): Buffer {
   if (value.startsWith('0x')) {
@@ -15,12 +20,10 @@ function getThirdPartyId(urn: BlockchainCollectionThirdParty): string {
   return `urn:decentraland:${urn.network}:collections-thirdparty:${urn.thirdPartyName}`
 }
 
-export const thirdPartyAssetValidation: AssetValidation = {
-  async validateAsset(
-    components: Pick<OnChainAccessCheckerComponents, 'externalCalls' | 'logs' | 'client' | 'L2'>,
-    asset: BlockchainCollectionThirdParty,
-    deployment: DeploymentToValidate
-  ) {
+export function createThirdPartyAssetValidateFn(
+  components: Pick<OnChainAccessCheckerComponents, 'externalCalls' | 'logs' | 'client' | 'L2'>
+): ThirdPartyAssetValidateFn {
+  return async function validateFn(asset: BlockchainCollectionThirdParty, deployment: DeploymentToValidate) {
     const logger = components.logs.getLogger('third-party-asset-validation')
     const { checker } = components.L2
 
@@ -62,8 +65,5 @@ export const thirdPartyAssetValidation: AssetValidation = {
       return validationFailed(`Couldn't verify merkle proofed entity`)
     }
     return OK
-  },
-  canValidate(asset): asset is BlockchainCollectionThirdParty {
-    return asset.type === 'blockchain-collection-third-party'
   }
 }
