@@ -6,14 +6,13 @@ import {
 import { ADR_74_TIMESTAMP, ADR_75_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment, buildProfileDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
+import { buildExternalCalls } from '../../setup/mock'
 import {
-  buildExternalCalls,
   buildOnChainAccessCheckerComponents,
   createCollectionsSubgraph,
   createDefaultCollectionsL1Subgraph,
-  createDefaultCollectionsL2Subgraph,
-  fetcherWithItemsOwnership
-} from '../../setup/mock'
+  createDefaultCollectionsL2Subgraph
+} from './mock'
 import { validProfileMetadataWithEmotes, VALID_PROFILE_METADATA } from '../../setup/profiles'
 
 describe('Access: profiles', () => {

@@ -1,7 +1,8 @@
 import { createEmoteValidateFn } from '../../../src/validations/access/items'
 import { buildEmoteDeployment, buildThirdPartyEmoteDeployment } from '../../setup/deployments'
 import { VALID_THIRD_PARTY_EMOTE_METADATA_WITH_MERKLE_ROOT } from '../../setup/emotes'
-import { buildExternalCalls, buildOnChainAccessCheckerComponents } from '../../setup/mock'
+import { buildOnChainAccessCheckerComponents } from './mock'
+import { buildExternalCalls } from '../../setup/mock'
 
 describe('Access: emotes', () => {
   it('When non-urns are used as pointers, then validation fails', async () => {

@@ -2,7 +2,8 @@ import { createSubgraphAccessCheckValidateFns } from '../../../src/validations/s
 import { createAccessCheckerComponent } from '../../../src/validations/access/index'
 import { createSceneValidateFn } from '../../../src/validations/subgraph-access-checker/scenes'
 import { buildSceneDeployment } from '../../setup/deployments'
-import { buildConfig, buildExternalCalls, buildSubgraphAccessCheckerComponents } from '../../setup/mock'
+import { buildConfig, buildExternalCalls } from '../../setup/mock'
+import { buildSubgraphAccessCheckerComponents } from './mock'
 
 describe('Access: scenes', () => {
   it('When a non-decentraland address tries to deploy a default scene, then an error is returned', async () => {

@@ -1,13 +1,13 @@
 import { createWearableValidateFn } from '../../../src/validations/access/items'
 import { buildThirdPartyWearableDeployment, buildWearableDeployment } from '../../setup/deployments'
+import { buildExternalCalls } from '../../setup/mock'
 import {
-  buildExternalCalls,
   buildSubgraphAccessCheckerComponents,
   fetcherWithoutAccess,
   fetcherWithThirdPartyEmptyMerkleRoots,
   fetcherWithThirdPartyMerkleRoot,
   fetcherWithValidCollectionAndCreator
-} from '../../setup/mock'
+} from './mock'
 import { VALID_THIRD_PARTY_WEARABLE } from '../../setup/wearable'
 
 describe('Access: wearables', () => {

@@ -1,14 +1,14 @@
-import { createEmoteValidateFn } from '../../../src/validations/subgraph-access-checker/emotes'
+import { createEmoteValidateFn } from '../../../src/validations/access/items'
 import { buildEmoteDeployment, buildThirdPartyEmoteDeployment } from '../../setup/deployments'
 import { VALID_THIRD_PARTY_EMOTE_METADATA_WITH_MERKLE_ROOT } from '../../setup/emotes'
+import { buildExternalCalls } from '../../setup/mock'
 import {
-  buildExternalCalls,
   buildSubgraphAccessCheckerComponents,
   fetcherWithoutAccess,
   fetcherWithThirdPartyEmptyMerkleRoots,
   fetcherWithThirdPartyMerkleRoot,
   fetcherWithValidCollectionAndCreator
-} from '../../setup/mock'
+} from './mock'
 
 describe('Access: emotes', () => {
   it('When non-urns are used as pointers, then validation fails', async () => {

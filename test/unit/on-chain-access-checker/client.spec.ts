@@ -1,8 +1,5 @@
-import {
-  buildOnChainAccessCheckerComponents,
-  createMockBlockRepository,
-  createMockSubgraphComponent
-} from '../../setup/mock'
+import { createMockSubgraphComponent } from '../../setup/mock'
+import { buildOnChainAccessCheckerComponents, createMockBlockRepository } from './mock'
 import { timestampBounds } from '../../../src/validations/on-chain-access-checker/the-graph-client'
 import { createAvlBlockSearch, metricsDefinitions } from '@dcl/block-indexer'
 import { createTestMetricsComponent } from '@well-known-components/metrics'
