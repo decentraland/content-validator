@@ -1,14 +1,6 @@
-import { createConfigComponent } from '@well-known-components/env-config-provider'
-import { IConfigComponent, ILoggerComponent } from '@well-known-components/interfaces'
+import { ILoggerComponent } from '@well-known-components/interfaces'
 import { ISubgraphComponent } from '@well-known-components/thegraph-component'
-import {
-  ContentValidatorComponents,
-  ExternalCalls,
-  QueryGraph,
-  ValidateFn,
-  V1andV2collectionAssetValidateFn,
-  ThirdPartyAssetValidateFn
-} from '../../src/types'
+import { ContentValidatorComponents, ExternalCalls, QueryGraph, ValidateFn } from '../../src/types'
 
 export const buildLogger = (): ILoggerComponent => ({
   getLogger: () => ({
@@ -21,27 +13,15 @@ export const buildLogger = (): ILoggerComponent => ({
 })
 
 export function buildComponents(components?: Partial<ContentValidatorComponents>): ContentValidatorComponents {
-  const config = components?.config ?? buildConfig({})
-
   const externalCalls = components?.externalCalls ?? buildExternalCalls()
 
   const logs = components?.logs ?? buildLogger()
 
-  const accessChecker = {
-    checkAccess: jest.fn() as jest.MockedFunction<ValidateFn>
-  }
   return {
-    config,
     logs,
     externalCalls,
-    accessChecker,
-    v1andV2collectionAssetValidateFn: jest.fn() as jest.MockedFunction<V1andV2collectionAssetValidateFn>,
-    thirdPartyAssetValidateFn: jest.fn() as jest.MockedFunction<ThirdPartyAssetValidateFn>
+    accessValidateFn: jest.fn() as jest.MockedFunction<ValidateFn>
   }
-}
-
-export function buildConfig(optionMap: Partial<Record<string, string>>): IConfigComponent {
-  return createConfigComponent({ ...optionMap })
 }
 
 export function buildExternalCalls(externalCalls?: Partial<ExternalCalls>): ExternalCalls {

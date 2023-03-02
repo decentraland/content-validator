@@ -4,13 +4,13 @@ import { BlockchainCollectionV1Asset, BlockchainCollectionV2Asset } from '@dcl/u
 import { ILoggerComponent } from '@well-known-components/interfaces'
 import { ISubgraphComponent } from '@well-known-components/thegraph-component'
 import {
-  SubgraphAccessCheckerComponents,
   DeploymentToValidate,
   EntityWithEthAddress,
   OK,
-  validationFailed,
-  V1andV2collectionAssetValidateFn
-} from '../../types'
+  SubgraphAccessCheckerComponents,
+  V1andV2collectionAssetValidateFn,
+  validationFailed
+} from '../../../types'
 
 const L1_NETWORKS = ['mainnet', 'kovan', 'rinkeby', 'goerli']
 const L2_NETWORKS = ['matic', 'mumbai']

@@ -1,16 +1,15 @@
-import { createWearableValidateFn } from '../../../src/validations/access/items'
 import { buildThirdPartyWearableDeployment, buildWearableDeployment } from '../../setup/deployments'
 import { buildExternalCalls } from '../../setup/mock'
-import { buildOnChainAccessCheckerComponents } from './mock'
 import { VALID_THIRD_PARTY_WEARABLE } from '../../setup/wearable'
+import { buildOnChainAccessCheckerComponents, buildWearableValidateFn } from './mock'
 
 describe('Access: wearables', () => {
   it('When non-urns are used as pointers, then validation fails', async () => {
     const pointers = ['invalid-pointer']
     const deployment = buildWearableDeployment(pointers)
     const externalCalls = buildExternalCalls()
-
-    const validateFn = createWearableValidateFn(buildOnChainAccessCheckerComponents({ externalCalls }))
+    const components = buildOnChainAccessCheckerComponents({ externalCalls })
+    const validateFn = buildWearableValidateFn(components)
     const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
@@ -26,7 +25,8 @@ describe('Access: wearables', () => {
     const deployment = buildWearableDeployment(pointers)
     const externalCalls = buildExternalCalls()
 
-    const validateFn = createWearableValidateFn(buildOnChainAccessCheckerComponents({ externalCalls }))
+    const components = buildOnChainAccessCheckerComponents({ externalCalls })
+    const validateFn = buildWearableValidateFn(components)
     const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(`Only one pointer is allowed when you create an item. Received: ${pointers}`)
@@ -42,7 +42,8 @@ describe('Access: wearables', () => {
       ownerAddress: () => 'some address'
     })
 
-    const validateFn = createWearableValidateFn(buildOnChainAccessCheckerComponents({ externalCalls }))
+    const components = buildOnChainAccessCheckerComponents({ externalCalls })
+    const validateFn = buildWearableValidateFn(components)
     const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
@@ -60,7 +61,8 @@ describe('Access: wearables', () => {
       ownerAddress: () => 'some address'
     })
 
-    const validateFn = createWearableValidateFn(buildOnChainAccessCheckerComponents({ externalCalls }))
+    const components = buildOnChainAccessCheckerComponents({ externalCalls })
+    const validateFn = buildWearableValidateFn(components)
     const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
@@ -75,7 +77,8 @@ describe('Access: wearables', () => {
       ownerAddress: () => 'some address'
     })
 
-    const validateFn = createWearableValidateFn(buildOnChainAccessCheckerComponents({ externalCalls }))
+    const components = buildOnChainAccessCheckerComponents({ externalCalls })
+    const validateFn = buildWearableValidateFn(components)
     const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
@@ -90,7 +93,8 @@ describe('Access: wearables', () => {
       isAddressOwnedByDecentraland: () => true
     })
 
-    const validateFn = createWearableValidateFn(buildOnChainAccessCheckerComponents({ externalCalls }))
+    const components = buildOnChainAccessCheckerComponents({ externalCalls })
+    const validateFn = buildWearableValidateFn(components)
     const response = await validateFn(deployment)
     expect(response.ok).toBeTruthy()
   })
@@ -102,7 +106,8 @@ describe('Access: wearables', () => {
       isAddressOwnedByDecentraland: () => true
     })
 
-    const validateFn = createWearableValidateFn(buildOnChainAccessCheckerComponents({ externalCalls }))
+    const components = buildOnChainAccessCheckerComponents({ externalCalls })
+    const validateFn = buildWearableValidateFn(components)
     const response = await validateFn(deployment)
     expect(response.ok).toBeTruthy()
   })
@@ -119,7 +124,7 @@ describe('Access: wearables', () => {
     ])
 
     const l2BlockSearchSpy = jest.spyOn(components.L2.blockSearch, 'findBlockForTimestamp')
-    const validateFn = createWearableValidateFn(components)
+    const validateFn = buildWearableValidateFn(components)
     await validateFn(deployment)
 
     expect(l2BlockSearchSpy).toHaveBeenNthCalledWith(1, expect.anything())
@@ -142,7 +147,7 @@ describe('Access: wearables', () => {
   })
 
   describe(`Merkle Proofed (Third Party) Wearable`, () => {
-    const { entity: metadata, root: merkleRoot } = VALID_THIRD_PARTY_WEARABLE
+    const { entity: metadata } = VALID_THIRD_PARTY_WEARABLE
 
     it(`When urn corresponds to a Third Party wearable and can verify merkle root with the proofs, validation pass`, async () => {
       const components = buildOnChainAccessCheckerComponents()
@@ -150,7 +155,7 @@ describe('Access: wearables', () => {
 
       const deployment = buildThirdPartyWearableDeployment(metadata.id, metadata)
 
-      const validateFn = createWearableValidateFn(components)
+      const validateFn = buildWearableValidateFn(components)
       const response = await validateFn(deployment)
 
       expect(response.ok).toBeTruthy()
@@ -164,7 +169,7 @@ describe('Access: wearables', () => {
         content: {}
       })
 
-      const validateFn = createWearableValidateFn(components)
+      const validateFn = buildWearableValidateFn(components)
       const response = await validateFn(deployment)
       expect(response.ok).toBeFalsy()
     })
@@ -175,7 +180,7 @@ describe('Access: wearables', () => {
       const deployment = buildThirdPartyWearableDeployment(metadata.id, metadata)
       const l2BlockSearchSpy = jest.spyOn(components.L2.blockSearch, 'findBlockForTimestamp')
 
-      const validateFn = createWearableValidateFn(components)
+      const validateFn = buildWearableValidateFn(components)
       await validateFn(deployment)
       expect(l2BlockSearchSpy).toHaveBeenNthCalledWith(1, expect.anything())
       expect(components.L2.checker.validateThirdParty).toHaveBeenNthCalledWith(
@@ -185,47 +190,5 @@ describe('Access: wearables', () => {
         expect.anything()
       )
     })
-
-    //   it(`When merkle proof is not well formed, it should fail`, async () => {
-    //     const subGraphs = fetcherWithThirdPartyMerkleRoot(merkleRoot)
-
-    //     const deployment = buildThirdPartyWearableDeployment(metadata.id, {
-    //       ...metadata,
-    //       merkleProof: { proof: [], index: 0, hashingKeys: [], entityHash: '' }
-    //     })
-
-    //     const validateFn = createWearableValidateFn(buildOnChainAccessCheckerComponents({ subGraphs }))
-    //     const response = await validateFn(deployment)
-    //     expect(response.ok).toBeFalsy()
-    //   })
-
-    //   it(`When requiredKeys are not a subset of the hashingKeys, it should fail`, async () => {
-    //     const subGraphs = fetcherWithThirdPartyMerkleRoot(merkleRoot)
-
-    //     const deployment = buildThirdPartyWearableDeployment(metadata.id, {
-    //       ...metadata,
-    //       merkleProof: {
-    //         ...metadata.merkleProof,
-    //         hashingKeys: ['id', 'description']
-    //       }
-    //     })
-
-    //     const validateFn = createWearableValidateFn(buildOnChainAccessCheckerComponents({ subGraphs }))
-    //     const response = await validateFn(deployment)
-    //     expect(response.ok).toBeFalsy()
-    //   })
-
-    //   it(`When entityHash doesn’t match the calculated hash, it should fail`, async () => {
-    //     const subGraphs = fetcherWithThirdPartyMerkleRoot(merkleRoot)
-
-    //     const deployment = buildThirdPartyWearableDeployment(metadata.id, {
-    //       ...metadata,
-    //       merkleProof: { ...metadata.merkleProof, entityHash: 'someInvalidHash' }
-    //     })
-
-    //     const validateFn = createWearableValidateFn(buildOnChainAccessCheckerComponents({ subGraphs }))
-    //     const response = await validateFn(deployment)
-    //     expect(response.ok).toBeFalsy()
-    //   })
   })
 })

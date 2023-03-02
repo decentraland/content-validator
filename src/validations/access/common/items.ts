@@ -5,19 +5,17 @@ import {
   OffChainAsset,
   parseUrn
 } from '@dcl/urn-resolver'
+import { ThirdPartyAssetValidateFn, V1andV2collectionAssetValidateFn } from '../../..'
 import {
+  ContentValidatorComponents,
+  DeploymentToValidate,
+  OK,
   ValidateFn,
   validationFailed,
-  ValidationResponse,
-  OK,
-  ContentValidatorComponents,
-  DeploymentToValidate
-} from '../../types'
+  ValidationResponse
+} from '../../../types'
 
-export type ItemValidateFnComponents = Pick<
-  ContentValidatorComponents,
-  'externalCalls' | 'v1andV2collectionAssetValidateFn' | 'thirdPartyAssetValidateFn'
->
+export type ItemValidateFnComponents = Pick<ContentValidatorComponents, 'externalCalls'>
 
 export type UrnType =
   | 'off-chain'
@@ -65,8 +63,12 @@ async function parseUrnNoFail(urn: string): Promise<SupportedAsset | null> {
   return null
 }
 
-export function createWearableValidateFn(components: ItemValidateFnComponents): ValidateFn {
-  return createItemValidateFn(components, [
+export function createWearableValidateFn(
+  components: ItemValidateFnComponents,
+  v1andV2collectionAssetValidateFn: V1andV2collectionAssetValidateFn,
+  thirdPartyAssetValidateFn: ThirdPartyAssetValidateFn
+): ValidateFn {
+  return createItemValidateFn(components, v1andV2collectionAssetValidateFn, thirdPartyAssetValidateFn, [
     'off-chain',
     'blockchain-collection-v1-asset',
     'blockchain-collection-v2-asset',
@@ -74,12 +76,21 @@ export function createWearableValidateFn(components: ItemValidateFnComponents): 
   ])
 }
 
-export function createEmoteValidateFn(components: ItemValidateFnComponents): ValidateFn {
-  return createItemValidateFn(components, ['blockchain-collection-v2-asset', 'blockchain-collection-third-party'])
+export function createEmoteValidateFn(
+  components: ItemValidateFnComponents,
+  v1andV2collectionAssetValidateFn: V1andV2collectionAssetValidateFn,
+  thirdPartyAssetValidateFn: ThirdPartyAssetValidateFn
+): ValidateFn {
+  return createItemValidateFn(components, v1andV2collectionAssetValidateFn, thirdPartyAssetValidateFn, [
+    'blockchain-collection-v2-asset',
+    'blockchain-collection-third-party'
+  ])
 }
 
 export function createItemValidateFn(
-  { externalCalls, v1andV2collectionAssetValidateFn, thirdPartyAssetValidateFn }: ItemValidateFnComponents,
+  { externalCalls }: ItemValidateFnComponents,
+  v1andV2collectionAssetValidateFn: V1andV2collectionAssetValidateFn,
+  thirdPartyAssetValidateFn: ThirdPartyAssetValidateFn,
   validUrnTypesForItem: UrnType[]
 ): ValidateFn {
   return async function validateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {

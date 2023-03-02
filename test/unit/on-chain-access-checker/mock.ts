@@ -1,10 +1,11 @@
-import { L1Checker, L2Checker, OnChainAccessCheckerComponents } from '../../../src'
-import { buildComponents, createMockSubgraphComponent } from '../../setup/mock'
 import { BlockInfo, BlockRepository, createAvlBlockSearch, metricsDefinitions } from '@dcl/block-indexer'
 import { createTestMetricsComponent } from '@well-known-components/metrics'
-import { createOnChainClient } from '../../../src/validations/on-chain-access-checker/the-graph-client'
-import { createThirdPartyAssetValidateFn } from '../../../src/validations/on-chain-access-checker/third-party-asset'
-import { createV1andV2collectionAssetValidateFn } from '../../../src/validations/on-chain-access-checker/collection-asset'
+import { L1Checker, L2Checker, OnChainAccessCheckerComponents, ValidateFn } from '../../../src'
+import { createEmoteValidateFn, createWearableValidateFn } from '../../../src/validations/access/common/items'
+import { createOnChainClient } from '../../../src/validations/access/on-chain/client'
+import { createV1andV2collectionAssetValidateFn } from '../../../src/validations/access/on-chain/collection-asset'
+import { createThirdPartyAssetValidateFn } from '../../../src/validations/access/on-chain/third-party-asset'
+import { buildComponents, createMockSubgraphComponent } from '../../setup/mock'
 
 const defaultEthereum = [
   {
@@ -84,7 +85,7 @@ export const buildOnChainAccessCheckerComponents = (
   provided?: Partial<OnChainAccessCheckerComponents>
 ): OnChainAccessCheckerComponents => {
   const basicComponents = buildComponents(provided)
-  const { logs, externalCalls } = basicComponents
+  const { logs } = basicComponents
 
   const metrics = createTestMetricsComponent(metricsDefinitions)
   const L1 = provided?.L1 ?? {
@@ -132,18 +133,24 @@ export const buildOnChainAccessCheckerComponents = (
 
   const client = provided?.client ?? createOnChainClient({ logs, L1, L2 })
 
-  const thirdPartyAssetValidateFn =
-    provided?.thirdPartyAssetValidateFn ?? createThirdPartyAssetValidateFn({ L2, client, logs, externalCalls })
-  const v1andV2collectionAssetValidateFn =
-    provided?.v1andV2collectionAssetValidateFn ??
-    createV1andV2collectionAssetValidateFn({ logs, externalCalls, L2, client })
-
   return {
     ...basicComponents,
-    thirdPartyAssetValidateFn,
-    v1andV2collectionAssetValidateFn,
     L1,
     L2,
     client
   }
+}
+
+export function buildWearableValidateFn(components: OnChainAccessCheckerComponents): ValidateFn {
+  const thirdPartyAssetValidateFn = createThirdPartyAssetValidateFn(components)
+  const v1andV2collectionAssetValidateFn = createV1andV2collectionAssetValidateFn(components)
+
+  return createWearableValidateFn(components, v1andV2collectionAssetValidateFn, thirdPartyAssetValidateFn)
+}
+
+export function buildEmoteValidateFn(components: OnChainAccessCheckerComponents): ValidateFn {
+  const thirdPartyAssetValidateFn = createThirdPartyAssetValidateFn(components)
+  const v1andV2collectionAssetValidateFn = createV1andV2collectionAssetValidateFn(components)
+
+  return createEmoteValidateFn(components, v1andV2collectionAssetValidateFn, thirdPartyAssetValidateFn)
 }

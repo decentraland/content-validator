@@ -6,23 +6,10 @@ import {
   OnChainAccessCheckerComponents,
   V1andV2collectionAssetValidateFn,
   validationFailed
-} from '../../types'
+} from '../../../types'
 
 const L1_NETWORKS = ['mainnet', 'kovan', 'rinkeby', 'goerli']
 const L2_NETWORKS = ['matic', 'mumbai']
-
-type CollectionItem = {
-  managers: string[]
-  contentHash: string
-}
-
-export type ItemCollection = {
-  creator: string
-  managers: string[]
-  isApproved: boolean
-  isCompleted: boolean
-  items: CollectionItem[]
-}
 
 export function createV1andV2collectionAssetValidateFn({
   externalCalls,

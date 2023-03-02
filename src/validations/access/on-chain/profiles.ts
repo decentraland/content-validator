@@ -3,27 +3,27 @@ import { parseUrn } from '@dcl/urn-resolver'
 import {
   DeploymentToValidate,
   OK,
-  SubgraphAccessCheckerComponents,
+  OnChainAccessCheckerComponents,
   ValidateFn,
   validationFailed,
   ValidationResponse
-} from '../../types'
-import { createPointerValidateFn } from '../access/profiles'
-import { isOldEmote } from '../profile'
-import { ADR_74_TIMESTAMP, ADR_75_TIMESTAMP } from '../timestamps'
-import { validateAfterADR75, validateAll } from '../validations'
+} from '../../../types'
+import { isOldEmote } from '../../profile'
+import { ADR_74_TIMESTAMP, ADR_75_TIMESTAMP } from '../../timestamps'
+import { validateAfterADR75, validateAll } from '../../validations'
+import { createPointerValidateFn } from '../common/profiles'
 
 export function createNamesOwnershipValidateFn({
   externalCalls,
-  theGraphClient
-}: Pick<SubgraphAccessCheckerComponents, 'externalCalls' | 'theGraphClient'>): ValidateFn {
+  client
+}: Pick<OnChainAccessCheckerComponents, 'externalCalls' | 'client'>): ValidateFn {
   async function validateFn(deployment: DeploymentToValidate) {
     const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
     const names = deployment.entity.metadata.avatars
       .filter((avatar: Avatar) => avatar.hasClaimedName)
       .map((avatar: Avatar) => avatar.name)
       .filter((name: string) => name && name.trim().length > 0)
-    const namesCheckResult = await theGraphClient.ownsNamesAtTimestamp(ethAddress, names, deployment.entity.timestamp)
+    const namesCheckResult = await client.ownsNamesAtTimestamp(ethAddress, names, deployment.entity.timestamp)
     if (!namesCheckResult.result)
       return validationFailed(
         `The following names (${namesCheckResult.failing?.join(
@@ -38,8 +38,8 @@ export function createNamesOwnershipValidateFn({
 
 export function createItemOwnershipValidateFn({
   externalCalls,
-  theGraphClient
-}: Pick<SubgraphAccessCheckerComponents, 'externalCalls' | 'theGraphClient'>): ValidateFn {
+  client
+}: Pick<OnChainAccessCheckerComponents, 'externalCalls' | 'client'>): ValidateFn {
   async function sanitizeUrn(urn: string): Promise<string | undefined> {
     if (!urn.startsWith('dcl://')) {
       return urn
@@ -91,11 +91,7 @@ export function createItemOwnershipValidateFn({
         itemUrns.push(urn)
       }
     }
-    const itemsOwnershipResult = await theGraphClient.ownsItemsAtTimestamp(
-      ethAddress,
-      itemUrns,
-      deployment.entity.timestamp
-    )
+    const itemsOwnershipResult = await client.ownsItemsAtTimestamp(ethAddress, itemUrns, deployment.entity.timestamp)
     if (!itemsOwnershipResult.result) {
       return validationFailed(
         `The following items (${itemsOwnershipResult.failing?.join(
@@ -108,12 +104,10 @@ export function createItemOwnershipValidateFn({
   }
 }
 
-export function createProfileValidateFn(
-  components: Pick<SubgraphAccessCheckerComponents, 'theGraphClient' | 'externalCalls'>
-) {
+export function createProfileValidateFn(components: Pick<OnChainAccessCheckerComponents, 'client' | 'externalCalls'>) {
   return validateAll(
-    createPointerValidateFn(components),
     createNamesOwnershipValidateFn(components),
-    createItemOwnershipValidateFn(components)
+    createItemOwnershipValidateFn(components),
+    createPointerValidateFn(components)
   )
 }

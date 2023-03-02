@@ -2,13 +2,13 @@ import { EntityType, EthAddress } from '@dcl/schemas'
 import {
   createNamesOwnershipValidateFn,
   createProfileValidateFn
-} from '../../../src/validations/subgraph-access-checker/profiles'
+} from '../../../src/validations/access/subgraph/profiles'
 import { ADR_74_TIMESTAMP, ADR_75_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment, buildProfileDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
 import { buildExternalCalls } from '../../setup/mock'
-import { buildSubgraphAccessCheckerComponents, fetcherWithItemsOwnership } from './mock'
 import { validProfileMetadataWithEmotes, VALID_PROFILE_METADATA } from '../../setup/profiles'
+import { buildSubgraphAccessCheckerComponents, fetcherWithItemsOwnership } from './mock'
 
 describe('Access: profiles', () => {
   it('When a non-decentraland address tries to deploy an default profile, then an error is returned', async () => {

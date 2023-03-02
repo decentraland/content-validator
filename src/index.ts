@@ -10,7 +10,7 @@ export * from './validations'
  */
 export const createValidator = (components: ContentValidatorComponents): Validator => {
   const logs = components.logs.getLogger('ContentValidator')
-  const validateFns = [...createValidateFns(components), components.accessChecker.checkAccess]
+  const validateFns = [...createValidateFns(components), components.accessValidateFn]
   return {
     validate: async (deployment) => {
       for (const validate of validateFns) {

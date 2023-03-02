@@ -1,4 +1,4 @@
-import { DeploymentToValidate, ValidationResponse, fromErrors, OnChainAccessCheckerComponents } from '../../types'
+import { DeploymentToValidate, fromErrors, OnChainAccessCheckerComponents, ValidationResponse } from '../../../types'
 
 /**
  * Checks if the given address has access to the given parcel at the given timestamp.
