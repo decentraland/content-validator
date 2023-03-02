@@ -3,6 +3,8 @@ import { buildComponents, createMockSubgraphComponent } from '../../setup/mock'
 import { BlockInfo, BlockRepository, createAvlBlockSearch, metricsDefinitions } from '@dcl/block-indexer'
 import { createTestMetricsComponent } from '@well-known-components/metrics'
 import { createOnChainClient } from '../../../src/validations/on-chain-access-checker/the-graph-client'
+import { createThirdPartyAssetValidateFn } from '../../../src/validations/on-chain-access-checker/third-party-asset'
+import { createV1andV2collectionAssetValidateFn } from '../../../src/validations/on-chain-access-checker/collection-asset'
 
 const defaultEthereum = [
   {
@@ -79,12 +81,13 @@ export function createMockBlockRepository(currentBlock: number, blocks: Record<n
 }
 
 export const buildOnChainAccessCheckerComponents = (
-  components?: Partial<OnChainAccessCheckerComponents>
+  provided?: Partial<OnChainAccessCheckerComponents>
 ): OnChainAccessCheckerComponents => {
-  const basicComponents = buildComponents(components)
-  const { logs } = basicComponents
+  const basicComponents = buildComponents(provided)
+  const { logs, externalCalls } = basicComponents
+
   const metrics = createTestMetricsComponent(metricsDefinitions)
-  const L1 = components?.L1 ?? {
+  const L1 = provided?.L1 ?? {
     checker: createMockL1Checker(),
     collections: createMockSubgraphComponent(),
     blockSearch: createAvlBlockSearch({
@@ -105,7 +108,7 @@ export const buildOnChainAccessCheckerComponents = (
       })
     })
   }
-  const L2 = components?.L2 ?? {
+  const L2 = provided?.L2 ?? {
     checker: createMockL2Checker(),
     collections: createMockSubgraphComponent(),
     blockSearch: createAvlBlockSearch({
@@ -127,11 +130,18 @@ export const buildOnChainAccessCheckerComponents = (
     })
   }
 
-  const client = components?.client ?? createOnChainClient({ logs: basicComponents.logs, L1, L2 })
+  const client = provided?.client ?? createOnChainClient({ logs, L1, L2 })
+
+  const thirdPartyAssetValidateFn =
+    provided?.thirdPartyAssetValidateFn ?? createThirdPartyAssetValidateFn({ L2, client, logs, externalCalls })
+  const v1andV2collectionAssetValidateFn =
+    provided?.v1andV2collectionAssetValidateFn ??
+    createV1andV2collectionAssetValidateFn({ logs, externalCalls, L2, client })
 
   return {
     ...basicComponents,
-    ...components,
+    thirdPartyAssetValidateFn,
+    v1andV2collectionAssetValidateFn,
     L1,
     L2,
     client
