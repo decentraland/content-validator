@@ -1,4 +1,4 @@
-import { createWearableValidateFn } from '../../../src/validations/subgraph-access-checker/wearables'
+import { createWearableValidateFn } from '../../../src/validations/access/items'
 import { buildThirdPartyWearableDeployment, buildWearableDeployment } from '../../setup/deployments'
 import {
   buildExternalCalls,

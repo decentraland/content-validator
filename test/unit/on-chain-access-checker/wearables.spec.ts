@@ -1,13 +1,6 @@
-import { createWearableValidateFn } from '../../../src/validations/on-chain-access-checker/wearables'
+import { createWearableValidateFn } from '../../../src/validations/access/items'
 import { buildThirdPartyWearableDeployment, buildWearableDeployment } from '../../setup/deployments'
-import {
-  buildExternalCalls,
-  buildOnChainAccessCheckerComponents,
-  fetcherWithoutAccess,
-  fetcherWithThirdPartyEmptyMerkleRoots,
-  fetcherWithThirdPartyMerkleRoot,
-  fetcherWithValidCollectionAndCreator
-} from '../../setup/mock'
+import { buildExternalCalls, buildOnChainAccessCheckerComponents } from '../../setup/mock'
 import { VALID_THIRD_PARTY_WEARABLE } from '../../setup/wearable'
 
 describe('Access: wearables', () => {

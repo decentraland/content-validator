@@ -10,9 +10,11 @@ import {
   SubGraphs,
   ValidateFn,
   L1Checker,
-  L2Checker
+  L2Checker,
+  V1andV2collectionAssetValidateFn,
+  ThirdPartyAssetValidateFn
 } from '../../src/types'
-import { ItemCollection } from '../../src/validations/subgraph-access-checker/items/collection-asset'
+import { ItemCollection } from '../../src/validations/subgraph-access-checker/collection-asset'
 import { createTheGraphClient } from '../../src/validations/subgraph-access-checker/the-graph-client'
 import { createOnChainClient } from '../../src/validations/on-chain-access-checker/the-graph-client'
 import { BlockInfo, BlockRepository, createAvlBlockSearch, metricsDefinitions } from '@dcl/block-indexer'
@@ -42,7 +44,9 @@ export function buildComponents(components?: Partial<ContentValidatorComponents>
     config,
     logs,
     externalCalls,
-    accessChecker
+    accessChecker,
+    v1andV2collectionAssetValidateFn: jest.fn() as jest.MockedFunction<V1andV2collectionAssetValidateFn>,
+    thirdPartyAssetValidateFn: jest.fn() as jest.MockedFunction<ThirdPartyAssetValidateFn>
   }
 }
 
