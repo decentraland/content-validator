@@ -1,6 +1,8 @@
 import { ILoggerComponent } from '@well-known-components/interfaces'
-import { ISubgraphComponent } from '@well-known-components/thegraph-component'
-import { ContentValidatorComponents, ExternalCalls, QueryGraph, ValidateFn } from '../../src/types'
+import { ISubgraphComponent, Variables } from '@well-known-components/thegraph-component'
+import { ContentValidatorComponents, ExternalCalls, ValidateFn } from '../../src/types'
+
+export type QueryGraph = <T = any>(query: string, variables?: Variables, remainingAttempts?: number) => Promise<T>
 
 export const buildLogger = (): ILoggerComponent => ({
   getLogger: () => ({
