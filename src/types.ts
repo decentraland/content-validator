@@ -193,12 +193,12 @@ export type ContentValidatorComponents = {
   accessValidateFn: ValidateFn
 }
 
-export type SubgraphAccessCheckerComponents = ContentValidatorComponents & {
+export type SubgraphAccessCheckerComponents = Pick<ContentValidatorComponents, 'logs' | 'externalCalls'> & {
   theGraphClient: TheGraphClient
   subGraphs: SubGraphs
 }
 
-export type OnChainAccessCheckerComponents = ContentValidatorComponents & {
+export type OnChainAccessCheckerComponents = Pick<ContentValidatorComponents, 'logs' | 'externalCalls'> & {
   client: OnChainClient
   L1: {
     checker: L1Checker
