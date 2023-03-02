@@ -32,6 +32,9 @@ export async function calculateDeploymentSize(
   return totalSize
 }
 
+/**
+ * @public
+ */
 export function createValidateFns(components: ContentValidatorComponents): ValidateFn[] {
   return [
     // Stateful validations that are run on a deployment.

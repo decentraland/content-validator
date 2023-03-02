@@ -6,7 +6,7 @@ import {
   BlockchainCollectionV2Asset
 } from '@dcl/urn-resolver'
 import { ILoggerComponent } from '@well-known-components/interfaces'
-import { ISubgraphComponent, Variables } from '@well-known-components/thegraph-component'
+import { ISubgraphComponent } from '@well-known-components/thegraph-component'
 import { PermissionResult } from './validations/access/subgraph/the-graph-client'
 
 /**
@@ -40,12 +40,6 @@ export type DeploymentToValidate = {
   files: Map<string, Uint8Array>
   auditInfo: LocalDeploymentAuditInfo
 }
-
-/**
- * Function used to fetch TheGraph
- * @public
- */
-export type QueryGraph = <T = any>(query: string, variables?: Variables, remainingAttempts?: number) => Promise<T>
 
 /**
  * External calls interface to be provided by the servers.
@@ -178,11 +172,17 @@ export type ContentValidatorComponents = {
   accessValidateFn: ValidateFn
 }
 
+/**
+ * @public
+ */
 export type SubgraphAccessCheckerComponents = Pick<ContentValidatorComponents, 'logs' | 'externalCalls'> & {
   theGraphClient: TheGraphClient
   subGraphs: SubGraphs
 }
 
+/**
+ * @public
+ */
 export type OnChainAccessCheckerComponents = Pick<ContentValidatorComponents, 'logs' | 'externalCalls'> & {
   client: OnChainClient
   L1: {
@@ -197,11 +197,17 @@ export type OnChainAccessCheckerComponents = Pick<ContentValidatorComponents, 'l
   }
 }
 
+/**
+ * @internal
+ */
 export type V1andV2collectionAssetValidateFn = (
   asset: BlockchainCollectionV1Asset | BlockchainCollectionV2Asset,
   deployment: DeploymentToValidate
 ) => Promise<ValidationResponse>
 
+/**
+ * @internal
+ */
 export type ThirdPartyAssetValidateFn = (
   asset: BlockchainCollectionThirdParty,
   deployment: DeploymentToValidate

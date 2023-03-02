@@ -15,7 +15,6 @@ import { Entity } from '@dcl/schemas';
 import { EthAddress } from '@dcl/schemas';
 import { ILoggerComponent } from '@well-known-components/interfaces';
 import { ISubgraphComponent } from '@well-known-components/thegraph-component';
-import { Variables } from '@well-known-components/thegraph-component';
 
 // @public (undocumented)
 export type BlockInformation = {
@@ -37,7 +36,7 @@ export type ContentValidatorComponents = {
 export function createValidateFns(components: ContentValidatorComponents): ValidateFn[];
 
 // @public
-export const createValidator: (components: ContentValidatorComponents) => Validator;
+export const createValidator: (components: ContentValidatorComponents) => ValidateFn;
 
 // @public
 export type DeploymentToValidate = {
@@ -90,7 +89,7 @@ export type LocalDeploymentAuditInfo = {
 export const OK: ValidationResponse;
 
 // @public (undocumented)
-export type OnChainAccessCheckerComponents = ContentValidatorComponents & {
+export type OnChainAccessCheckerComponents = Pick<ContentValidatorComponents, 'logs' | 'externalCalls'> & {
     client: OnChainClient;
     L1: {
         checker: L1Checker;
@@ -111,11 +110,8 @@ export type OnChainClient = {
     findBlocksForTimestamp: (timestamp: number, blockSearch: BlockSearch) => Promise<BlockInformation>;
 };
 
-// @public
-export type QueryGraph = <T = any>(query: string, variables?: Variables, remainingAttempts?: number) => Promise<T>;
-
 // @public (undocumented)
-export type SubgraphAccessCheckerComponents = ContentValidatorComponents & {
+export type SubgraphAccessCheckerComponents = Pick<ContentValidatorComponents, 'logs' | 'externalCalls'> & {
     theGraphClient: TheGraphClient;
     subGraphs: SubGraphs;
 };
@@ -142,19 +138,18 @@ export type TheGraphClient = {
     findBlocksForTimestamp: (subgraph: ISubgraphComponent, timestamp: number) => Promise<BlockInformation>;
 };
 
-// @public (undocumented)
+// Warning: (ae-internal-missing-underscore) The name "ThirdPartyAssetValidateFn" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
 export type ThirdPartyAssetValidateFn = (asset: BlockchainCollectionThirdParty, deployment: DeploymentToValidate) => Promise<ValidationResponse>;
 
-// @public (undocumented)
+// Warning: (ae-internal-missing-underscore) The name "V1andV2collectionAssetValidateFn" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
 export type V1andV2collectionAssetValidateFn = (asset: BlockchainCollectionV1Asset | BlockchainCollectionV2Asset, deployment: DeploymentToValidate) => Promise<ValidationResponse>;
 
 // @public (undocumented)
 export type ValidateFn = (deployment: DeploymentToValidate) => Promise<ValidationResponse>;
-
-// @public (undocumented)
-export type ValidationArgs = {
-    deployment: DeploymentToValidate;
-};
 
 // @public (undocumented)
 export const validationFailed: (...error: string[]) => ValidationResponse;
@@ -165,18 +160,12 @@ export type ValidationResponse = {
     errors?: Errors;
 };
 
-// @public
-export interface Validator {
-    // (undocumented)
-    validate(deployment: DeploymentToValidate): Promise<ValidationResponse>;
-}
-
 // @public (undocumented)
 export type Warnings = string[];
 
 // Warnings were encountered during analysis:
 //
-// src/types.ts:171:3 - (ae-forgotten-export) The symbol "PermissionResult" needs to be exported by the entry point index.d.ts
+// src/types.ts:150:3 - (ae-forgotten-export) The symbol "PermissionResult" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 
