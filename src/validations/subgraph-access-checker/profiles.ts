@@ -1,4 +1,4 @@
-import { Avatar, Entity, EthAddress } from '@dcl/schemas'
+import { Avatar, Entity } from '@dcl/schemas'
 import { parseUrn } from '@dcl/urn-resolver'
 import {
   DeploymentToValidate,
@@ -112,8 +112,8 @@ export function createProfileValidateFn(
   components: Pick<SubgraphAccessCheckerComponents, 'theGraphClient' | 'externalCalls'>
 ) {
   return validateAll(
+    createPointerValidateFn(components),
     createNamesOwnershipValidateFn(components),
-    createItemOwnershipValidateFn(components),
-    createPointerValidateFn(components)
+    createItemOwnershipValidateFn(components)
   )
 }

@@ -5,7 +5,6 @@ import {
   ContentValidatorComponents,
   ExternalCalls,
   QueryGraph,
-  SubGraphs,
   ValidateFn,
   V1andV2collectionAssetValidateFn,
   ThirdPartyAssetValidateFn

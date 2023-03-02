@@ -6,9 +6,9 @@ import { ILoggerComponent } from '@well-known-components/interfaces'
 import {
   SubgraphAccessCheckerComponents,
   DeploymentToValidate,
+  ThirdPartyAssetValidateFn,
   OK,
-  validationFailed,
-  ThirdPartyAssetValidateFn
+  validationFailed
 } from '../../types'
 
 function toHexBuffer(value: string): Buffer {

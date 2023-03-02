@@ -1,6 +1,6 @@
-import { createSubgraphAccessCheckValidateFns } from '../../../src/validations/subgraph-access-checker/access'
 import { createAccessCheckerComponent } from '../../../src/validations/access/index'
 import { createSceneValidateFn } from '../../../src/validations/subgraph-access-checker/scenes'
+import { createSubgraphAccessCheckValidateFns } from '../../../src/validations/subgraph-access-checker/access'
 import { buildSceneDeployment } from '../../setup/deployments'
 import { buildConfig, buildExternalCalls } from '../../setup/mock'
 import { buildSubgraphAccessCheckerComponents } from './mock'
@@ -67,7 +67,6 @@ describe('Access: scenes', () => {
 
       const components = buildSubgraphAccessCheckerComponents({ externalCalls, config })
       const checker = createAccessCheckerComponent(components, createSubgraphAccessCheckValidateFns(components))
-
       const response = await (await checker).checkAccess(deployment)
       expect(response.ok).toBeFalsy()
       expect(ownerAddress).toHaveBeenCalled()
@@ -83,7 +82,6 @@ describe('Access: scenes', () => {
       const externalCalls = buildExternalCalls({
         ownerAddress
       })
-
       const components = buildSubgraphAccessCheckerComponents({ externalCalls, config })
       const checker = createAccessCheckerComponent(components, createSubgraphAccessCheckValidateFns(components))
       const response = await (await checker).checkAccess(deployment)
