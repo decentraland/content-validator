@@ -37,6 +37,12 @@ export async function calculateDeploymentSize(
  */
 export function createValidateFns(components: ContentValidatorComponents): ValidateFn[] {
   return [
+    // Stateless validations that are run on a deployment.
+    entityStructureValidationFn,
+    ipfsHashingValidateFn,
+    metadataValidateFn,
+    adr45ValidateFn,
+
     // Stateful validations that are run on a deployment.
     createSignatureValidateFn(components),
     createSizeValidateFn(components),
@@ -44,12 +50,6 @@ export function createValidateFns(components: ContentValidatorComponents): Valid
     emoteValidateFn,
     createProfileValidateFn(components),
     sceneValidateFn,
-    createContentValidateFn(components),
-
-    // Stateless validations that are run on a deployment.
-    entityStructureValidationFn,
-    ipfsHashingValidateFn,
-    metadataValidateFn,
-    adr45ValidateFn
+    createContentValidateFn(components)
   ]
 }
