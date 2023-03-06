@@ -4,7 +4,6 @@ import { ADR_45_TIMESTAMP, ADR_74_TIMESTAMP } from '../../../src/validations/tim
 import { buildDeployment } from '../../setup/deployments'
 import { VALID_STANDARD_EMOTE_METADATA, VALID_THIRD_PARTY_EMOTE_METADATA_WITH_MERKLE_ROOT } from '../../setup/emotes'
 import { buildEntity } from '../../setup/entity'
-import { buildComponents } from '../../setup/mock'
 import { VALID_PROFILE_METADATA } from '../../setup/profiles'
 import { VALID_THIRD_PARTY_WEARABLE, VALID_WEARABLE_METADATA } from '../../setup/wearable'
 

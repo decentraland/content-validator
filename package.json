@@ -51,7 +51,8 @@
     "typescript": "^4.7.3"
   },
   "dependencies": {
-    "@dcl/content-hash-tree": "^1.1.3",
+    "@dcl/block-indexer": "^1.1.1-4056737184.commit-2112891",
+    "@dcl/content-hash-tree": "^1.1.4",
     "@dcl/hashing": "1.1.3",
     "@dcl/schemas": "^6.4.1",
     "@dcl/urn-resolver": "2.0.3",

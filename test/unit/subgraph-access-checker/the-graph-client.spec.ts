@@ -1,4 +1,5 @@
-import { buildSubgraphAccessCheckerComponents, buildSubGraphs, createMockSubgraphComponent } from '../../setup/mock'
+import { createMockSubgraphComponent } from '../../setup/mock'
+import { buildSubgraphAccessCheckerComponents, buildSubGraphs } from './mock'
 
 describe('TheGraphClient', () => {
   it('When invocation to TheGraph throws an error, it is reported accordingly', async () => {
