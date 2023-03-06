@@ -1,8 +1,8 @@
 import { OffChainAsset, parseUrn } from '@dcl/urn-resolver'
 import {
+  ContentValidatorComponents,
   DeploymentToValidate,
   OK,
-  OnChainAccessCheckerComponents,
   ValidateFn,
   validationFailed,
   ValidationResponse
@@ -22,7 +22,7 @@ async function parseUrnNoFail(pointer: string): Promise<OffChainAsset | undefine
  */
 export function createStoreValidateFn({
   externalCalls
-}: Pick<OnChainAccessCheckerComponents, 'externalCalls'>): ValidateFn {
+}: Pick<ContentValidatorComponents, 'externalCalls'>): ValidateFn {
   return async function validateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
     const pointers = deployment.entity.pointers
     const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
