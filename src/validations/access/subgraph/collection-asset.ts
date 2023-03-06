@@ -4,13 +4,13 @@ import { BlockchainCollectionV1Asset, BlockchainCollectionV2Asset } from '@dcl/u
 import { ILoggerComponent } from '@well-known-components/interfaces'
 import { ISubgraphComponent } from '@well-known-components/thegraph-component'
 import {
-  SubgraphAccessCheckerComponents,
   DeploymentToValidate,
   EntityWithEthAddress,
   OK,
+  SubgraphAccessCheckerComponents,
+  V1andV2collectionAssetValidateFn,
   validationFailed
 } from '../../../types'
-import { AssetValidation } from './items'
 
 const L1_NETWORKS = ['mainnet', 'kovan', 'rinkeby', 'goerli']
 const L2_NETWORKS = ['matic', 'mumbai']
@@ -44,7 +44,6 @@ export type ItemCollection = {
 }
 
 async function getCollectionItems(
-  components: Pick<SubgraphAccessCheckerComponents, 'externalCalls'>,
   subgraph: ISubgraphComponent,
   collection: string,
   itemId: string,
@@ -87,7 +86,6 @@ async function getCollectionItems(
 }
 
 async function hasPermission(
-  components: Pick<SubgraphAccessCheckerComponents, 'externalCalls'>,
   subgraph: ISubgraphComponent,
   collection: string,
   itemId: string,
@@ -97,7 +95,7 @@ async function hasPermission(
 ): Promise<boolean> {
   try {
     const { content, metadata } = entity
-    const permissions: ItemPermissionsData = await getCollectionItems(components, subgraph, collection, itemId, block)
+    const permissions: ItemPermissionsData = await getCollectionItems(subgraph, collection, itemId, block)
     const ethAddressLowercase = entity.ethAddress.toLowerCase()
 
     if (!!permissions.contentHash) {
@@ -161,8 +159,7 @@ async function checkCollectionAccess(
     // have access now, or had access 5 minutes ago.
 
     const hasPermissionOnBlock = async (blockNumber: number | undefined) =>
-      !!blockNumber &&
-      (await hasPermission(components, collectionsSubgraph, collection, itemId, blockNumber, entity, logger))
+      !!blockNumber && (await hasPermission(collectionsSubgraph, collection, itemId, blockNumber, entity, logger))
     return (
       (await hasPermissionOnBlock(blockNumberAtDeployment)) ||
       (await hasPermissionOnBlock(blockNumberFiveMinBeforeDeployment))
@@ -175,9 +172,10 @@ async function checkCollectionAccess(
   }
 }
 
-export const v1andV2collectionAssetValidation: AssetValidation = {
-  async validateAsset(
-    components: Pick<SubgraphAccessCheckerComponents, 'externalCalls' | 'logs' | 'subGraphs' | 'theGraphClient'>,
+export function createV1andV2collectionAssetValidateFn(
+  components: Pick<SubgraphAccessCheckerComponents, 'externalCalls' | 'logs' | 'subGraphs' | 'theGraphClient'>
+): V1andV2collectionAssetValidateFn {
+  return async function validateFn(
     asset: BlockchainCollectionV1Asset | BlockchainCollectionV2Asset,
     deployment: DeploymentToValidate
   ) {
@@ -224,8 +222,5 @@ export const v1andV2collectionAssetValidation: AssetValidation = {
       }
     }
     return OK
-  },
-  canValidate(asset): asset is BlockchainCollectionV1Asset | BlockchainCollectionV2Asset {
-    return asset.type === 'blockchain-collection-v1-asset' || asset.type === 'blockchain-collection-v2-asset'
   }
 }

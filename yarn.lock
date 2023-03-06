@@ -394,7 +394,17 @@
   resolved "https://registry.npmjs.org/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@dcl/content-hash-tree@^1.1.3":
+"@dcl/block-indexer@^1.1.1-4056737184.commit-2112891":
+  version "1.1.1-4056737184.commit-2112891"
+  resolved "https://registry.yarnpkg.com/@dcl/block-indexer/-/block-indexer-1.1.1-4056737184.commit-2112891.tgz#8527ad3de9045c0857131a9dc722ae8cbd1c9c6c"
+  integrity sha512-g1UamvNFAKtJQAyGPFlCcl5j//XohpRIqVIa74208phYfU+j5PWpEagTYtfSh40VZgDZqwi36PJ3PyeyZ3TUkA==
+  dependencies:
+    "@well-known-components/interfaces" "^1.1.3"
+    "@well-known-components/logger" "^3.0.0"
+    "@well-known-components/metrics" "^2.0.1"
+    lru-cache "^7.14.0"
+
+"@dcl/content-hash-tree@^1.1.4":
   version "1.1.4"
   resolved "https://registry.yarnpkg.com/@dcl/content-hash-tree/-/content-hash-tree-1.1.4.tgz#4cf6f06a79959199b9a02dc1e870b946ba8329b2"
   integrity sha512-xa9uSIkVOUHV2pkJMaTdmXI7cedbUMuxQbbp6p5tU/WViMbeGW065BkFbM64iGmbfpynLEYZwNsGocBB1o0o9g==
@@ -1707,6 +1717,27 @@
     "@types/node-fetch" "^2.5.12"
     typed-url-params "^1.0.1"
 
+"@well-known-components/interfaces@^1.1.3":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@well-known-components/interfaces/-/interfaces-1.2.0.tgz#0cb9a0f383f9bc16cc4cbdae2ce6826299a0bfb1"
+  integrity sha512-46up+BJFBS4lNNrUwM6k/dmrg2f65fM5CrSekypawQQz2wYmdtN6ZRVVIdm4j0fTp4uaynUsb/yW81wcPK03+Q==
+  dependencies:
+    "@types/node" "^16.11.19"
+    "@types/node-fetch" "^2.5.12"
+    typed-url-params "^1.0.1"
+
+"@well-known-components/logger@^3.0.0":
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/@well-known-components/logger/-/logger-3.1.2.tgz#0644e7a25515235b7ffee4d6c1f0a34fd94b910e"
+  integrity sha512-nT2ULsvtxcaehnUPcmRfVWIspVq6iYTPTzs5D9lBxqE3Pt+j5StzPfo814IqSo4xhN9cJhJAQ/EggMmKuYMaZg==
+
+"@well-known-components/metrics@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@well-known-components/metrics/-/metrics-2.0.1.tgz#b5f5410c3ba6e5658ef80926a1f7bd81d7aa1f56"
+  integrity sha512-jgT9TuxVS9GzVMMYWXNJRM2qXvexuf4xfrFNBYa3w+gqEWCK4Id5R4zBee/bm6/F5yIPauAWxbOS6KNNDBIrGw==
+  dependencies:
+    prom-client "^14.1.0"
+
 "@well-known-components/thegraph-component@^1.2.0":
   version "1.4.1"
   resolved "https://registry.npmjs.org/@well-known-components/thegraph-component/-/thegraph-component-1.4.1.tgz"
@@ -1949,6 +1980,11 @@ bech32@1.1.4:
   version "1.1.4"
   resolved "https://registry.npmjs.org/bech32/-/bech32-1.1.4.tgz"
   integrity sha512-s0IrSOzLlbvX7yp4WBfPITzpAU8sqQcpsmwXDiKwrG4r491vwCO/XpejasRNl0piBMe/DvP4Tz0mIS/X1DPJBQ==
+
+bintrees@1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/bintrees/-/bintrees-1.0.2.tgz#49f896d6e858a4a499df85c38fb399b9aff840f8"
+  integrity sha512-VOMgTMwjAaUG580SXn3LacVgjurrbMme7ZZNYGSSV7mmtY6QQRh0Eg3pwIcntQ77DErK1L0NxkbetjcoXzVwKw==
 
 bl@^4.0.3:
   version "4.1.0"
@@ -4271,6 +4307,11 @@ lru-cache@^6.0.0:
   dependencies:
     yallist "^4.0.0"
 
+lru-cache@^7.14.0:
+  version "7.18.1"
+  resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-7.18.1.tgz#4716408dec51d5d0104732647f584d1f6738b109"
+  integrity sha512-8/HcIENyQnfUTCDizRu9rrDyG6XG/21M4X7/YEGZeD76ZJilFPAUVb/2zysFf7VVO1LEjCDFyHp8pMMvozIrvg==
+
 make-dir@^3.0.0:
   version "3.1.0"
   resolved "https://registry.npmjs.org/make-dir/-/make-dir-3.1.0.tgz"
@@ -4812,6 +4853,13 @@ process-nextick-args@~2.0.0:
   version "2.0.1"
   resolved "https://registry.npmjs.org/process-nextick-args/-/process-nextick-args-2.0.1.tgz"
   integrity sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag==
+
+prom-client@^14.1.0:
+  version "14.1.1"
+  resolved "https://registry.yarnpkg.com/prom-client/-/prom-client-14.1.1.tgz#e9bebef0e2269bfde22a322f4ca803cb52b4a0c0"
+  integrity sha512-hFU32q7UZQ59bVJQGUtm3I2PrJ3gWvoCkilX9sF165ks1qflhugVCeK+S1JjJYHvyt3o5kj68+q3bchormjnzw==
+  dependencies:
+    tdigest "^0.1.1"
 
 prompts@^2.0.1:
   version "2.4.2"
@@ -5422,6 +5470,13 @@ tar-stream@^2.1.4:
     fs-constants "^1.0.0"
     inherits "^2.0.3"
     readable-stream "^3.1.1"
+
+tdigest@^0.1.1:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/tdigest/-/tdigest-0.1.2.tgz#96c64bac4ff10746b910b0e23b515794e12faced"
+  integrity sha512-+G0LLgjjo9BZX2MfdvPfH+MKLCrxlXSYec5DaPYP1fe6Iyhf0/fSmJ0bFiZ1F8BT6cGXl2LpltQptzjXKWEkKA==
+  dependencies:
+    bintrees "1.0.2"
 
 terminal-link@^2.0.0:
   version "2.1.1"

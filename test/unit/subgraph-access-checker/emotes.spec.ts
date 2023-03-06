@@ -1,22 +1,22 @@
-import { createEmoteValidateFn } from '../../../src/validations/subgraph-access-checker/emotes'
 import { buildEmoteDeployment, buildThirdPartyEmoteDeployment } from '../../setup/deployments'
 import { VALID_THIRD_PARTY_EMOTE_METADATA_WITH_MERKLE_ROOT } from '../../setup/emotes'
+import { buildExternalCalls } from '../../setup/mock'
 import {
-  buildExternalCalls,
+  buildEmoteValidateFn,
   buildSubgraphAccessCheckerComponents,
   fetcherWithoutAccess,
   fetcherWithThirdPartyEmptyMerkleRoots,
   fetcherWithThirdPartyMerkleRoot,
   fetcherWithValidCollectionAndCreator
-} from '../../setup/mock'
+} from './mock'
 
 describe('Access: emotes', () => {
   it('When non-urns are used as pointers, then validation fails', async () => {
     const pointers = ['invalid-pointer']
     const deployment = buildEmoteDeployment(pointers)
     const externalCalls = buildExternalCalls()
-
-    const validateFn = createEmoteValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
+    const components = buildSubgraphAccessCheckerComponents({ externalCalls })
+    const validateFn = buildEmoteValidateFn(components)
     const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
@@ -31,8 +31,9 @@ describe('Access: emotes', () => {
     ]
     const deployment = buildEmoteDeployment(pointers)
     const externalCalls = buildExternalCalls()
+    const components = buildSubgraphAccessCheckerComponents({ externalCalls })
 
-    const validateFn = createEmoteValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
+    const validateFn = buildEmoteValidateFn(components)
     const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(`Only one pointer is allowed when you create an item. Received: ${pointers}`)
@@ -48,7 +49,9 @@ describe('Access: emotes', () => {
       ownerAddress: () => 'some address'
     })
 
-    const validateFn = createEmoteValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
+    const components = buildSubgraphAccessCheckerComponents({ externalCalls })
+
+    const validateFn = buildEmoteValidateFn(components)
     const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
@@ -66,7 +69,9 @@ describe('Access: emotes', () => {
       ownerAddress: () => 'some address'
     })
 
-    const validateFn = createEmoteValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
+    const components = buildSubgraphAccessCheckerComponents({ externalCalls })
+
+    const validateFn = buildEmoteValidateFn(components)
     const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
@@ -85,8 +90,10 @@ describe('Access: emotes', () => {
       'urn:decentraland:mumbai:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
-    const validateFn = createEmoteValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls, subGraphs }))
-    const response = await validateFn(deployment)
+    const components = buildSubgraphAccessCheckerComponents({ externalCalls, subGraphs })
+
+    const validateFn = buildEmoteValidateFn(components)
+    await validateFn(deployment)
 
     expect(subGraphs.L2.blocks.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
     expect(subGraphs.L2.collections.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
@@ -103,7 +110,9 @@ describe('Access: emotes', () => {
       'urn:decentraland:ethereum:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
-    const validateFn = createEmoteValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls, subGraphs }))
+    const components = buildSubgraphAccessCheckerComponents({ externalCalls, subGraphs })
+
+    const validateFn = buildEmoteValidateFn(components)
     await validateFn(deployment)
 
     expect(subGraphs.L1.blocks.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
@@ -121,7 +130,9 @@ describe('Access: emotes', () => {
       'urn:decentraland:mumbai:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
-    const validateFn = createEmoteValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls, subGraphs }))
+    const components = buildSubgraphAccessCheckerComponents({ externalCalls, subGraphs })
+
+    const validateFn = buildEmoteValidateFn(components)
     await validateFn(deployment)
 
     expect(subGraphs.L2.blocks.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
@@ -140,7 +151,9 @@ describe('Access: emotes', () => {
       'urn:decentraland:ethereum:collections-v2:0x8dec2b9bd86108430a0c288ea1b76c749823d104:1'
     ])
 
-    const validateFn = createEmoteValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls, subGraphs }))
+    const components = buildSubgraphAccessCheckerComponents({ externalCalls, subGraphs })
+
+    const validateFn = buildEmoteValidateFn(components)
     await validateFn(deployment)
 
     expect(subGraphs.L1.blocks.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
@@ -155,7 +168,9 @@ describe('Access: emotes', () => {
       ownerAddress: () => 'some address'
     })
 
-    const validateFn = createEmoteValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
+    const components = buildSubgraphAccessCheckerComponents({ externalCalls })
+
+    const validateFn = buildEmoteValidateFn(components)
     const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
@@ -170,7 +185,9 @@ describe('Access: emotes', () => {
       isAddressOwnedByDecentraland: () => true
     })
 
-    const validateFn = createEmoteValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
+    const components = buildSubgraphAccessCheckerComponents({ externalCalls })
+
+    const validateFn = buildEmoteValidateFn(components)
     const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
@@ -186,7 +203,9 @@ describe('Access: emotes', () => {
 
       const deployment = buildThirdPartyEmoteDeployment(metadata.id, metadata)
 
-      const validateFn = createEmoteValidateFn(buildSubgraphAccessCheckerComponents({ subGraphs }))
+      const components = buildSubgraphAccessCheckerComponents({ subGraphs })
+
+      const validateFn = buildEmoteValidateFn(components)
       const response = await validateFn(deployment)
       expect(response.ok).toBeTruthy()
     })
@@ -199,7 +218,9 @@ describe('Access: emotes', () => {
         content: {}
       })
 
-      const validateFn = createEmoteValidateFn(buildSubgraphAccessCheckerComponents({ subGraphs }))
+      const components = buildSubgraphAccessCheckerComponents({ subGraphs })
+
+      const validateFn = buildEmoteValidateFn(components)
       const response = await validateFn(deployment)
       expect(response.ok).toBeFalsy()
     })
@@ -209,7 +230,9 @@ describe('Access: emotes', () => {
 
       const deployment = buildThirdPartyEmoteDeployment(metadata.id, metadata)
 
-      const validateFn = createEmoteValidateFn(buildSubgraphAccessCheckerComponents({ subGraphs }))
+      const components = buildSubgraphAccessCheckerComponents({ subGraphs })
+
+      const validateFn = buildEmoteValidateFn(components)
       await validateFn(deployment)
 
       expect(subGraphs.L2.blocks.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
@@ -222,7 +245,9 @@ describe('Access: emotes', () => {
 
       const deployment = buildThirdPartyEmoteDeployment(metadata.id, metadata)
 
-      const validateFn = createEmoteValidateFn(buildSubgraphAccessCheckerComponents({ subGraphs }))
+      const components = buildSubgraphAccessCheckerComponents({ subGraphs })
+
+      const validateFn = buildEmoteValidateFn(components)
       const response = await validateFn(deployment)
       expect(response.ok).toBeFalsy()
     })
@@ -235,7 +260,9 @@ describe('Access: emotes', () => {
         merkleProof: { proof: [], index: 0, hashingKeys: [], entityHash: '' }
       })
 
-      const validateFn = createEmoteValidateFn(buildSubgraphAccessCheckerComponents({ subGraphs }))
+      const components = buildSubgraphAccessCheckerComponents({ subGraphs })
+
+      const validateFn = buildEmoteValidateFn(components)
       const response = await validateFn(deployment)
       expect(response.ok).toBeFalsy()
     })
@@ -251,7 +278,9 @@ describe('Access: emotes', () => {
         }
       })
 
-      const validateFn = createEmoteValidateFn(buildSubgraphAccessCheckerComponents({ subGraphs }))
+      const components = buildSubgraphAccessCheckerComponents({ subGraphs })
+
+      const validateFn = buildEmoteValidateFn(components)
       const response = await validateFn(deployment)
       expect(response.ok).toBeFalsy()
     })
@@ -264,7 +293,9 @@ describe('Access: emotes', () => {
         merkleProof: { ...metadata.merkleProof, entityHash: 'someInvalidHash' }
       })
 
-      const validateFn = createEmoteValidateFn(buildSubgraphAccessCheckerComponents({ subGraphs }))
+      const components = buildSubgraphAccessCheckerComponents({ subGraphs })
+
+      const validateFn = buildEmoteValidateFn(components)
       const response = await validateFn(deployment)
       expect(response.ok).toBeFalsy()
     })

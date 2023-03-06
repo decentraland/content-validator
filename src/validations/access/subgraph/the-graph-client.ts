@@ -1,7 +1,7 @@
 import { EthAddress } from '@dcl/schemas'
 import { parseUrn } from '@dcl/urn-resolver'
 import { ISubgraphComponent } from '@well-known-components/thegraph-component'
-import { BlockInformation, SubgraphAccessCheckerComponents, TheGraphClient } from '../../types'
+import { BlockInformation, SubgraphAccessCheckerComponents, TheGraphClient } from '../../../types'
 
 export type PermissionResult = {
   result: boolean

@@ -1,7 +1,13 @@
+import { BlockSearch } from '@dcl/block-indexer'
 import { AuthChain, Entity, EthAddress } from '@dcl/schemas'
-import { IConfigComponent, ILoggerComponent } from '@well-known-components/interfaces'
-import { ISubgraphComponent, Variables } from '@well-known-components/thegraph-component'
-import { PermissionResult } from './validations/subgraph-access-checker/the-graph-client'
+import {
+  BlockchainCollectionThirdParty,
+  BlockchainCollectionV1Asset,
+  BlockchainCollectionV2Asset
+} from '@dcl/urn-resolver'
+import { ILoggerComponent } from '@well-known-components/interfaces'
+import { ISubgraphComponent } from '@well-known-components/thegraph-component'
+import { PermissionResult } from './validations/access/subgraph/the-graph-client'
 
 /**
  * @public
@@ -36,12 +42,6 @@ export type DeploymentToValidate = {
 }
 
 /**
- * Function used to fetch TheGraph
- * @public
- */
-export type QueryGraph = <T = any>(query: string, variables?: Variables, remainingAttempts?: number) => Promise<T>
-
-/**
  * External calls interface to be provided by the servers.
  * @public
  */
@@ -55,21 +55,6 @@ export type ExternalCalls = {
   ) => Promise<{ ok: boolean; message?: string }>
   ownerAddress: (auditInfo: LocalDeploymentAuditInfo) => string
   isAddressOwnedByDecentraland: (address: string) => boolean
-}
-
-/**
- * Validator interface to be used by any server.
- * @public
- */
-export interface Validator {
-  validate(deployment: DeploymentToValidate): Promise<ValidationResponse>
-}
-
-/**
- * @public
- */
-export type ValidationArgs = {
-  deployment: DeploymentToValidate
 }
 
 /**
@@ -107,6 +92,29 @@ export const fromErrors = (...errors: Errors): ValidationResponse => ({
 })
 
 /**
+ * @public
+ */
+export type L1Checker = {
+  checkLAND(ethAddress: string, parcels: [number, number][], block: number): Promise<boolean[]>
+  checkNames(ethAddress: string, names: string[], block: number): Promise<boolean[]>
+}
+
+/**
+ * @public
+ */
+export type L2Checker = {
+  validateWearables(
+    ethAddress: string,
+    contractAddress: string,
+    assetId: string,
+    hashes: string[],
+    block: number
+  ): Promise<boolean>
+
+  validateThirdParty(tpId: string, root: Buffer, block: number): Promise<boolean>
+}
+
+/**
  * A list with all sub-graphs used for validations.
  * @public
  */
@@ -138,13 +146,20 @@ export type TheGraphClient = {
 /**
  * @public
  */
+export type OnChainClient = {
+  ownsNamesAtTimestamp: (ethAddress: EthAddress, namesToCheck: string[], timestamp: number) => Promise<PermissionResult>
+
+  ownsItemsAtTimestamp: (ethAddress: EthAddress, urnsToCheck: string[], timestamp: number) => Promise<PermissionResult>
+
+  findBlocksForTimestamp: (timestamp: number, blockSearch: BlockSearch) => Promise<BlockInformation>
+}
+
+/**
+ * @public
+ */
 export type BlockInformation = {
   blockNumberAtDeployment: number | undefined
   blockNumberFiveMinBeforeDeployment: number | undefined
-}
-
-export type AccessCheckerComponent = {
-  checkAccess(deployment: DeploymentToValidate): Promise<ValidationResponse>
 }
 
 /**
@@ -152,13 +167,48 @@ export type AccessCheckerComponent = {
  * @public
  */
 export type ContentValidatorComponents = {
-  config: IConfigComponent
   logs: ILoggerComponent
   externalCalls: ExternalCalls
-  accessChecker: AccessCheckerComponent
+  accessValidateFn: ValidateFn
 }
 
-export type SubgraphAccessCheckerComponents = Pick<ContentValidatorComponents, 'externalCalls' | 'logs' | 'config'> & {
+/**
+ * @public
+ */
+export type SubgraphAccessCheckerComponents = Pick<ContentValidatorComponents, 'logs' | 'externalCalls'> & {
   theGraphClient: TheGraphClient
   subGraphs: SubGraphs
 }
+
+/**
+ * @public
+ */
+export type OnChainAccessCheckerComponents = Pick<ContentValidatorComponents, 'logs' | 'externalCalls'> & {
+  client: OnChainClient
+  L1: {
+    checker: L1Checker
+    collections: ISubgraphComponent
+    blockSearch: BlockSearch
+  }
+  L2: {
+    checker: L2Checker
+    collections: ISubgraphComponent
+    blockSearch: BlockSearch
+  }
+}
+
+/**
+ * @internal
+ */
+export type V1andV2collectionAssetValidateFn = (
+  asset: BlockchainCollectionV1Asset | BlockchainCollectionV2Asset,
+  deployment: DeploymentToValidate
+) => Promise<ValidationResponse>
+
+/**
+ * @internal
+ */
+export type ThirdPartyAssetValidateFn = (
+  asset: BlockchainCollectionThirdParty,
+  deployment: DeploymentToValidate
+) => Promise<ValidationResponse>

@@ -1,4 +1,4 @@
-import { ContentValidatorComponents, OK, Validator } from './types'
+import { ContentValidatorComponents, OK, ValidateFn } from './types'
 import { createValidateFns } from './validations'
 
 export * from './types'
@@ -8,21 +8,17 @@ export * from './validations'
  * Creates a validator instance with given external calls.
  * @public
  */
-export const createValidator = (
-  components: Pick<ContentValidatorComponents, 'config' | 'externalCalls' | 'logs' | 'accessChecker'>
-): Validator => {
+export const createValidator = (components: ContentValidatorComponents): ValidateFn => {
   const logs = components.logs.getLogger('ContentValidator')
-  const validateFns = [...createValidateFns(components), components.accessChecker.checkAccess]
-  return {
-    validate: async (deployment) => {
-      for (const validate of validateFns) {
-        const result = await validate(deployment)
-        if (!result.ok) {
-          logs.debug(`Validation failed:\n${result.errors?.join('\n')}`)
-          return result
-        }
+  const validateFns = [...createValidateFns(components), components.accessValidateFn]
+  return async function validateFn(deployment) {
+    for (const validate of validateFns) {
+      const result = await validate(deployment)
+      if (!result.ok) {
+        logs.debug(`Validation failed:\n${result.errors?.join('\n')}`)
+        return result
       }
-      return OK
     }
+    return OK
   }
 }

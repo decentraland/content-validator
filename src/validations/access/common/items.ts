@@ -5,17 +5,17 @@ import {
   OffChainAsset,
   parseUrn
 } from '@dcl/urn-resolver'
-import { DeploymentToValidate } from '../../..'
+import { ThirdPartyAssetValidateFn, V1andV2collectionAssetValidateFn } from '../../..'
 import {
   ContentValidatorComponents,
-  SubgraphAccessCheckerComponents,
+  DeploymentToValidate,
+  OK,
   ValidateFn,
   validationFailed,
   ValidationResponse
 } from '../../../types'
-import { v1andV2collectionAssetValidation } from './collection-asset'
-import { offChainAssetValidation } from './off-chain-asset'
-import { thirdPartyAssetValidation } from './third-party-asset'
+
+export type ItemValidateFnComponents = Pick<ContentValidatorComponents, 'externalCalls'>
 
 export type UrnType =
   | 'off-chain'
@@ -28,17 +28,6 @@ export type SupportedAsset =
   | BlockchainCollectionV2Asset
   | OffChainAsset
   | BlockchainCollectionThirdParty
-
-export type AssetValidation = {
-  validateAsset(
-    components: Pick<ContentValidatorComponents, 'externalCalls'>,
-    asset: SupportedAsset,
-    deployment: DeploymentToValidate
-  ): ValidationResponse | Promise<ValidationResponse>
-  canValidate(asset: SupportedAsset): boolean
-}
-
-const assetValidations = [offChainAssetValidation, v1andV2collectionAssetValidation, thirdPartyAssetValidation]
 
 function alreadySeen(resolvedPointers: SupportedAsset[], parsed: SupportedAsset): boolean {
   return resolvedPointers.some((alreadyResolved) => resolveSameUrn(alreadyResolved, parsed))
@@ -74,8 +63,34 @@ async function parseUrnNoFail(urn: string): Promise<SupportedAsset | null> {
   return null
 }
 
+export function createWearableValidateFn(
+  components: ItemValidateFnComponents,
+  v1andV2collectionAssetValidateFn: V1andV2collectionAssetValidateFn,
+  thirdPartyAssetValidateFn: ThirdPartyAssetValidateFn
+): ValidateFn {
+  return createItemValidateFn(components, v1andV2collectionAssetValidateFn, thirdPartyAssetValidateFn, [
+    'off-chain',
+    'blockchain-collection-v1-asset',
+    'blockchain-collection-v2-asset',
+    'blockchain-collection-third-party'
+  ])
+}
+
+export function createEmoteValidateFn(
+  components: ItemValidateFnComponents,
+  v1andV2collectionAssetValidateFn: V1andV2collectionAssetValidateFn,
+  thirdPartyAssetValidateFn: ThirdPartyAssetValidateFn
+): ValidateFn {
+  return createItemValidateFn(components, v1andV2collectionAssetValidateFn, thirdPartyAssetValidateFn, [
+    'blockchain-collection-v2-asset',
+    'blockchain-collection-third-party'
+  ])
+}
+
 export function createItemValidateFn(
-  components: Pick<SubgraphAccessCheckerComponents, 'externalCalls' | 'logs' | 'theGraphClient'>,
+  { externalCalls }: ItemValidateFnComponents,
+  v1andV2collectionAssetValidateFn: V1andV2collectionAssetValidateFn,
+  thirdPartyAssetValidateFn: ThirdPartyAssetValidateFn,
   validUrnTypesForItem: UrnType[]
 ): ValidateFn {
   return async function validateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
@@ -85,16 +100,20 @@ export function createItemValidateFn(
     // deduplicate pointer resolution
     for (const pointer of pointers) {
       const parsed = await parseUrnNoFail(pointer)
-      if (!parsed)
+      if (!parsed) {
         return validationFailed(
           `Item pointers should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{id}). Invalid pointer: (${pointer})`
         )
+      }
 
-      if (!alreadySeen(resolvedPointers, parsed)) resolvedPointers.push(parsed)
+      if (!alreadySeen(resolvedPointers, parsed)) {
+        resolvedPointers.push(parsed)
+      }
     }
 
-    if (resolvedPointers.length > 1)
+    if (resolvedPointers.length > 1) {
       return validationFailed(`Only one pointer is allowed when you create an item. Received: ${pointers}`)
+    }
 
     const parsedAsset = resolvedPointers[0]
 
@@ -104,11 +123,22 @@ export function createItemValidateFn(
       )
     }
 
-    for (const validation of assetValidations) {
-      if (validation.canValidate(parsedAsset)) {
-        return validation.validateAsset(components, parsedAsset, deployment)
-      }
+    if (parsedAsset.type === 'off-chain') {
+      const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
+      if (!externalCalls.isAddressOwnedByDecentraland(ethAddress))
+        return validationFailed(
+          `The provided Eth Address '${ethAddress}' does not have access to the following item: '${parsedAsset.uri}'`
+        )
+      return OK
+    } else if (
+      parsedAsset.type === 'blockchain-collection-v1-asset' ||
+      parsedAsset.type === 'blockchain-collection-v2-asset'
+    ) {
+      return v1andV2collectionAssetValidateFn(parsedAsset, deployment)
+    } else if (parsedAsset.type === 'blockchain-collection-third-party') {
+      return thirdPartyAssetValidateFn(parsedAsset, deployment)
+    } else {
+      throw new Error('This should never happen. There is no validations for the asset.')
     }
-    throw new Error('This should never happen. There is no validations for the asset.')
   }
 }

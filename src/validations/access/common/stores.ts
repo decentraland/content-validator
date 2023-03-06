@@ -1,12 +1,12 @@
 import { OffChainAsset, parseUrn } from '@dcl/urn-resolver'
 import {
+  ContentValidatorComponents,
   DeploymentToValidate,
   OK,
-  SubgraphAccessCheckerComponents,
   ValidateFn,
   validationFailed,
   ValidationResponse
-} from '../../types'
+} from '../../../types'
 
 async function parseUrnNoFail(pointer: string): Promise<OffChainAsset | undefined> {
   try {
@@ -20,12 +20,12 @@ async function parseUrnNoFail(pointer: string): Promise<OffChainAsset | undefine
  * Validate that the pointers are valid, and that the Ethereum address has write access to them
  * @public
  */
-export function createStoreValidateFn(
-  components: Pick<SubgraphAccessCheckerComponents, 'externalCalls' | 'logs' | 'theGraphClient'>
-): ValidateFn {
+export function createStoreValidateFn({
+  externalCalls
+}: Pick<ContentValidatorComponents, 'externalCalls'>): ValidateFn {
   return async function validateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
     const pointers = deployment.entity.pointers
-    const ethAddress = components.externalCalls.ownerAddress(deployment.auditInfo)
+    const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
 
     if (pointers.length !== 1)
       return validationFailed(`Only one pointer is allowed when you create a Store. Received: ${pointers}`)

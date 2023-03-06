@@ -1,7 +1,7 @@
-import { createSceneValidateFn } from '../../../src/validations/access/subgraph/scenes'
+import { createSceneValidateFn } from '../../../src/validations/access/on-chain/scenes'
 import { buildSceneDeployment } from '../../setup/deployments'
 import { buildExternalCalls } from '../../setup/mock'
-import { buildSubgraphAccessCheckerComponents } from './mock'
+import { buildOnChainAccessCheckerComponents } from './mock'
 
 describe('Access: scenes', () => {
   it('When a non-decentraland address tries to deploy a default scene, then an error is returned', async () => {
@@ -12,7 +12,7 @@ describe('Access: scenes', () => {
       ownerAddress: () => '0xAddress'
     })
 
-    const validateFn = createSceneValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
+    const validateFn = createSceneValidateFn(buildOnChainAccessCheckerComponents({ externalCalls }))
     const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
@@ -28,7 +28,7 @@ describe('Access: scenes', () => {
       ownerAddress: () => '0xAddress'
     })
 
-    const validateFn = createSceneValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
+    const validateFn = createSceneValidateFn(buildOnChainAccessCheckerComponents({ externalCalls }))
     const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
   })
@@ -41,7 +41,7 @@ describe('Access: scenes', () => {
       ownerAddress: () => '0xAddress'
     })
 
-    const validateFn = createSceneValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
+    const validateFn = createSceneValidateFn(buildOnChainAccessCheckerComponents({ externalCalls }))
     const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(

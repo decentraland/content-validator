@@ -1,6 +1,5 @@
 import { EntityType } from '@dcl/schemas'
 import sharp from 'sharp'
-import { ValidationResponse } from '../../../../src'
 import {
   emoteRepresentationContentValidateFn,
   wasCreatedAfterADR74ValidateFn

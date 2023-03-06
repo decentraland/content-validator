@@ -2,20 +2,25 @@ import { EntityType, EthAddress } from '@dcl/schemas'
 import {
   createNamesOwnershipValidateFn,
   createProfileValidateFn
-} from '../../../src/validations/access/subgraph/profiles'
+} from '../../../src/validations/access/on-chain/profiles'
 import { ADR_74_TIMESTAMP, ADR_75_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment, buildProfileDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
 import { buildExternalCalls } from '../../setup/mock'
 import { validProfileMetadataWithEmotes, VALID_PROFILE_METADATA } from '../../setup/profiles'
-import { buildSubgraphAccessCheckerComponents, fetcherWithItemsOwnership } from './mock'
+import {
+  buildOnChainAccessCheckerComponents,
+  createCollectionsSubgraph,
+  createDefaultCollectionsL1Subgraph,
+  createDefaultCollectionsL2Subgraph
+} from './mock'
 
 describe('Access: profiles', () => {
   it('When a non-decentraland address tries to deploy an default profile, then an error is returned', async () => {
     const deployment = buildProfileDeployment(['Default10'])
     const externalCalls = buildExternalCalls()
 
-    const validateFn = createProfileValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
+    const validateFn = createProfileValidateFn(buildOnChainAccessCheckerComponents({ externalCalls }))
     const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain('Only Decentraland can add or modify default profiles')
@@ -29,7 +34,7 @@ describe('Access: profiles', () => {
       ownerAddress: () => someValidAddress
     })
 
-    const validateFn = createProfileValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
+    const validateFn = createProfileValidateFn(buildOnChainAccessCheckerComponents({ externalCalls }))
     const response = await validateFn(deployment)
     expect(response.ok).toBeTruthy()
   })
@@ -41,7 +46,7 @@ describe('Access: profiles', () => {
       ownerAddress: () => someAddress
     })
 
-    const validateFn = createProfileValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
+    const validateFn = createProfileValidateFn(buildOnChainAccessCheckerComponents({ externalCalls }))
     const response = await validateFn(deployment)
     expect(response.ok).toBeTruthy()
   })
@@ -53,7 +58,7 @@ describe('Access: profiles', () => {
       ownerAddress: () => 'some-address'
     })
 
-    const validateFn = createProfileValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
+    const validateFn = createProfileValidateFn(buildOnChainAccessCheckerComponents({ externalCalls }))
     const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(`Only one pointer is allowed when you create a Profile. Received: ${addresses}`)
@@ -68,7 +73,7 @@ describe('Access: profiles', () => {
       ownerAddress: () => address
     })
 
-    const validateFn = createProfileValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
+    const validateFn = createProfileValidateFn(buildOnChainAccessCheckerComponents({ externalCalls }))
     const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
@@ -85,7 +90,7 @@ describe('Access: profiles', () => {
       ownerAddress: () => address
     })
 
-    const validateFn = createProfileValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls }))
+    const validateFn = createProfileValidateFn(buildOnChainAccessCheckerComponents({ externalCalls }))
     const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain('The given pointer is not a valid ethereum address.')
@@ -102,12 +107,16 @@ describe('Access: profiles', () => {
     })
     const deployment = buildDeployment({ entity })
 
-    const subGraphs = fetcherWithItemsOwnership('0x862f109696d7121438642a78b3caa38f476db08b')
     const externalCalls = buildExternalCalls({
       ownerAddress: () => someAddress
     })
 
-    const validateFn = createProfileValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls, subGraphs }))
+    const components = buildOnChainAccessCheckerComponents({ externalCalls })
+    components.L1.collections = createDefaultCollectionsL1Subgraph()
+    components.L2.collections = createDefaultCollectionsL2Subgraph()
+    components.L1.checker.checkNames = jest.fn((_ethAddress, names) => Promise.resolve(names.map(() => true)))
+
+    const validateFn = createProfileValidateFn(components)
     const response = await validateFn(deployment)
     expect(response.ok).toBeTruthy()
   })
@@ -123,16 +132,12 @@ describe('Access: profiles', () => {
     })
     const deployment = buildDeployment({ entity })
 
-    const subGraphs = fetcherWithItemsOwnership('0x862f109696d7121438642a78b3caa38f476db08b', [
-      {
-        name: "Someone else's name"
-      }
-    ])
     const externalCalls = buildExternalCalls({
       ownerAddress: () => someAddress
     })
 
-    const validateFn = createProfileValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls, subGraphs }))
+    const components = buildOnChainAccessCheckerComponents({ externalCalls })
+    const validateFn = createProfileValidateFn(components)
     const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
@@ -151,7 +156,13 @@ describe('Access: profiles', () => {
     })
     const deployment = buildDeployment({ entity })
 
-    const subGraphs = fetcherWithItemsOwnership('0x862f109696d7121438642a78b3caa38f476db08b', undefined, undefined, [
+    const externalCalls = buildExternalCalls({
+      ownerAddress: () => someAddress
+    })
+
+    const components = buildOnChainAccessCheckerComponents({ externalCalls })
+    components.L1.collections = createDefaultCollectionsL1Subgraph()
+    components.L2.collections = createCollectionsSubgraph([
       {
         urn: 'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
       },
@@ -159,11 +170,8 @@ describe('Access: profiles', () => {
         urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa4:0'
       }
     ])
-    const externalCalls = buildExternalCalls({
-      ownerAddress: () => someAddress
-    })
-
-    const validateFn = createProfileValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls, subGraphs }))
+    components.L1.checker.checkNames = jest.fn((_ethAddress, names) => Promise.resolve(names.map(() => true)))
+    const validateFn = createProfileValidateFn(components)
     const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
@@ -184,14 +192,18 @@ describe('Access: profiles', () => {
     })
     const deployment = buildDeployment({ entity })
 
-    const subGraphs = fetcherWithItemsOwnership('0x862f109696d7121438642a78b3caa38f476db08b', undefined, undefined, [
-      { urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }
-    ])
     const externalCalls = buildExternalCalls({
       ownerAddress: () => someAddress
     })
 
-    const validateFn = createProfileValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls, subGraphs }))
+    const components = buildOnChainAccessCheckerComponents({ externalCalls })
+    components.L1.checker.checkNames = jest.fn((_ethAddress, names) => Promise.resolve(names.map(() => true)))
+    components.L1.collections = createDefaultCollectionsL1Subgraph()
+    components.L2.collections = createCollectionsSubgraph([
+      { urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }
+    ])
+
+    const validateFn = createProfileValidateFn(components)
     const response = await validateFn(deployment)
     expect(response.ok).toBeTruthy()
   })
@@ -210,14 +222,18 @@ describe('Access: profiles', () => {
     })
     const deployment = buildDeployment({ entity })
 
-    const subGraphs = fetcherWithItemsOwnership('0x862f109696d7121438642a78b3caa38f476db08b', undefined, undefined, [
-      { urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }
-    ])
     const externalCalls = buildExternalCalls({
       ownerAddress: () => someAddress
     })
 
-    const validateFn = createProfileValidateFn(buildSubgraphAccessCheckerComponents({ externalCalls, subGraphs }))
+    const components = buildOnChainAccessCheckerComponents({ externalCalls })
+    components.L1.checker.checkNames = jest.fn((_ethAddress, names) => Promise.resolve(names.map(() => true)))
+    components.L1.collections = createDefaultCollectionsL1Subgraph()
+    components.L2.collections = createCollectionsSubgraph([
+      { urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }
+    ])
+
+    const validateFn = createProfileValidateFn(components)
     const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
@@ -237,9 +253,9 @@ describe('ownsNames', () => {
       ownerAddress: () => someValidAddress
     })
 
-    const components = buildSubgraphAccessCheckerComponents({ externalCalls })
-    const theGraphSpy = jest
-      .spyOn(components.theGraphClient, 'ownsNamesAtTimestamp')
+    const components = buildOnChainAccessCheckerComponents({ externalCalls })
+    const clientSpy = jest
+      .spyOn(components.client, 'ownsNamesAtTimestamp')
       .mockImplementation(async (ethAddress: EthAddress) => {
         const result = ethAddress === someValidAddress ? true : false
         return {
@@ -249,7 +265,7 @@ describe('ownsNames', () => {
 
     const validateFn = createNamesOwnershipValidateFn(components)
     await validateFn(deployment)
-    expect(theGraphSpy).toBeCalled()
+    expect(clientSpy).toBeCalled()
   })
 
   it('claimed names are not checked against the graph client before ADR 75', async () => {
@@ -262,9 +278,9 @@ describe('ownsNames', () => {
       ownerAddress: () => someValidAddress
     })
 
-    const components = buildSubgraphAccessCheckerComponents({ externalCalls })
-    const theGraphSpy = jest
-      .spyOn(components.theGraphClient, 'ownsNamesAtTimestamp')
+    const components = buildOnChainAccessCheckerComponents({ externalCalls })
+    const clientSpy = jest
+      .spyOn(components.client, 'ownsNamesAtTimestamp')
       .mockImplementation(async (ethAddress: EthAddress) => {
         const result = ethAddress === someValidAddress ? true : false
         return {
@@ -273,7 +289,7 @@ describe('ownsNames', () => {
       })
     const validateFn = createNamesOwnershipValidateFn(components)
     await validateFn(deployment)
-    expect(theGraphSpy).not.toBeCalled()
+    expect(clientSpy).not.toBeCalled()
   })
 
   it('claimed names valid in the graph are sucessful', async () => {
@@ -286,8 +302,8 @@ describe('ownsNames', () => {
       ownerAddress: () => someValidAddress
     })
 
-    const components = buildSubgraphAccessCheckerComponents({ externalCalls })
-    jest.spyOn(components.theGraphClient, 'ownsNamesAtTimestamp').mockImplementation(async (ethAddress: EthAddress) => {
+    const components = buildOnChainAccessCheckerComponents({ externalCalls })
+    jest.spyOn(components.client, 'ownsNamesAtTimestamp').mockImplementation(async (ethAddress: EthAddress) => {
       const result = ethAddress === someValidAddress ? true : false
       return {
         result

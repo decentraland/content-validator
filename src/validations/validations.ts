@@ -12,7 +12,9 @@ export function validateAll(...validationFns: ValidateFn[]): ValidateFn {
   return async (deployment: DeploymentToValidate) => {
     for (const validateFn of validationFns) {
       const response = await validateFn(deployment)
-      if (!response.ok) return response
+      if (!response.ok) {
+        return response
+      }
     }
     return OK
   }

@@ -4,13 +4,17 @@
 
 ```ts
 
+/// <reference types="node" />
+
 import { AuthChain } from '@dcl/schemas';
+import { BlockchainCollectionThirdParty } from '@dcl/urn-resolver';
+import { BlockchainCollectionV1Asset } from '@dcl/urn-resolver';
+import { BlockchainCollectionV2Asset } from '@dcl/urn-resolver';
+import { BlockSearch } from '@dcl/block-indexer';
 import { Entity } from '@dcl/schemas';
 import { EthAddress } from '@dcl/schemas';
-import { IConfigComponent } from '@well-known-components/interfaces';
 import { ILoggerComponent } from '@well-known-components/interfaces';
 import { ISubgraphComponent } from '@well-known-components/thegraph-component';
-import { Variables } from '@well-known-components/thegraph-component';
 
 // @public (undocumented)
 export type BlockInformation = {
@@ -23,18 +27,16 @@ export function calculateDeploymentSize(deployment: DeploymentToValidate, extern
 
 // @public
 export type ContentValidatorComponents = {
-    config: IConfigComponent;
     logs: ILoggerComponent;
-    theGraphClient: TheGraphClient;
     externalCalls: ExternalCalls;
-    subGraphs: SubGraphs;
+    accessValidateFn: ValidateFn;
 };
 
 // @public (undocumented)
-export const createTheGraphClient: (components: Pick<ContentValidatorComponents, 'logs' | 'subGraphs'>) => TheGraphClient;
+export function createValidateFns(components: ContentValidatorComponents): ValidateFn[];
 
 // @public
-export const createValidator: (components: Pick<ContentValidatorComponents, 'config' | 'externalCalls' | 'logs' | 'theGraphClient' | 'subGraphs'>) => Validator;
+export const createValidator: (components: ContentValidatorComponents) => ValidateFn;
 
 // @public
 export type DeploymentToValidate = {
@@ -67,6 +69,18 @@ export type ExternalCalls = {
 export const fromErrors: (...errors: Errors) => ValidationResponse;
 
 // @public (undocumented)
+export type L1Checker = {
+    checkLAND(ethAddress: string, parcels: [number, number][], block: number): Promise<boolean[]>;
+    checkNames(ethAddress: string, names: string[], block: number): Promise<boolean[]>;
+};
+
+// @public (undocumented)
+export type L2Checker = {
+    validateWearables(ethAddress: string, contractAddress: string, assetId: string, hashes: string[], block: number): Promise<boolean>;
+    validateThirdParty(tpId: string, root: Buffer, block: number): Promise<boolean>;
+};
+
+// @public (undocumented)
 export type LocalDeploymentAuditInfo = {
     authChain: AuthChain;
 };
@@ -74,21 +88,33 @@ export type LocalDeploymentAuditInfo = {
 // @public (undocumented)
 export const OK: ValidationResponse;
 
-// @public
-export type QueryGraph = <T = any>(query: string, variables?: Variables, remainingAttempts?: number) => Promise<T>;
+// @public (undocumented)
+export type OnChainAccessCheckerComponents = Pick<ContentValidatorComponents, 'logs' | 'externalCalls'> & {
+    client: OnChainClient;
+    L1: {
+        checker: L1Checker;
+        collections: ISubgraphComponent;
+        blockSearch: BlockSearch;
+    };
+    L2: {
+        checker: L2Checker;
+        collections: ISubgraphComponent;
+        blockSearch: BlockSearch;
+    };
+};
 
-// Warning: (ae-forgotten-export) The symbol "signature" needs to be exported by the entry point index.d.ts
-// Warning: (ae-forgotten-export) The symbol "access" needs to be exported by the entry point index.d.ts
-// Warning: (ae-forgotten-export) The symbol "size" needs to be exported by the entry point index.d.ts
-//
-// @public
-export const statefulValidateFns: readonly [typeof signature, typeof access, typeof size, ValidateFn, ValidateFn, ValidateFn, ValidateFn];
+// @public (undocumented)
+export type OnChainClient = {
+    ownsNamesAtTimestamp: (ethAddress: EthAddress, namesToCheck: string[], timestamp: number) => Promise<PermissionResult>;
+    ownsItemsAtTimestamp: (ethAddress: EthAddress, urnsToCheck: string[], timestamp: number) => Promise<PermissionResult>;
+    findBlocksForTimestamp: (timestamp: number, blockSearch: BlockSearch) => Promise<BlockInformation>;
+};
 
-// Warning: (ae-forgotten-export) The symbol "entityStructure" needs to be exported by the entry point index.d.ts
-// Warning: (ae-forgotten-export) The symbol "adr45" needs to be exported by the entry point index.d.ts
-//
-// @public
-export const statelessValidateFns: readonly [typeof entityStructure, ValidateFn, ValidateFn, typeof adr45];
+// @public (undocumented)
+export type SubgraphAccessCheckerComponents = Pick<ContentValidatorComponents, 'logs' | 'externalCalls'> & {
+    theGraphClient: TheGraphClient;
+    subGraphs: SubGraphs;
+};
 
 // @public
 export type SubGraphs = {
@@ -112,16 +138,18 @@ export type TheGraphClient = {
     findBlocksForTimestamp: (subgraph: ISubgraphComponent, timestamp: number) => Promise<BlockInformation>;
 };
 
-// @public (undocumented)
-export type ValidateFn = (deployment: DeploymentToValidate, components: ContentValidatorComponents) => ValidationResponse | Promise<ValidationResponse>;
+// Warning: (ae-internal-missing-underscore) The name "ThirdPartyAssetValidateFn" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export type ThirdPartyAssetValidateFn = (asset: BlockchainCollectionThirdParty, deployment: DeploymentToValidate) => Promise<ValidationResponse>;
 
-// @public
-export const validateFns: readonly [typeof entityStructure, ValidateFn, ValidateFn, typeof adr45, typeof signature, typeof access, typeof size, ValidateFn, ValidateFn, ValidateFn, ValidateFn];
+// Warning: (ae-internal-missing-underscore) The name "V1andV2collectionAssetValidateFn" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export type V1andV2collectionAssetValidateFn = (asset: BlockchainCollectionV1Asset | BlockchainCollectionV2Asset, deployment: DeploymentToValidate) => Promise<ValidationResponse>;
 
 // @public (undocumented)
-export type ValidationArgs = {
-    deployment: DeploymentToValidate;
-};
+export type ValidateFn = (deployment: DeploymentToValidate) => Promise<ValidationResponse>;
 
 // @public (undocumented)
 export const validationFailed: (...error: string[]) => ValidationResponse;
@@ -132,18 +160,12 @@ export type ValidationResponse = {
     errors?: Errors;
 };
 
-// @public
-export interface Validator {
-    // (undocumented)
-    validate(deployment: DeploymentToValidate): Promise<ValidationResponse>;
-}
-
 // @public (undocumented)
 export type Warnings = string[];
 
 // Warnings were encountered during analysis:
 //
-// src/types.ts:138:3 - (ae-forgotten-export) The symbol "PermissionResult" needs to be exported by the entry point index.d.ts
+// src/types.ts:150:3 - (ae-forgotten-export) The symbol "PermissionResult" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

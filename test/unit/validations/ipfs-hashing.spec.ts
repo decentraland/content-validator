@@ -3,10 +3,8 @@ import { ipfsHashingValidateFn } from '../../../src/validations/ipfs-hashing'
 import { ADR_45_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
-import { buildComponents } from '../../setup/mock'
 
 describe('IPFS hashing', () => {
-  const components = buildComponents()
   const timestamp = ADR_45_TIMESTAMP + 1
   it(`When an entity's id is not an ipfs hash, then it fails`, async () => {
     const entity = buildEntity({
