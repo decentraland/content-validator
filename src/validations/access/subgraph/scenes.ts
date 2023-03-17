@@ -45,8 +45,9 @@ type Authorization = {
 export function createSceneValidateFn({
   externalCalls,
   subGraphs,
-  logs
-}: Pick<SubgraphAccessCheckerComponents, 'externalCalls' | 'logs' | 'subGraphs'>) {
+  logs,
+  addresses
+}: Pick<SubgraphAccessCheckerComponents, 'externalCalls' | 'logs' | 'subGraphs' | 'addresses'>) {
   const logger = logs.getLogger('scenes access validator')
 
   const SCENE_LOOKBACK_TIME = ms('5m')
@@ -55,15 +56,17 @@ export function createSceneValidateFn({
     const getAuthorizations = async (
       owner: EthAddress,
       operator: EthAddress,
-      timestamp: Timestamp
+      timestamp: Timestamp,
+      tokenAddress: EthAddress
     ): Promise<Authorization[]> => {
       const query = `
-          query GetAuthorizations($owner: String!, $operator: String!, $timestamp: Int!) {
+          query GetAuthorizations($owner: String!, $operator: String!, $timestamp: Int!, $tokenAddress: String!) {
               authorizations(
                       where: {
                           owner: $owner,
                           operator: $operator,
-                          createdAt_lte: $timestamp
+                          createdAt_lte: $timestamp,
+                          tokenAddress: $tokenAddress
                       },
                       orderBy: timestamp,
                       orderDirection: desc
@@ -76,7 +79,8 @@ export function createSceneValidateFn({
       const variables = {
         owner,
         operator,
-        timestamp: Math.floor(timestamp / 1000) // js(ms) -> UNIX(s)
+        timestamp: Math.floor(timestamp / 1000), // js(ms) -> UNIX(s)
+        tokenAddress
       }
 
       try {
@@ -215,13 +219,19 @@ export function createSceneValidateFn({
     const hasAccessThroughAuthorizations = async (
       owner: EthAddress,
       ethAddress: EthAddress,
-      timestamp: Timestamp
+      timestamp: Timestamp,
+      tokenAddress: EthAddress
     ): Promise<boolean> => {
       /* You also get access if you received:
        *   - an authorization with isApproved and type Operator, ApprovalForAll or UpdateManager
        * at that time
        */
-      const authorizations = await getAuthorizations(owner.toLowerCase(), ethAddress.toLowerCase(), timestamp)
+      const authorizations = await getAuthorizations(
+        owner.toLowerCase(),
+        ethAddress.toLowerCase(),
+        timestamp,
+        tokenAddress.toLowerCase()
+      )
 
       const firstOperatorAuthorization = authorizations.find((authorization) => authorization.type === 'Operator')
       const firstApprovalForAllAuthorization = authorizations.find(
@@ -261,7 +271,7 @@ export function createSceneValidateFn({
       if (estate) {
         return (
           (await hasAccessThroughFirstLevelAuthorities(estate, ethAddress)) ||
-          (await hasAccessThroughAuthorizations(estate.owners[0].address, ethAddress, timestamp))
+          (await hasAccessThroughAuthorizations(estate.owners[0].address, ethAddress, timestamp, addresses.estate))
         )
       }
       throw new Error(`Couldn\'t find the state ${estateId}`)
@@ -287,7 +297,7 @@ export function createSceneValidateFn({
 
         return (
           (await hasAccessThroughFirstLevelAuthorities(parcel, ethAddress)) ||
-          (await hasAccessThroughAuthorizations(parcel.owners[0].address, ethAddress, timestamp)) ||
+          (await hasAccessThroughAuthorizations(parcel.owners[0].address, ethAddress, timestamp, addresses.land)) ||
           (belongsToEstate && (await isEstateUpdateAuthorized(parcel.estates[0].estateId, timestamp, ethAddress)))
         )
       }
