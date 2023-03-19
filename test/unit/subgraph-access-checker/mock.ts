@@ -1,4 +1,4 @@
-import { Addresses, SubgraphAccessCheckerComponents, SubGraphs, ValidateFn } from '../../../src'
+import { SubgraphAccessCheckerComponents, SubGraphs, TokenAddresses, ValidateFn } from '../../../src'
 import { createEmoteValidateFn, createWearableValidateFn } from '../../../src/validations/access/common/items'
 import {
   createV1andV2collectionAssetValidateFn,
@@ -50,13 +50,13 @@ export const buildSubgraphAccessCheckerComponents = (
   const subGraphs = provided?.subGraphs ?? buildSubGraphs()
   const theGraphClient =
     provided?.theGraphClient ?? createTheGraphClient({ logs: basicComponents.logs, subGraphs, ...provided })
-  const addresses = provided?.addresses ?? buildAddresses()
+  const tokenAddresses = provided?.tokenAddresses ?? buildTokenAddresses()
 
   return {
     ...basicComponents,
     theGraphClient,
     subGraphs,
-    addresses
+    tokenAddresses
   }
 }
 
@@ -242,6 +242,6 @@ export function buildEmoteValidateFn(components: SubgraphAccessCheckerComponents
   return createEmoteValidateFn(components, v1andV2collectionAssetValidateFn, thirdPartyAssetValidateFn)
 }
 
-export function buildAddresses(): Addresses {
+export function buildTokenAddresses(): TokenAddresses {
   return { land: 'asd', estate: 'asd' }
 }

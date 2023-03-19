@@ -46,8 +46,8 @@ export function createSceneValidateFn({
   externalCalls,
   subGraphs,
   logs,
-  addresses
-}: Pick<SubgraphAccessCheckerComponents, 'externalCalls' | 'logs' | 'subGraphs' | 'addresses'>) {
+  tokenAddresses
+}: Pick<SubgraphAccessCheckerComponents, 'externalCalls' | 'logs' | 'subGraphs' | 'tokenAddresses'>) {
   const logger = logs.getLogger('scenes access validator')
 
   const SCENE_LOOKBACK_TIME = ms('5m')
@@ -271,7 +271,7 @@ export function createSceneValidateFn({
       if (estate) {
         return (
           (await hasAccessThroughFirstLevelAuthorities(estate, ethAddress)) ||
-          (await hasAccessThroughAuthorizations(estate.owners[0].address, ethAddress, timestamp, addresses.estate))
+          (await hasAccessThroughAuthorizations(estate.owners[0].address, ethAddress, timestamp, tokenAddresses.estate))
         )
       }
       throw new Error(`Couldn\'t find the state ${estateId}`)
@@ -297,7 +297,12 @@ export function createSceneValidateFn({
 
         return (
           (await hasAccessThroughFirstLevelAuthorities(parcel, ethAddress)) ||
-          (await hasAccessThroughAuthorizations(parcel.owners[0].address, ethAddress, timestamp, addresses.land)) ||
+          (await hasAccessThroughAuthorizations(
+            parcel.owners[0].address,
+            ethAddress,
+            timestamp,
+            tokenAddresses.land
+          )) ||
           (belongsToEstate && (await isEstateUpdateAuthorized(parcel.estates[0].estateId, timestamp, ethAddress)))
         )
       }

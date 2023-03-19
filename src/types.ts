@@ -178,14 +178,14 @@ export type ContentValidatorComponents = {
 export type SubgraphAccessCheckerComponents = Pick<ContentValidatorComponents, 'logs' | 'externalCalls'> & {
   theGraphClient: TheGraphClient
   subGraphs: SubGraphs
-  addresses: Addresses
+  tokenAddresses: TokenAddresses
 }
 
 /**
  * Required Smart Contract addresses.
  * @public
  */
-export type Addresses = {
+export type TokenAddresses = {
   estate: EthAddress
   land: EthAddress
 }
