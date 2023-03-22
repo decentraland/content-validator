@@ -92,4 +92,19 @@ describe('Metadata Schema', () => {
 
     expect(result.ok).toBeTruthy()
   })
+
+  it('when deploying an invalid base wearable the errors are reported correctly', async () => {
+    const expectedErrors = ["must have required property 'i18n'", "must have required property 'id'"]
+
+    const entity = buildEntity({
+      type: EntityType.WEARABLE,
+      metadata: { ...BASE_WEARABLE_METADATA, i18n: undefined, id: undefined }
+    })
+    const deployment = buildDeployment({ entity })
+    const result = await metadataValidateFn(deployment)
+
+    expect(result.ok).toBeFalsy()
+    expect(result.errors).toContain(`The metadata for this entity type (${EntityType.WEARABLE}) is not valid.`)
+    expectedErrors.forEach(($) => expect(result.errors).toContain($))
+  })
 })
