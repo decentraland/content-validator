@@ -5,7 +5,7 @@ import { buildDeployment } from '../../setup/deployments'
 import { VALID_STANDARD_EMOTE_METADATA, VALID_THIRD_PARTY_EMOTE_METADATA_WITH_MERKLE_ROOT } from '../../setup/emotes'
 import { buildEntity } from '../../setup/entity'
 import { VALID_PROFILE_METADATA } from '../../setup/profiles'
-import { VALID_THIRD_PARTY_WEARABLE, VALID_WEARABLE_METADATA } from '../../setup/wearable'
+import { BASE_WEARABLE_METADATA, VALID_THIRD_PARTY_WEARABLE, VALID_WEARABLE_METADATA } from '../../setup/wearable'
 
 describe('Metadata Schema', () => {
   const POST_ADR_45_TIMESTAMP = ADR_45_TIMESTAMP + 1
@@ -80,5 +80,31 @@ describe('Metadata Schema', () => {
     const result = await metadataValidateFn(deployment)
 
     expect(result.ok).toBeTruthy()
+  })
+
+  it('when deploying a base wearable the validation pass', async () => {
+    const entity = buildEntity({
+      type: EntityType.WEARABLE,
+      metadata: BASE_WEARABLE_METADATA
+    })
+    const deployment = buildDeployment({ entity })
+    const result = await metadataValidateFn(deployment)
+
+    expect(result.ok).toBeTruthy()
+  })
+
+  it('when deploying an invalid base wearable the errors are reported correctly', async () => {
+    const expectedErrors = ["must have required property 'i18n'", "must have required property 'id'"]
+
+    const entity = buildEntity({
+      type: EntityType.WEARABLE,
+      metadata: { ...BASE_WEARABLE_METADATA, i18n: undefined, id: undefined }
+    })
+    const deployment = buildDeployment({ entity })
+    const result = await metadataValidateFn(deployment)
+
+    expect(result.ok).toBeFalsy()
+    expect(result.errors).toContain(`The metadata for this entity type (${EntityType.WEARABLE}) is not valid.`)
+    expectedErrors.forEach(($) => expect(result.errors).toContain($))
   })
 })

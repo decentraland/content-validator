@@ -29,6 +29,32 @@ const representation: WearableRepresentation = {
   overrideReplaces: []
 }
 
+export const BASE_WEARABLE_METADATA: Pick<Wearable, 'id' | 'i18n' | 'data' | 'thumbnail'> = {
+  id: 'urn:decentraland:off-chain:base-avatars:BaseMale',
+  i18n: [
+    {
+      code: Locale.EN,
+      text: 'name'
+    }
+  ],
+  data: {
+    replaces: [],
+    hides: [],
+    tags: ['tag1'],
+    representations: [
+      {
+        bodyShapes: [BodyShape.FEMALE],
+        mainFile: 'file1',
+        contents: ['file1', 'file2'],
+        overrideHides: [],
+        overrideReplaces: []
+      }
+    ],
+    category: WearableCategory.UPPER_BODY
+  },
+  thumbnail: 'thumbnail.png'
+}
+
 export const VALID_WEARABLE_METADATA: Wearable = {
   id: 'some id',
   name: 'name',
