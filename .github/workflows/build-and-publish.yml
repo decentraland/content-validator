@@ -32,7 +32,7 @@ jobs:
           ## use action runId instead of current date to generate snapshot numbers
           deterministic-snapshot: true
 
-          ## publish every package to s3
+          ## publish every package to s3 any change
           s3-bucket: ${{ secrets.SDK_TEAM_S3_BUCKET }}
           s3-bucket-key-prefix: '@dcl/${{ github.event.repository_name }}/branch/${{ steps.myref.outputs.branch }}'
 
