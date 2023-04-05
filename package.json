@@ -42,6 +42,7 @@
     "@typescript-eslint/eslint-plugin": "5.21.0",
     "@typescript-eslint/parser": "5.21.0",
     "@well-known-components/env-config-provider": "^1.1.1",
+    "@well-known-components/http-server": "^1.1.6",
     "eslint": "8.14.0",
     "eslint-config-prettier": "8.5.0",
     "eslint-plugin-prettier": "4.0.0",
