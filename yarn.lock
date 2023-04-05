@@ -411,10 +411,10 @@
   dependencies:
     ethers "^5.6.8"
 
-"@dcl/eslint-config@1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@dcl/eslint-config/-/eslint-config-1.1.0.tgz#8ff58ee8171f7928bd9b46fa5bb6b4e659e203f0"
-  integrity sha512-TkECgjNBi/0ascn8M2n6V5l+B3lSyacokF++nnhB0x+gTOvUESmBmIyqJc8uBQYRRfErFEhnwszREu5dy74bBQ==
+"@dcl/eslint-config@1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@dcl/eslint-config/-/eslint-config-1.1.1.tgz#42dc5a4d2f69d7461e87d7b2475380e5746342c7"
+  integrity sha512-4bOEgSu5APHVs4s5I1f0zWukUpKl9b5h5auixwmbRW4gwsMkWAZLNc+77Ne1iG5t1U7hsMpfJO55w0hFewtV/A==
   dependencies:
     "@typescript-eslint/eslint-plugin" "^5.50.0"
     "@typescript-eslint/parser" "^5.50.0"
