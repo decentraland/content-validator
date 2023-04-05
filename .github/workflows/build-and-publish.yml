@@ -47,7 +47,7 @@ jobs:
 
   notify_deployment:
     needs: [check_and_build]
-    if: ${{ github.event.pull_request.number }}
+    if: ${{ github.event.pull_request.number && !startsWith(github.head_ref, 'dependabot/') }}
     runs-on: ubuntu-latest
     name: Deployment Notification
     steps:
