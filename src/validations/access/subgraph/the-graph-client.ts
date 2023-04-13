@@ -163,11 +163,13 @@ export const createTheGraphClient = (
           query: QUERY_ITEMS_FOR_ADDRESS_AT_BLOCK,
           mapper: (response: { items: { urn: string }[] }): Set<string> => new Set(response.items.map(({ urn }) => urn))
         }
-        return runQuery(query, {
+        const promise = runQuery(query, {
           block: blockNumber,
           ethAddress,
           urnList: urnsToCheck
         })
+        console.log({ query, response: await promise })
+        return promise
       }
 
       try {
