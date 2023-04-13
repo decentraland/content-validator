@@ -165,7 +165,7 @@ export const createTheGraphClient = (
         }
         return runQuery(query, {
           block: blockNumber,
-          ethAddress,
+          ethAddress: ethAddress.toLowerCase(),
           urnList: urnsToCheck
         })
       }
