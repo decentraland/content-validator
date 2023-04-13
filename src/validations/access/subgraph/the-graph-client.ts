@@ -168,14 +168,22 @@ export const createTheGraphClient = (
           ethAddress,
           urnList: urnsToCheck
         })
-        console.log({ query, response: await promise })
+        console.log({
+          query,
+          variables: {
+            block: blockNumber,
+            ethAddress,
+            urnList: urnsToCheck
+          },
+          response: await promise
+        })
         return promise
       }
 
       try {
         const ownedItems = await runOwnedItemsOnBlockQuery(blockNumber)
         const notOwned = urnsToCheck.filter((name) => !ownedItems.has(name))
-        console.log('MARIANO', { ownedItems, notOwned, urnsToCheck, blockNumber })
+        console.log('MARIANO', { ownedItems, notOwned, blockNumber })
         return notOwned.length > 0 ? permissionError(notOwned) : permissionOk()
       } catch (error) {
         logger.error(`Error retrieving items owned by address ${ethAddress} at block ${blocks.blockNumberAtDeployment}`)
