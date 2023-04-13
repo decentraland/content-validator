@@ -165,14 +165,14 @@ export const createTheGraphClient = (
         }
         const promise = runQuery(query, {
           block: blockNumber,
-          ethAddress,
+          ethAddress: ethAddress.toLowerCase(),
           urnList: urnsToCheck
         })
         console.log({
           query,
           variables: {
             block: blockNumber,
-            ethAddress,
+            ethAddress: ethAddress.toLowerCase(),
             urnList: urnsToCheck
           },
           response: await promise
