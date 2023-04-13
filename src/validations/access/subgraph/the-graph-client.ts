@@ -173,6 +173,7 @@ export const createTheGraphClient = (
       try {
         const ownedItems = await runOwnedItemsOnBlockQuery(blockNumber)
         const notOwned = urnsToCheck.filter((name) => !ownedItems.has(name))
+        console.log('MARIANO', { ownedItems, notOwned, urnsToCheck, blockNumber })
         return notOwned.length > 0 ? permissionError(notOwned) : permissionOk()
       } catch (error) {
         logger.error(`Error retrieving items owned by address ${ethAddress} at block ${blocks.blockNumberAtDeployment}`)
