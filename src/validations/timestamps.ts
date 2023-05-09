@@ -29,6 +29,12 @@ export const ADR_158_TIMESTAMP = process.env.ADR_158_TIMESTAMP ? parseInt(proces
 export const ADR_173_TIMESTAMP = process.env.ADR_173_TIMESTAMP ? parseInt(process.env.ADR_173_TIMESTAMP) : 1673967600000
 
 /**
+ * 1680571200000 = 2023-05-09T12:00:00Z
+ * @public
+ */
+export const ADR_232_TIMESTAMP = process.env.ADR_232_TIMESTAMP ? parseInt(process.env.ADR_232_TIMESTAMP) : 1680571200000
+
+/**
  * 1681660800000 = 2023-05-19T12:00:00Z
  * @public
  */
