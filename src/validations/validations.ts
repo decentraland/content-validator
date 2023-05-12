@@ -2,7 +2,8 @@ import { EntityType } from '@dcl/schemas'
 import { DeploymentToValidate, OK, ValidateFn } from '../types'
 import {
   ADR_158_TIMESTAMP,
-  ADR_173_TIMESTAMP, ADR_236_TIMESTAMP,
+  ADR_173_TIMESTAMP,
+  ADR_236_TIMESTAMP,
   ADR_45_TIMESTAMP,
   ADR_74_TIMESTAMP,
   ADR_75_TIMESTAMP
