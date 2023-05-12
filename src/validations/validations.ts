@@ -2,7 +2,7 @@ import { EntityType } from '@dcl/schemas'
 import { DeploymentToValidate, OK, ValidateFn } from '../types'
 import {
   ADR_158_TIMESTAMP,
-  ADR_173_TIMESTAMP,
+  ADR_173_TIMESTAMP, ADR_236_TIMESTAMP,
   ADR_45_TIMESTAMP,
   ADR_74_TIMESTAMP,
   ADR_75_TIMESTAMP
@@ -51,6 +51,10 @@ export function validateAfterADR158(validate: ValidateFn): ValidateFn {
 
 export function validateAfterADR173(validate: ValidateFn): ValidateFn {
   return validateIfConditionMet((deployment) => deployment.entity.timestamp >= ADR_173_TIMESTAMP, validate)
+}
+
+export function validateAfterADR236(validate: ValidateFn): ValidateFn {
+  return validateIfConditionMet((deployment) => deployment.entity.timestamp >= ADR_236_TIMESTAMP, validate)
 }
 
 export function validateIfTypeMatches(entityType: EntityType, validate: ValidateFn) {

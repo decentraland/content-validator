@@ -1,6 +1,6 @@
 import { ContentMapping, EntityType } from '@dcl/schemas'
 import { DeploymentToValidate, OK, validationFailed, ValidationResponse } from '../types'
-import { validateAfterADR173, validateAll, validateIfTypeMatches } from './validations'
+import { validateAfterADR173, validateAfterADR236, validateAll, validateIfTypeMatches } from './validations'
 
 /**
  * Validate that given scene deployment does not contain worldConfiguration section
@@ -20,7 +20,7 @@ export const noWorldsConfigurationValidateFn = validateAfterADR173(async functio
  * Validate that given scene deployment thumbnail is a file embedded in the deployment
  * @public
  */
-export const embeddedThumbnail = validateAfterADR173(async function validateFn(
+export const embeddedThumbnail = validateAfterADR236(async function validateFn(
   deployment: DeploymentToValidate
 ): Promise<ValidationResponse> {
   const sceneThumbnail = deployment.entity.metadata?.display.navmapThumbnail
