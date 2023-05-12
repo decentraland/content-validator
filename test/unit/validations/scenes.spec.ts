@@ -1,7 +1,7 @@
 import { EntityType } from '@dcl/schemas'
 import { ValidationResponse } from '../../../src'
 import { embeddedThumbnail, noWorldsConfigurationValidateFn } from '../../../src/validations/scene'
-import { ADR_173_TIMESTAMP } from '../../../src/validations/timestamps'
+import { ADR_173_TIMESTAMP, ADR_236_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
 import { VALID_SCENE_METADATA } from '../../setup/scenes'
@@ -46,6 +46,8 @@ describe('Scenes', () => {
   })
 
   describe('embeddedThumbnail validation:', () => {
+    const timestamp = ADR_236_TIMESTAMP + 1
+
     let thumbnailBuffer: Buffer
     const content = [{ file: 'thumbnail.png', hash: 'thumbnailHash' }]
     const files = new Map()
