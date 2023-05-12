@@ -3,6 +3,7 @@ import { OnChainAccessCheckerComponents, ValidateFn } from '../../../types'
 import { createEmoteValidateFn, createWearableValidateFn } from '../common/items'
 import { createStoreValidateFn } from '../common/stores'
 import { createV1andV2collectionAssetValidateFn } from './collection-asset'
+import { createOutfitsValidateFn } from './outfits'
 import { createProfileValidateFn } from './profiles'
 import { createSceneValidateFn } from './scenes'
 import { createThirdPartyAssetValidateFn } from './third-party-asset'
@@ -21,6 +22,7 @@ export function createOnChainAccessCheckValidateFns(
       thirdPartyAssetValidateFn
     ),
     [EntityType.STORE]: createStoreValidateFn(components),
-    [EntityType.EMOTE]: createEmoteValidateFn(components, v1andV2collectionAssetValidateFn, thirdPartyAssetValidateFn)
+    [EntityType.EMOTE]: createEmoteValidateFn(components, v1andV2collectionAssetValidateFn, thirdPartyAssetValidateFn),
+    [EntityType.OUTFITS]: createOutfitsValidateFn(components)
   }
 }

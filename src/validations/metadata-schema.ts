@@ -40,7 +40,8 @@ const ADRMetadataVersionTimelines: Record<EntityType, ADR[]> = {
   scene: [],
   profile: [],
   wearable: [],
-  store: []
+  store: [],
+  outfits: []
 }
 
 function validateIfEmote(validateFn: ValidateFn): ValidateFn {
