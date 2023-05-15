@@ -5,13 +5,12 @@ import {
   OK,
   OnChainAccessCheckerComponents,
   ValidateFn,
-  validationFailed,
-  ValidationResponse
+  ValidationResponse,
+  validationFailed
 } from '../../../types'
 import { isOldEmote } from '../../profile'
 import { ADR_74_TIMESTAMP, ADR_75_TIMESTAMP } from '../../timestamps'
 import { validateAfterADR75, validateAll } from '../../validations'
-import { createPointerValidateFn } from '../common/profiles'
 
 export function createNamesOwnershipValidateFn({
   externalCalls,
@@ -105,9 +104,5 @@ export function createItemOwnershipValidateFn({
 }
 
 export function createProfileValidateFn(components: Pick<OnChainAccessCheckerComponents, 'client' | 'externalCalls'>) {
-  return validateAll(
-    createNamesOwnershipValidateFn(components),
-    createItemOwnershipValidateFn(components),
-    createPointerValidateFn(components)
-  )
+  return validateAll(createNamesOwnershipValidateFn(components), createItemOwnershipValidateFn(components))
 }
