@@ -1,12 +1,11 @@
 import { Entity, EntityType, EthAddress, Outfit, Outfits } from '@dcl/schemas'
-import { OnChainAccessCheckerComponents } from '../../../src'
+import { ItemsOwnership, NamesOwnership } from '../../../src'
 import {
   createOutfitsNamesOwnershipValidateFn,
   createOutfitsWearablesOwnershipValidateFn
-} from '../../../src/validations/access/on-chain/outfits'
+} from '../../../src/validations/access/common/outfits'
 import { buildDeployment } from '../../setup/deployments'
 import { buildExternalCalls } from '../../setup/mock'
-import { buildOnChainAccessCheckerComponents } from './mock'
 
 type TypedEntity<T> = Entity & {
   metadata: T
@@ -43,28 +42,7 @@ describe('createOutfitsWearablesOwnershipValidateFn', () => {
       content: [],
       id: 'bafybeihz4c4cf4icnlh6yjtt7fooaeih3dkv2mz6umod7dybenzmsxkzvq',
       metadata: {
-        outfits: [
-          {
-            slot: 0,
-            outfit: {
-              bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseMale',
-              eyes: { color: { r: 0.23046875, g: 0.625, b: 0.3125 } },
-              hair: { color: { r: 0.35546875, g: 0.19140625, b: 0.05859375 } },
-              skin: { color: { r: 0.94921875, g: 0.76171875, b: 0.6484375 } },
-              wearables: [wearable0]
-            }
-          },
-          {
-            slot: 1,
-            outfit: {
-              bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseMale',
-              eyes: { color: { r: 0.23046875, g: 0.625, b: 0.3125 } },
-              hair: { color: { r: 0.35546875, g: 0.19140625, b: 0.05859375 } },
-              skin: { color: { r: 0.94921875, g: 0.76171875, b: 0.6484375 } },
-              wearables: [wearable1]
-            }
-          }
-        ],
+        outfits: [outfitWithWearables(0, wearable0), outfitWithWearables(1, wearable1)],
         namesForExtraSlots: []
       }
     }
@@ -74,12 +52,12 @@ describe('createOutfitsWearablesOwnershipValidateFn', () => {
       ownerAddress: () => ownerAddress
     })
 
-    const components = buildOnChainAccessCheckerComponents({ externalCalls })
-    const theGraphSpy = spyTheGraphClientWithOwnedWearables(components, ownerAddress, [wearable0, wearable1, wearable2])
+    const itemsOwnership = createItemsOwnershipWith(ownerAddress, [wearable0, wearable1, wearable2])
+    const ownsItemsSpy = jest.spyOn(itemsOwnership, 'ownsItemsAtTimestamp')
 
-    const validateFn = createOutfitsWearablesOwnershipValidateFn(components)
+    const validateFn = createOutfitsWearablesOwnershipValidateFn({ externalCalls }, itemsOwnership)
     const result = await validateFn(deployment)
-    expect(theGraphSpy).toBeCalled()
+    expect(ownsItemsSpy).toBeCalled()
     expect(result.ok).toBeTruthy()
   })
 
@@ -105,12 +83,12 @@ describe('createOutfitsWearablesOwnershipValidateFn', () => {
       ownerAddress: () => ownerAddress
     })
 
-    const components = buildOnChainAccessCheckerComponents({ externalCalls })
-    const theGraphSpy = spyTheGraphClientWithOwnedWearables(components, ownerAddress, [wearable0, wearable2])
+    const itemsOwnership = createItemsOwnershipWith(ownerAddress, [wearable0, wearable2])
+    const ownsItemsSpy = jest.spyOn(itemsOwnership, 'ownsItemsAtTimestamp')
 
-    const validateFn = createOutfitsWearablesOwnershipValidateFn(components)
+    const validateFn = createOutfitsWearablesOwnershipValidateFn({ externalCalls }, itemsOwnership)
     const result = await validateFn(deployment)
-    expect(theGraphSpy).toBeCalled()
+    expect(ownsItemsSpy).toBeCalled()
     expect(result.ok).toBeFalsy()
     expect(result.errors).toBeDefined()
     if (result.errors) {
@@ -120,14 +98,9 @@ describe('createOutfitsWearablesOwnershipValidateFn', () => {
     }
   })
 
-  function spyTheGraphClientWithOwnedWearables(
-    { client }: Pick<OnChainAccessCheckerComponents, 'client'>,
-    ownerAddress: string,
-    ownedWearables: string[]
-  ) {
-    return jest
-      .spyOn(client, 'ownsItemsAtTimestamp')
-      .mockImplementation(async (ethAddress: EthAddress, urnsToCheck: string[]) => {
+  function createItemsOwnershipWith(ownerAddress: string, ownedWearables: string[]): ItemsOwnership {
+    return {
+      async ownsItemsAtTimestamp(ethAddress: EthAddress, urnsToCheck: string[]) {
         const result = ethAddress === ownerAddress && urnsToCheck.every((wearable) => ownedWearables.includes(wearable))
         if (!result) {
           const failing = urnsToCheck.filter((wearable) => !ownedWearables.includes(wearable))
@@ -139,7 +112,8 @@ describe('createOutfitsWearablesOwnershipValidateFn', () => {
         return {
           result
         }
-      })
+      }
+    }
   }
 })
 describe('createOutfitsNamesOwnershipValidateFn', () => {
@@ -162,12 +136,12 @@ describe('createOutfitsNamesOwnershipValidateFn', () => {
       ownerAddress: () => ownerAddress
     })
 
-    const components = buildOnChainAccessCheckerComponents({ externalCalls })
-    const theGraphSpy = spyTheGraphClientWithOwnedNames(components, ownerAddress, ['name1', 'name2', 'name3'])
+    const namesOwnership = createNamesOwnershipWith(ownerAddress, ['name1', 'name2', 'name3'])
+    const ownsNamesSpy = jest.spyOn(namesOwnership, 'ownsNamesAtTimestamp')
 
-    const validateFn = createOutfitsNamesOwnershipValidateFn(components)
+    const validateFn = createOutfitsNamesOwnershipValidateFn({ externalCalls }, namesOwnership)
     const result = await validateFn(deployment)
-    expect(theGraphSpy).toBeCalled()
+    expect(ownsNamesSpy).toBeCalled()
     expect(result.ok).toBeTruthy()
   })
 
@@ -190,12 +164,12 @@ describe('createOutfitsNamesOwnershipValidateFn', () => {
       ownerAddress: () => ownerAddress
     })
 
-    const components = buildOnChainAccessCheckerComponents({ externalCalls })
-    const theGraphSpy = spyTheGraphClientWithOwnedNames(components, ownerAddress, ['name2', 'name3'])
+    const namesOwnership = createNamesOwnershipWith(ownerAddress, ['name2', 'name3'])
+    const ownsNamesSpy = jest.spyOn(namesOwnership, 'ownsNamesAtTimestamp')
 
-    const validateFn = createOutfitsNamesOwnershipValidateFn(components)
+    const validateFn = createOutfitsNamesOwnershipValidateFn({ externalCalls }, namesOwnership)
     const result = await validateFn(deployment)
-    expect(theGraphSpy).toBeCalled()
+    expect(ownsNamesSpy).toBeCalled()
     expect(result.ok).toBeFalsy()
     expect(result.errors).toBeDefined()
     if (result.errors) {
@@ -205,14 +179,9 @@ describe('createOutfitsNamesOwnershipValidateFn', () => {
     }
   })
 
-  function spyTheGraphClientWithOwnedNames(
-    { client }: Pick<OnChainAccessCheckerComponents, 'client'>,
-    ownerAddress: string,
-    ownedNames: string[]
-  ) {
-    return jest
-      .spyOn(client, 'ownsNamesAtTimestamp')
-      .mockImplementation(async (ethAddress: EthAddress, namesToCheck: string[]) => {
+  function createNamesOwnershipWith(ownerAddress: string, ownedNames: string[]): NamesOwnership {
+    return {
+      async ownsNamesAtTimestamp(ethAddress: EthAddress, namesToCheck: string[]) {
         const result = ethAddress === ownerAddress && namesToCheck.every((name) => ownedNames.includes(name))
         if (!result) {
           const failing = namesToCheck.filter((name) => !ownedNames.includes(name))
@@ -224,6 +193,7 @@ describe('createOutfitsNamesOwnershipValidateFn', () => {
         return {
           result
         }
-      })
+      }
+    }
   }
 })

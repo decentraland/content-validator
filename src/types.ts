@@ -132,27 +132,29 @@ export type SubGraphs = {
   }
 }
 
-/**
- * @public
- */
-export type TheGraphClient = {
+export type NamesOwnership = {
   ownsNamesAtTimestamp: (ethAddress: EthAddress, namesToCheck: string[], timestamp: number) => Promise<PermissionResult>
+}
 
+export type ItemsOwnership = {
   ownsItemsAtTimestamp: (ethAddress: EthAddress, urnsToCheck: string[], timestamp: number) => Promise<PermissionResult>
-
-  findBlocksForTimestamp: (subgraph: ISubgraphComponent, timestamp: number) => Promise<BlockInformation>
 }
 
 /**
  * @public
  */
-export type OnChainClient = {
-  ownsNamesAtTimestamp: (ethAddress: EthAddress, namesToCheck: string[], timestamp: number) => Promise<PermissionResult>
+export type TheGraphClient = NamesOwnership &
+  ItemsOwnership & {
+    findBlocksForTimestamp: (subgraph: ISubgraphComponent, timestamp: number) => Promise<BlockInformation>
+  }
 
-  ownsItemsAtTimestamp: (ethAddress: EthAddress, urnsToCheck: string[], timestamp: number) => Promise<PermissionResult>
-
-  findBlocksForTimestamp: (timestamp: number, blockSearch: BlockSearch) => Promise<BlockInformation>
-}
+/**
+ * @public
+ */
+export type OnChainClient = NamesOwnership &
+  ItemsOwnership & {
+    findBlocksForTimestamp: (timestamp: number, blockSearch: BlockSearch) => Promise<BlockInformation>
+  }
 
 /**
  * @public
