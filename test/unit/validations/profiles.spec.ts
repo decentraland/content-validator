@@ -12,7 +12,7 @@ import {
 import { ADR_45_TIMESTAMP, ADR_74_TIMESTAMP, ADR_75_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
-import { buildComponents, buildExternalCalls } from '../../setup/mock'
+import { buildComponents, buildExternalCalls, createImage } from '../../setup/mock'
 import { validProfileMetadataWithEmotes, VALID_PROFILE_METADATA } from '../../setup/profiles'
 
 describe('Profiles', () => {
@@ -25,21 +25,6 @@ describe('Profiles', () => {
     let invalidThumbnailBuffer: Buffer
     const fileName = 'face256.png'
     const hash = 'bafybeiasb5vpmaounyilfuxbd3lryvosl4yefqrfahsb2esg46q6tu6y5s'
-
-    const createImage = async (size: number, format: 'png' | 'jpg' = 'png'): Promise<Buffer> => {
-      let image = sharp({
-        create: {
-          width: size,
-          height: size,
-          channels: 4,
-          background: { r: 255, g: 0, b: 0, alpha: 0.5 }
-        }
-      })
-      if (format) {
-        image = format === 'png' ? image.png() : image.jpeg()
-      }
-      return await image.toBuffer()
-    }
 
     beforeAll(async () => {
       validThumbnailBuffer = await createImage(256)

@@ -29,6 +29,12 @@ export const ADR_158_TIMESTAMP = process.env.ADR_158_TIMESTAMP ? parseInt(proces
 export const ADR_173_TIMESTAMP = process.env.ADR_173_TIMESTAMP ? parseInt(process.env.ADR_173_TIMESTAMP) : 1673967600000
 
 /**
+ * 1681660800000 = 2023-05-19T12:00:00Z
+ * @public
+ */
+export const ADR_236_TIMESTAMP = process.env.ADR_236_TIMESTAMP ? parseInt(process.env.ADR_236_TIMESTAMP) : 1681660800000
+
+/**
  * DCL Launch Day
  * @public
  */

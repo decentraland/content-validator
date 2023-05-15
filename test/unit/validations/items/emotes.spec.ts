@@ -13,7 +13,7 @@ import { ADR_74_TIMESTAMP } from '../../../../src/validations/timestamps'
 import { buildDeployment } from '../../../setup/deployments'
 import { VALID_STANDARD_EMOTE_METADATA } from '../../../setup/emotes'
 import { buildEntity } from '../../../setup/entity'
-import { buildComponents, buildExternalCalls } from '../../../setup/mock'
+import { buildComponents, buildExternalCalls, createImage } from '../../../setup/mock'
 
 describe('Emotes', () => {
   const timestampAfterADR74 = ADR_74_TIMESTAMP + 1
@@ -23,21 +23,6 @@ describe('Emotes', () => {
     let invalidThumbnailBuffer: Buffer
     const fileName = 'thumbnail.png'
     const hash = 'thumbnail'
-
-    const createImage = async (size: number, format: 'png' | 'jpg' = 'png'): Promise<Buffer> => {
-      let image = sharp({
-        create: {
-          width: size,
-          height: size,
-          channels: 4,
-          background: { r: 255, g: 0, b: 0, alpha: 0.5 }
-        }
-      })
-      if (format) {
-        image = format === 'png' ? image.png() : image.jpeg()
-      }
-      return await image.toBuffer()
-    }
 
     beforeAll(async () => {
       validThumbnailBuffer = await createImage(1024)
