@@ -28,6 +28,13 @@ export const buildEmoteEntity = (entity?: Partial<Entity>): Entity =>
     ...entity
   })
 
+export const buildOutfitsEntity = (entity?: Partial<Entity>): Entity =>
+  buildEntity({
+    version: 'v3',
+    type: EntityType.OUTFITS,
+    ...entity
+  })
+
 export const buildEntity = (
   entity?: Partial<Entity>,
   id = 'bafybeihz4c4cf4icnlh6yjtt7fooaeih3dkv2mz6umod7dybenzmsxkzvq'

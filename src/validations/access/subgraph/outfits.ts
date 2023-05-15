@@ -10,7 +10,7 @@ import {
 } from '../../../types'
 import { validateAll } from '../../validations'
 
-function createOutfitWearablesOwnershipValidateFn({
+export function createOutfitsWearablesOwnershipValidateFn({
   externalCalls,
   theGraphClient
 }: Pick<SubgraphAccessCheckerComponents, 'externalCalls' | 'theGraphClient'>): ValidateFn {
@@ -24,7 +24,7 @@ function createOutfitWearablesOwnershipValidateFn({
 
   return async function validateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
     const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
-    const outfits: Outfits = deployment.entity.metadata.outfits
+    const outfits: Outfits = deployment.entity.metadata
     const allWearableUrns = outfits.outfits.map(({ outfit }) => outfit.wearables).flat()
     const sanitizedUrns = (await Promise.all(allWearableUrns.map((urn) => sanitizeUrn(urn)))).filter(
       (urn): urn is string => !!urn
@@ -46,8 +46,30 @@ function createOutfitWearablesOwnershipValidateFn({
   }
 }
 
+export function createOutfitsNamesOwnershipValidateFn({
+  externalCalls,
+  theGraphClient
+}: Pick<SubgraphAccessCheckerComponents, 'externalCalls' | 'theGraphClient'>): ValidateFn {
+  return async function validateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
+    const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
+    const namesForExtraSlots: string[] = deployment.entity.metadata.namesForExtraSlots
+    const names = namesForExtraSlots.filter((name: string) => name && name.trim().length > 0)
+    const namesCheckResult = await theGraphClient.ownsNamesAtTimestamp(ethAddress, names, deployment.entity.timestamp)
+    if (!namesCheckResult.result)
+      return validationFailed(
+        `The following names (${namesCheckResult.failing?.join(
+          ', '
+        )}) are not owned by the address ${ethAddress.toLowerCase()}).`
+      )
+    return OK
+  }
+}
+
 export function createOutfitsValidateFn(
   components: Pick<SubgraphAccessCheckerComponents, 'theGraphClient' | 'externalCalls'>
 ) {
-  return validateAll(createOutfitWearablesOwnershipValidateFn(components))
+  return validateAll(
+    createOutfitsWearablesOwnershipValidateFn(components),
+    createOutfitsNamesOwnershipValidateFn(components)
+  )
 }

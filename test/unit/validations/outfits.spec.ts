@@ -1,8 +1,9 @@
-import { Entity, EntityType, Outfits } from '@dcl/schemas'
+import { Entity, EntityType, Outfit, Outfits } from '@dcl/schemas'
 import {
   createOutfitsPointerValidateFn,
   outfitSlotsAreBetween0and9inclusiveValidateFn,
-  outfitSlotsAreNotRepeatedValidateFn
+  outfitSlotsAreNotRepeatedValidateFn,
+  outfitsNumberOfNamesForExtraSlotsIsCorrectValidateFn
 } from '../../../src/validations/outfits'
 import { buildDeployment } from '../../setup/deployments'
 import { buildExternalCalls } from '../../setup/mock'
@@ -13,6 +14,20 @@ type TypedEntity<T> = Entity & {
 }
 
 const ownerAddress = '0x12e7f74e73e951c61edd80910e46c3fece512345'
+const baseOutfit: Outfit = {
+  bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseMale',
+  eyes: { color: { r: 0.23046875, g: 0.625, b: 0.3125 } },
+  hair: { color: { r: 0.35546875, g: 0.19140625, b: 0.05859375 } },
+  skin: { color: { r: 0.94921875, g: 0.76171875, b: 0.6484375 } },
+  wearables: ['urn:decentraland:off-chain:base-avatars:tall_front_01']
+}
+
+function outfitWithSlot(slot: number): Outfits['outfits'][0] {
+  return {
+    slot,
+    outfit: baseOutfit
+  }
+}
 
 describe('outfitsPointerValidateFn', () => {
   it('pointer is valid', async () => {
@@ -100,28 +115,8 @@ describe('outfitSlotsAreNotRepeatedValidateFn', () => {
       content: [],
       id: 'bafybeihz4c4cf4icnlh6yjtt7fooaeih3dkv2mz6umod7dybenzmsxkzvq',
       metadata: {
-        outfits: [
-          {
-            slot: 1,
-            outfit: {
-              bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseMale',
-              eyes: { color: { r: 0.23046875, g: 0.625, b: 0.3125 } },
-              hair: { color: { r: 0.35546875, g: 0.19140625, b: 0.05859375 } },
-              skin: { color: { r: 0.94921875, g: 0.76171875, b: 0.6484375 } },
-              wearables: ['urn:decentraland:off-chain:base-avatars:tall_front_01']
-            }
-          },
-          {
-            slot: 2,
-            outfit: {
-              bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseMale',
-              eyes: { color: { r: 0.23046875, g: 0.625, b: 0.3125 } },
-              hair: { color: { r: 0.35546875, g: 0.19140625, b: 0.05859375 } },
-              skin: { color: { r: 0.94921875, g: 0.76171875, b: 0.6484375 } },
-              wearables: ['urn:decentraland:off-chain:base-avatars:tall_front_01']
-            }
-          }
-        ]
+        outfits: [outfitWithSlot(1), outfitWithSlot(2)],
+        namesForExtraSlots: []
       }
     }
     const deployment = buildDeployment({ entity })
@@ -140,38 +135,8 @@ describe('outfitSlotsAreNotRepeatedValidateFn', () => {
       content: [],
       id: 'bafybeihz4c4cf4icnlh6yjtt7fooaeih3dkv2mz6umod7dybenzmsxkzvq',
       metadata: {
-        outfits: [
-          {
-            slot: 1,
-            outfit: {
-              bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseMale',
-              eyes: { color: { r: 0.23046875, g: 0.625, b: 0.3125 } },
-              hair: { color: { r: 0.35546875, g: 0.19140625, b: 0.05859375 } },
-              skin: { color: { r: 0.94921875, g: 0.76171875, b: 0.6484375 } },
-              wearables: ['urn:decentraland:off-chain:base-avatars:tall_front_01']
-            }
-          },
-          {
-            slot: 2,
-            outfit: {
-              bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseMale',
-              eyes: { color: { r: 0.23046875, g: 0.625, b: 0.3125 } },
-              hair: { color: { r: 0.35546875, g: 0.19140625, b: 0.05859375 } },
-              skin: { color: { r: 0.94921875, g: 0.76171875, b: 0.6484375 } },
-              wearables: ['urn:decentraland:off-chain:base-avatars:tall_front_01']
-            }
-          },
-          {
-            slot: 1,
-            outfit: {
-              bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseMale',
-              eyes: { color: { r: 0.23046875, g: 0.625, b: 0.3125 } },
-              hair: { color: { r: 0.35546875, g: 0.19140625, b: 0.05859375 } },
-              skin: { color: { r: 0.94921875, g: 0.76171875, b: 0.6484375 } },
-              wearables: ['urn:decentraland:off-chain:base-avatars:tall_front_01']
-            }
-          }
-        ]
+        outfits: [outfitWithSlot(1), outfitWithSlot(2), outfitWithSlot(1)],
+        namesForExtraSlots: []
       }
     }
     const deployment = buildDeployment({ entity })
@@ -196,28 +161,8 @@ describe('outfitSlotsAreBetween0and9inclusiveValidateFn', () => {
       content: [],
       id: 'bafybeihz4c4cf4icnlh6yjtt7fooaeih3dkv2mz6umod7dybenzmsxkzvq',
       metadata: {
-        outfits: [
-          {
-            slot: 1,
-            outfit: {
-              bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseMale',
-              eyes: { color: { r: 0.23046875, g: 0.625, b: 0.3125 } },
-              hair: { color: { r: 0.35546875, g: 0.19140625, b: 0.05859375 } },
-              skin: { color: { r: 0.94921875, g: 0.76171875, b: 0.6484375 } },
-              wearables: ['urn:decentraland:off-chain:base-avatars:tall_front_01']
-            }
-          },
-          {
-            slot: 2,
-            outfit: {
-              bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseMale',
-              eyes: { color: { r: 0.23046875, g: 0.625, b: 0.3125 } },
-              hair: { color: { r: 0.35546875, g: 0.19140625, b: 0.05859375 } },
-              skin: { color: { r: 0.94921875, g: 0.76171875, b: 0.6484375 } },
-              wearables: ['urn:decentraland:off-chain:base-avatars:tall_front_01']
-            }
-          }
-        ]
+        outfits: [outfitWithSlot(1), outfitWithSlot(2)],
+        namesForExtraSlots: []
       }
     }
     const deployment = buildDeployment({ entity })
@@ -236,38 +181,8 @@ describe('outfitSlotsAreBetween0and9inclusiveValidateFn', () => {
       content: [],
       id: 'bafybeihz4c4cf4icnlh6yjtt7fooaeih3dkv2mz6umod7dybenzmsxkzvq',
       metadata: {
-        outfits: [
-          {
-            slot: 1,
-            outfit: {
-              bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseMale',
-              eyes: { color: { r: 0.23046875, g: 0.625, b: 0.3125 } },
-              hair: { color: { r: 0.35546875, g: 0.19140625, b: 0.05859375 } },
-              skin: { color: { r: 0.94921875, g: 0.76171875, b: 0.6484375 } },
-              wearables: ['urn:decentraland:off-chain:base-avatars:tall_front_01']
-            }
-          },
-          {
-            slot: -1,
-            outfit: {
-              bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseMale',
-              eyes: { color: { r: 0.23046875, g: 0.625, b: 0.3125 } },
-              hair: { color: { r: 0.35546875, g: 0.19140625, b: 0.05859375 } },
-              skin: { color: { r: 0.94921875, g: 0.76171875, b: 0.6484375 } },
-              wearables: ['urn:decentraland:off-chain:base-avatars:tall_front_01']
-            }
-          },
-          {
-            slot: 10,
-            outfit: {
-              bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseMale',
-              eyes: { color: { r: 0.23046875, g: 0.625, b: 0.3125 } },
-              hair: { color: { r: 0.35546875, g: 0.19140625, b: 0.05859375 } },
-              skin: { color: { r: 0.94921875, g: 0.76171875, b: 0.6484375 } },
-              wearables: ['urn:decentraland:off-chain:base-avatars:tall_front_01']
-            }
-          }
-        ]
+        outfits: [outfitWithSlot(1), outfitWithSlot(-1), outfitWithSlot(10)],
+        namesForExtraSlots: []
       }
     }
     const deployment = buildDeployment({ entity })
@@ -277,6 +192,124 @@ describe('outfitSlotsAreBetween0and9inclusiveValidateFn', () => {
     expect(result.errors).toBeDefined()
     if (result.errors) {
       expect(result.errors[0]).toEqual('Outfits slots are invalid, they must be between 0 and 9 inclusive')
+    }
+  })
+})
+
+describe('outfitsNumberOfNamesForExtraSlotsIsCorrectValidateFn', () => {
+  it('does not fail when no names and no extra slots (from 5 to 9 inclusive)', async () => {
+    const pointer = `${ownerAddress}:outfits`
+    const entity: TypedEntity<Outfits> = {
+      version: '3',
+      type: EntityType.OUTFITS,
+      pointers: [pointer],
+      timestamp: Date.now(),
+      content: [],
+      id: 'bafybeihz4c4cf4icnlh6yjtt7fooaeih3dkv2mz6umod7dybenzmsxkzvq',
+      metadata: {
+        outfits: [outfitWithSlot(1), outfitWithSlot(4)],
+        namesForExtraSlots: []
+      }
+    }
+    const deployment = buildDeployment({ entity })
+
+    const result = await outfitsNumberOfNamesForExtraSlotsIsCorrectValidateFn(deployment)
+    expect(result.ok).toBeTruthy()
+  })
+
+  it('does not fail when the provided names size is equal to the extra slots (from 5 to 9 inclusive) ', async () => {
+    const pointer = `${ownerAddress}:outfits`
+    const entity: TypedEntity<Outfits> = {
+      version: '3',
+      type: EntityType.OUTFITS,
+      pointers: [pointer],
+      timestamp: Date.now(),
+      content: [],
+      id: 'bafybeihz4c4cf4icnlh6yjtt7fooaeih3dkv2mz6umod7dybenzmsxkzvq',
+      metadata: {
+        outfits: [
+          outfitWithSlot(1),
+          outfitWithSlot(4),
+          outfitWithSlot(5),
+          outfitWithSlot(6),
+          outfitWithSlot(7),
+          outfitWithSlot(8),
+          outfitWithSlot(9)
+        ],
+        namesForExtraSlots: ['name1', 'name2', 'name3', 'name4', 'name5']
+      }
+    }
+    const deployment = buildDeployment({ entity })
+
+    const result = await outfitsNumberOfNamesForExtraSlotsIsCorrectValidateFn(deployment)
+    expect(result.ok).toBeTruthy()
+  })
+
+  it('fails when the provided names size is not equal to the extra slots (from 5 to 9 inclusive)', async () => {
+    const pointer = `${ownerAddress}:outfits`
+    const entity: TypedEntity<Outfits> = {
+      version: '3',
+      type: EntityType.OUTFITS,
+      pointers: [pointer],
+      timestamp: Date.now(),
+      content: [],
+      id: 'bafybeihz4c4cf4icnlh6yjtt7fooaeih3dkv2mz6umod7dybenzmsxkzvq',
+      metadata: {
+        outfits: [
+          outfitWithSlot(1),
+          outfitWithSlot(4),
+          outfitWithSlot(5),
+          outfitWithSlot(6),
+          outfitWithSlot(7),
+          outfitWithSlot(8),
+          outfitWithSlot(9)
+        ],
+        namesForExtraSlots: ['name1', 'name2', 'name3', 'name4']
+      }
+    }
+    const deployment = buildDeployment({ entity })
+
+    const result = await outfitsNumberOfNamesForExtraSlotsIsCorrectValidateFn(deployment)
+    expect(result.ok).toBeFalsy()
+    expect(result.errors).toBeDefined()
+    if (result.errors) {
+      expect(result.errors[0]).toEqual(
+        'There must be exactly one name for each extra slot. Provided 4 unique names but expected 5'
+      )
+    }
+  })
+
+  it('fails when the provided names size is equal to the extra slots (from 5 to 9 inclusive) but there are repeated names', async () => {
+    const pointer = `${ownerAddress}:outfits`
+    const entity: TypedEntity<Outfits> = {
+      version: '3',
+      type: EntityType.OUTFITS,
+      pointers: [pointer],
+      timestamp: Date.now(),
+      content: [],
+      id: 'bafybeihz4c4cf4icnlh6yjtt7fooaeih3dkv2mz6umod7dybenzmsxkzvq',
+      metadata: {
+        outfits: [
+          outfitWithSlot(1),
+          outfitWithSlot(4),
+          outfitWithSlot(5),
+          outfitWithSlot(6),
+          outfitWithSlot(7),
+          outfitWithSlot(8),
+          outfitWithSlot(9)
+        ],
+        namesForExtraSlots: ['name1', 'name2', 'name3', 'name4', 'name4']
+      }
+    }
+    const deployment = buildDeployment({ entity })
+
+    const result = await outfitsNumberOfNamesForExtraSlotsIsCorrectValidateFn(deployment)
+    expect(result.ok).toBeFalsy()
+    expect(result.errors).toBeDefined()
+    if (result.errors) {
+      expect(result.errors[0]).toEqual(
+        'There must be exactly one name for each extra slot. Provided 4 unique names but expected 5'
+      )
     }
   })
 })

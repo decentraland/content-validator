@@ -1,6 +1,13 @@
 import { Emote, Entity, EntityType, ThirdPartyProps, Wearable } from '@dcl/schemas'
 import { DeploymentToValidate, LocalDeploymentAuditInfo } from '../../src/types'
-import { buildEmoteEntity, buildEntity, buildProfileEntity, buildSceneEntity, buildWearableEntity } from './entity'
+import {
+  buildEmoteEntity,
+  buildEntity,
+  buildOutfitsEntity,
+  buildProfileEntity,
+  buildSceneEntity,
+  buildWearableEntity
+} from './entity'
 
 export const buildAuditInfo = (auditInfo?: Partial<LocalDeploymentAuditInfo>): LocalDeploymentAuditInfo => ({
   authChain: [],
@@ -58,6 +65,12 @@ export const buildThirdPartyEmoteDeployment = (
   metadata: Emote & ThirdPartyProps
 ): DeploymentToValidate => ({
   entity: buildEmoteEntity({ pointers: [urn], metadata }),
+  auditInfo: buildAuditInfo(),
+  files: new Map()
+})
+
+export const buildOutfitsDeployment = (pointers: string[]): DeploymentToValidate => ({
+  entity: buildOutfitsEntity({ pointers }),
   auditInfo: buildAuditInfo(),
   files: new Map()
 })
