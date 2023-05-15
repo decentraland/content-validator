@@ -7,12 +7,18 @@ import {
   profileMustHaveEmotesValidateFn,
   wearableUrnsValidateFn,
   profileSlotsAreNotRepeatedValidateFn,
-  createProfileValidateFn
+  createProfileValidateFn,
+  profileWearablesNotRepeatedValidateFn
 } from '../../../src/validations/profile'
-import { ADR_45_TIMESTAMP, ADR_74_TIMESTAMP, ADR_75_TIMESTAMP } from '../../../src/validations/timestamps'
+import {
+  ADR_232_TIMESTAMP,
+  ADR_45_TIMESTAMP,
+  ADR_74_TIMESTAMP,
+  ADR_75_TIMESTAMP
+} from '../../../src/validations/timestamps'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
-import { buildComponents, buildExternalCalls } from '../../setup/mock'
+import { buildComponents, buildExternalCalls, createImage } from '../../setup/mock'
 import { validProfileMetadataWithEmotes, VALID_PROFILE_METADATA } from '../../setup/profiles'
 
 describe('Profiles', () => {
@@ -25,21 +31,6 @@ describe('Profiles', () => {
     let invalidThumbnailBuffer: Buffer
     const fileName = 'face256.png'
     const hash = 'bafybeiasb5vpmaounyilfuxbd3lryvosl4yefqrfahsb2esg46q6tu6y5s'
-
-    const createImage = async (size: number, format: 'png' | 'jpg' = 'png'): Promise<Buffer> => {
-      let image = sharp({
-        create: {
-          width: size,
-          height: size,
-          channels: 4,
-          background: { r: 255, g: 0, b: 0, alpha: 0.5 }
-        }
-      })
-      if (format) {
-        image = format === 'png' ? image.png() : image.jpeg()
-      }
-      return await image.toBuffer()
-    }
 
     beforeAll(async () => {
       validThumbnailBuffer = await createImage(256)
@@ -296,6 +287,31 @@ describe('Profiles', () => {
       expect(result.errors).toContain(
         'Each profile wearable pointer should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (urn:decentraland:tucu-tucu:base-avatars:tall_front_01)'
       )
+    })
+
+    it('When there are duplicate wearables, should return the correct error', async () => {
+      const entity = buildEntity({
+        type: EntityType.PROFILE,
+        metadata: {
+          avatars: [
+            {
+              avatar: {
+                wearables: [
+                  'urn:decentraland:off-chain:base-avatars:tall_front_01',
+                  'urn:decentraland:off-chain:base-avatars:tall_front_01'
+                ]
+              }
+            }
+          ]
+        },
+        timestamp: ADR_232_TIMESTAMP + 1
+      })
+      const deployment = buildDeployment({ entity })
+
+      const result = await profileWearablesNotRepeatedValidateFn(deployment)
+
+      expect(result.ok).toBeFalsy()
+      expect(result.errors).toContain('Wearables should not be repeated.')
     })
   })
 
