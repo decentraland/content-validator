@@ -10,6 +10,7 @@ import {
   validationFailed
 } from '../types'
 import {
+  validateAfterADR232,
   validateAfterADR45,
   validateAfterADR74,
   validateAfterADR75,
@@ -154,6 +155,19 @@ export function createPointerValidateFn(components: Pick<ContentValidatorCompone
   }
 }
 
+export const profileWearablesNotRepeatedValidateFn = validateAfterADR232(async function (
+  deployment: DeploymentToValidate
+): Promise<ValidationResponse> {
+  const allAvatars: Avatar[] = deployment.entity.metadata?.avatars ?? []
+  for (const avatar of allAvatars) {
+    const wearables = avatar.avatar.wearables
+    if (new Set(wearables).size !== wearables.length) {
+      return validationFailed('Wearables should not be repeated.')
+    }
+  }
+  return OK
+})
+
 export function createProfileValidateFn(components: ContentValidatorComponents): ValidateFn {
   /**
    * Validate that given profile deployment includes the face256 file with the correct size
@@ -167,7 +181,8 @@ export function createProfileValidateFn(components: ContentValidatorComponents):
       emoteUrnsValidateFn,
       profileMustHaveEmotesValidateFn,
       profileSlotsAreNotRepeatedValidateFn,
-      createPointerValidateFn(components)
+      createPointerValidateFn(components),
+      profileWearablesNotRepeatedValidateFn
     )
   )
 }
