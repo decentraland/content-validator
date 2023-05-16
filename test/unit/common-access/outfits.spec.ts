@@ -1,11 +1,11 @@
-import { Entity, EntityType, EthAddress, Outfit, Outfits } from '@dcl/schemas'
-import { ItemsOwnership, NamesOwnership } from '../../../src'
+import { Entity, EntityType, Outfit, Outfits } from '@dcl/schemas'
 import {
   createOutfitsNamesOwnershipValidateFn,
   createOutfitsWearablesOwnershipValidateFn
 } from '../../../src/validations/access/common/outfits'
 import { buildDeployment } from '../../setup/deployments'
 import { buildExternalCalls } from '../../setup/mock'
+import { createItemsOwnershipWith, createNamesOwnershipWith } from './mock'
 
 type TypedEntity<T> = Entity & {
   metadata: T
@@ -97,24 +97,6 @@ describe('createOutfitsWearablesOwnershipValidateFn', () => {
       )
     }
   })
-
-  function createItemsOwnershipWith(ownerAddress: string, ownedWearables: string[]): ItemsOwnership {
-    return {
-      async ownsItemsAtTimestamp(ethAddress: EthAddress, urnsToCheck: string[]) {
-        const result = ethAddress === ownerAddress && urnsToCheck.every((wearable) => ownedWearables.includes(wearable))
-        if (!result) {
-          const failing = urnsToCheck.filter((wearable) => !ownedWearables.includes(wearable))
-          return {
-            result,
-            failing
-          }
-        }
-        return {
-          result
-        }
-      }
-    }
-  }
 })
 describe('createOutfitsNamesOwnershipValidateFn', () => {
   it('does not fail when owns the names', async () => {
@@ -178,22 +160,4 @@ describe('createOutfitsNamesOwnershipValidateFn', () => {
       )
     }
   })
-
-  function createNamesOwnershipWith(ownerAddress: string, ownedNames: string[]): NamesOwnership {
-    return {
-      async ownsNamesAtTimestamp(ethAddress: EthAddress, namesToCheck: string[]) {
-        const result = ethAddress === ownerAddress && namesToCheck.every((name) => ownedNames.includes(name))
-        if (!result) {
-          const failing = namesToCheck.filter((name) => !ownedNames.includes(name))
-          return {
-            result,
-            failing
-          }
-        }
-        return {
-          result
-        }
-      }
-    }
-  }
 })

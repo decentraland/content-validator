@@ -404,6 +404,31 @@ describe('Profiles', () => {
   })
 
   describe('Pointer validation', () => {
+    it('When a profile is created by its own address, then it is valid', async () => {
+      const someAddress = '0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c'
+      const deployment = buildProfileDeployment([someAddress])
+      const externalCalls = buildExternalCalls({
+        ownerAddress: () => someAddress
+      })
+
+      const validateFn = createPointerValidateFn({ externalCalls })
+      const response = await validateFn(deployment)
+      expect(response.ok).toBeTruthy()
+    })
+
+    it('When a decentraland address tries to deploy a default profile, then it is allowed', async () => {
+      const someValidAddress = '0x71c7656ec7ab88b098defb751b7401b5f6d8976f'
+      const deployment = buildProfileDeployment(['Default10'])
+      const externalCalls = buildExternalCalls({
+        isAddressOwnedByDecentraland: () => true,
+        ownerAddress: () => someValidAddress
+      })
+
+      const validateFn = createPointerValidateFn({ externalCalls })
+      const response = await validateFn(deployment)
+      expect(response.ok).toBeTruthy()
+    })
+
     it('When a non-decentraland address tries to deploy an default profile, then an error is returned', async () => {
       const deployment = buildProfileDeployment(['Default10'])
       const externalCalls = buildExternalCalls()
@@ -443,6 +468,7 @@ describe('Profiles', () => {
         `You can only alter your own profile. The pointer address and the signer address are different (pointer:${pointer} signer: ${address}).`
       )
     })
+
     it('When a profile is created and the pointers are not eth addresses it fails', async () => {
       const pointer = 'someNonEthAddress'
       const address = 'anotherNonEthAddress'
