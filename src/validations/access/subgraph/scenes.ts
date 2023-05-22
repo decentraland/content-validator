@@ -1,5 +1,6 @@
 import { EthAddress } from '@dcl/schemas'
 import ms from 'ms'
+import PQueue from 'p-queue'
 import {
   DeploymentToValidate,
   ExternalCalls,
@@ -51,6 +52,9 @@ export function createSceneValidateFn({
   const logger = logs.getLogger('scenes access validator')
 
   const SCENE_LOOKBACK_TIME = ms('5m')
+  const SCENE_VALIDATIONS_CONCURRENCY = process.env.SCENE_VALIDATIONS_CONCURRENCY
+    ? parseInt(process.env.SCENE_VALIDATIONS_CONCURRENCY)
+    : 10
 
   return async function validateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
     const getAuthorizations = async (
@@ -331,28 +335,42 @@ export function createSceneValidateFn({
     const errors = []
     const lowerCasePointers = pointers.map((pointer) => pointer.toLowerCase())
 
+    const queue = new PQueue({ concurrency: SCENE_VALIDATIONS_CONCURRENCY })
+    const controller = new AbortController()
+
     for (const pointer of lowerCasePointers) {
       const pointerParts: string[] = pointer.split(',')
       if (pointerParts.length === 2) {
         const x: number = parseInt(pointerParts[0], 10)
         const y: number = parseInt(pointerParts[1], 10)
-        try {
-          // Check that the address has access (we check both the present and the 5 min into the past to avoid synchronization issues in the blockchain)
-          const hasAccess =
-            (await checkParcelAccess(x, y, timestamp, ethAddress, externalCalls)) ||
-            (await checkParcelAccess(x, y, timestamp - SCENE_LOOKBACK_TIME, ethAddress, externalCalls))
-          if (!hasAccess) {
-            errors.push(`The provided Eth Address does not have access to the following parcel: (${x},${y})`)
-          }
-        } catch (e) {
-          errors.push(`The provided Eth Address does not have access to the following parcel: (${x},${y}). ${e}`)
-        }
+
+        // Check that the address has access (we check both the present and the 5 min into the past to avoid synchronization issues in the blockchain)
+        queue
+          .add(async () => {
+            if (!controller.signal.aborted) {
+              const hasAccess =
+                (await checkParcelAccess(x, y, timestamp, ethAddress, externalCalls)) ||
+                (await checkParcelAccess(x, y, timestamp - SCENE_LOOKBACK_TIME, ethAddress, externalCalls))
+
+              if (!hasAccess) {
+                errors.push(`The provided Eth Address does not have access to the following parcel: (${x},${y})`)
+                controller.abort()
+              }
+            }
+          })
+          .catch((error) => {
+            errors.push(`The provided Eth Address does not have access to the following parcel: (${x},${y}). ${error}`)
+            controller.abort()
+          })
       } else {
         errors.push(
           `Scene pointers should only contain two integers separated by a comma, for example (10,10) or (120,-45). Invalid pointer: ${pointer}`
         )
+        controller.abort()
       }
     }
+
+    await queue.onIdle()
 
     return fromErrors(...errors)
   }
