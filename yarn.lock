@@ -438,7 +438,7 @@
     ipfs-unixfs-importer "^7.0.3"
     multiformats "^9.6.3"
 
-"@dcl/schemas@^7.0.0":
+"@dcl/schemas@^7.2.0":
   version "7.2.0"
   resolved "https://registry.yarnpkg.com/@dcl/schemas/-/schemas-7.2.0.tgz#385df4d91c18783884dcf3d4f12a112f65f0db58"
   integrity sha512-oULCVSczP5bhfur95aWJ8iKVHl4gLH8++8CMyncTVKAeFhAjPLTE8lqpZmGPPkhd05/Crw/WALXT7ghukMlkQg==
