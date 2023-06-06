@@ -58,7 +58,7 @@
     "@dcl/hashing": "^2.0.0",
     "@dcl/urn-resolver": "^2.0.3",
     "@well-known-components/interfaces": "^1.3.0",
-    "@well-known-components/thegraph-component": "^1.4.3",
+    "@well-known-components/thegraph-component": "^1.5.0",
     "ms": "^2.1.3",
     "p-queue": "^6.6.2",
     "sharp": "^0.32.0"
