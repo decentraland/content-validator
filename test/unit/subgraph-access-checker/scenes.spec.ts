@@ -204,7 +204,7 @@ describe('Access: scenes', () => {
     )
   })
 
-  it.only('When a validation fails, then the validation returns false and the pending checks are avoided w/concurrency=2', async () => {
+  it('When a validation fails, then the validation returns false and the pending checks are avoided w/concurrency=2', async () => {
     // Arrange
     process.env.SCENE_VALIDATIONS_CONCURRENCY = '2'
     const pointers = ['0,1', '2,3', '9,9', '4,5', '5,6', '4,4', '4,4', '9,9', '9,9']
