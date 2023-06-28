@@ -1,4 +1,4 @@
-import { Avatar, Entity } from '@dcl/schemas'
+import { Avatar, Entity, EthAddress } from '@dcl/schemas'
 import { parseUrn } from '@dcl/urn-resolver'
 import {
   ContentValidatorComponents,
@@ -12,7 +12,7 @@ import {
 } from '../../../types'
 import { isOldEmote } from '../../profile'
 import { ADR_74_TIMESTAMP, ADR_75_TIMESTAMP } from '../../timestamps'
-import { validateAfterADR75 } from '../../validations'
+import { validateAfterADR75, validateAll } from '../../validations'
 
 export function createNamesOwnershipValidateFn(
   { externalCalls }: Pick<ContentValidatorComponents, 'externalCalls'>,
@@ -107,4 +107,41 @@ export function createItemOwnershipValidateFn(
 
     return OK
   }
+}
+
+export function createPointerValidateFn(components: Pick<ContentValidatorComponents, 'externalCalls'>): ValidateFn {
+  return async function validateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
+    const pointers = deployment.entity.pointers
+    const ethAddress = components.externalCalls.ownerAddress(deployment.auditInfo)
+
+    if (pointers.length !== 1) {
+      return validationFailed(`Only one pointer is allowed when you create a Profile. Received: ${pointers}`)
+    }
+
+    const pointer: string = pointers[0].toLowerCase()
+
+    if (pointer.startsWith('default')) {
+      if (!components.externalCalls.isAddressOwnedByDecentraland(ethAddress))
+        return validationFailed(`Only Decentraland can add or modify default profiles`)
+    } else if (!EthAddress.validate(pointer)) {
+      return validationFailed(`The given pointer is not a valid ethereum address.`)
+    } else if (pointer !== ethAddress.toLowerCase()) {
+      return validationFailed(
+        `You can only alter your own profile. The pointer address and the signer address are different (pointer:${pointer} signer: ${ethAddress.toLowerCase()}).`
+      )
+    }
+    return OK
+  }
+}
+
+export function createPointerCommonAccessValidateFn(
+  components: Pick<ContentValidatorComponents, 'externalCalls'>,
+  namesOwnership: NamesOwnership,
+  itemsOwnership: ItemsOwnership
+): ValidateFn {
+  return validateAll(
+    createNamesOwnershipValidateFn(components, namesOwnership),
+    createItemOwnershipValidateFn(components, itemsOwnership),
+    createPointerValidateFn(components)
+  )
 }
