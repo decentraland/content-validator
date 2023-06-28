@@ -10,6 +10,7 @@ import { createProfileValidateFn } from './profile'
 import { sceneValidateFn } from './scene'
 import { createSignatureValidateFn } from './signature'
 import { createSizeValidateFn } from './size'
+import { createOutfitsValidateFn } from './outfits'
 
 /**
  * @public
@@ -50,6 +51,7 @@ export function createValidateFns(components: ContentValidatorComponents): Valid
     emoteValidateFn,
     createProfileValidateFn(components),
     sceneValidateFn,
-    createContentValidateFn(components)
+    createContentValidateFn(components),
+    createOutfitsValidateFn(components)
   ]
 }
