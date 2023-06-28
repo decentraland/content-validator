@@ -75,8 +75,12 @@ export const buildOutfitsDeployment = (pointers: string[]): DeploymentToValidate
   files: new Map()
 })
 
-export const buildDeployment = (args?: { entity?: Entity; files?: Map<string, Uint8Array> }): DeploymentToValidate => ({
+export const buildDeployment = (args?: {
+  entity?: Entity
+  auditInfo?: LocalDeploymentAuditInfo
+  files?: Map<string, Uint8Array>
+}): DeploymentToValidate => ({
   entity: args?.entity ?? buildEntity(),
-  auditInfo: buildAuditInfo(),
+  auditInfo: args?.auditInfo ?? buildAuditInfo(),
   files: args?.files ?? new Map()
 })
