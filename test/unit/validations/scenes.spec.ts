@@ -41,31 +41,7 @@ describe('Scenes', () => {
       const result: ValidationResponse = await noWorldsConfigurationValidateFn(deployment)
 
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(
-        'Scenes cannot have worldConfiguration or dreamSpaceConfiguration sections after ADR 173.'
-      )
-    })
-
-    it('When there is dreamSpaceConfiguration section, validation fails with errors', async () => {
-      const files = new Map()
-      const entity = buildEntity({
-        type: EntityType.SCENE,
-        metadata: {
-          ...VALID_SCENE_METADATA,
-          dreamSpaceConfiguration: {
-            name: 'some-name.dcl.eth'
-          }
-        },
-        timestamp
-      })
-      const deployment = buildDeployment({ entity, files })
-
-      const result: ValidationResponse = await noWorldsConfigurationValidateFn(deployment)
-
-      expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(
-        'Scenes cannot have worldConfiguration or dreamSpaceConfiguration sections after ADR 173.'
-      )
+      expect(result.errors).toContain('Scenes cannot have worldConfiguration section after ADR 173.')
     })
   })
 
