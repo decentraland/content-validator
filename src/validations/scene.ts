@@ -3,17 +3,15 @@ import { DeploymentToValidate, OK, validationFailed, ValidationResponse } from '
 import { validateAfterADR173, validateAfterADR236, validateAll, validateIfTypeMatches } from './validations'
 
 /**
- * Validate that given scene deployment does not contain worldConfiguration or dreamSpaceConfiguration sections
+ * Validate that given scene deployment does not contain worldConfiguration section
  * @public
  */
 export const noWorldsConfigurationValidateFn = validateAfterADR173(async function validateFn(
   deployment: DeploymentToValidate
 ): Promise<ValidationResponse> {
-  const sceneHasDreamSpaceConfiguration =
-    deployment.entity.metadata?.worldConfiguration !== undefined ||
-    deployment.entity.metadata?.dreamSpaceConfiguration !== undefined
-  if (sceneHasDreamSpaceConfiguration) {
-    return validationFailed('Scenes cannot have worldConfiguration or dreamSpaceConfiguration sections after ADR 173.')
+  const sceneHasWorldConfiguration = deployment.entity.metadata?.worldConfiguration !== undefined
+  if (sceneHasWorldConfiguration) {
+    return validationFailed('Scenes cannot have worldConfiguration section after ADR 173.')
   }
   return OK
 })
