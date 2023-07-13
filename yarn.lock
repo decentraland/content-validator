@@ -348,9 +348,9 @@
     multiformats "^9.6.3"
 
 "@dcl/schemas@^8.1.0":
-  version "8.1.0"
-  resolved "https://registry.yarnpkg.com/@dcl/schemas/-/schemas-8.1.0.tgz#4824a919db1ec194fceb1996f64f1f4cb260c895"
-  integrity sha512-1A7st/fESASmss+T1Vxc9lo3LHqSvgfDTLtLD2uhdgtOS0RombNES3KG/2zDfBpg9v3DCEchN6i7mWiCEw7/6g==
+  version "8.2.1"
+  resolved "https://registry.yarnpkg.com/@dcl/schemas/-/schemas-8.2.1.tgz#b43e6d2745fffaafb2ae317e1a7c32afdcafb6da"
+  integrity sha512-hJl+qq7WtCydl7VECvYGk6NcWK/eCBgUI88ngnOUSsFWe2QvnHPgS/PM69Kv0wd7KmO4394HhHPhMcDimMJ9UQ==
   dependencies:
     ajv "^8.11.0"
     ajv-errors "^3.0.0"
