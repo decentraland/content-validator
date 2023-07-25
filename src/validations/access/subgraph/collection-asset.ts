@@ -6,14 +6,13 @@ import { ISubgraphComponent } from '@well-known-components/thegraph-component'
 import {
   DeploymentToValidate,
   EntityWithEthAddress,
+  L1_NETWORKS,
+  L2_NETWORKS,
   OK,
   SubgraphAccessCheckerComponents,
   V1andV2collectionAssetValidateFn,
   validationFailed
 } from '../../../types'
-
-const L1_NETWORKS = ['mainnet', 'kovan', 'rinkeby', 'goerli']
-const L2_NETWORKS = ['matic', 'mumbai']
 
 type ItemPermissionsData = {
   collectionCreator: string
