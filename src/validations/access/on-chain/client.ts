@@ -2,7 +2,13 @@ import { BlockSearch } from '@dcl/block-indexer'
 import { EthAddress } from '@dcl/schemas'
 import { parseUrn } from '@dcl/urn-resolver'
 import { ISubgraphComponent } from '@well-known-components/thegraph-component'
-import { BlockInformation, OnChainAccessCheckerComponents, OnChainClient } from '../../../types'
+import {
+  BlockInformation,
+  L1_NETWORKS,
+  L2_NETWORKS,
+  OnChainAccessCheckerComponents,
+  OnChainClient
+} from '../../../types'
 
 export type PermissionResult = {
   result: boolean
@@ -30,9 +36,6 @@ export const createOnChainClient = (
   components: Pick<OnChainAccessCheckerComponents, 'logs' | 'L1' | 'L2'>
 ): OnChainClient => {
   const logger = components.logs.getLogger('TheGraphClient')
-
-  const L1_NETWORKS = ['mainnet', 'kovan', 'rinkeby', 'goerli']
-  const L2_NETWORKS = ['matic', 'mumbai']
 
   const ownsNamesAtTimestamp = async (
     ethAddress: EthAddress,

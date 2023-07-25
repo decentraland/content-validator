@@ -2,14 +2,13 @@ import { hashV0, hashV1 } from '@dcl/hashing'
 import { BlockchainCollectionV1Asset, BlockchainCollectionV2Asset } from '@dcl/urn-resolver'
 import {
   DeploymentToValidate,
+  L1_NETWORKS,
+  L2_NETWORKS,
   OK,
   OnChainAccessCheckerComponents,
   V1andV2collectionAssetValidateFn,
   validationFailed
 } from '../../../types'
-
-const L1_NETWORKS = ['mainnet', 'kovan', 'rinkeby', 'goerli']
-const L2_NETWORKS = ['matic', 'mumbai']
 
 export function createV1andV2collectionAssetValidateFn({
   externalCalls,
