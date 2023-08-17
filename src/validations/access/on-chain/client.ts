@@ -154,15 +154,13 @@ export const createOnChainClient = (
           description: 'check for items ownership',
           subgraph: collectionsSubgraph,
           query: QUERY_ITEMS_FOR_ADDRESS_AT_BLOCK,
-          mapper: (response: { items: { urn: string; tokenId: string }[] }): Set<{ urn: string; tokenId: string }> => {
-            console.log({ response: JSON.stringify(response, null, 2) })
-            return new Set(
+          mapper: (response: { items: { urn: string; tokenId: string }[] }): Set<{ urn: string; tokenId: string }> =>
+            new Set(
               response.items.map(({ urn, tokenId }) => ({
                 urn,
                 tokenId
               }))
             )
-          }
         }
         return runQuery(query, {
           block: blockNumber,
@@ -174,9 +172,6 @@ export const createOnChainClient = (
       try {
         const ownedItems = await runOwnedItemsOnBlockQuery(blockNumber)
         const ownedItemsArray = Array.from(ownedItems)
-
-        console.log('Client', { urnsToQuery })
-        console.log('Client', { ownedItemsArray: JSON.stringify(ownedItemsArray, null, 2) })
         let notOwned = extendedUrnsSplit
           .filter(({ urn, tokenId }) => {
             return !ownedItemsArray.some((item) => item.urn === urn && item.tokenId === tokenId)
@@ -185,7 +180,6 @@ export const createOnChainClient = (
 
         notOwned = notOwned.concat(notExtendedUrns.filter((urn) => !ownedItemsArray.some((item) => item.urn === urn)))
 
-        console.log('Client', { notOwned })
         return notOwned.length > 0 ? permissionError(notOwned) : permissionOk()
       } catch (error) {
         logger.error(`Error retrieving items owned by address ${ethAddress} at block ${blocks.blockNumberAtDeployment}`)
@@ -205,7 +199,6 @@ export const createOnChainClient = (
     query: Query<QueryResult, ReturnType>,
     variables: Record<string, any>
   ): Promise<ReturnType> => {
-    console.log('Running query', { query: query.query, variables })
     const response = await query.subgraph.query<QueryResult>(query.query, variables)
     return query.mapper(response)
   }
@@ -249,7 +242,7 @@ query getNftItemsForBlock($block: Int!, $ethAddress: String!, $urnList: [String!
     where: {owner: $ethAddress, searchItemType_in: ["wearable_v1", "wearable_v2", "smart_wearable_v1", "emote_v1"] urn_in: $urnList}
     first: 1000
   ) {
-    urn,
+    urn
     tokenId
   }
 }`
