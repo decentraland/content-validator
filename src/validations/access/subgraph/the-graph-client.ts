@@ -173,6 +173,9 @@ export const createTheGraphClient = (
         const ownedItems = await runOwnedItemsOnBlockQuery(blockNumber)
         const ownedItemsArray = Array.from(ownedItems)
 
+        console.log('The Graph Client', { urnsToQuery })
+        console.log('The Graph Client', { ownedItemsArray: JSON.stringify(ownedItemsArray, null, 2) })
+
         let notOwned = extendedUrnsSplit
           .filter(({ urn, tokenId }) => {
             return !ownedItemsArray.some((item) => item.urn === urn && item.tokenId === tokenId)
@@ -180,6 +183,7 @@ export const createTheGraphClient = (
           .map(({ urn, tokenId }) => `${urn}:${tokenId}`)
 
         notOwned = notOwned.concat(notExtendedUrns.filter((urn) => !ownedItemsArray.some((item) => item.urn === urn)))
+        console.log('The Graph Client', { notOwned })
 
         return notOwned.length > 0 ? permissionError(notOwned) : permissionOk()
       } catch (error) {
