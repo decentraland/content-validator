@@ -119,28 +119,15 @@ export const createTheGraphClient = (
       return permissionOk()
     }
 
-    // Urns that need to be split into urn and tokenId
-    const extendedUrns = urnsToCheck
-      .filter(
-        (urn) =>
-          urn.type.includes('blockchain-collection-v1-item') || urn.type.includes('blockchain-collection-v2-item')
-      )
-      .map((urn) => urn.urn)
-    const extendedUrnsSplit = extendedUrns.map((extendedUrn) => {
-      const { assetUrn, tokenId } = getTokenIdAndAssetUrn(extendedUrn)
-      return { urn: assetUrn, tokenId }
+    const urnsToQuery = urnsToCheck.map((urn) => {
+      if (urn.type === 'blockchain-collection-v1-item' || urn.type === 'blockchain-collection-v2-item') {
+        // Urns that need to be split into urn and tokenId
+        const { assetUrn } = getTokenIdAndAssetUrn(urn.urn)
+        return assetUrn
+      } else {
+        return urn.urn
+      }
     })
-
-    // Urns that don't need to be split
-    const notExtendedUrns = urnsToCheck
-      .filter(
-        (urn) =>
-          !urn.type.includes('blockchain-collection-v1-item') && !urn.type.includes('blockchain-collection-v2-item')
-      )
-      .map((urn) => urn.urn)
-
-    // we should always query with shortened URNs
-    const urnsToQuery = notExtendedUrns.concat(Array.from(extendedUrnsSplit).map((item) => item.urn))
 
     const blocks = await findBlocksForTimestamp(blocksSubgraph, timestamp)
 
@@ -172,14 +159,18 @@ export const createTheGraphClient = (
       try {
         const ownedItems = await runOwnedItemsOnBlockQuery(blockNumber)
         const ownedItemsArray = Array.from(ownedItems)
+        const notOwned: string[] = []
 
-        let notOwned = extendedUrnsSplit
-          .filter(({ urn, tokenId }) => {
-            return !ownedItemsArray.some((item) => item.urn === urn && item.tokenId === tokenId)
-          })
-          .map(({ urn, tokenId }) => `${urn}:${tokenId}`)
-
-        notOwned = notOwned.concat(notExtendedUrns.filter((urn) => !ownedItemsArray.some((item) => item.urn === urn)))
+        for (const urn of urnsToCheck) {
+          if (urn.type === 'blockchain-collection-v1-item' || urn.type === 'blockchain-collection-v2-item') {
+            const { assetUrn, tokenId } = getTokenIdAndAssetUrn(urn.urn)
+            if (!ownedItemsArray.some((item) => item.urn === assetUrn && item.tokenId === tokenId)) {
+              notOwned.push(urn.urn)
+            }
+          } else if (!ownedItemsArray.some((item) => item.urn === urn.urn)) {
+            notOwned.push(urn.urn)
+          }
+        }
 
         return notOwned.length > 0 ? permissionError(notOwned) : permissionOk()
       } catch (error) {
