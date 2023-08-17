@@ -166,7 +166,7 @@ export const createOnChainClient = (
         }
         return runQuery(query, {
           block: blockNumber,
-          ethAddress,
+          ethAddress: ethAddress.toLowerCase(),
           urnList: urnsToQuery
         })
       }
