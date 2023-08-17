@@ -1,14 +1,9 @@
 import { BlockSearch } from '@dcl/block-indexer'
 import { EthAddress } from '@dcl/schemas'
-import { parseUrn } from '@dcl/urn-resolver'
+import { getTokenIdAndAssetUrn } from '@dcl/urn-resolver'
 import { ISubgraphComponent } from '@well-known-components/thegraph-component'
-import {
-  BlockInformation,
-  L1_NETWORKS,
-  L2_NETWORKS,
-  OnChainAccessCheckerComponents,
-  OnChainClient
-} from '../../../types'
+import { BlockInformation, OnChainAccessCheckerComponents, OnChainClient } from '../../../types'
+import { splitItemsURNsByNetwork } from '../../../utils'
 
 export type PermissionResult = {
   result: boolean
@@ -76,34 +71,6 @@ export const createOnChainClient = (
     return await hasPermissionOnBlock(blocks.blockNumberFiveMinBeforeDeployment)
   }
 
-  type URNsByNetwork = {
-    ethereum: string[]
-    matic: string[]
-  }
-
-  const splitItemsByNetwork = async (urnsToCheck: string[]): Promise<URNsByNetwork> => {
-    const ethereum: string[] = []
-    const matic: string[] = []
-    for (const urn of urnsToCheck) {
-      const parsed = await parseUrn(urn)
-      if (
-        parsed &&
-        'network' in parsed &&
-        ['blockchain-collection-v1-asset', 'blockchain-collection-v2-asset'].includes(parsed.type)
-      ) {
-        if (L1_NETWORKS.includes(parsed.network)) {
-          ethereum.push(urn)
-        } else if (L2_NETWORKS.includes(parsed.network)) {
-          matic.push(urn)
-        }
-      }
-    }
-    return {
-      ethereum,
-      matic
-    }
-  }
-
   const permissionOk = (): PermissionResult => ({ result: true })
   const permissionError = (failing?: string[]): PermissionResult => ({
     result: false,
@@ -119,7 +86,7 @@ export const createOnChainClient = (
       return permissionOk()
     }
 
-    const { ethereum, matic } = await splitItemsByNetwork(urnsToCheck)
+    const { ethereum, matic } = await splitItemsURNsByNetwork(urnsToCheck)
     const ethereumItemsOwnersPromise = ownsItemsAtTimestampInBlockchain(
       ethAddress,
       ethereum,
@@ -148,7 +115,7 @@ export const createOnChainClient = (
 
   const ownsItemsAtTimestampInBlockchain = async (
     ethAddress: EthAddress,
-    urnsToCheck: string[],
+    urnsToCheck: { urn: string; type: string }[],
     timestamp: number,
     collectionsSubgraph: ISubgraphComponent,
     blockSearch: BlockSearch
@@ -156,6 +123,16 @@ export const createOnChainClient = (
     if (urnsToCheck.length === 0) {
       return permissionOk()
     }
+
+    const urnsToQuery = urnsToCheck.map((urn) => {
+      if (urn.type === 'blockchain-collection-v1-item' || urn.type === 'blockchain-collection-v2-item') {
+        // Urns that need to be split into urn and tokenId
+        const { assetUrn } = getTokenIdAndAssetUrn(urn.urn)
+        return assetUrn
+      } else {
+        return urn.urn
+      }
+    })
 
     const blocks = await findBlocksForTimestamp(timestamp, blockSearch)
 
@@ -165,22 +142,41 @@ export const createOnChainClient = (
       }
 
       const runOwnedItemsOnBlockQuery = async (blockNumber: number) => {
-        const query: Query<{ items: { urn: string }[] }, Set<string>> = {
+        const query: Query<{ items: { urn: string; tokenId: string }[] }, Set<{ urn: string; tokenId: string }>> = {
           description: 'check for items ownership',
           subgraph: collectionsSubgraph,
           query: QUERY_ITEMS_FOR_ADDRESS_AT_BLOCK,
-          mapper: (response: { items: { urn: string }[] }): Set<string> => new Set(response.items.map(({ urn }) => urn))
+          mapper: (response: { items: { urn: string; tokenId: string }[] }): Set<{ urn: string; tokenId: string }> =>
+            new Set(
+              response.items.map(({ urn, tokenId }) => ({
+                urn,
+                tokenId
+              }))
+            )
         }
         return runQuery(query, {
           block: blockNumber,
-          ethAddress,
-          urnList: urnsToCheck
+          ethAddress: ethAddress.toLowerCase(),
+          urnList: urnsToQuery
         })
       }
 
       try {
         const ownedItems = await runOwnedItemsOnBlockQuery(blockNumber)
-        const notOwned = urnsToCheck.filter((name) => !ownedItems.has(name))
+        const ownedItemsArray = Array.from(ownedItems)
+        const notOwned: string[] = []
+
+        for (const urn of urnsToCheck) {
+          if (urn.type === 'blockchain-collection-v1-item' || urn.type === 'blockchain-collection-v2-item') {
+            const { assetUrn, tokenId } = getTokenIdAndAssetUrn(urn.urn)
+            if (!ownedItemsArray.some((item) => item.urn === assetUrn && item.tokenId === tokenId)) {
+              notOwned.push(urn.urn)
+            }
+          } else if (!ownedItemsArray.some((item) => item.urn === urn.urn)) {
+            notOwned.push(urn.urn)
+          }
+        }
+
         return notOwned.length > 0 ? permissionError(notOwned) : permissionOk()
       } catch (error) {
         logger.error(`Error retrieving items owned by address ${ethAddress} at block ${blocks.blockNumberAtDeployment}`)
@@ -244,6 +240,7 @@ query getNftItemsForBlock($block: Int!, $ethAddress: String!, $urnList: [String!
     first: 1000
   ) {
     urn
+    tokenId
   }
 }`
 

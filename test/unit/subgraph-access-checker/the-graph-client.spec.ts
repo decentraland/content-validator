@@ -135,14 +135,24 @@ describe('TheGraphClient', () => {
   })
 
   describe('Checks for wearables ownership', function () {
-    it('When no block for current timestamp, it should continue and check the block from 5 minute before', async () => {
+    it.each([
+      [
+        'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet',
+        'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
+      ],
+      [
+        'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet:123',
+        'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2:321'
+      ]
+    ])('should validate wearables ownership with and without token id', async (l1UrnToValidate, l2UrnToValidate) => {
       const subGraphs = buildSubGraphs({
         L1: {
           collections: createMockSubgraphComponent(
             jest.fn().mockResolvedValue({
               items: [
                 {
-                  urn: 'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet'
+                  urn: 'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet',
+                  tokenId: '123'
                 }
               ]
             })
@@ -168,7 +178,57 @@ describe('TheGraphClient', () => {
             jest.fn().mockResolvedValue({
               items: [
                 {
-                  urn: 'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
+                  urn: 'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2',
+                  tokenId: '321'
+                }
+              ]
+            })
+          )
+        }
+      })
+      const { theGraphClient } = buildSubgraphAccessCheckerComponents({ subGraphs })
+
+      await expect(theGraphClient.ownsItemsAtTimestamp('0x1', [l1UrnToValidate, l2UrnToValidate], 10)).resolves.toEqual(
+        { result: true }
+      )
+    })
+
+    it('When no block for current timestamp, it should continue and check the block from 5 minute before', async () => {
+      const subGraphs = buildSubGraphs({
+        L1: {
+          collections: createMockSubgraphComponent(
+            jest.fn().mockResolvedValue({
+              items: [
+                {
+                  urn: 'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet',
+                  tokenId: '123'
+                }
+              ]
+            })
+          ),
+          blocks: createMockSubgraphComponent(
+            jest.fn().mockResolvedValueOnce({
+              min: [{ number: 123400 }],
+              max: []
+            })
+          ),
+          landManager: createMockSubgraphComponent(),
+          ensOwner: createMockSubgraphComponent(jest.fn().mockRejectedValue('error'))
+        },
+        L2: {
+          thirdPartyRegistry: createMockSubgraphComponent(),
+          blocks: createMockSubgraphComponent(
+            jest.fn().mockResolvedValueOnce({
+              min: [{ number: 123400 }],
+              max: []
+            })
+          ),
+          collections: createMockSubgraphComponent(
+            jest.fn().mockResolvedValue({
+              items: [
+                {
+                  urn: 'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2',
+                  tokenId: '123'
                 }
               ]
             })
@@ -200,7 +260,8 @@ describe('TheGraphClient', () => {
                 return Promise.resolve({
                   items: [
                     {
-                      urn: 'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet'
+                      urn: 'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet',
+                      tokenId: '123'
                     }
                   ]
                 })
@@ -228,7 +289,8 @@ describe('TheGraphClient', () => {
             jest.fn().mockResolvedValue({
               items: [
                 {
-                  urn: 'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2'
+                  urn: 'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2',
+                  tokenId: '123'
                 }
               ]
             })
