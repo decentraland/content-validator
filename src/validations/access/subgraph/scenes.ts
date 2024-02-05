@@ -297,7 +297,7 @@ export function createSceneValidateFn({
       const parcel = await getParcel(x, y, timestamp)
       if (parcel) {
         const belongsToEstate: boolean =
-          parcel.estates != undefined && parcel.estates.length > 0 && parcel.estates[0].estateId != undefined
+          parcel.estates !== undefined && parcel.estates.length > 0 && parcel.estates[0].estateId !== undefined
 
         return (
           (await hasAccessThroughFirstLevelAuthorities(parcel, ethAddress)) ||
