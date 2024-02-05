@@ -41,7 +41,7 @@ function alreadySeen(resolvedPointers: SupportedAsset[], parsed: SupportedAsset)
 function resolveSameUrn(alreadyParsed: SupportedAsset, parsed: SupportedAsset): boolean {
   const { ['uri']: uri1, ...alreadyParsedWithoutUri } = alreadyParsed
   const { ['uri']: uri2, ...parsedWithoutUri } = parsed
-  return JSON.stringify(parsedWithoutUri) == JSON.stringify(alreadyParsedWithoutUri)
+  return JSON.stringify(parsedWithoutUri) === JSON.stringify(alreadyParsedWithoutUri)
 }
 
 async function parseUrnNoFail(urn: string): Promise<SupportedAsset | null> {

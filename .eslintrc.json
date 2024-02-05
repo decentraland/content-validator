@@ -1,5 +1,5 @@
 {
-  "extends": "@dcl/eslint-config",
+  "extends": "@dcl/eslint-config/sdk",
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 2020, // Allows for the parsing of modern ECMAScript features
@@ -9,5 +9,14 @@
       "./tsconfig.json",
       "./test/tsconfig.json"
     ]
+  },
+  "rules": {
+    "prettier/prettier": ["error", {
+      "printWidth": 120,
+      "semi": false,
+      "singleQuote": true,
+      "trailingComma": "none",
+      "tabWidth": 2
+    }]
   }
 }
