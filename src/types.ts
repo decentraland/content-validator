@@ -118,6 +118,13 @@ export type L2Checker = {
 }
 
 /**
+ * @public
+ */
+export type ItemChecker = {
+  checkItems(ethAddress: string, items: string[], block: number): Promise<boolean[]>
+}
+
+/**
  * A list with all sub-graphs used for validations.
  * @public
  */
@@ -202,12 +209,12 @@ export type OnChainAccessCheckerComponents = Pick<ContentValidatorComponents, 'l
   client: OnChainClient
   L1: {
     checker: L1Checker
-    collections: ISubgraphComponent
+    collections: ItemChecker
     blockSearch: BlockSearch
   }
   L2: {
     checker: L2Checker
-    collections: ISubgraphComponent
+    collections: ItemChecker
     blockSearch: BlockSearch
   }
 }

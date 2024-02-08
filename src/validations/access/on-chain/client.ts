@@ -1,13 +1,23 @@
 import { BlockSearch } from '@dcl/block-indexer'
 import { EthAddress } from '@dcl/schemas'
 import { getTokenIdAndAssetUrn } from '@dcl/urn-resolver'
-import { ISubgraphComponent } from '@well-known-components/thegraph-component'
-import { BlockInformation, OnChainAccessCheckerComponents, OnChainClient } from '../../../types'
+import { BlockInformation, ItemChecker, OnChainAccessCheckerComponents, OnChainClient } from '../../../types'
 import { splitItemsURNsByNetwork } from '../../../utils'
 
 export type PermissionResult = {
   result: boolean
   failing?: string[]
+}
+
+function permissionOk(): PermissionResult {
+  return { result: true }
+}
+
+function permissionError(failing?: string[]): PermissionResult {
+  return {
+    result: false,
+    failing: failing
+  }
 }
 
 export function timestampBounds(timestampMs: number) {
@@ -27,22 +37,23 @@ export function timestampBounds(timestampMs: number) {
 /**
  * @public
  */
-export const createOnChainClient = (
+export function createOnChainClient(
   components: Pick<OnChainAccessCheckerComponents, 'logs' | 'L1' | 'L2'>
-): OnChainClient => {
+): OnChainClient {
   const logger = components.logs.getLogger('OnChainClient')
 
-  const ownsNamesAtTimestamp = async (
+  async function ownsNamesAtTimestamp(
     ethAddress: EthAddress,
     namesToCheck: string[],
     timestamp: number
-  ): Promise<PermissionResult> => {
+  ): Promise<PermissionResult> {
     if (namesToCheck.length === 0) {
       return permissionOk()
     }
 
     const blocks = await findBlocksForTimestamp(timestamp, components.L1.blockSearch)
-    const hasPermissionOnBlock = async (blockNumber: number | undefined): Promise<PermissionResult> => {
+
+    async function hasPermissionOnBlock(blockNumber: number | undefined): Promise<PermissionResult> {
       if (!blockNumber) {
         return permissionError()
       }
@@ -71,17 +82,11 @@ export const createOnChainClient = (
     return await hasPermissionOnBlock(blocks.blockNumberFiveMinBeforeDeployment)
   }
 
-  const permissionOk = (): PermissionResult => ({ result: true })
-  const permissionError = (failing?: string[]): PermissionResult => ({
-    result: false,
-    failing: failing
-  })
-
-  const ownsItemsAtTimestamp = async (
+  async function ownsItemsAtTimestamp(
     ethAddress: EthAddress,
     urnsToCheck: string[],
     timestamp: number
-  ): Promise<PermissionResult> => {
+  ): Promise<PermissionResult> {
     if (urnsToCheck.length === 0) {
       return permissionOk()
     }
@@ -113,13 +118,13 @@ export const createOnChainClient = (
     }
   }
 
-  const ownsItemsAtTimestampInBlockchain = async (
+  async function ownsItemsAtTimestampInBlockchain(
     ethAddress: EthAddress,
     urnsToCheck: { urn: string; type: string }[],
     timestamp: number,
-    collectionsSubgraph: ISubgraphComponent,
+    itemChecker: ItemChecker,
     blockSearch: BlockSearch
-  ): Promise<PermissionResult> => {
+  ): Promise<PermissionResult> {
     if (urnsToCheck.length === 0) {
       return permissionOk()
     }
@@ -136,50 +141,25 @@ export const createOnChainClient = (
 
     const blocks = await findBlocksForTimestamp(timestamp, blockSearch)
 
-    const hasPermissionOnBlock = async (blockNumber: number | undefined): Promise<PermissionResult> => {
+    async function hasPermissionOnBlock(blockNumber: number | undefined): Promise<PermissionResult> {
       if (!blockNumber) {
         return permissionError()
       }
 
-      const runOwnedItemsOnBlockQuery = async (blockNumber: number) => {
-        const query: Query<{ items: { urn: string; tokenId: string }[] }, Set<{ urn: string; tokenId: string }>> = {
-          description: 'check for items ownership',
-          subgraph: collectionsSubgraph,
-          query: QUERY_ITEMS_FOR_ADDRESS_AT_BLOCK,
-          mapper: (response: { items: { urn: string; tokenId: string }[] }): Set<{ urn: string; tokenId: string }> =>
-            new Set(
-              response.items.map(({ urn, tokenId }) => ({
-                urn,
-                tokenId
-              }))
-            )
-        }
-        return runQuery(query, {
-          block: blockNumber,
-          ethAddress: ethAddress.toLowerCase(),
-          urnList: urnsToQuery
-        })
-      }
-
       try {
-        const ownedItems = await runOwnedItemsOnBlockQuery(blockNumber)
-        const ownedItemsArray = Array.from(ownedItems)
+        logger.info(`Checking items owned by address ${ethAddress} at block ${blockNumber}: ${urnsToQuery}`)
+        const result = await itemChecker.checkItems(ethAddress, urnsToQuery, blockNumber)
         const notOwned: string[] = []
 
-        for (const urn of urnsToCheck) {
-          if (urn.type === 'blockchain-collection-v1-item' || urn.type === 'blockchain-collection-v2-item') {
-            const { assetUrn, tokenId } = getTokenIdAndAssetUrn(urn.urn)
-            if (!ownedItemsArray.some((item) => item.urn === assetUrn && item.tokenId === tokenId)) {
-              notOwned.push(urn.urn)
-            }
-          } else if (!ownedItemsArray.some((item) => item.urn === urn.urn)) {
-            notOwned.push(urn.urn)
+        for (let i = 0; i < urnsToQuery.length; i++) {
+          if (!result[i]) {
+            notOwned.push(urnsToQuery[i])
           }
         }
-
+        logger.info(`Not owned: ${notOwned}`)
         return notOwned.length > 0 ? permissionError(notOwned) : permissionOk()
-      } catch (error) {
-        logger.error(`Error retrieving items owned by address ${ethAddress} at block ${blocks.blockNumberAtDeployment}`)
+      } catch {
+        logger.error(`Error retrieving items owned by address ${ethAddress} at block ${blockNumber}`)
         return permissionError()
       }
     }
@@ -192,15 +172,7 @@ export const createOnChainClient = (
     return await hasPermissionOnBlock(blocks.blockNumberFiveMinBeforeDeployment)
   }
 
-  const runQuery = async <QueryResult, ReturnType>(
-    query: Query<QueryResult, ReturnType>,
-    variables: Record<string, any>
-  ): Promise<ReturnType> => {
-    const response = await query.subgraph.query<QueryResult>(query.query, variables)
-    return query.mapper(response)
-  }
-
-  const findBlocksForTimestamp = async (timestamp: number, blockSearch: BlockSearch): Promise<BlockInformation> => {
+  async function findBlocksForTimestamp(timestamp: number, blockSearch: BlockSearch): Promise<BlockInformation> {
     const { lower, upper } = timestampBounds(timestamp)
 
     const result = await Promise.all([
@@ -230,23 +202,4 @@ export const createOnChainClient = (
     ownsItemsAtTimestamp,
     findBlocksForTimestamp
   }
-}
-
-const QUERY_ITEMS_FOR_ADDRESS_AT_BLOCK = `
-query getNftItemsForBlock($block: Int!, $ethAddress: String!, $urnList: [String!]) {
-  items: nfts(
-    block: {number: $block}
-    where: {owner: $ethAddress, searchItemType_in: ["wearable_v1", "wearable_v2", "smart_wearable_v1", "emote_v1"] urn_in: $urnList}
-    first: 1000
-  ) {
-    urn
-    tokenId
-  }
-}`
-
-type Query<QueryResult, ReturnType> = {
-  description: string
-  subgraph: ISubgraphComponent
-  query: string
-  mapper: (queryResult: QueryResult) => ReturnType
 }
