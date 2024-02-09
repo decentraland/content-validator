@@ -5,7 +5,7 @@ import { createEmoteValidateFn, createWearableValidateFn } from '../../../src/va
 import { createOnChainClient } from '../../../src/validations/access/on-chain/client'
 import { createV1andV2collectionAssetValidateFn } from '../../../src/validations/access/on-chain/collection-asset'
 import { createThirdPartyAssetValidateFn } from '../../../src/validations/access/on-chain/third-party-asset'
-import { buildComponents, createMockSubgraphComponent } from '../../setup/mock'
+import { buildComponents, createMockItemCheckerComponent, createMockSubgraphComponent } from '../../setup/mock'
 
 const defaultEthereum = [
   {
@@ -90,7 +90,7 @@ export const buildOnChainAccessCheckerComponents = (
   const metrics = createTestMetricsComponent(metricsDefinitions)
   const L1 = provided?.L1 ?? {
     checker: createMockL1Checker(),
-    collections: createMockSubgraphComponent(),
+    collections: createMockItemCheckerComponent(),
     blockSearch: createAvlBlockSearch({
       logs,
       metrics,
@@ -111,7 +111,7 @@ export const buildOnChainAccessCheckerComponents = (
   }
   const L2 = provided?.L2 ?? {
     checker: createMockL2Checker(),
-    collections: createMockSubgraphComponent(),
+    collections: createMockItemCheckerComponent(),
     blockSearch: createAvlBlockSearch({
       logs,
       metrics,

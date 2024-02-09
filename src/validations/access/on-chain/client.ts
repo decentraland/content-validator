@@ -112,8 +112,9 @@ export function createOnChainClient(
       maticItemsOwnersPromise
     ])
 
-    if (ethereumItemsOwnership.result && maticItemsOwnership.result) return permissionOk()
-    else {
+    if (ethereumItemsOwnership.result && maticItemsOwnership.result) {
+      return permissionOk()
+    } else {
       return permissionError([...(ethereumItemsOwnership.failing ?? []), ...(maticItemsOwnership.failing ?? [])])
     }
   }
@@ -129,16 +130,7 @@ export function createOnChainClient(
       return permissionOk()
     }
 
-    const urnsToQuery = urnsToCheck.map((urn) => {
-      if (urn.type === 'blockchain-collection-v1-item' || urn.type === 'blockchain-collection-v2-item') {
-        // Urns that need to be split into urn and tokenId
-        const { assetUrn } = getTokenIdAndAssetUrn(urn.urn)
-        return assetUrn
-      } else {
-        return urn.urn
-      }
-    })
-
+    const urnsToQuery = urnsToCheck.map((urn) => urn.urn)
     const blocks = await findBlocksForTimestamp(timestamp, blockSearch)
 
     async function hasPermissionOnBlock(blockNumber: number | undefined): Promise<PermissionResult> {
