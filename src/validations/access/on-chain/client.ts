@@ -1,6 +1,5 @@
 import { BlockSearch } from '@dcl/block-indexer'
 import { EthAddress } from '@dcl/schemas'
-import { getTokenIdAndAssetUrn } from '@dcl/urn-resolver'
 import { BlockInformation, ItemChecker, OnChainAccessCheckerComponents, OnChainClient } from '../../../types'
 import { splitItemsURNsByNetwork } from '../../../utils'
 
@@ -92,25 +91,22 @@ export function createOnChainClient(
     }
 
     const { ethereum, matic } = await splitItemsURNsByNetwork(urnsToCheck)
-    console.log('ethereum', ethereum)
-    const ethereumItemsOwnersPromise = ownsItemsAtTimestampInBlockchain(
-      ethAddress,
-      ethereum,
-      timestamp,
-      components.L1.collections,
-      components.L1.blockSearch
-    )
-    const maticItemsOwnersPromise = ownsItemsAtTimestampInBlockchain(
-      ethAddress,
-      matic,
-      timestamp,
-      components.L2.collections,
-      components.L2.blockSearch
-    )
-
+    console.log('ethereum', ethereum, 'matic', matic)
     const [ethereumItemsOwnership, maticItemsOwnership] = await Promise.all([
-      ethereumItemsOwnersPromise,
-      maticItemsOwnersPromise
+      ownsItemsAtTimestampInBlockchain(
+        ethAddress,
+        ethereum,
+        timestamp,
+        components.L1.collections,
+        components.L1.blockSearch
+      ),
+      ownsItemsAtTimestampInBlockchain(
+        ethAddress,
+        matic,
+        timestamp,
+        components.L2.collections,
+        components.L2.blockSearch
+      )
     ])
 
     if (ethereumItemsOwnership.result && maticItemsOwnership.result) {
