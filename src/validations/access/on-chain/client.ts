@@ -92,6 +92,7 @@ export function createOnChainClient(
     }
 
     const { ethereum, matic } = await splitItemsURNsByNetwork(urnsToCheck)
+    console.log('ethereum', ethereum)
     const ethereumItemsOwnersPromise = ownsItemsAtTimestampInBlockchain(
       ethAddress,
       ethereum,
