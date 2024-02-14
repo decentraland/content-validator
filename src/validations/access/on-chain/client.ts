@@ -150,8 +150,12 @@ export function createOnChainClient(
         const result = await itemChecker.checkItems(ethAddress, urnsToQuery, blockNumber)
         const notOwned: string[] = urnsToQuery.filter((_, i) => !result[i])
 
-        logger.info(`Not owned: ${notOwned}`)
-        return notOwned.length > 0 ? permissionError(notOwned) : permissionOk()
+        if (notOwned.length > 0) {
+          logger.info(`Not owned: ${notOwned}`)
+          return permissionError(notOwned)
+        } else {
+          return permissionOk()
+        }
       } catch (e: any) {
         logger.error(e)
         logger.error(`Error retrieving items owned by address ${ethAddress} at block ${blockNumber}`)
