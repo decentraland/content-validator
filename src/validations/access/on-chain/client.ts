@@ -91,18 +91,28 @@ export function createOnChainClient(
     }
 
     const { ethereum, matic } = await splitItemsURNsByNetwork(urnsToCheck)
-    console.log('ethereum', ethereum, 'matic', matic)
+
+    const ignoredSet = new Set([
+      ...ethereum.filter(({ type }) => type === 'blockchain-collection-v1-asset').map(({ urn }) => urn),
+      ...matic.filter(({ type }) => type === 'blockchain-collection-v2-asset').map(({ urn }) => urn)
+    ])
+    if (ignoredSet.size > 0) {
+      logger.info(`Ignoring these assets, considering them as "owned" by the address: ${[...ignoredSet]}`)
+    }
+    const filteredEthereum = ethereum.filter(({ type }) => type !== 'blockchain-collection-v1-asset')
+    const filteredMatic = matic.filter(({ type }) => type !== 'blockchain-collection-v2-asset')
+
     const [ethereumItemsOwnership, maticItemsOwnership] = await Promise.all([
       ownsItemsAtTimestampInBlockchain(
         ethAddress,
-        ethereum,
+        filteredEthereum,
         timestamp,
         components.L1.collections,
         components.L1.blockSearch
       ),
       ownsItemsAtTimestampInBlockchain(
         ethAddress,
-        matic,
+        filteredMatic,
         timestamp,
         components.L2.collections,
         components.L2.blockSearch
@@ -138,16 +148,12 @@ export function createOnChainClient(
       try {
         logger.info(`Checking items owned by address ${ethAddress} at block ${blockNumber}: ${urnsToQuery}`)
         const result = await itemChecker.checkItems(ethAddress, urnsToQuery, blockNumber)
-        const notOwned: string[] = []
+        const notOwned: string[] = urnsToQuery.filter((_, i) => !result[i])
 
-        for (let i = 0; i < urnsToQuery.length; i++) {
-          if (!result[i]) {
-            notOwned.push(urnsToQuery[i])
-          }
-        }
         logger.info(`Not owned: ${notOwned}`)
         return notOwned.length > 0 ? permissionError(notOwned) : permissionOk()
-      } catch {
+      } catch (e: any) {
+        logger.error(e)
         logger.error(`Error retrieving items owned by address ${ethAddress} at block ${blockNumber}`)
         return permissionError()
       }
