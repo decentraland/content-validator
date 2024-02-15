@@ -96,7 +96,7 @@ export const emoteUrnsValidateFn = validateAfterADR74(async function validateFn(
         )
       if (parsed?.type === 'blockchain-collection-v1-asset' || parsed?.type === 'blockchain-collection-v2-asset') {
         return validationFailed(
-          `Wearable pointer ${urn} should be an item, not an asset. The URN must include the tokenId.`
+          `Emote pointer ${urn} should be an item, not an asset. The URN must include the tokenId.`
         )
       }
       if (slot < 0 || slot > 9) {
