@@ -332,7 +332,7 @@ describe('Profiles', () => {
       const entity = buildEntity({
         type: EntityType.PROFILE,
         metadata: validProfileMetadataWithEmotes([
-          { slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }
+          { slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0:1' }
         ]),
         timestamp: ADR_74_TIMESTAMP + 1
       })
@@ -366,7 +366,7 @@ describe('Profiles', () => {
       const entity = buildEntity({
         type: EntityType.PROFILE,
         metadata: validProfileMetadataWithEmotes([
-          { slot: -1, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }
+          { slot: -1, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0:1' }
         ]),
         timestamp: ADR_74_TIMESTAMP + 1
       })
@@ -376,7 +376,7 @@ describe('Profiles', () => {
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
-        'The slot -1 of the emote urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0 must be a number between 0 and 9 (inclusive).'
+        'The slot -1 of the emote urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0:1 must be a number between 0 and 9 (inclusive).'
       )
     })
 
@@ -384,7 +384,7 @@ describe('Profiles', () => {
       const entity = buildEntity({
         type: EntityType.PROFILE,
         metadata: validProfileMetadataWithEmotes([
-          { slot: 10, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }
+          { slot: 10, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0:1' }
         ]),
         timestamp: ADR_74_TIMESTAMP + 1
       })
@@ -394,7 +394,7 @@ describe('Profiles', () => {
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
-        'The slot 10 of the emote urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0 must be a number between 0 and 9 (inclusive).'
+        'The slot 10 of the emote urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0:1 must be a number between 0 and 9 (inclusive).'
       )
     })
 
