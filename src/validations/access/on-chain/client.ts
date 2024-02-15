@@ -12,7 +12,7 @@ export type PermissionResult = {
 
 export function timestampBounds(timestampMs: number) {
   /*
-   * This mimics original behavior of looking up to 8 seconds after the entity timestamp
+   * This mimics the original behavior of looking up to 8 seconds after the entity timestamp
    * and up to 5 minutes and 7 seconds before
    */
   const timestampSec = Math.ceil(timestampMs / 1000) + 8
@@ -30,7 +30,7 @@ export function timestampBounds(timestampMs: number) {
 export const createOnChainClient = (
   components: Pick<OnChainAccessCheckerComponents, 'logs' | 'L1' | 'L2'>
 ): OnChainClient => {
-  const logger = components.logs.getLogger('TheGraphClient')
+  const logger = components.logs.getLogger('OnChainClient')
 
   const ownsNamesAtTimestamp = async (
     ethAddress: EthAddress,

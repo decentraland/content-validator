@@ -66,10 +66,16 @@ export const wearableUrnsValidateFn = validateAfterADR75(async function validate
       if (isOldEmote(pointer)) continue
 
       const parsed = await parseUrn(pointer)
-      if (!parsed)
+      if (!parsed) {
         return validationFailed(
           `Each profile wearable pointer should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (${pointer})`
         )
+      }
+      if (parsed?.type === 'blockchain-collection-v1-asset' || parsed?.type === 'blockchain-collection-v2-asset') {
+        return validationFailed(
+          `Wearable pointer ${pointer} should be an item, not an asset. The URN must include the tokenId.`
+        )
+      }
     }
   }
   return OK
@@ -88,6 +94,11 @@ export const emoteUrnsValidateFn = validateAfterADR74(async function validateFn(
         return validationFailed(
           `Each profile emote pointer should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (${urn})`
         )
+      if (parsed?.type === 'blockchain-collection-v1-asset' || parsed?.type === 'blockchain-collection-v2-asset') {
+        return validationFailed(
+          `Wearable pointer ${urn} should be an item, not an asset. The URN must include the tokenId.`
+        )
+      }
       if (slot < 0 || slot > 9) {
         return validationFailed(`The slot ${slot} of the emote ${urn} must be a number between 0 and 9 (inclusive).`)
       }

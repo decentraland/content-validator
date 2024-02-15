@@ -18,7 +18,7 @@ export async function splitItemsURNsByNetwork(urnsToSplit: string[]): Promise<UR
   const matic: { urn: string; type: string }[] = []
   for (const urn of urnsToSplit) {
     // check if it is a L1 or L2 asset
-    // 'ethereum' is included since L1 Mainnet assets includes it instead of 'mainnet'
+    // 'ethereum' is included since L1 Mainnet assets include it instead of 'mainnet'
     if (
       ![...L1_NETWORKS, 'ethereum'].some((network) => urn.includes(network)) &&
       !L2_NETWORKS.some((network) => urn.includes(network))
