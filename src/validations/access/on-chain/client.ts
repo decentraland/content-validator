@@ -99,8 +99,10 @@ export function createOnChainClient(
     if (ignoredSet.size > 0) {
       logger.info(`Ignoring these assets, considering them as "owned" by the address: ${[...ignoredSet]}`)
     }
-    const filteredEthereum = ethereum.filter(({ type }) => type !== 'blockchain-collection-v1-asset')
-    const filteredMatic = matic.filter(({ type }) => type !== 'blockchain-collection-v2-asset')
+    const filteredEthereum = ethereum
+      .filter(({ type }) => type !== 'blockchain-collection-v1-asset')
+      .map(({ urn }) => urn)
+    const filteredMatic = matic.filter(({ type }) => type !== 'blockchain-collection-v2-asset').map(({ urn }) => urn)
 
     const [ethereumItemsOwnership, maticItemsOwnership] = await Promise.all([
       ownsItemsAtTimestampInBlockchain(
@@ -128,7 +130,7 @@ export function createOnChainClient(
 
   async function ownsItemsAtTimestampInBlockchain(
     ethAddress: EthAddress,
-    urnsToCheck: { urn: string; type: string }[],
+    urnsToCheck: string[],
     timestamp: number,
     itemChecker: ItemChecker,
     blockSearch: BlockSearch
@@ -137,7 +139,6 @@ export function createOnChainClient(
       return permissionOk()
     }
 
-    const urnsToQuery = urnsToCheck.map((urn) => urn.urn)
     const blocks = await findBlocksForTimestamp(timestamp, blockSearch)
 
     async function hasPermissionOnBlock(blockNumber: number | undefined): Promise<PermissionResult> {
@@ -146,9 +147,9 @@ export function createOnChainClient(
       }
 
       try {
-        logger.info(`Checking items owned by address ${ethAddress} at block ${blockNumber}: ${urnsToQuery}`)
-        const result = await itemChecker.checkItems(ethAddress, urnsToQuery, blockNumber)
-        const notOwned: string[] = urnsToQuery.filter((_, i) => !result[i])
+        logger.info(`Checking items owned by address ${ethAddress} at block ${blockNumber}: ${urnsToCheck}`)
+        const result = await itemChecker.checkItems(ethAddress, urnsToCheck, blockNumber)
+        const notOwned: string[] = urnsToCheck.filter((_, i) => !result[i])
 
         if (notOwned.length > 0) {
           logger.info(`Not owned: ${notOwned}`)
