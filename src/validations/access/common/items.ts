@@ -82,6 +82,7 @@ export function createEmoteValidateFn(
   thirdPartyAssetValidateFn: ThirdPartyAssetValidateFn
 ): ValidateFn {
   return createItemValidateFn(components, v1andV2collectionAssetValidateFn, thirdPartyAssetValidateFn, [
+    'off-chain',
     'blockchain-collection-v2-asset',
     'blockchain-collection-third-party'
   ])

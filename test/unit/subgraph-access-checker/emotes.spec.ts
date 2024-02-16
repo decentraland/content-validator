@@ -174,24 +174,7 @@ describe('Access: emotes', () => {
     const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
-      `For the entity type: emote, the asset with urn type: blockchain-collection-v1-asset is invalid. Valid urn types for this entity: blockchain-collection-v2-asset,blockchain-collection-third-party`
-    )
-  })
-
-  it('When pointer resolves to base asset then it fails because it is not allowed', async () => {
-    const pointers = ['urn:decentraland:off-chain:base-avatars:BaseFemale']
-    const deployment = buildEmoteDeployment(pointers)
-    const externalCalls = buildExternalCalls({
-      isAddressOwnedByDecentraland: () => true
-    })
-
-    const components = buildSubgraphAccessCheckerComponents({ externalCalls })
-
-    const validateFn = buildEmoteValidateFn(components)
-    const response = await validateFn(deployment)
-    expect(response.ok).toBeFalsy()
-    expect(response.errors).toContain(
-      `For the entity type: emote, the asset with urn type: off-chain is invalid. Valid urn types for this entity: blockchain-collection-v2-asset,blockchain-collection-third-party`
+      `For the entity type: emote, the asset with urn type: blockchain-collection-v1-asset is invalid. Valid urn types for this entity: off-chain,blockchain-collection-v2-asset,blockchain-collection-third-party`
     )
   })
 
