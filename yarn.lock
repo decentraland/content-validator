@@ -1342,9 +1342,9 @@
     prom-client "^14.1.0"
 
 "@well-known-components/test-helpers@^1.5.5":
-  version "1.5.5"
-  resolved "https://registry.yarnpkg.com/@well-known-components/test-helpers/-/test-helpers-1.5.5.tgz#73472e599a3e867889b03b226ea86c7aba1f4b6c"
-  integrity sha512-TDUlPFh9Sog7vCXL+f30dhuBmoGH8ImGGP8mTB/pv25Qf9mF307uPhCklpDUWOB9HqUx/JkUp+0EAXmIDjNvcQ==
+  version "1.5.6"
+  resolved "https://registry.yarnpkg.com/@well-known-components/test-helpers/-/test-helpers-1.5.6.tgz#a17091f1491763fe258c195eb470086aa9e03910"
+  integrity sha512-BQpNNhcg57x7iifJyzMmBVAGOleRb74OuR8qjoFA+I3EzEcYw65rkycNXbTP+icw4pjbTP3Ga9HafjR9nquIpg==
   dependencies:
     "@types/jest" "^29.5.2"
     "@types/sinon" "^17.0.1"
