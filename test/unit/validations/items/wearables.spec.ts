@@ -195,7 +195,7 @@ describe('Wearables', () => {
       expect(result.ok).toBeTruthy()
     })
 
-    it(`Skin category has a special size, should fail when biggern than 8mb`, async () => {
+    it(`Skin category has a special size, should fail when bigger than 8mb`, async () => {
       const withSize = (size: number) => Buffer.alloc(size * 1024 * 1024)
       const content = [
         { file: 'A', hash: 'A' },

@@ -28,7 +28,6 @@ export function createDeploymentMaxSizeExcludingThumbnailIsNotExceededValidateFn
       const wearable = entity.metadata as Wearable
       if (wearable.data?.category === WearableCategory.SKIN) {
         maxSizeInMB = skinMaxSizeInMb
-        console.log('HERE', maxSizeInMB)
       }
     }
 
