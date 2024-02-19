@@ -1,4 +1,4 @@
-import { EntityType } from '@dcl/schemas'
+import { EntityType, WearableCategory } from '@dcl/schemas'
 import {
   createDeploymentMaxSizeExcludingThumbnailIsNotExceededValidateFn,
   createThumbnailMaxSizeIsNotExceededValidateFn
@@ -170,6 +170,61 @@ describe('Wearables', () => {
         'The deployment is too big. The maximum allowed size for wearable model files is 2 MB. You can upload up to 2097152 bytes but you tried to upload 2621440.'
       )
     })
+    it(`Skin category has a special size, should support more than 3mb`, async () => {
+      const withSize = (size: number) => Buffer.alloc(size * 1024 * 1024)
+      const content = [
+        { file: 'A', hash: 'A' },
+        { file: 'C', hash: 'C' },
+        { file: 'thumbnail.png', hash: 'thumbnail' }
+      ]
+      const files = new Map([
+        ['A', withSize(1)],
+        ['C', withSize(1.5)],
+        ['thumbnail', Buffer.alloc(1)]
+      ])
+      const entity = buildEntity({
+        type: EntityType.WEARABLE,
+        metadata: { thumbnail: 'thumbnail.png', data: { category: WearableCategory.SKIN } },
+        content,
+        timestamp
+      })
+      const deployment = buildDeployment({ entity, files })
+      const validateFn = createDeploymentMaxSizeExcludingThumbnailIsNotExceededValidateFn(components)
+      const result = await validateFn(deployment)
+
+      expect(result.ok).toBeTruthy()
+    })
+
+    it(`Skin category has a special size, should fail when biggern than 8mb`, async () => {
+      const withSize = (size: number) => Buffer.alloc(size * 1024 * 1024)
+      const content = [
+        { file: 'A', hash: 'A' },
+        { file: 'C', hash: 'C' },
+        { file: 'D', hash: 'D' },
+        { file: 'thumbnail.png', hash: 'thumbnail' }
+      ]
+      const files = new Map([
+        ['A', withSize(3)],
+        ['C', withSize(2.5)],
+        ['D', withSize(3)],
+        ['thumbnail', Buffer.alloc(1)]
+      ])
+      const entity = buildEntity({
+        type: EntityType.WEARABLE,
+        metadata: { thumbnail: 'thumbnail.png', data: { category: WearableCategory.SKIN } },
+        content,
+        timestamp
+      })
+      const deployment = buildDeployment({ entity, files })
+      const validateFn = createDeploymentMaxSizeExcludingThumbnailIsNotExceededValidateFn(components)
+      const result = await validateFn(deployment)
+
+      expect(result.ok).toBeFalsy()
+      expect(result.errors).toContain(
+        'The deployment is too big. The maximum allowed size for wearable model files is 7 MB. You can upload up to 7340032 bytes but you tried to upload 8912896.'
+      )
+    })
+
     it(`When a wearable is deployed and thumbnail is too big, then it fails`, async () => {
       const withSize = (size: number) => Buffer.alloc(size * 1024 * 1024)
       const content = [

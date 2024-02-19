@@ -1,4 +1,4 @@
-import { EntityType, Wearable } from '@dcl/schemas'
+import { EntityType, Wearable, WearableCategory } from '@dcl/schemas'
 import { BaseItem } from '@dcl/schemas/dist/platform/item/base-item'
 import sharp from 'sharp'
 import { calculateDeploymentSize } from '..'
@@ -10,7 +10,7 @@ import {
   validationFailed,
   ValidationResponse
 } from '../../types'
-import { entityParameters } from '../ADR51'
+import { entityParameters, skinMaxSizeInMb } from '../ADR51'
 import { validateAfterADR45, validateAll, validateIfConditionMet } from '../validations'
 
 /** Validate item files size, excluding thumbnail, is less than expected */
@@ -19,9 +19,17 @@ export function createDeploymentMaxSizeExcludingThumbnailIsNotExceededValidateFn
 ): ValidateFn {
   async function validateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
     const entity = deployment.entity
-    const maxSizeInMB = entityParameters[entity.type]?.maxSizeInMB
+    let maxSizeInMB = entityParameters[entity.type]?.maxSizeInMB
     if (!maxSizeInMB) {
       return validationFailed(`Type ${entity.type} is not supported yet`)
+    }
+
+    if (entity.type === EntityType.WEARABLE) {
+      const wearable = entity.metadata as Wearable
+      if (wearable.data?.category === WearableCategory.SKIN) {
+        maxSizeInMB = skinMaxSizeInMb
+        console.log('HERE', maxSizeInMB)
+      }
     }
 
     const modelSizeInMB = maxSizeInMB - maxThumbnailSizeInB / 1024
