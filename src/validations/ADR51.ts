@@ -5,6 +5,8 @@ type Params = {
   maxSizeInMB: number // in MB
 }
 
+export const skinMaxSizeInMb = 8
+
 export const entityParameters: Record<EntityType, Params> = {
   scene: {
     validate: Scene.validate,
