@@ -6,8 +6,8 @@ import {
   DeploymentToValidate,
   OK,
   ValidateFn,
-  ValidationResponse,
-  validationFailed
+  validationFailed,
+  ValidationResponse
 } from '../types'
 import {
   validateAfterADR232,
@@ -17,6 +17,7 @@ import {
   validateAll,
   validateIfTypeMatches
 } from './validations'
+import { ADR_244_TIMESTAMP } from './timestamps'
 
 /** Validate that given profile deployment includes a face256 thumbnail with valid size */
 const defaultThumbnailSize = 256
@@ -71,10 +72,12 @@ export const wearableUrnsValidateFn = validateAfterADR75(async function validate
           `Each profile wearable pointer should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (${pointer})`
         )
       }
-      if (parsed?.type === 'blockchain-collection-v1-asset' || parsed?.type === 'blockchain-collection-v2-asset') {
-        return validationFailed(
-          `Wearable pointer ${pointer} should be an item, not an asset. The URN must include the tokenId.`
-        )
+      if (deployment.entity.timestamp >= ADR_244_TIMESTAMP) {
+        if (parsed?.type === 'blockchain-collection-v1-asset' || parsed?.type === 'blockchain-collection-v2-asset') {
+          return validationFailed(
+            `Wearable pointer ${pointer} should be an item, not an asset. The URN must include the tokenId.`
+          )
+        }
       }
     }
   }
@@ -94,10 +97,12 @@ export const emoteUrnsValidateFn = validateAfterADR74(async function validateFn(
         return validationFailed(
           `Each profile emote pointer should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (${urn})`
         )
-      if (parsed?.type === 'blockchain-collection-v1-asset' || parsed?.type === 'blockchain-collection-v2-asset') {
-        return validationFailed(
-          `Emote pointer ${urn} should be an item, not an asset. The URN must include the tokenId.`
-        )
+      if (deployment.entity.timestamp >= ADR_244_TIMESTAMP) {
+        if (parsed?.type === 'blockchain-collection-v1-asset' || parsed?.type === 'blockchain-collection-v2-asset') {
+          return validationFailed(
+            `Emote pointer ${urn} should be an item, not an asset. The URN must include the tokenId.`
+          )
+        }
       }
       if (slot < 0 || slot > 9) {
         return validationFailed(`The slot ${slot} of the emote ${urn} must be a number between 0 and 9 (inclusive).`)

@@ -7,7 +7,7 @@ import {
   ValidationResponse,
   validationFailed
 } from '../types'
-import { validateAll, validateIfTypeMatches } from './validations'
+import { validateAfterADR244, validateAll, validateIfTypeMatches } from './validations'
 import { parseUrn } from '@dcl/urn-resolver'
 
 export function createOutfitsPointerValidateFn(
@@ -80,7 +80,9 @@ export async function outfitsNumberOfNamesForExtraSlotsIsCorrectValidateFn(
   return OK
 }
 
-export async function outfitsWearableUrnsIncludeNftFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
+export const outfitsWearableUrnsIncludeNftFn = validateAfterADR244(async function (
+  deployment: DeploymentToValidate
+): Promise<ValidationResponse> {
   const outfits = deployment.entity.metadata as Outfits
   const allWearables = outfits.outfits.map((outfit) => outfit.outfit.wearables).flat()
 
@@ -106,7 +108,7 @@ export async function outfitsWearableUrnsIncludeNftFn(deployment: DeploymentToVa
   }
 
   return OK
-}
+})
 
 export function createOutfitsValidateFn(components: ContentValidatorComponents): ValidateFn {
   return validateIfTypeMatches(
