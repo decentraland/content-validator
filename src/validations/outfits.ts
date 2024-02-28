@@ -92,8 +92,7 @@ export const outfitsWearableUrnsIncludeNftFn = validateAfterADR244(async functio
     const parsed = await parseUrn(wearableUrn)
     if (!parsed) {
       invalidUrns.push(wearableUrn)
-    }
-    if (parsed?.type === 'blockchain-collection-v1-asset' || parsed?.type === 'blockchain-collection-v2-asset') {
+    } else if (parsed.type === 'blockchain-collection-v1-asset' || parsed.type === 'blockchain-collection-v2-asset') {
       nonItemUrns.push(wearableUrn)
     }
   }
