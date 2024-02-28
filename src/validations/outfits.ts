@@ -80,7 +80,7 @@ export async function outfitsNumberOfNamesForExtraSlotsIsCorrectValidateFn(
   return OK
 }
 
-export const outfitsWearableUrnsIncludeNftFn = validateAfterADR244(async function (
+export const outfitsWearableUrnsIncludeTokenIdFn = validateAfterADR244(async function (
   deployment: DeploymentToValidate
 ): Promise<ValidationResponse> {
   const outfits = deployment.entity.metadata as Outfits
@@ -116,7 +116,7 @@ export function createOutfitsValidateFn(components: ContentValidatorComponents):
       createOutfitsPointerValidateFn(components),
       outfitSlotsAreNotRepeatedValidateFn,
       outfitsNumberOfNamesForExtraSlotsIsCorrectValidateFn,
-      outfitsWearableUrnsIncludeNftFn
+      outfitsWearableUrnsIncludeTokenIdFn
     )
   )
 }
