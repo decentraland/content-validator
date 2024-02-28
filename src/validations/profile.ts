@@ -73,7 +73,7 @@ export const wearableUrnsValidateFn = validateAfterADR75(async function validate
         )
       }
       if (deployment.entity.timestamp >= ADR_244_TIMESTAMP) {
-        if (parsed?.type === 'blockchain-collection-v1-asset' || parsed?.type === 'blockchain-collection-v2-asset') {
+        if (parsed.type === 'blockchain-collection-v1-asset' || parsed.type === 'blockchain-collection-v2-asset') {
           return validationFailed(
             `Wearable pointer ${pointer} should be an item, not an asset. The URN must include the tokenId.`
           )
@@ -98,7 +98,7 @@ export const emoteUrnsValidateFn = validateAfterADR74(async function validateFn(
           `Each profile emote pointer should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (${urn})`
         )
       if (deployment.entity.timestamp >= ADR_244_TIMESTAMP) {
-        if (parsed?.type === 'blockchain-collection-v1-asset' || parsed?.type === 'blockchain-collection-v2-asset') {
+        if (parsed.type === 'blockchain-collection-v1-asset' || parsed.type === 'blockchain-collection-v2-asset') {
           return validationFailed(
             `Emote pointer ${urn} should be an item, not an asset. The URN must include the tokenId.`
           )
