@@ -12,14 +12,14 @@ const avatarInfo = {
     'urn:decentraland:off-chain:base-avatars:eyes_08',
     'urn:decentraland:off-chain:base-avatars:eyebrows_00',
     'urn:decentraland:off-chain:base-avatars:mouth_05',
-    'urn:decentraland:matic:collections-v2:0xf6f601efee04e74cecac02c8c5bdc8cc0fc1c721:0',
+    'urn:decentraland:matic:collections-v2:0xf6f601efee04e74cecac02c8c5bdc8cc0fc1c721:0:1295628',
     'urn:decentraland:off-chain:base-avatars:classic_shoes',
     'urn:decentraland:off-chain:base-avatars:red_tshirt',
-    'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2',
-    'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet',
-    'urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:2',
-    'urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:19',
-    'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa4:0'
+    'urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2:202345',
+    'urn:decentraland:ethereum:collections-v1:rtfkt_x_atari:p_rtfkt_x_atari_feet:1',
+    'urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:2:7456634',
+    'urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:19:3459354',
+    'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa4:0:46548'
   ]
 }
 

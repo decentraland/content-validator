@@ -7,7 +7,8 @@ import {
   ValidationResponse,
   validationFailed
 } from '../types'
-import { validateAll, validateIfTypeMatches } from './validations'
+import { validateAfterADR244, validateAll, validateIfTypeMatches } from './validations'
+import { parseUrn } from '@dcl/urn-resolver'
 
 export function createOutfitsPointerValidateFn(
   components: Pick<ContentValidatorComponents, 'externalCalls'>
@@ -79,13 +80,43 @@ export async function outfitsNumberOfNamesForExtraSlotsIsCorrectValidateFn(
   return OK
 }
 
+export const outfitsWearableUrnsIncludeTokenIdFn = validateAfterADR244(async function (
+  deployment: DeploymentToValidate
+): Promise<ValidationResponse> {
+  const outfits = deployment.entity.metadata as Outfits
+  const allWearables = outfits.outfits.map((outfit) => outfit.outfit.wearables).flat()
+
+  const invalidUrns: string[] = []
+  const nonItemUrns: string[] = []
+  for (const wearableUrn of [...new Set(...allWearables)]) {
+    const parsed = await parseUrn(wearableUrn)
+    if (!parsed) {
+      invalidUrns.push(wearableUrn)
+    } else if (parsed.type === 'blockchain-collection-v1-asset' || parsed.type === 'blockchain-collection-v2-asset') {
+      nonItemUrns.push(wearableUrn)
+    }
+  }
+
+  if (invalidUrns.length > 0) {
+    return validationFailed(`Invalid wearable pointer: (${invalidUrns.join(', ')})`)
+  }
+  if (nonItemUrns.length > 0) {
+    return validationFailed(
+      `Wearable pointers ${nonItemUrns.join(', ')} should be items, not assets. The URNs must include the tokenId.`
+    )
+  }
+
+  return OK
+})
+
 export function createOutfitsValidateFn(components: ContentValidatorComponents): ValidateFn {
   return validateIfTypeMatches(
     EntityType.OUTFITS,
     validateAll(
       createOutfitsPointerValidateFn(components),
       outfitSlotsAreNotRepeatedValidateFn,
-      outfitsNumberOfNamesForExtraSlotsIsCorrectValidateFn
+      outfitsNumberOfNamesForExtraSlotsIsCorrectValidateFn,
+      outfitsWearableUrnsIncludeTokenIdFn
     )
   )
 }

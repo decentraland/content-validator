@@ -5,6 +5,7 @@ import {
   ADR_173_TIMESTAMP,
   ADR_232_TIMESTAMP,
   ADR_236_TIMESTAMP,
+  ADR_244_TIMESTAMP,
   ADR_45_TIMESTAMP,
   ADR_74_TIMESTAMP,
   ADR_75_TIMESTAMP
@@ -61,6 +62,10 @@ export function validateAfterADR232(validate: ValidateFn): ValidateFn {
 
 export function validateAfterADR236(validate: ValidateFn): ValidateFn {
   return validateIfConditionMet((deployment) => deployment.entity.timestamp >= ADR_236_TIMESTAMP, validate)
+}
+
+export function validateAfterADR244(validate: ValidateFn): ValidateFn {
+  return validateIfConditionMet((deployment) => deployment.entity.timestamp >= ADR_244_TIMESTAMP, validate)
 }
 
 export function validateIfTypeMatches(entityType: EntityType, validate: ValidateFn) {

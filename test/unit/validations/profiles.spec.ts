@@ -11,6 +11,7 @@ import {
 } from '../../../src/validations/profile'
 import {
   ADR_232_TIMESTAMP,
+  ADR_244_TIMESTAMP,
   ADR_45_TIMESTAMP,
   ADR_74_TIMESTAMP,
   ADR_75_TIMESTAMP
@@ -312,6 +313,30 @@ describe('Profiles', () => {
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain('Wearables should not be repeated.')
     })
+
+    it('After ADR 244, if wearables have non extended urn, should return the correct error', async () => {
+      const entity = buildEntity({
+        type: EntityType.PROFILE,
+        metadata: {
+          avatars: [
+            {
+              avatar: {
+                wearables: ['urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:2']
+              }
+            }
+          ]
+        },
+        timestamp: ADR_244_TIMESTAMP + 1
+      })
+      const deployment = buildDeployment({ entity })
+
+      const result = await wearableUrnsValidateFn(deployment)
+
+      expect(result.ok).toBeFalsy()
+      expect(result.errors).toContain(
+        'Wearable pointer urn:decentraland:matic:collections-v2:0xf1483f042614105cb943d3dd67157256cd003028:2 should be an item, not an asset. The URN must include the tokenId.'
+      )
+    })
   })
 
   describe('Profile emotes', () => {
@@ -332,7 +357,7 @@ describe('Profiles', () => {
       const entity = buildEntity({
         type: EntityType.PROFILE,
         metadata: validProfileMetadataWithEmotes([
-          { slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }
+          { slot: 0, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0:1' }
         ]),
         timestamp: ADR_74_TIMESTAMP + 1
       })
@@ -366,7 +391,7 @@ describe('Profiles', () => {
       const entity = buildEntity({
         type: EntityType.PROFILE,
         metadata: validProfileMetadataWithEmotes([
-          { slot: -1, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }
+          { slot: -1, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0:1' }
         ]),
         timestamp: ADR_74_TIMESTAMP + 1
       })
@@ -376,7 +401,7 @@ describe('Profiles', () => {
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
-        'The slot -1 of the emote urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0 must be a number between 0 and 9 (inclusive).'
+        'The slot -1 of the emote urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0:1 must be a number between 0 and 9 (inclusive).'
       )
     })
 
@@ -384,7 +409,7 @@ describe('Profiles', () => {
       const entity = buildEntity({
         type: EntityType.PROFILE,
         metadata: validProfileMetadataWithEmotes([
-          { slot: 10, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0' }
+          { slot: 10, urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0:1' }
         ]),
         timestamp: ADR_74_TIMESTAMP + 1
       })
@@ -394,7 +419,7 @@ describe('Profiles', () => {
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
-        'The slot 10 of the emote urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0 must be a number between 0 and 9 (inclusive).'
+        'The slot 10 of the emote urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0:1 must be a number between 0 and 9 (inclusive).'
       )
     })
 
@@ -414,6 +439,36 @@ describe('Profiles', () => {
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain('Emote slots should not be repeated.')
+    })
+
+    it('After ADR 244, if profile emotes have non extended urn, should return the correct error', async () => {
+      const entity = buildEntity({
+        type: EntityType.PROFILE,
+        metadata: {
+          ...VALID_PROFILE_METADATA,
+          avatars: [
+            {
+              ...VALID_PROFILE_METADATA.avatars[0],
+              avatar: {
+                ...VALID_PROFILE_METADATA.avatars[0].avatar,
+                emotes: [
+                  {
+                    slot: 0,
+                    urn: 'urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0'
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        timestamp: ADR_244_TIMESTAMP + 1
+      })
+      const deployment = buildDeployment({ entity })
+      const result = await emoteUrnsValidateFn(deployment)
+      expect(result.ok).toBeFalsy()
+      expect(result.errors).toContain(
+        'Emote pointer urn:decentraland:matic:collections-v2:0xa7f6eba61566fd4b3012569ef30f0200ec138aa5:0 should be an item, not an asset. The URN must include the tokenId.'
+      )
     })
   })
 })
