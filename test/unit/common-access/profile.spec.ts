@@ -50,7 +50,8 @@ describe('createItemOwnershipValidateFn', () => {
     })
 
     const wearables = VALID_PROFILE_METADATA.avatars[0].avatar.wearables.filter(
-      (wearable) => wearable !== 'urn:decentraland:matic:collections-v2:0xf6f601efee04e74cecac02c8c5bdc8cc0fc1c721:0'
+      (wearable) =>
+        wearable !== 'urn:decentraland:matic:collections-v2:0xf6f601efee04e74cecac02c8c5bdc8cc0fc1c721:0:1295628'
     )
 
     const itemsOwnership = createItemsOwnershipWith(someAddress, wearables)
@@ -60,7 +61,7 @@ describe('createItemOwnershipValidateFn', () => {
     const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
-      'The following items (urn:decentraland:matic:collections-v2:0xf6f601efee04e74cecac02c8c5bdc8cc0fc1c721:0) are not owned by the address 0x862f109696d7121438642a78b3caa38f476db08b).'
+      'The following items (urn:decentraland:matic:collections-v2:0xf6f601efee04e74cecac02c8c5bdc8cc0fc1c721:0:1295628) are not owned by the address 0x862f109696d7121438642a78b3caa38f476db08b).'
     )
   })
 
