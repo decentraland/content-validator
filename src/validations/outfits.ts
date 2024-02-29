@@ -88,7 +88,7 @@ export const outfitsWearableUrnsIncludeTokenIdFn = validateAfterADR244(async fun
 
   const invalidUrns: string[] = []
   const nonItemUrns: string[] = []
-  for (const wearableUrn of [...new Set(...allWearables)]) {
+  for (const wearableUrn of [...new Set(allWearables)]) {
     const parsed = await parseUrn(wearableUrn)
     if (!parsed) {
       invalidUrns.push(wearableUrn)
