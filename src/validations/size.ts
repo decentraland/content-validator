@@ -10,6 +10,8 @@ import {
 import { entityParameters } from './ADR51'
 import { ADR_45_TIMESTAMP, LEGACY_CONTENT_MIGRATION_TIMESTAMP } from './timestamps'
 
+const maxThumbnailSizeInMB = 1
+
 /** Validate that the full request size is within limits
  *
  * ADR 45: After given TIMESTAMP will also include previous deployments in the validation
@@ -20,7 +22,7 @@ export function createSizeValidateFn(components: ContentValidatorComponents): Va
     const { entity } = deployment
     if (entity.timestamp <= LEGACY_CONTENT_MIGRATION_TIMESTAMP) return OK
 
-    const maxSizeInMB = entityParameters[entity.type].maxSizeInMB
+    const maxSizeInMB = entityParameters[entity.type].maxSizeInMB + maxThumbnailSizeInMB
     let errors: string[] = []
     if (!maxSizeInMB) {
       return validationFailed(`Type ${entity.type} is not supported yet`)

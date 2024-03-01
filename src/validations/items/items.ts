@@ -7,11 +7,14 @@ import {
   DeploymentToValidate,
   OK,
   ValidateFn,
-  validationFailed,
-  ValidationResponse
+  ValidationResponse,
+  validationFailed
 } from '../../types'
 import { entityParameters, skinMaxSizeInMb } from '../ADR51'
 import { validateAfterADR45, validateAll, validateIfConditionMet } from '../validations'
+
+/** Validate that given item deployment includes a thumbnail with valid format and size */
+const maxThumbnailSizeInB = 1024
 
 /** Validate item files size, excluding thumbnail, is less than expected */
 export function createDeploymentMaxSizeExcludingThumbnailIsNotExceededValidateFn(
@@ -31,7 +34,7 @@ export function createDeploymentMaxSizeExcludingThumbnailIsNotExceededValidateFn
       }
     }
 
-    const modelSizeInMB = maxSizeInMB - maxThumbnailSizeInB / 1024
+    const modelSizeInMB = maxSizeInMB
 
     const metadata = entity.metadata as BaseItem
     const thumbnailHash = entity.content?.find(({ file }) => file === metadata.thumbnail)?.hash
@@ -56,9 +59,6 @@ export function createDeploymentMaxSizeExcludingThumbnailIsNotExceededValidateFn
 
   return validateAfterADR45(validateFn)
 }
-
-/** Validate that given item deployment includes a thumbnail with valid format and size */
-const maxThumbnailSizeInB = 1024
 
 export function createThumbnailMaxSizeIsNotExceededValidateFn(
   components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs'>
