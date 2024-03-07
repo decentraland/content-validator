@@ -158,8 +158,7 @@ export function createOnChainClient(
           return permissionOk()
         }
       } catch (e: any) {
-        logger.error(e)
-        logger.error(`Error retrieving items owned by address ${ethAddress} at block ${blockNumber}`)
+        logger.error(`Error retrieving items owned by address ${ethAddress} at block ${blockNumber}: ${e.message}`)
         return permissionError()
       }
     }
