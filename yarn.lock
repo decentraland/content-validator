@@ -350,7 +350,7 @@
     ajv-errors "^3.0.0"
     ajv-keywords "^5.1.0"
 
-"@dcl/urn-resolver@3.3.1":
+"@dcl/urn-resolver@^3.3.1":
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/@dcl/urn-resolver/-/urn-resolver-3.3.1.tgz#440fa3e6427ea9e3a4473edcbcce463cfde0598a"
   integrity sha512-mIar6XS+sYmKMHFcA1F9tuHqjvWTDRCE8zPK46Va8uftxFH/1KaqsfuutuBj9atj/61smxElmPb7O0qPguKVjA==
