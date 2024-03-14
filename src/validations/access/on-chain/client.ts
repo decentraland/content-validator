@@ -147,7 +147,7 @@ export function createOnChainClient(
       }
 
       try {
-        logger.info(`Checking items owned by address ${ethAddress} at block ${blockNumber}: ${urnsToCheck}`)
+        logger.debug(`Checking items owned by address ${ethAddress} at block ${blockNumber}: ${urnsToCheck}`)
         const result = await itemChecker.checkItems(ethAddress, urnsToCheck, blockNumber)
         const notOwned: string[] = urnsToCheck.filter((_, i) => !result[i])
 
@@ -158,7 +158,7 @@ export function createOnChainClient(
           return permissionOk()
         }
       } catch (e: any) {
-        logger.error(`Error retrieving items owned by address ${ethAddress} at block ${blockNumber}: ${e.message}`)
+        logger.warn(`Error retrieving items owned by address ${ethAddress} at block ${blockNumber}: ${e.message}`)
         return permissionError()
       }
     }
