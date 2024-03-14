@@ -1,6 +1,6 @@
 import { ILoggerComponent } from '@well-known-components/interfaces'
 import { ISubgraphComponent, Variables } from '@well-known-components/thegraph-component'
-import { ContentValidatorComponents, ExternalCalls, ValidateFn } from '../../src/types'
+import { ContentValidatorComponents, ExternalCalls, ItemChecker, ValidateFn } from '../../src'
 import sharp from 'sharp'
 
 export type QueryGraph = <T = any>(query: string, variables?: Variables, remainingAttempts?: number) => Promise<T>
@@ -40,6 +40,16 @@ export function buildExternalCalls(externalCalls?: Partial<ExternalCalls>): Exte
 
 export const createMockSubgraphComponent = (mock?: QueryGraph): ISubgraphComponent => ({
   query: mock ?? (jest.fn() as jest.MockedFunction<QueryGraph>)
+})
+
+export const createMockItemCheckerComponent = (
+  mock?: (ethAddress: string, items: string[], block: number) => Promise<boolean[]>
+): ItemChecker => ({
+  checkItems:
+    mock ??
+    (
+      jest.fn() as jest.MockedFunction<(ethAddress: string, items: string[], block: number) => Promise<boolean[]>>
+    ).mockResolvedValue([false])
 })
 
 export const createImage = async (size: number, format: 'png' | 'jpg' = 'png'): Promise<Buffer> => {
