@@ -18,7 +18,7 @@ export const entityParameters: Record<EntityType, Params> = {
   },
   wearable: {
     validate: Wearable.validate,
-    maxSizeInMB: 3
+    maxSizeInMB: 2
   },
   store: {
     validate: Store.validate,
@@ -26,7 +26,7 @@ export const entityParameters: Record<EntityType, Params> = {
   },
   emote: {
     validate: Emote.validate,
-    maxSizeInMB: 3
+    maxSizeInMB: 2
   },
   outfits: {
     validate: Outfits.validate,
