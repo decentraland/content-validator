@@ -1008,6 +1008,11 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
+"@opentelemetry/api@^1.4.0":
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/api/-/api-1.8.0.tgz#5aa7abb48f23f693068ed2999ae627d2f7d902ec"
+  integrity sha512-I/s6F7yKUDdtMsoBWXJe8Qz40Tui5vsuKCWJEWVL+5q9sSWRzzx6v2KeNsOBEwd94j0eWkpWCH4yB6rZg9Mf0w==
+
 "@pkgr/core@^0.1.0":
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/@pkgr/core/-/core-0.1.1.tgz#1ec17e2edbec25c8306d424ecfbf13c7de1aaa31"
@@ -1330,11 +1335,11 @@
   integrity sha512-tTjD27CdfU4SVe+kPfjRbPSqdrw0Crg+M31RNejinCuMEBtEGbhYLtB1M4gn+PSTy2Oi3cI3iOdeQ1xVhMSerQ==
 
 "@well-known-components/metrics@^2.0.1":
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/@well-known-components/metrics/-/metrics-2.0.1.tgz#b5f5410c3ba6e5658ef80926a1f7bd81d7aa1f56"
-  integrity sha512-jgT9TuxVS9GzVMMYWXNJRM2qXvexuf4xfrFNBYa3w+gqEWCK4Id5R4zBee/bm6/F5yIPauAWxbOS6KNNDBIrGw==
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@well-known-components/metrics/-/metrics-2.1.0.tgz#ad3b658787d68f06588be3a8f70abccc26e9f52e"
+  integrity sha512-nJ3TdVMiJN2i7TtelndDtxvZERcSE7dtlmRfRV7yYZZshDZrQTC9EFH2uhmCWDWI0qnonvlq++JRSXBNJJfbvg==
   dependencies:
-    prom-client "^14.1.0"
+    prom-client "^15.1.0"
 
 "@well-known-components/test-helpers@^1.5.5":
   version "1.5.6"
@@ -3588,11 +3593,12 @@ pretty-format@^29.0.0, pretty-format@^29.7.0:
     ansi-styles "^5.0.0"
     react-is "^18.0.0"
 
-prom-client@^14.1.0:
-  version "14.1.1"
-  resolved "https://registry.yarnpkg.com/prom-client/-/prom-client-14.1.1.tgz#e9bebef0e2269bfde22a322f4ca803cb52b4a0c0"
-  integrity sha512-hFU32q7UZQ59bVJQGUtm3I2PrJ3gWvoCkilX9sF165ks1qflhugVCeK+S1JjJYHvyt3o5kj68+q3bchormjnzw==
+prom-client@^15.1.0:
+  version "15.1.0"
+  resolved "https://registry.yarnpkg.com/prom-client/-/prom-client-15.1.0.tgz#816a4a2128da169d0471093baeccc6d2f17a4613"
+  integrity sha512-cCD7jLTqyPdjEPBo/Xk4Iu8jxjuZgZJ3e/oET3L+ZwOuap/7Cw3dH/TJSsZKs1TQLZ2IHpIlRAKw82ef06kmMw==
   dependencies:
+    "@opentelemetry/api" "^1.4.0"
     tdigest "^0.1.1"
 
 prompts@^2.0.1:
