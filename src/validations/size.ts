@@ -1,13 +1,14 @@
+import { EntityType, Wearable, WearableCategory } from '@dcl/schemas'
 import { calculateDeploymentSize } from '.'
 import {
   ContentValidatorComponents,
   DeploymentToValidate,
   OK,
   ValidateFn,
-  validationFailed,
-  ValidationResponse
+  ValidationResponse,
+  validationFailed
 } from '../types'
-import { entityParameters } from './ADR51'
+import { entityParameters, skinMaxSizeInMb } from './ADR51'
 import { ADR_45_TIMESTAMP, LEGACY_CONTENT_MIGRATION_TIMESTAMP } from './timestamps'
 
 /** Validate that the full request size is within limits
@@ -20,11 +21,19 @@ export function createSizeValidateFn(components: ContentValidatorComponents): Va
     const { entity } = deployment
     if (entity.timestamp <= LEGACY_CONTENT_MIGRATION_TIMESTAMP) return OK
 
-    const maxSizeInMB = entityParameters[entity.type].maxSizeInMB
+    let maxSizeInMB = entityParameters[entity.type]?.maxSizeInMB
     let errors: string[] = []
     if (!maxSizeInMB) {
       return validationFailed(`Type ${entity.type} is not supported yet`)
     }
+
+    if (entity.type === EntityType.WEARABLE) {
+      const wearable = entity.metadata as Wearable
+      if (wearable.data?.category === WearableCategory.SKIN) {
+        maxSizeInMB = skinMaxSizeInMb
+      }
+    }
+
     const maxSizeInBytes = maxSizeInMB * 1024 * 1024
     let totalSize = 0
     if (entity.timestamp > ADR_45_TIMESTAMP) {
