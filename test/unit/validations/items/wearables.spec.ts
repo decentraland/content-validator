@@ -221,7 +221,7 @@ describe('Wearables', () => {
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
-        'The deployment is too big. The maximum allowed size for wearable model files is 7 MB. You can upload up to 7340032 bytes but you tried to upload 8912896.'
+        'The deployment is too big. The maximum allowed size for wearable model files is 8 MB. You can upload up to 8388608 bytes but you tried to upload 8912896.'
       )
     })
 
