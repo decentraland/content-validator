@@ -341,14 +341,15 @@
   resolved "https://registry.yarnpkg.com/@dcl/hashing/-/hashing-3.0.4.tgz#4df2a4cb3a8114765aed34cb57b91c93bf33bfb3"
   integrity sha512-Cg+MoIOn+BYmQV2q8zSFnNYY+GldlnUazwBnfgrq3i66ZxOaZ65h01btd8OUtSAlfWG4VTNIOHDjtKqmuwJNBg==
 
-"@dcl/schemas@^11.0.0":
-  version "11.0.0"
-  resolved "https://registry.yarnpkg.com/@dcl/schemas/-/schemas-11.0.0.tgz#5893fd56b2461d96465964d50d45a8f99c347468"
-  integrity sha512-gBwW3Sv6pIebl3xddJ7mUrIA92e5CsZXV4RdBis56UU/3w7FunwGPBcHoQLkJVvuy8SVHYHNt7PVDEkNSfVHWw==
+"@dcl/schemas@^11.4.0":
+  version "11.4.0"
+  resolved "https://registry.yarnpkg.com/@dcl/schemas/-/schemas-11.4.0.tgz#5557aa6982d49c8dac436901f22e9a75d9f8d805"
+  integrity sha512-pCMENllY9vcl4HS1ta/TpVqjWUov/oa9xab+Ki1iMur48nE5+xXfa7+laCPhWLOKSZEkC59i5S6zQGTSWFPYew==
   dependencies:
     ajv "^8.11.0"
     ajv-errors "^3.0.0"
     ajv-keywords "^5.1.0"
+    mitt "^3.0.1"
 
 "@dcl/urn-resolver@^3.3.1":
   version "3.3.1"
@@ -3285,6 +3286,11 @@ mitt@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/mitt/-/mitt-3.0.0.tgz#69ef9bd5c80ff6f57473e8d89326d01c414be0bd"
   integrity sha512-7dX2/10ITVyqh4aOSVI9gdape+t9l2/8QxHrFmUXu4EEUpdlxl6RudZUPZoc+zuY2hk1j7XxVroIVIan/pD/SQ==
+
+mitt@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/mitt/-/mitt-3.0.1.tgz#ea36cf0cc30403601ae074c8f77b7092cdab36d1"
+  integrity sha512-vKivATfr97l2/QBCYAkXYDbrIWPM2IIKEl7YPhjCvKlG3kE2gm+uBo6nEXK3M5/Ffh/FLpKExzOQ3JJoJGFKBw==
 
 mkdirp-classic@^0.5.2, mkdirp-classic@^0.5.3:
   version "0.5.3"
