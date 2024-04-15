@@ -10,7 +10,7 @@ import { ISubgraphComponent } from '@well-known-components/thegraph-component'
 import { PermissionResult } from './validations/access/subgraph/the-graph-client'
 
 export const L1_NETWORKS = ['mainnet', 'kovan', 'rinkeby', 'goerli', 'sepolia']
-export const L2_NETWORKS = ['matic', 'mumbai']
+export const L2_NETWORKS = ['matic', 'mumbai', 'amoy']
 
 /**
  * @public
