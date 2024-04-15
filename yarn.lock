@@ -356,6 +356,10 @@
   resolved "https://registry.yarnpkg.com/@dcl/urn-resolver/-/urn-resolver-3.3.1.tgz#440fa3e6427ea9e3a4473edcbcce463cfde0598a"
   integrity sha512-mIar6XS+sYmKMHFcA1F9tuHqjvWTDRCE8zPK46Va8uftxFH/1KaqsfuutuBj9atj/61smxElmPb7O0qPguKVjA==
 
+"@dcl/urn-resolver@https://sdk-team-cdn.decentraland.org/@dcl/urn-resolver/branch/feat/add-polygon-amoy-support/dcl-urn-resolver-3.3.2-8681282457.commit-f52dd9e.tgz":
+  version "3.3.2-8681282457.commit-f52dd9e"
+  resolved "https://sdk-team-cdn.decentraland.org/@dcl/urn-resolver/branch/feat/add-polygon-amoy-support/dcl-urn-resolver-3.3.2-8681282457.commit-f52dd9e.tgz#91bdb0fbac3bc9ecdc6c93ac8754a4429b28246c"
+
 "@eslint-community/eslint-utils@^4.2.0", "@eslint-community/eslint-utils@^4.4.0":
   version "4.4.0"
   resolved "https://registry.yarnpkg.com/@eslint-community/eslint-utils/-/eslint-utils-4.4.0.tgz#a23514e8fb9af1269d5f7788aa556798d61c6b59"
