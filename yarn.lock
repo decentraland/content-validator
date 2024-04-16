@@ -341,20 +341,20 @@
   resolved "https://registry.yarnpkg.com/@dcl/hashing/-/hashing-3.0.4.tgz#4df2a4cb3a8114765aed34cb57b91c93bf33bfb3"
   integrity sha512-Cg+MoIOn+BYmQV2q8zSFnNYY+GldlnUazwBnfgrq3i66ZxOaZ65h01btd8OUtSAlfWG4VTNIOHDjtKqmuwJNBg==
 
-"@dcl/schemas@^11.4.0":
-  version "11.4.0"
-  resolved "https://registry.yarnpkg.com/@dcl/schemas/-/schemas-11.4.0.tgz#5557aa6982d49c8dac436901f22e9a75d9f8d805"
-  integrity sha512-pCMENllY9vcl4HS1ta/TpVqjWUov/oa9xab+Ki1iMur48nE5+xXfa7+laCPhWLOKSZEkC59i5S6zQGTSWFPYew==
+"@dcl/schemas@^11.5.0":
+  version "11.5.0"
+  resolved "https://registry.yarnpkg.com/@dcl/schemas/-/schemas-11.5.0.tgz#b07fe469523348eed4d4bfde1219123c38bdb3ee"
+  integrity sha512-FkDAsZm6Ydu5PEROup2dLjOcqNwOiUISGhVYQAg6bWIp3kDnAjxguutOXIfxuZrVZELEcIi6+ntbvvfR28FAwg==
   dependencies:
     ajv "^8.11.0"
     ajv-errors "^3.0.0"
     ajv-keywords "^5.1.0"
     mitt "^3.0.1"
 
-"@dcl/urn-resolver@^3.3.1":
-  version "3.3.1"
-  resolved "https://registry.yarnpkg.com/@dcl/urn-resolver/-/urn-resolver-3.3.1.tgz#440fa3e6427ea9e3a4473edcbcce463cfde0598a"
-  integrity sha512-mIar6XS+sYmKMHFcA1F9tuHqjvWTDRCE8zPK46Va8uftxFH/1KaqsfuutuBj9atj/61smxElmPb7O0qPguKVjA==
+"@dcl/urn-resolver@^3.4.0":
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/@dcl/urn-resolver/-/urn-resolver-3.4.0.tgz#16c3d1d7d61b0345cdfd74c387d19df5d584bc9d"
+  integrity sha512-OKa4YTb03akx9Ic5YAjoF081gEsbd+1ITS1Gv33xlxNhkdA2p0jyWtqdZgzlCCMLbw+L6eIohRhhgqlmB0q32g==
 
 "@eslint-community/eslint-utils@^4.2.0", "@eslint-community/eslint-utils@^4.4.0":
   version "4.4.0"
