@@ -320,9 +320,9 @@
     ethers "^5.6.8"
 
 "@dcl/eslint-config@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@dcl/eslint-config/-/eslint-config-2.0.0.tgz#3c2d29514fd65b61b08202c470cc6a0af5c356e3"
-  integrity sha512-5MkSQArjZXBbvb4wlEC6ZHeHBm5hpTn9wV1PQ5vXxyGRWrNoToBqHi7HgvBEboZw4PCUtYK1XA6ubjrnVQa7nA==
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@dcl/eslint-config/-/eslint-config-2.1.0.tgz#fd80dc6004877dca54d5e78a7d0d05756a811022"
+  integrity sha512-C/dA2Y6JKXCxqx9wV2oLPEnUoF5odXAAaz3s53xYk2eOkNWXTfYa1GJeOdk/4pRsvr8vWYFngb3BJ7kduvdl4A==
   dependencies:
     "@typescript-eslint/eslint-plugin" "^6.19.1"
     "@typescript-eslint/parser" "^6.19.1"
