@@ -8,17 +8,7 @@ import {
   ThirdPartyAssetValidateFn,
   validationFailed
 } from '../../../types'
-
-function toHexBuffer(value: string): Buffer {
-  if (value.startsWith('0x')) {
-    return Buffer.from(value.substring(2), 'hex') // removing first 2 characters (0x)
-  }
-  return Buffer.from(value, 'hex')
-}
-
-function getThirdPartyId(urn: BlockchainCollectionThirdParty): string {
-  return `urn:decentraland:${urn.network}:collections-thirdparty:${urn.thirdPartyName}`
-}
+import { getThirdPartyId, toHexBuffer } from '../../../utils'
 
 export function createThirdPartyAssetValidateFn(
   components: Pick<OnChainAccessCheckerComponents, 'externalCalls' | 'logs' | 'client' | 'L2'>
