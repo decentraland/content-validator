@@ -5,7 +5,10 @@ import {
   ItemCollection
 } from '../../../src/validations/access/subgraph/collection-asset'
 import { createTheGraphClient } from '../../../src/validations/access/subgraph/the-graph-client'
-import { createThirdPartyAssetValidateFn } from '../../../src/validations/access/subgraph/third-party-asset'
+import {
+  createLinkedWearableItemValidateFn,
+  createThirdPartyAssetValidateFn
+} from '../../../src/validations/access/subgraph/third-party-asset'
 import { buildComponents, createMockSubgraphComponent } from '../../setup/mock'
 
 const defaultEns = [
@@ -231,15 +234,27 @@ export function buildSubGraphs(subGraphs?: Partial<SubGraphs>): SubGraphs {
 export function buildWearableValidateFn(components: SubgraphAccessCheckerComponents): ValidateFn {
   const thirdPartyAssetValidateFn = createThirdPartyAssetValidateFn(components)
   const v1andV2collectionAssetValidateFn = createV1andV2collectionAssetValidateFn(components)
+  const linkedWearableItemValidateFn = createLinkedWearableItemValidateFn(components)
 
-  return createWearableValidateFn(components, v1andV2collectionAssetValidateFn, thirdPartyAssetValidateFn)
+  return createWearableValidateFn(
+    components,
+    v1andV2collectionAssetValidateFn,
+    thirdPartyAssetValidateFn,
+    linkedWearableItemValidateFn
+  )
 }
 
 export function buildEmoteValidateFn(components: SubgraphAccessCheckerComponents): ValidateFn {
   const thirdPartyAssetValidateFn = createThirdPartyAssetValidateFn(components)
   const v1andV2collectionAssetValidateFn = createV1andV2collectionAssetValidateFn(components)
+  const linkedWearableItemValidateFn = createLinkedWearableItemValidateFn(components)
 
-  return createEmoteValidateFn(components, v1andV2collectionAssetValidateFn, thirdPartyAssetValidateFn)
+  return createEmoteValidateFn(
+    components,
+    v1andV2collectionAssetValidateFn,
+    thirdPartyAssetValidateFn,
+    linkedWearableItemValidateFn
+  )
 }
 
 export function buildTokenAddresses(): TokenAddresses {

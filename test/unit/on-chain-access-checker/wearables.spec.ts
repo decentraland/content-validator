@@ -1,6 +1,6 @@
 import { buildThirdPartyWearableDeployment, buildWearableDeployment } from '../../setup/deployments'
 import { buildExternalCalls } from '../../setup/mock'
-import { VALID_THIRD_PARTY_WEARABLE } from '../../setup/wearable'
+import { VALID_LINKED_WEARABLE, VALID_THIRD_PARTY_WEARABLE } from '../../setup/wearable'
 import { buildOnChainAccessCheckerComponents, buildWearableValidateFn } from './mock'
 
 describe('Access: wearables', () => {
@@ -188,6 +188,73 @@ describe('Access: wearables', () => {
         expect.anything(),
         expect.anything(),
         expect.anything()
+      )
+    })
+  })
+
+  describe(`Merkle Proofed (Linked) Wearable`, () => {
+    const { entity: metadata } = VALID_LINKED_WEARABLE
+
+    it(`When urn corresponds to a Linked Wearable and can verify merkle root with the proofs, validation pass`, async () => {
+      const components = buildOnChainAccessCheckerComponents()
+      components.L2.checker.validateThirdParty = jest.fn(() => Promise.resolve(true))
+
+      const deployment = buildThirdPartyWearableDeployment(metadata.id, metadata)
+      const validateFn = buildWearableValidateFn(components)
+      const response = await validateFn(deployment)
+
+      expect(response.ok).toBeTruthy()
+    })
+
+    it(`When urn corresponds to a Linked Wearable and metadata is modified, validation fails`, async () => {
+      const components = buildOnChainAccessCheckerComponents()
+
+      const deployment = buildThirdPartyWearableDeployment(metadata.id, {
+        ...metadata,
+        content: {}
+      })
+
+      const validateFn = buildWearableValidateFn(components)
+      const response = await validateFn(deployment)
+      expect(response.ok).toBeFalsy()
+    })
+
+    it(`When urn corresponds to a Linked Wearable, then L2 checker is used`, async () => {
+      const components = buildOnChainAccessCheckerComponents()
+
+      const deployment = buildThirdPartyWearableDeployment(metadata.id, metadata)
+      const l2BlockSearchSpy = jest.spyOn(components.L2.blockSearch, 'findBlockForTimestamp')
+
+      const validateFn = buildWearableValidateFn(components)
+      await validateFn(deployment)
+      expect(l2BlockSearchSpy).toHaveBeenNthCalledWith(1, expect.anything())
+      expect(components.L2.checker.validateThirdParty).toHaveBeenNthCalledWith(
+        2,
+        expect.anything(),
+        expect.anything(),
+        expect.anything()
+      )
+    })
+
+    it(`When urn corresponds to a Linked Wearable and checker contract fails then it returns false`, async () => {
+      const components = buildOnChainAccessCheckerComponents()
+      components.L2.checker.validateThirdParty = jest.fn(() => Promise.reject('error'))
+
+      const deployment = buildThirdPartyWearableDeployment(metadata.id, metadata)
+
+      const validateFn = buildWearableValidateFn(components)
+      await validateFn(deployment)
+      expect(components.L2.checker.validateThirdParty).toHaveBeenNthCalledWith(
+        1,
+        expect.anything(),
+        expect.anything(),
+        10
+      )
+      expect(components.L2.checker.validateThirdParty).toHaveBeenNthCalledWith(
+        2,
+        expect.anything(),
+        expect.anything(),
+        11
       )
     })
   })

@@ -9,7 +9,7 @@
     "build:watch": "tsc -p tsconfig.json --watch",
     "lint:check": "eslint '**/*.{js,ts}'",
     "lint:fix": "eslint '**/*.{js,ts}' --fix",
-    "test": "jest --runInBand --detectOpenHandles --colors --coverage",
+    "test": "jest --runInBand --detectOpenHandles --colors --coverage --verbose",
     "test:watch": "jest --runInBand --detectOpenHandles --colors --watch"
   },
   "repository": {
@@ -42,8 +42,8 @@
     "@dcl/block-indexer": "^1.1.1",
     "@dcl/content-hash-tree": "^1.1.4",
     "@dcl/hashing": "^3.0.1",
-    "@dcl/schemas": "^11.5.0",
-    "@dcl/urn-resolver": "^3.4.0",
+    "@dcl/schemas": "^11.12.0",
+    "@dcl/urn-resolver": "https://sdk-team-cdn.decentraland.org/@dcl/urn-resolver/branch/linked-wearables/dcl-urn-resolver-3.4.1-9750345904.commit-3d8f65d.tgz",
     "@well-known-components/interfaces": "^1.3.0",
     "@well-known-components/thegraph-component": "^1.5.0",
     "ms": "^2.1.3",

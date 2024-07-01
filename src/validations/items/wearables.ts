@@ -65,6 +65,8 @@ export async function thirdPartyWearableMerkleProofContentValidateFn(
     )
   }
 
+  // TODO Do we need to check that the items referenced in the mappings exist in the contract (validate on-chain)? Probably not.
+
   return OK
 }
 

@@ -105,7 +105,39 @@ export const VALID_THIRD_PARTY_WEARABLE_BASE_METADATA: Omit<Wearable & ThirdPart
   }
 }
 
+export const VALID_LINKED_WEARABLE_BASE_METADATA: Omit<Wearable & ThirdPartyProps, 'merkleProof'> = {
+  id: 'urn:decentraland:amoy:collections-linked-wearables:jean-pier:sepolia:0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d:someItemId',
+  name: 'name',
+  description: 'some description',
+  i18n: [
+    {
+      code: Locale.EN,
+      text: 'name'
+    }
+  ],
+  data: {
+    replaces: [],
+    hides: [],
+    tags: ['tag1'],
+    representations: [representation],
+    category: WearableCategory.UPPER_BODY
+  },
+  thumbnail: 'thumbnail.png',
+  image: 'image.png',
+  content: {
+    ['image.png']: 'QmPEXLrQNEYVJfe5P2CbNuVpx4UabK37jQ6Hor1n9gw8dY',
+    ['female/M_3LAU_Hat_Blue.glb']: 'QmebRdUS12afshxzNtTb2h6UhSXjMrGTGeZWcwwtmhTJng',
+    ['male/M_3LAU_Hat_Blue.glb']: 'QmebRdUS12afshxzNtTb2h6UhSXjMrGTGeZWcwwtmhTJng',
+    ['thumbnail.png']: 'QmPP232rkN2UDg8yGAyJ6hkHGsDFwXivcv9MXFfnW8r34y'
+  }
+}
+
 export const VALID_THIRD_PARTY_WEARABLE = buildEntityMetadataWithMerkleProof(VALID_THIRD_PARTY_WEARABLE_BASE_METADATA, [
+  'someOtherHash1',
+  'someOtherHash2'
+])
+
+export const VALID_LINKED_WEARABLE = buildEntityMetadataWithMerkleProof(VALID_LINKED_WEARABLE_BASE_METADATA, [
   'someOtherHash1',
   'someOtherHash2'
 ])

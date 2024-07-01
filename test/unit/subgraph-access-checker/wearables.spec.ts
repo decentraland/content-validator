@@ -1,6 +1,6 @@
 import { buildThirdPartyWearableDeployment, buildWearableDeployment } from '../../setup/deployments'
 import { buildExternalCalls } from '../../setup/mock'
-import { VALID_THIRD_PARTY_WEARABLE } from '../../setup/wearable'
+import { VALID_LINKED_WEARABLE, VALID_THIRD_PARTY_WEARABLE } from '../../setup/wearable'
 import {
   buildSubgraphAccessCheckerComponents,
   buildWearableValidateFn,
@@ -281,7 +281,106 @@ describe('Access: wearables', () => {
       expect(response.ok).toBeFalsy()
     })
 
-    it(`When entityHash doesn’t match the calculated hash, it should fail`, async () => {
+    it(`When entityHash doesn't match the calculated hash, it should fail`, async () => {
+      const subGraphs = fetcherWithThirdPartyMerkleRoot(merkleRoot)
+
+      const deployment = buildThirdPartyWearableDeployment(metadata.id, {
+        ...metadata,
+        merkleProof: { ...metadata.merkleProof, entityHash: 'someInvalidHash' }
+      })
+
+      const components = buildSubgraphAccessCheckerComponents({ subGraphs })
+      const validateFn = buildWearableValidateFn(components)
+      const response = await validateFn(deployment)
+      expect(response.ok).toBeFalsy()
+    })
+  })
+
+  describe(`Merkle Proofed (Linked) Wearable`, () => {
+    const { entity: metadata, root: merkleRoot } = VALID_LINKED_WEARABLE
+
+    it(`When urn corresponds to a Linked Wearable and can verify merkle root with the proofs, validation pass`, async () => {
+      const subGraphs = fetcherWithThirdPartyMerkleRoot(merkleRoot)
+
+      const deployment = buildThirdPartyWearableDeployment(metadata.id, metadata)
+
+      const components = buildSubgraphAccessCheckerComponents({ subGraphs })
+      const validateFn = buildWearableValidateFn(components)
+      const response = await validateFn(deployment)
+
+      expect(response.ok).toBeTruthy()
+    })
+
+    it(`When urn corresponds to a Linked Wearable and metadata is modified, validation fails`, async () => {
+      const subGraphs = fetcherWithThirdPartyMerkleRoot(merkleRoot)
+
+      const deployment = buildThirdPartyWearableDeployment(metadata.id, {
+        ...metadata,
+        content: {}
+      })
+
+      const components = buildSubgraphAccessCheckerComponents({ subGraphs })
+      const validateFn = buildWearableValidateFn(components)
+      const response = await validateFn(deployment)
+      expect(response.ok).toBeFalsy()
+    })
+
+    it(`When urn corresponds to a Linked Wearable, then L2 subgraph is used`, async () => {
+      const subGraphs = fetcherWithThirdPartyMerkleRoot(merkleRoot)
+
+      const deployment = buildThirdPartyWearableDeployment(metadata.id, metadata)
+
+      const components = buildSubgraphAccessCheckerComponents({ subGraphs })
+      const validateFn = buildWearableValidateFn(components)
+      await validateFn(deployment)
+      expect(subGraphs.L2.blocks.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
+      expect(subGraphs.L2.thirdPartyRegistry.query).toHaveBeenNthCalledWith(1, expect.anything(), expect.anything())
+    })
+
+    it(`When can't find any merkle proof, it should fail`, async () => {
+      // When The Graph respond with no merkle proof
+      const subGraphs = fetcherWithThirdPartyEmptyMerkleRoots()
+
+      const deployment = buildThirdPartyWearableDeployment(metadata.id, metadata)
+
+      const components = buildSubgraphAccessCheckerComponents({ subGraphs })
+      const validateFn = buildWearableValidateFn(components)
+      const response = await validateFn(deployment)
+      expect(response.ok).toBeFalsy()
+    })
+
+    it(`When merkle proof is not well formed, it should fail`, async () => {
+      const subGraphs = fetcherWithThirdPartyMerkleRoot(merkleRoot)
+
+      const deployment = buildThirdPartyWearableDeployment(metadata.id, {
+        ...metadata,
+        merkleProof: { proof: '', index: 0, hashingKeys: [], entityHash: '' } as any
+      })
+
+      const components = buildSubgraphAccessCheckerComponents({ subGraphs })
+      const validateFn = buildWearableValidateFn(components)
+      const response = await validateFn(deployment)
+      expect(response.ok).toBeFalsy()
+    })
+
+    it(`When requiredKeys are not a subset of the hashingKeys, it should fail`, async () => {
+      const subGraphs = fetcherWithThirdPartyMerkleRoot(merkleRoot)
+
+      const deployment = buildThirdPartyWearableDeployment(metadata.id, {
+        ...metadata,
+        merkleProof: {
+          ...metadata.merkleProof,
+          hashingKeys: ['id', 'description']
+        }
+      })
+
+      const components = buildSubgraphAccessCheckerComponents({ subGraphs })
+      const validateFn = buildWearableValidateFn(components)
+      const response = await validateFn(deployment)
+      expect(response.ok).toBeFalsy()
+    })
+
+    it(`When entityHash doesn't match the calculated hash, it should fail`, async () => {
       const subGraphs = fetcherWithThirdPartyMerkleRoot(merkleRoot)
 
       const deployment = buildThirdPartyWearableDeployment(metadata.id, {
