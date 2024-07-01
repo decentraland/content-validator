@@ -3,13 +3,20 @@ import {
   createDeploymentMaxSizeExcludingThumbnailIsNotExceededValidateFn,
   createThumbnailMaxSizeIsNotExceededValidateFn
 } from '../../../../src/validations/items/items'
-import { wearableRepresentationContentValidateFn } from '../../../../src/validations/items/wearables'
+import {
+  thirdPartyWearableMerkleProofContentValidateFn,
+  wearableRepresentationContentValidateFn
+} from '../../../../src/validations/items/wearables'
 import { createSizeValidateFn } from '../../../../src/validations/size'
 import { ADR_45_TIMESTAMP } from '../../../../src/validations/timestamps'
 import { buildDeployment } from '../../../setup/deployments'
-import { buildEntity } from '../../../setup/entity'
+import { buildEntity, buildWearableEntity } from '../../../setup/entity'
 import { buildComponents, buildExternalCalls, createImage } from '../../../setup/mock'
-import { VALID_WEARABLE_METADATA } from '../../../setup/wearable'
+import { VALID_THIRD_PARTY_WEARABLE, VALID_WEARABLE_METADATA } from '../../../setup/wearable'
+import {
+  VALID_THIRD_PARTY_EMOTE_METADATA_WITH_MERKLE_ROOT,
+  VALID_THIRD_PARTY_WEARABLE_BASE_METADATA
+} from '../../../setup/emotes'
 
 describe('Wearables', () => {
   const timestamp = ADR_45_TIMESTAMP + 1
@@ -352,6 +359,151 @@ describe('Wearables', () => {
       const result = await wearableRepresentationContentValidateFn(deployment)
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`No content found`)
+    })
+  })
+
+  describe(`Merkle Proofed (Third Party) Wearable`, () => {
+    const { entity: metadata, root: merkleRoot } = VALID_THIRD_PARTY_WEARABLE
+
+    it(`When urn corresponds to a Third Party wearable and can verify merkle root with the proofs, validation pass`, async () => {
+      const entity = buildEntity({
+        type: EntityType.WEARABLE,
+        pointers: [metadata.id],
+        metadata: VALID_THIRD_PARTY_EMOTE_METADATA_WITH_MERKLE_ROOT.entity,
+        content: Object.keys(VALID_THIRD_PARTY_WEARABLE_BASE_METADATA.content).map((file) => ({
+          file,
+          hash: VALID_THIRD_PARTY_WEARABLE_BASE_METADATA.content[file]
+        }))
+      })
+      const deployment = buildDeployment({ entity })
+      const result = await thirdPartyWearableMerkleProofContentValidateFn(deployment)
+
+      console.log(result.errors)
+      expect(result.ok).toBeTruthy()
+    })
+
+    it(`When not a Third Party wearable, validation passes`, async () => {
+      const entity = buildEntity({
+        type: EntityType.WEARABLE,
+        metadata: VALID_WEARABLE_METADATA,
+        content: []
+      })
+      const deployment = buildDeployment({ entity })
+      const result = await thirdPartyWearableMerkleProofContentValidateFn(deployment)
+
+      expect(result.ok).toBeTruthy()
+    })
+
+    it(`When metadata id does not match the pointer being deployed, validation fails`, async () => {
+      const entity = buildEntity({
+        type: EntityType.WEARABLE,
+        pointers: ['some-other-pointer'],
+        metadata: VALID_THIRD_PARTY_EMOTE_METADATA_WITH_MERKLE_ROOT.entity,
+        content: Object.keys(VALID_THIRD_PARTY_WEARABLE_BASE_METADATA.content).map((file) => ({
+          file,
+          hash: VALID_THIRD_PARTY_WEARABLE_BASE_METADATA.content[file]
+        }))
+      })
+      const deployment = buildDeployment({ entity })
+      const result = await thirdPartyWearableMerkleProofContentValidateFn(deployment)
+      console.log('deployment', metadata, merkleRoot, result)
+
+      expect(result.ok).toBeFalsy()
+      expect(result.errors).toContain(`The id '${metadata.id}' does not match the pointer 'some-other-pointer'`)
+    })
+
+    it(`When there are more uploaded files than declared in metadata, validation fails`, async () => {
+      const entity = buildWearableEntity({
+        metadata: VALID_THIRD_PARTY_EMOTE_METADATA_WITH_MERKLE_ROOT.entity,
+        pointers: [VALID_THIRD_PARTY_EMOTE_METADATA_WITH_MERKLE_ROOT.entity.id],
+        content: [
+          ...Object.keys(VALID_THIRD_PARTY_WEARABLE_BASE_METADATA.content).map((file) => ({
+            file,
+            hash: VALID_THIRD_PARTY_WEARABLE_BASE_METADATA.content[file]
+          })),
+          { file: 'some-other-file', hash: 'some-other-hash' }
+        ]
+      })
+
+      const deployment = buildDeployment({ entity })
+      const result = await thirdPartyWearableMerkleProofContentValidateFn(deployment)
+
+      expect(result.ok).toBeFalsy()
+      expect(result.errors).toContain(
+        'The content declared in the metadata does not match the files uploaded with the entity'
+      )
+    })
+
+    it(`When there are less uploaded files than declared in metadata, validation fails`, async () => {
+      const entity = buildWearableEntity({
+        metadata: VALID_THIRD_PARTY_EMOTE_METADATA_WITH_MERKLE_ROOT.entity,
+        pointers: [VALID_THIRD_PARTY_EMOTE_METADATA_WITH_MERKLE_ROOT.entity.id],
+        content: [
+          ...Object.keys(VALID_THIRD_PARTY_WEARABLE_BASE_METADATA.content)
+            .slice(1)
+            .map((file) => ({
+              file,
+              hash: VALID_THIRD_PARTY_WEARABLE_BASE_METADATA.content[file]
+            }))
+        ]
+      })
+
+      const deployment = buildDeployment({ entity })
+      const result = await thirdPartyWearableMerkleProofContentValidateFn(deployment)
+
+      expect(result.ok).toBeFalsy()
+      expect(result.errors).toContain(
+        'The content declared in the metadata does not match the files uploaded with the entity'
+      )
+    })
+
+    it(`When an uploaded file is different to the one declared in metadata, validation fails`, async () => {
+      const entity = buildWearableEntity({
+        metadata: VALID_THIRD_PARTY_EMOTE_METADATA_WITH_MERKLE_ROOT.entity,
+        pointers: [VALID_THIRD_PARTY_EMOTE_METADATA_WITH_MERKLE_ROOT.entity.id],
+        content: [
+          {
+            file: VALID_THIRD_PARTY_WEARABLE_BASE_METADATA.content[0],
+            hash: 'some-other-hash'
+          },
+          ...Object.keys(VALID_THIRD_PARTY_WEARABLE_BASE_METADATA.content)
+            .slice(1)
+            .map((file) => ({
+              file,
+              hash: VALID_THIRD_PARTY_WEARABLE_BASE_METADATA.content[file]
+            }))
+        ]
+      })
+
+      const deployment = buildDeployment({ entity })
+      const result = await thirdPartyWearableMerkleProofContentValidateFn(deployment)
+
+      expect(result.ok).toBeFalsy()
+      expect(result.errors).toContain(
+        'The content declared in the metadata does not match the files uploaded with the entity'
+      )
+    })
+
+    it(`When part of the proofed metadata is altered, validation fails`, async () => {
+      const entity = buildEntity({
+        type: EntityType.WEARABLE,
+        pointers: [metadata.id],
+        metadata: {
+          ...VALID_THIRD_PARTY_EMOTE_METADATA_WITH_MERKLE_ROOT.entity,
+          name: 'otherName'
+        },
+        content: Object.keys(VALID_THIRD_PARTY_WEARABLE_BASE_METADATA.content).map((file) => ({
+          file,
+          hash: VALID_THIRD_PARTY_WEARABLE_BASE_METADATA.content[file]
+        }))
+      })
+      const deployment = buildDeployment({ entity })
+      const result = await thirdPartyWearableMerkleProofContentValidateFn(deployment)
+
+      expect(result.ok).toBeFalsy()
+      expect(result.errors).toContain(
+        "The entity hash provided '80d9b4671e11768473f8d395209f15f7daf1092da642f6ee2ab0da0f93ffc8dd' is different to the one calculated from the metadata '226dfcde6bd3df7f6c381697f41095c30422c028c91af83478b659d0f43f9842'"
+      )
     })
   })
 })
