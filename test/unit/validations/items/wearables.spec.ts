@@ -378,7 +378,6 @@ describe('Wearables', () => {
       const deployment = buildDeployment({ entity })
       const result = await thirdPartyWearableMerkleProofContentValidateFn(deployment)
 
-      console.log(result.errors)
       expect(result.ok).toBeTruthy()
     })
 
@@ -406,7 +405,6 @@ describe('Wearables', () => {
       })
       const deployment = buildDeployment({ entity })
       const result = await thirdPartyWearableMerkleProofContentValidateFn(deployment)
-      console.log('deployment', metadata, merkleRoot, result)
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(`The id '${metadata.id}' does not match the pointer 'some-other-pointer'`)
