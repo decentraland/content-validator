@@ -351,9 +351,10 @@
     ajv-keywords "^5.1.0"
     mitt "^3.0.1"
 
-"@dcl/urn-resolver@https://sdk-team-cdn.decentraland.org/@dcl/urn-resolver/branch/linked-wearables/dcl-urn-resolver-3.4.1-9750345904.commit-3d8f65d.tgz":
-  version "3.4.1-9750345904.commit-3d8f65d"
-  resolved "https://sdk-team-cdn.decentraland.org/@dcl/urn-resolver/branch/linked-wearables/dcl-urn-resolver-3.4.1-9750345904.commit-3d8f65d.tgz#22f547a5b8b07c87c5b7321b18d25ca201188ffe"
+"@dcl/urn-resolver@^3.5.0":
+  version "3.5.0"
+  resolved "https://registry.yarnpkg.com/@dcl/urn-resolver/-/urn-resolver-3.5.0.tgz#de4fde4ea7bb73dbe39b20a6ba1e7e55c5f1575c"
+  integrity sha512-kbqnqQl7YCA1dI5K0fYhRf/McJXaZMqwLZS1Dg/862/uKnkKK0BW8EJ3/08EpctmcPhzaPEu2WqH0lSe0cpjUw==
 
 "@emnapi/runtime@^1.1.1":
   version "1.2.0"
