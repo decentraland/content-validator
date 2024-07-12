@@ -1,10 +1,11 @@
 import { verifyProof } from '@dcl/content-hash-tree'
 import { keccak256Hash } from '@dcl/hashing'
 import { isThirdParty, MerkleProof, ThirdPartyProps } from '@dcl/schemas'
-import { BlockchainCollectionThirdParty } from '@dcl/urn-resolver'
+import { BlockchainCollectionLinkedWearablesAsset, BlockchainCollectionThirdParty } from '@dcl/urn-resolver'
 import { ILoggerComponent } from '@well-known-components/interfaces'
 import {
   DeploymentToValidate,
+  LinkedWearableAssetValidateFn,
   OK,
   SubgraphAccessCheckerComponents,
   ThirdPartyAssetValidateFn,
@@ -46,7 +47,7 @@ async function getMerkleRoot(
   thirdPartyId: string
 ): Promise<string | undefined> {
   const query = `
-  query MerkleRoot($id: String!, $block: Int!) {
+  query MerkleRoot($id: ID!, $block: Int!) {
     thirdParties(where: { id: $id, isApproved: true }, block: { number: $block }, first: 1) {
       root
     }
@@ -64,7 +65,7 @@ async function getMerkleRoot(
 
 async function verifyMerkleProofedEntity(
   components: Pick<SubgraphAccessCheckerComponents, 'externalCalls' | 'theGraphClient' | 'subGraphs'>,
-  urn: BlockchainCollectionThirdParty,
+  asset: BlockchainCollectionThirdParty | BlockchainCollectionLinkedWearablesAsset,
   deployment: DeploymentToValidate,
   logger: ILoggerComponent.ILogger
 ): Promise<boolean> {
@@ -75,14 +76,16 @@ async function verifyMerkleProofedEntity(
     return false
   }
 
-  const thirdPartyId = getThirdPartyId(urn)
+  const thirdPartyId = getThirdPartyId(asset)
   const { blockNumberAtDeployment, blockNumberFiveMinBeforeDeployment } =
     await components.theGraphClient.findBlocksForTimestamp(components.subGraphs.L2.blocks, deployment.entity.timestamp)
 
   const merkleRoots: string[] = []
   const hasPermissionOnBlock = async (blockNumber: number | undefined) => {
     try {
-      if (!blockNumber) return false
+      if (!blockNumber) {
+        return false
+      }
       const merkleRoot = await getMerkleRoot(components, blockNumber, thirdPartyId)
       if (!merkleRoot) {
         logger.debug(`Merkle proof not found for given block and third party ID`, { blockNumber, thirdPartyId })
@@ -116,11 +119,25 @@ export function createThirdPartyAssetValidateFn(
   components: Pick<SubgraphAccessCheckerComponents, 'externalCalls' | 'logs' | 'theGraphClient' | 'subGraphs'>
 ): ThirdPartyAssetValidateFn {
   return async function validateFn(asset: BlockchainCollectionThirdParty, deployment: DeploymentToValidate) {
-    const logger = components.logs.getLogger('collection asset access validation')
+    const logger = components.logs.getLogger('(subgraph) third party collection asset access validation')
     // Third Party wearables are validated doing merkle tree based verification proof
     const verified = await verifyMerkleProofedEntity(components, asset, deployment, logger)
     if (!verified) {
-      return validationFailed(`Couldn't verify merkle proofed entity`)
+      return validationFailed(`Couldn't verify merkle proofed entity for third-party wearable`)
+    }
+    return OK
+  }
+}
+
+export function createLinkedWearableItemValidateFn(
+  components: Pick<SubgraphAccessCheckerComponents, 'externalCalls' | 'logs' | 'theGraphClient' | 'subGraphs'>
+): LinkedWearableAssetValidateFn {
+  return async function validateFn(asset: BlockchainCollectionLinkedWearablesAsset, deployment: DeploymentToValidate) {
+    const logger = components.logs.getLogger('(subgraph) linked wearable asset validate access validation')
+    // Third Party wearables are validated doing merkle tree based verification proof
+    const verified = await verifyMerkleProofedEntity(components, asset, deployment, logger)
+    if (!verified) {
+      return validationFailed(`Couldn't verify merkle proofed entity for linked wearable v2`)
     }
     return OK
   }

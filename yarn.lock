@@ -341,7 +341,7 @@
   resolved "https://registry.yarnpkg.com/@dcl/hashing/-/hashing-3.0.4.tgz#4df2a4cb3a8114765aed34cb57b91c93bf33bfb3"
   integrity sha512-Cg+MoIOn+BYmQV2q8zSFnNYY+GldlnUazwBnfgrq3i66ZxOaZ65h01btd8OUtSAlfWG4VTNIOHDjtKqmuwJNBg==
 
-"@dcl/schemas@^11.5.0":
+"@dcl/schemas@^11.12.0":
   version "11.12.0"
   resolved "https://registry.yarnpkg.com/@dcl/schemas/-/schemas-11.12.0.tgz#f52493b615ebdea8e02819bc2ed4a456239f3747"
   integrity sha512-L04KTucvxSnrHDAl3/rnkzhjfZ785dSSPeKarBVfzyuw41uyQ0Mh4HVFWjX9hC+f/nMpM5Adg5udlT5efmepcA==
@@ -351,10 +351,10 @@
     ajv-keywords "^5.1.0"
     mitt "^3.0.1"
 
-"@dcl/urn-resolver@^3.4.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@dcl/urn-resolver/-/urn-resolver-3.4.0.tgz#16c3d1d7d61b0345cdfd74c387d19df5d584bc9d"
-  integrity sha512-OKa4YTb03akx9Ic5YAjoF081gEsbd+1ITS1Gv33xlxNhkdA2p0jyWtqdZgzlCCMLbw+L6eIohRhhgqlmB0q32g==
+"@dcl/urn-resolver@^3.5.0":
+  version "3.5.0"
+  resolved "https://registry.yarnpkg.com/@dcl/urn-resolver/-/urn-resolver-3.5.0.tgz#de4fde4ea7bb73dbe39b20a6ba1e7e55c5f1575c"
+  integrity sha512-kbqnqQl7YCA1dI5K0fYhRf/McJXaZMqwLZS1Dg/862/uKnkKK0BW8EJ3/08EpctmcPhzaPEu2WqH0lSe0cpjUw==
 
 "@emnapi/runtime@^1.1.1":
   version "1.2.0"

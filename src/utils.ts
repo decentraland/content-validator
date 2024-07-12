@@ -1,4 +1,4 @@
-import { BlockchainCollectionThirdParty, parseUrn } from '@dcl/urn-resolver'
+import { BlockchainCollectionLinkedWearablesAsset, BlockchainCollectionThirdParty, parseUrn } from '@dcl/urn-resolver'
 import { L1_NETWORKS, L2_NETWORKS } from './types'
 
 type URNsByNetwork = {
@@ -41,8 +41,14 @@ export async function splitItemsURNsByNetwork(urnsToSplit: string[]): Promise<UR
   }
 }
 
-export function getThirdPartyId(urn: BlockchainCollectionThirdParty): string {
-  return `urn:decentraland:${urn.network}:collections-thirdparty:${urn.thirdPartyName}`
+export function getThirdPartyId(
+  asset: BlockchainCollectionThirdParty | BlockchainCollectionLinkedWearablesAsset
+): string {
+  if (asset.type === 'blockchain-collection-third-party') {
+    return `urn:decentraland:${asset.network}:collections-thirdparty:${asset.thirdPartyName}`
+  } else {
+    return `urn:decentraland:${asset.network}:collections-linked-wearables:${asset.linkedWearableProvider}`
+  }
 }
 
 export function toHexBuffer(value: string): Buffer {
