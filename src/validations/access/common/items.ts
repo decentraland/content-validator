@@ -1,12 +1,11 @@
 import {
-  BlockchainCollectionLinkedWearablesAsset,
   BlockchainCollectionThirdParty,
   BlockchainCollectionV1Asset,
   BlockchainCollectionV2Asset,
   OffChainAsset,
   parseUrn
 } from '@dcl/urn-resolver'
-import { LinkedWearableAssetValidateFn, ThirdPartyAssetValidateFn, V1andV2collectionAssetValidateFn } from '../../..'
+import { ThirdPartyAssetValidateFn, V1andV2collectionAssetValidateFn } from '../../..'
 import {
   ContentValidatorComponents,
   DeploymentToValidate,
@@ -25,7 +24,6 @@ export type SupportedAsset =
   | BlockchainCollectionV2Asset
   | OffChainAsset
   | BlockchainCollectionThirdParty
-  | BlockchainCollectionLinkedWearablesAsset
 
 function alreadySeen(resolvedPointers: SupportedAsset[], parsed: SupportedAsset): boolean {
   return resolvedPointers.some((alreadyResolved) => resolveSameUrn(alreadyResolved, parsed))
@@ -57,9 +55,6 @@ async function parseUrnNoFail(urn: string): Promise<SupportedAsset | null> {
     if (parsed?.type === 'blockchain-collection-third-party') {
       return parsed
     }
-    if (parsed?.type === 'blockchain-collection-linked-wearables-asset') {
-      return parsed
-    }
   } catch {}
   return null
 }
@@ -67,49 +62,32 @@ async function parseUrnNoFail(urn: string): Promise<SupportedAsset | null> {
 export function createWearableValidateFn(
   components: ItemValidateFnComponents,
   v1andV2collectionAssetValidateFn: V1andV2collectionAssetValidateFn,
-  thirdPartyAssetValidateFn: ThirdPartyAssetValidateFn,
-  linkedWearableItemValidateFn: LinkedWearableAssetValidateFn
+  thirdPartyAssetValidateFn: ThirdPartyAssetValidateFn
 ): ValidateFn {
-  return createItemValidateFn(
-    components,
-    v1andV2collectionAssetValidateFn,
-    thirdPartyAssetValidateFn,
-    linkedWearableItemValidateFn,
-    [
-      'off-chain',
-      'blockchain-collection-v1-asset',
-      'blockchain-collection-v2-asset',
-      'blockchain-collection-third-party',
-      'blockchain-collection-linked-wearables-asset'
-    ]
-  )
+  return createItemValidateFn(components, v1andV2collectionAssetValidateFn, thirdPartyAssetValidateFn, [
+    'off-chain',
+    'blockchain-collection-v1-asset',
+    'blockchain-collection-v2-asset',
+    'blockchain-collection-third-party'
+  ])
 }
 
 export function createEmoteValidateFn(
   components: ItemValidateFnComponents,
   v1andV2collectionAssetValidateFn: V1andV2collectionAssetValidateFn,
-  thirdPartyAssetValidateFn: ThirdPartyAssetValidateFn,
-  linkedWearableItemValidateFn: LinkedWearableAssetValidateFn
+  thirdPartyAssetValidateFn: ThirdPartyAssetValidateFn
 ): ValidateFn {
-  return createItemValidateFn(
-    components,
-    v1andV2collectionAssetValidateFn,
-    thirdPartyAssetValidateFn,
-    linkedWearableItemValidateFn,
-    [
-      'off-chain',
-      'blockchain-collection-v2-asset',
-      'blockchain-collection-third-party',
-      'blockchain-collection-linked-wearables-asset'
-    ]
-  )
+  return createItemValidateFn(components, v1andV2collectionAssetValidateFn, thirdPartyAssetValidateFn, [
+    'off-chain',
+    'blockchain-collection-v2-asset',
+    'blockchain-collection-third-party'
+  ])
 }
 
 export function createItemValidateFn(
   { externalCalls }: ItemValidateFnComponents,
   v1andV2collectionAssetValidateFn: V1andV2collectionAssetValidateFn,
   thirdPartyAssetValidateFn: ThirdPartyAssetValidateFn,
-  linkedWearableAssetValidateFn: LinkedWearableAssetValidateFn,
   validUrnTypesForItem: UrnType[]
 ): ValidateFn {
   return async function validateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
@@ -156,8 +134,6 @@ export function createItemValidateFn(
       return v1andV2collectionAssetValidateFn(parsedAsset, deployment)
     } else if (parsedAsset.type === 'blockchain-collection-third-party') {
       return thirdPartyAssetValidateFn(parsedAsset, deployment)
-    } else if (parsedAsset.type === 'blockchain-collection-linked-wearables-asset') {
-      return linkedWearableAssetValidateFn(parsedAsset, deployment)
     } else {
       throw new Error('This should never happen. There is no validations for the asset.')
     }

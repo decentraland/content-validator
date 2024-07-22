@@ -48,7 +48,7 @@ function validateIfEmote(validateFn: ValidateFn): ValidateFn {
   return validateIfTypeMatches(EntityType.EMOTE, validateFn)
 }
 /**
- * This validation is being ran only for emotes  currently
+ * This validation is currently being run for emotes only
  */
 export const metadataVersionIsCorrectForTimestampValidateFn = validateIfEmote(
   validateAfterADR74(async function validateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {

@@ -1,6 +1,6 @@
 import { buildThirdPartyWearableDeployment, buildWearableDeployment } from '../../setup/deployments'
 import { buildExternalCalls } from '../../setup/mock'
-import { VALID_LINKED_WEARABLE, VALID_THIRD_PARTY_WEARABLE } from '../../setup/wearable'
+import { VALID_THIRD_PARTY_WEARABLE_WITH_MAPPINGS, VALID_THIRD_PARTY_WEARABLE } from '../../setup/wearable'
 import { buildOnChainAccessCheckerComponents, buildWearableValidateFn } from './mock'
 
 describe('Access: wearables', () => {
@@ -193,7 +193,7 @@ describe('Access: wearables', () => {
   })
 
   describe(`Merkle Proofed (Linked) Wearable`, () => {
-    const { entity: metadata } = VALID_LINKED_WEARABLE
+    const { entity: metadata } = VALID_THIRD_PARTY_WEARABLE_WITH_MAPPINGS
 
     it(`When urn corresponds to a Linked Wearable and can verify merkle root with the proofs, validation pass`, async () => {
       const components = buildOnChainAccessCheckerComponents()

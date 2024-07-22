@@ -1,11 +1,10 @@
 import { verifyProof } from '@dcl/content-hash-tree'
 import { keccak256Hash } from '@dcl/hashing'
 import { isThirdParty, MerkleProof, ThirdPartyProps } from '@dcl/schemas'
-import { BlockchainCollectionLinkedWearablesAsset, BlockchainCollectionThirdParty } from '@dcl/urn-resolver'
+import { BlockchainCollectionThirdParty } from '@dcl/urn-resolver'
 import { ILoggerComponent } from '@well-known-components/interfaces'
 import {
   DeploymentToValidate,
-  LinkedWearableAssetValidateFn,
   OK,
   SubgraphAccessCheckerComponents,
   ThirdPartyAssetValidateFn,
@@ -65,7 +64,7 @@ async function getMerkleRoot(
 
 async function verifyMerkleProofedEntity(
   components: Pick<SubgraphAccessCheckerComponents, 'externalCalls' | 'theGraphClient' | 'subGraphs'>,
-  asset: BlockchainCollectionThirdParty | BlockchainCollectionLinkedWearablesAsset,
+  asset: BlockchainCollectionThirdParty,
   deployment: DeploymentToValidate,
   logger: ILoggerComponent.ILogger
 ): Promise<boolean> {
@@ -124,20 +123,6 @@ export function createThirdPartyAssetValidateFn(
     const verified = await verifyMerkleProofedEntity(components, asset, deployment, logger)
     if (!verified) {
       return validationFailed(`Couldn't verify merkle proofed entity for third-party wearable`)
-    }
-    return OK
-  }
-}
-
-export function createLinkedWearableItemValidateFn(
-  components: Pick<SubgraphAccessCheckerComponents, 'externalCalls' | 'logs' | 'theGraphClient' | 'subGraphs'>
-): LinkedWearableAssetValidateFn {
-  return async function validateFn(asset: BlockchainCollectionLinkedWearablesAsset, deployment: DeploymentToValidate) {
-    const logger = components.logs.getLogger('(subgraph) linked wearable asset validate access validation')
-    // Third Party wearables are validated doing merkle tree based verification proof
-    const verified = await verifyMerkleProofedEntity(components, asset, deployment, logger)
-    if (!verified) {
-      return validationFailed(`Couldn't verify merkle proofed entity for linked wearable v2`)
     }
     return OK
   }

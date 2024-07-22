@@ -500,7 +500,7 @@ describe('Wearables', () => {
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
-        "The entity hash provided '80d9b4671e11768473f8d395209f15f7daf1092da642f6ee2ab0da0f93ffc8dd' is different to the one calculated from the metadata '226dfcde6bd3df7f6c381697f41095c30422c028c91af83478b659d0f43f9842'"
+        "The entity hash provided '124ce3f2650617ee506608461299c1097161768b15de11dc3cb617a65bb82334' is different to the one calculated from the metadata 'd78f642b785a7a63dece99cd8c68479c8033f69178dc54e348f24e8ecfeb2a08'"
       )
     })
   })
