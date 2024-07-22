@@ -118,7 +118,7 @@ describe('Access: emotes', () => {
     const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
-      `For the entity type: emote, the asset with urn type: blockchain-collection-v1-asset is invalid. Valid urn types for this entity: off-chain,blockchain-collection-v2-asset,blockchain-collection-third-party,blockchain-collection-linked-wearables-asset`
+      `For the entity type: emote, the asset with urn type: blockchain-collection-v1-asset is invalid. Valid urn types for this entity: off-chain,blockchain-collection-v2-asset,blockchain-collection-third-party`
     )
   })
 

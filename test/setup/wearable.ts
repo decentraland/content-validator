@@ -9,6 +9,7 @@ import {
   WearableCategory,
   WearableRepresentation
 } from '@dcl/schemas'
+import { ContractNetwork, MappingType } from '@dcl/schemas'
 
 const WEARABLE_MERKLE_PROOF_REQUIRED_KEYS = [
   'content',
@@ -79,7 +80,7 @@ export const VALID_WEARABLE_METADATA: Wearable = {
 }
 
 export const VALID_THIRD_PARTY_WEARABLE_BASE_METADATA: Omit<Wearable & ThirdPartyProps, 'merkleProof'> = {
-  id: 'urn:decentraland:mumbai:collections-thirdparty:jean-pier:someCollection:someItemId',
+  id: 'urn:decentraland:amoy:collections-thirdparty:jean-pier:someCollection:someItemId',
   name: 'name',
   description: 'some description',
   i18n: [
@@ -106,7 +107,7 @@ export const VALID_THIRD_PARTY_WEARABLE_BASE_METADATA: Omit<Wearable & ThirdPart
 }
 
 export const VALID_LINKED_WEARABLE_BASE_METADATA: Omit<Wearable & ThirdPartyProps, 'merkleProof'> = {
-  id: 'urn:decentraland:amoy:collections-linked-wearables:jean-pier:sepolia:0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d:someItemId',
+  id: 'urn:decentraland:amoy:collections-thirdparty:jean-pier:someCollection:someItemId',
   name: 'name',
   description: 'some description',
   i18n: [
@@ -129,6 +130,11 @@ export const VALID_LINKED_WEARABLE_BASE_METADATA: Omit<Wearable & ThirdPartyProp
     ['female/M_3LAU_Hat_Blue.glb']: 'QmebRdUS12afshxzNtTb2h6UhSXjMrGTGeZWcwwtmhTJng',
     ['male/M_3LAU_Hat_Blue.glb']: 'QmebRdUS12afshxzNtTb2h6UhSXjMrGTGeZWcwwtmhTJng',
     ['thumbnail.png']: 'QmPP232rkN2UDg8yGAyJ6hkHGsDFwXivcv9MXFfnW8r34y'
+  },
+  mappings: {
+    [ContractNetwork.AMOY]: {
+      '0x1234567890123456789012345678901234567890': [{ type: MappingType.SINGLE, id: '1' }]
+    }
   }
 }
 
@@ -137,10 +143,10 @@ export const VALID_THIRD_PARTY_WEARABLE = buildEntityMetadataWithMerkleProof(VAL
   'someOtherHash2'
 ])
 
-export const VALID_LINKED_WEARABLE = buildEntityMetadataWithMerkleProof(VALID_LINKED_WEARABLE_BASE_METADATA, [
-  'someOtherHash1',
-  'someOtherHash2'
-])
+export const VALID_THIRD_PARTY_WEARABLE_WITH_MAPPINGS = buildEntityMetadataWithMerkleProof(
+  VALID_LINKED_WEARABLE_BASE_METADATA,
+  ['someOtherHash1', 'someOtherHash2']
+)
 
 // Using the entity, the keys to be hashed and the other node hashes, build the merkle proof for the entity and return a new proofed entity.
 function buildEntityMetadataWithMerkleProof(
@@ -169,6 +175,7 @@ function buildEntityMetadataWithMerkleProof(
       entityHash
     }
   }
+
   return {
     root: tree.merkleRoot,
     entity: thirdPartyWearable

@@ -90,19 +90,24 @@ export function createOnChainClient(
       return permissionOk()
     }
 
+    console.log('urnsToCheck', urnsToCheck)
     const { ethereum, matic } = await splitItemsURNsByNetwork(urnsToCheck)
+    console.log('ethereum', ethereum, 'matic', matic)
 
     const ignoredSet = new Set([
       ...ethereum.filter(({ type }) => type === 'blockchain-collection-v1-asset').map(({ urn }) => urn),
       ...matic.filter(({ type }) => type === 'blockchain-collection-v2-asset').map(({ urn }) => urn)
     ])
+    console.log('ignoredSet', ignoredSet)
     if (ignoredSet.size > 0) {
       logger.info(`Ignoring these assets, considering them as "owned" by the address: ${[...ignoredSet]}`)
     }
     const filteredEthereum = ethereum
       .filter(({ type }) => type !== 'blockchain-collection-v1-asset')
       .map(({ urn }) => urn)
+    console.log('filteredEthereum', filteredEthereum)
     const filteredMatic = matic.filter(({ type }) => type !== 'blockchain-collection-v2-asset').map(({ urn }) => urn)
+    console.log('filteredMatic', filteredMatic)
 
     const [ethereumItemsOwnership, maticItemsOwnership] = await Promise.all([
       ownsItemsAtTimestampInBlockchain(

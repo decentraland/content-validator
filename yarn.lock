@@ -302,7 +302,7 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@dcl/block-indexer@^1.1.1":
+"@dcl/block-indexer@^1.1.2":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@dcl/block-indexer/-/block-indexer-1.1.2.tgz#da990cff837d33a556f6d7c734b678b86f01dc03"
   integrity sha512-IHUkRRkJ4PH07monqf8zqKPvbei+SsMNW205RjqYhVN2Pg5sQFAB9Laj06eDuB1KGd8TNbkoPAXaZ9Rghqw7IA==
@@ -336,7 +336,7 @@
     eslint-plugin-prettier "^5.1.3"
     prettier "^3.3.2"
 
-"@dcl/hashing@^3.0.1":
+"@dcl/hashing@^3.0.4":
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/@dcl/hashing/-/hashing-3.0.4.tgz#4df2a4cb3a8114765aed34cb57b91c93bf33bfb3"
   integrity sha512-Cg+MoIOn+BYmQV2q8zSFnNYY+GldlnUazwBnfgrq3i66ZxOaZ65h01btd8OUtSAlfWG4VTNIOHDjtKqmuwJNBg==
@@ -351,10 +351,10 @@
     ajv-keywords "^5.1.0"
     mitt "^3.0.1"
 
-"@dcl/urn-resolver@^3.5.0":
-  version "3.5.0"
-  resolved "https://registry.yarnpkg.com/@dcl/urn-resolver/-/urn-resolver-3.5.0.tgz#de4fde4ea7bb73dbe39b20a6ba1e7e55c5f1575c"
-  integrity sha512-kbqnqQl7YCA1dI5K0fYhRf/McJXaZMqwLZS1Dg/862/uKnkKK0BW8EJ3/08EpctmcPhzaPEu2WqH0lSe0cpjUw==
+"@dcl/urn-resolver@^3.6.0":
+  version "3.6.0"
+  resolved "https://registry.yarnpkg.com/@dcl/urn-resolver/-/urn-resolver-3.6.0.tgz#4450b3869433aa6724306c34769846bcd54ccc35"
+  integrity sha512-hU8bCeanfMq3BmYkhBxcZ4zkH53atsCErmfN8GiTHEj0wuDCS7wKkzQPPdKPGOZieAfgsjm16/JmSXg0kAHgtA==
 
 "@emnapi/runtime@^1.1.1":
   version "1.2.0"
@@ -1417,7 +1417,7 @@
   resolved "https://registry.yarnpkg.com/@ungap/structured-clone/-/structured-clone-1.2.0.tgz#756641adb587851b5ccb3e095daf27ae581c8406"
   integrity sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==
 
-"@well-known-components/interfaces@^1.1.3", "@well-known-components/interfaces@^1.3.0", "@well-known-components/interfaces@^1.4.2":
+"@well-known-components/interfaces@^1.1.3", "@well-known-components/interfaces@^1.4.2", "@well-known-components/interfaces@^1.4.3":
   version "1.4.3"
   resolved "https://registry.yarnpkg.com/@well-known-components/interfaces/-/interfaces-1.4.3.tgz#026047966db480bd561a315fdc8116b88bf8d27a"
   integrity sha512-roVtoOHG6uaH+nL4C0ISnAwkkopc2FLsS7fqX+roI22EdX9PAknPoImhPU8/3u6jgRAVpglX5Zj4nWZkSaXPkQ==
@@ -1438,7 +1438,7 @@
   dependencies:
     prom-client "^15.1.0"
 
-"@well-known-components/test-helpers@^1.5.5":
+"@well-known-components/test-helpers@^1.5.6":
   version "1.5.6"
   resolved "https://registry.yarnpkg.com/@well-known-components/test-helpers/-/test-helpers-1.5.6.tgz#a17091f1491763fe258c195eb470086aa9e03910"
   integrity sha512-BQpNNhcg57x7iifJyzMmBVAGOleRb74OuR8qjoFA+I3EzEcYw65rkycNXbTP+icw4pjbTP3Ga9HafjR9nquIpg==
@@ -1449,7 +1449,7 @@
     sinon "^17.0.0"
     ts-jest "^29.1.0"
 
-"@well-known-components/thegraph-component@^1.5.0":
+"@well-known-components/thegraph-component@^1.6.0":
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/@well-known-components/thegraph-component/-/thegraph-component-1.6.0.tgz#099466d0e8c21fcb34faa3351f33ab500b5cf928"
   integrity sha512-LfBszhAnYRoLtLFkCDxjYIFFTk9mWL9wMPUSSnM0l/r0k/X3859DXXe2CrWIu3CeGpXdWI29YHE14EKvaBs3sw==

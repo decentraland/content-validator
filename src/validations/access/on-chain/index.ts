@@ -6,30 +6,23 @@ import { createV1andV2collectionAssetValidateFn } from './collection-asset'
 import { createOutfitsValidateFn } from './outfits'
 import { createProfileValidateFn } from './profiles'
 import { createSceneValidateFn } from './scenes'
-import { createLinkedWearableItemValidateFn, createThirdPartyAssetValidateFn } from './third-party-asset'
+import { createThirdPartyAssetValidateFn } from './third-party-asset'
 
 export function createOnChainAccessCheckValidateFns(
   components: OnChainAccessCheckerComponents
 ): Record<EntityType, ValidateFn> {
   const v1andV2collectionAssetValidateFn = createV1andV2collectionAssetValidateFn(components)
   const thirdPartyAssetValidateFn = createThirdPartyAssetValidateFn(components)
-  const linkedWearableItemValidateFn = createLinkedWearableItemValidateFn(components)
   return {
     [EntityType.PROFILE]: createProfileValidateFn(components),
     [EntityType.SCENE]: createSceneValidateFn(components),
     [EntityType.WEARABLE]: createWearableValidateFn(
       components,
       v1andV2collectionAssetValidateFn,
-      thirdPartyAssetValidateFn,
-      linkedWearableItemValidateFn
+      thirdPartyAssetValidateFn
     ),
     [EntityType.STORE]: createStoreValidateFn(components),
-    [EntityType.EMOTE]: createEmoteValidateFn(
-      components,
-      v1andV2collectionAssetValidateFn,
-      thirdPartyAssetValidateFn,
-      linkedWearableItemValidateFn
-    ),
+    [EntityType.EMOTE]: createEmoteValidateFn(components, v1andV2collectionAssetValidateFn, thirdPartyAssetValidateFn),
     [EntityType.OUTFITS]: createOutfitsValidateFn(components)
   }
 }

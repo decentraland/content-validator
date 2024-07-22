@@ -1,7 +1,6 @@
 import { BlockSearch } from '@dcl/block-indexer'
 import { AuthChain, Entity, EthAddress } from '@dcl/schemas'
 import {
-  BlockchainCollectionLinkedWearablesAsset,
   BlockchainCollectionThirdParty,
   BlockchainCollectionV1Asset,
   BlockchainCollectionV2Asset
@@ -233,13 +232,5 @@ export type V1andV2collectionAssetValidateFn = (
  */
 export type ThirdPartyAssetValidateFn = (
   asset: BlockchainCollectionThirdParty,
-  deployment: DeploymentToValidate
-) => Promise<ValidationResponse>
-
-/**
- * @internal
- */
-export type LinkedWearableAssetValidateFn = (
-  asset: BlockchainCollectionLinkedWearablesAsset,
   deployment: DeploymentToValidate
 ) => Promise<ValidationResponse>

@@ -1,9 +1,8 @@
 import { generateRoot } from '@dcl/content-hash-tree'
 import { isThirdParty, ThirdPartyProps } from '@dcl/schemas'
-import { BlockchainCollectionLinkedWearablesAsset, BlockchainCollectionThirdParty } from '@dcl/urn-resolver'
+import { BlockchainCollectionThirdParty } from '@dcl/urn-resolver'
 import {
   DeploymentToValidate,
-  LinkedWearableAssetValidateFn,
   OK,
   OnChainAccessCheckerComponents,
   ThirdPartyAssetValidateFn,
@@ -14,7 +13,7 @@ import { getThirdPartyId, toHexBuffer } from '../../../utils'
 
 async function verifyMerkleProofedEntity(
   components: Pick<OnChainAccessCheckerComponents, 'externalCalls' | 'logs' | 'client' | 'L2'>,
-  asset: BlockchainCollectionThirdParty | BlockchainCollectionLinkedWearablesAsset,
+  asset: BlockchainCollectionThirdParty,
   deployment: DeploymentToValidate,
   logger: ILoggerComponent.ILogger
 ): Promise<boolean> {
@@ -63,20 +62,6 @@ export function createThirdPartyAssetValidateFn(
     const verified = await verifyMerkleProofedEntity(components, asset, deployment, logger)
     if (!verified) {
       return validationFailed(`Couldn't verify merkle proofed entity for third-party wearable`)
-    }
-    return OK
-  }
-}
-
-export function createLinkedWearableItemValidateFn(
-  components: Pick<OnChainAccessCheckerComponents, 'externalCalls' | 'logs' | 'client' | 'L2'>
-): LinkedWearableAssetValidateFn {
-  return async function validateFn(asset: BlockchainCollectionLinkedWearablesAsset, deployment: DeploymentToValidate) {
-    const logger = components.logs.getLogger('(on-chain) third-party-asset-validation')
-
-    const verified = await verifyMerkleProofedEntity(components, asset, deployment, logger)
-    if (!verified) {
-      return validationFailed(`Couldn't verify merkle proofed entity for linked wearable v2`)
     }
     return OK
   }

@@ -4,10 +4,7 @@ import { L1Checker, L2Checker, OnChainAccessCheckerComponents, ValidateFn } from
 import { createEmoteValidateFn, createWearableValidateFn } from '../../../src/validations/access/common/items'
 import { createOnChainClient } from '../../../src/validations/access/on-chain/client'
 import { createV1andV2collectionAssetValidateFn } from '../../../src/validations/access/on-chain/collection-asset'
-import {
-  createLinkedWearableItemValidateFn,
-  createThirdPartyAssetValidateFn
-} from '../../../src/validations/access/on-chain/third-party-asset'
+import { createThirdPartyAssetValidateFn } from '../../../src/validations/access/on-chain/third-party-asset'
 import { buildComponents, createMockItemCheckerComponent, createMockSubgraphComponent } from '../../setup/mock'
 
 const defaultEthereum = [
@@ -147,25 +144,13 @@ export const buildOnChainAccessCheckerComponents = (
 export function buildWearableValidateFn(components: OnChainAccessCheckerComponents): ValidateFn {
   const thirdPartyAssetValidateFn = createThirdPartyAssetValidateFn(components)
   const v1andV2collectionAssetValidateFn = createV1andV2collectionAssetValidateFn(components)
-  const linkedWearableItemValidateFn = createLinkedWearableItemValidateFn(components)
 
-  return createWearableValidateFn(
-    components,
-    v1andV2collectionAssetValidateFn,
-    thirdPartyAssetValidateFn,
-    linkedWearableItemValidateFn
-  )
+  return createWearableValidateFn(components, v1andV2collectionAssetValidateFn, thirdPartyAssetValidateFn)
 }
 
 export function buildEmoteValidateFn(components: OnChainAccessCheckerComponents): ValidateFn {
   const thirdPartyAssetValidateFn = createThirdPartyAssetValidateFn(components)
   const v1andV2collectionAssetValidateFn = createV1andV2collectionAssetValidateFn(components)
-  const linkedWearableItemValidateFn = createLinkedWearableItemValidateFn(components)
 
-  return createEmoteValidateFn(
-    components,
-    v1andV2collectionAssetValidateFn,
-    thirdPartyAssetValidateFn,
-    linkedWearableItemValidateFn
-  )
+  return createEmoteValidateFn(components, v1andV2collectionAssetValidateFn, thirdPartyAssetValidateFn)
 }

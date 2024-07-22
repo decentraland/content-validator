@@ -51,7 +51,7 @@ export const VALID_STANDARD_EMOTE_METADATA: Emote & StandardProps = {
 }
 
 export const VALID_THIRD_PARTY_WEARABLE_BASE_METADATA: Omit<Emote & ThirdPartyProps, 'merkleProof'> = {
-  id: 'urn:decentraland:mumbai:collections-thirdparty:jean-pier:someCollection:someItemId',
+  id: 'urn:decentraland:amoy:collections-thirdparty:jean-pier:someCollection:someItemId',
   name: 'name',
   description: 'some description',
   i18n: [
