@@ -1,7 +1,13 @@
 import { BlockSearch } from '@dcl/block-indexer'
 import { EthAddress } from '@dcl/schemas'
-import { BlockInformation, ItemChecker, OnChainAccessCheckerComponents, OnChainClient } from '../../../types'
-import { splitItemsURNsByNetwork } from '../../../utils'
+import {
+  BlockInformation,
+  ItemChecker,
+  OnChainAccessCheckerComponents,
+  OnChainClient,
+  ThirdPartyItemChecker
+} from '../../../types'
+import { splitItemsURNsByTypeAndNetwork } from '../../../utils'
 
 export type PermissionResult = {
   result: boolean
@@ -91,38 +97,50 @@ export function createOnChainClient(
     }
 
     console.log('urnsToCheck', urnsToCheck)
-    const { ethereum, matic } = await splitItemsURNsByNetwork(urnsToCheck)
-    console.log('ethereum', ethereum, 'matic', matic)
+
+    const { ethereum, matic, ethereumThirdParty, maticThirdParty } = await splitItemsURNsByTypeAndNetwork(urnsToCheck)
+    console.log('ethereumThirdParty', ethereumThirdParty, 'maticThirdParty', maticThirdParty)
 
     const ignoredSet = new Set([
       ...ethereum.filter(({ type }) => type === 'blockchain-collection-v1-asset').map(({ urn }) => urn),
-      ...matic.filter(({ type }) => type === 'blockchain-collection-v2-asset').map(({ urn }) => urn)
+      ...matic.filter(({ type }) => type === 'blockchain-collection-v2-asset').map(({ urn }) => urn),
+      // ...ethereumThirdParty should never contain assets, so no need to filter
+      ...maticThirdParty.filter(({ type }) => type === 'blockchain-collection-third-party').map(({ urn }) => urn)
     ])
     console.log('ignoredSet', ignoredSet)
     if (ignoredSet.size > 0) {
       logger.info(`Ignoring these assets, considering them as "owned" by the address: ${[...ignoredSet]}`)
     }
+
     const filteredEthereum = ethereum
-      .filter(({ type }) => type !== 'blockchain-collection-v1-asset')
+      .filter(({ type }) => type === 'blockchain-collection-v1-item')
       .map(({ urn }) => urn)
-    console.log('filteredEthereum', filteredEthereum)
-    const filteredMatic = matic.filter(({ type }) => type !== 'blockchain-collection-v2-asset').map(({ urn }) => urn)
-    console.log('filteredMatic', filteredMatic)
+    const filteredMatic = matic.filter(({ type }) => type === 'blockchain-collection-v2-item').map(({ urn }) => urn)
+    const filteredEthereumThirdParty = ethereumThirdParty
+      .filter(({ type }) => type === 'blockchain-collection-third-party-item')
+      .map(({ urn }) => urn)
+    const filteredMaticThirdParty = maticThirdParty
+      .filter(({ type }) => type === 'blockchain-collection-third-party-item')
+      .map(({ urn }) => urn)
 
     const [ethereumItemsOwnership, maticItemsOwnership] = await Promise.all([
       ownsItemsAtTimestampInBlockchain(
         ethAddress,
         filteredEthereum,
+        filteredEthereumThirdParty,
         timestamp,
         components.L1.collections,
-        components.L1.blockSearch
+        components.L1.blockSearch,
+        components.L1.thirdParty
       ),
       ownsItemsAtTimestampInBlockchain(
         ethAddress,
         filteredMatic,
+        filteredMaticThirdParty,
         timestamp,
         components.L2.collections,
-        components.L2.blockSearch
+        components.L2.blockSearch,
+        components.L2.thirdParty
       )
     ])
 
@@ -136,11 +154,14 @@ export function createOnChainClient(
   async function ownsItemsAtTimestampInBlockchain(
     ethAddress: EthAddress,
     urnsToCheck: string[],
+    urnsToCheckThirdParty: string[],
     timestamp: number,
     itemChecker: ItemChecker,
-    blockSearch: BlockSearch
+    blockSearch: BlockSearch,
+    thirdParty: ThirdPartyItemChecker
   ): Promise<PermissionResult> {
-    if (urnsToCheck.length === 0) {
+    console.log('urnsToCheck', urnsToCheck, 'urnsToCheckThirdParty', urnsToCheckThirdParty)
+    if (urnsToCheck.length + urnsToCheckThirdParty.length === 0) {
       return permissionOk()
     }
 
@@ -152,9 +173,17 @@ export function createOnChainClient(
       }
 
       try {
-        logger.debug(`Checking items owned by address ${ethAddress} at block ${blockNumber}: ${urnsToCheck}`)
-        const result = await itemChecker.checkItems(ethAddress, urnsToCheck, blockNumber)
-        const notOwned: string[] = urnsToCheck.filter((_, i) => !result[i])
+        logger.debug(
+          `Checking items owned by address ${ethAddress} at block ${blockNumber}: ${[...urnsToCheck, ...urnsToCheckThirdParty]}`
+        )
+        const [result, resultTP] = await Promise.all([
+          itemChecker.checkItems(ethAddress, urnsToCheck, blockNumber),
+          thirdParty.checkThirdPartyItems(ethAddress, urnsToCheckThirdParty, blockNumber)
+        ])
+        const notOwned: string[] = [
+          ...urnsToCheck.filter((_, i) => !result[i]),
+          ...urnsToCheckThirdParty.filter((_, i) => !resultTP[i])
+        ]
 
         if (notOwned.length > 0) {
           logger.info(`Not owned: ${notOwned}`)

@@ -2,7 +2,7 @@ import { EthAddress } from '@dcl/schemas'
 import { getTokenIdAndAssetUrn } from '@dcl/urn-resolver'
 import { ISubgraphComponent } from '@well-known-components/thegraph-component'
 import { BlockInformation, SubgraphAccessCheckerComponents, TheGraphClient } from '../../../types'
-import { splitItemsURNsByNetwork } from '../../../utils'
+import { splitItemsURNsByTypeAndNetwork } from '../../../utils'
 
 export type PermissionResult = {
   result: boolean
@@ -81,7 +81,7 @@ export const createTheGraphClient = (
       return permissionOk()
     }
 
-    const { ethereum, matic } = await splitItemsURNsByNetwork(urnsToCheck)
+    const { ethereum, matic } = await splitItemsURNsByTypeAndNetwork(urnsToCheck)
     const ethereumItemsOwnersPromise = ownsItemsAtTimestampInBlockchain(
       ethAddress,
       ethereum,

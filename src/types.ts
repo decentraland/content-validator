@@ -125,6 +125,13 @@ export type ItemChecker = {
 }
 
 /**
+ * @alpha
+ */
+export type ThirdPartyItemChecker = {
+  checkThirdPartyItems(ethAddress: string, itemUrns: string[], block: number): Promise<boolean[]>
+}
+
+/**
  * A list with all sub-graphs used for validations.
  * @public
  */
@@ -210,11 +217,13 @@ export type OnChainAccessCheckerComponents = Pick<ContentValidatorComponents, 'l
   L1: {
     checker: L1Checker
     collections: ItemChecker
+    thirdParty: ThirdPartyItemChecker
     blockSearch: BlockSearch
   }
   L2: {
     checker: L2Checker
     collections: ItemChecker
+    thirdParty: ThirdPartyItemChecker
     blockSearch: BlockSearch
   }
 }
