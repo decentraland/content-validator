@@ -54,9 +54,15 @@ export function createMockL1Checker(): L1Checker {
   }
 }
 
-export function createMockThirdPartyItemCheckerComponent(): ThirdPartyItemChecker {
+export function createMockThirdPartyItemCheckerComponent(
+  mock?: (ethAddress: string, itemUrns: string[], block: number) => Promise<boolean[]>
+): ThirdPartyItemChecker {
   return {
-    checkThirdPartyItems: jest.fn()
+    checkThirdPartyItems:
+      mock ??
+      (
+        jest.fn() as jest.MockedFunction<(ethAddress: string, itemUrns: string[], block: number) => Promise<boolean[]>>
+      ).mockResolvedValue([false])
   }
 }
 
