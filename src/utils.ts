@@ -1,4 +1,4 @@
-import { BlockchainCollectionThirdParty, BlockchainCollectionThirdPartyItem, parseUrn } from '@dcl/urn-resolver'
+import { BlockchainCollectionThirdParty, parseUrn } from '@dcl/urn-resolver'
 import { L1_NETWORKS, L2_NETWORKS } from './types'
 
 type URNsByNetwork = {
@@ -35,7 +35,7 @@ export async function splitItemsURNsByTypeAndNetwork(urnsToSplit: string[]): Pro
       continue
     }
 
-    if (L1_NETWORKS.includes(asset.network)) {
+    if ([...L1_NETWORKS, 'ethereum'].includes(asset.network)) {
       ethereum.push({ urn: asset.uri.toString(), type: asset.type })
     } else if (L2_NETWORKS.includes(asset.network)) {
       if (asset.type === 'blockchain-collection-third-party-item') {
