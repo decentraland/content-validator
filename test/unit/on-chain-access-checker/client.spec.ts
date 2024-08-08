@@ -2,7 +2,11 @@ import { createAvlBlockSearch, metricsDefinitions } from '@dcl/block-indexer'
 import { createTestMetricsComponent } from '@well-known-components/metrics'
 import { timestampBounds } from '../../../src/validations/access/on-chain/client'
 import { createMockItemCheckerComponent } from '../../setup/mock'
-import { buildOnChainAccessCheckerComponents, createMockBlockRepository } from './mock'
+import {
+  buildOnChainAccessCheckerComponents,
+  createMockBlockRepository,
+  createMockThirdPartyItemCheckerComponent
+} from './mock'
 
 const currentTimestamp = 1000
 const bounds = timestampBounds(currentTimestamp)
@@ -271,6 +275,76 @@ describe('OnChainClient', () => {
       ).resolves.toEqual({
         result: false,
         failing: ['urn:decentraland:matic:collections-v2:0x04e7f74e73e951c61edd80910e46c3fece5ebe80:2:124']
+      })
+    })
+
+    describe('third party wearables', () => {
+      it.each([
+        [
+          'urn:decentraland:amoy:collections-thirdparty:back-to-the-future:sepolia-8a50:f-bananacrown-4685',
+          'urn:decentraland:amoy:collections-thirdparty:back-to-the-future:amoy-eb54:earrings-9d5c'
+        ],
+        [
+          'urn:decentraland:amoy:collections-thirdparty:back-to-the-future:sepolia-8a50:f-bananacrown-4685:sepolia:0x74c78f5a4ab22f01d5fd08455cf0ff5c3367535c:7',
+          'urn:decentraland:amoy:collections-thirdparty:back-to-the-future:amoy-eb54:earrings-9d5c:amoy:0x1d9fb685c257e74f869ba302e260c0b68f5ebb37:8'
+        ]
+      ])(
+        'should validate ownership of v1 and v2 third party wearables (passing and not passing tokenId)',
+        async (l1UrnToValidate, l2UrnToValidate) => {
+          const components = buildOnChainAccessCheckerComponents()
+          components.L1.thirdParty = createMockThirdPartyItemCheckerComponent(jest.fn().mockResolvedValue([true]))
+          components.L2.thirdParty = createMockThirdPartyItemCheckerComponent(jest.fn().mockResolvedValue([true]))
+          components.L1.blockSearch.findBlockForTimestamp = jest.fn().mockImplementation((t) => {
+            if (t === bounds.upper) {
+              return undefined
+            }
+            return { timestamp: bounds.lower, block: 123400 }
+          })
+          components.L2.blockSearch.findBlockForTimestamp = jest.fn().mockImplementation((t) => {
+            if (t === bounds.upper) {
+              return undefined
+            }
+            return { timestamp: bounds.lower, block: 123400 }
+          })
+
+          await expect(
+            components.client.ownsItemsAtTimestamp('0x1', [l1UrnToValidate, l2UrnToValidate], 10)
+          ).resolves.toEqual({ result: true })
+        }
+      )
+
+      it('should fail validate ownership of a third party v2 wearable which has invalid token id', async () => {
+        const components = buildOnChainAccessCheckerComponents()
+        components.L1.thirdParty = createMockThirdPartyItemCheckerComponent(jest.fn().mockResolvedValue([true]))
+        components.L2.thirdParty = createMockThirdPartyItemCheckerComponent(jest.fn().mockResolvedValue([false]))
+        components.L1.blockSearch.findBlockForTimestamp = jest.fn().mockImplementation((t) => {
+          if (t === bounds.upper) {
+            return undefined
+          }
+          return { timestamp: bounds.lower, block: 123400 }
+        })
+        components.L2.blockSearch.findBlockForTimestamp = jest.fn().mockImplementation((t) => {
+          if (t === bounds.upper) {
+            return undefined
+          }
+          return { timestamp: bounds.lower, block: 123400 }
+        })
+
+        await expect(
+          components.client.ownsItemsAtTimestamp(
+            '0x1',
+            [
+              'urn:decentraland:amoy:collections-thirdparty:back-to-the-future:sepolia-8a50:f-bananacrown-4685:sepolia:0x74c78f5a4ab22f01d5fd08455cf0ff5c3367535c:7',
+              'urn:decentraland:amoy:collections-thirdparty:back-to-the-future:amoy-eb54:earrings-9d5c:amoy:0x1d9fb685c257e74f869ba302e260c0b68f5ebb37:8'
+            ],
+            10
+          )
+        ).resolves.toEqual({
+          result: false,
+          failing: [
+            'urn:decentraland:amoy:collections-thirdparty:back-to-the-future:amoy-eb54:earrings-9d5c:amoy:0x1d9fb685c257e74f869ba302e260c0b68f5ebb37:8'
+          ]
+        })
       })
     })
   })

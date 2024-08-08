@@ -1,6 +1,6 @@
 import { BlockInfo, BlockRepository, createAvlBlockSearch, metricsDefinitions } from '@dcl/block-indexer'
 import { createTestMetricsComponent } from '@well-known-components/metrics'
-import { L1Checker, L2Checker, OnChainAccessCheckerComponents, ValidateFn } from '../../../src'
+import { L1Checker, L2Checker, OnChainAccessCheckerComponents, ThirdPartyItemChecker, ValidateFn } from '../../../src'
 import { createEmoteValidateFn, createWearableValidateFn } from '../../../src/validations/access/common/items'
 import { createOnChainClient } from '../../../src/validations/access/on-chain/client'
 import { createV1andV2collectionAssetValidateFn } from '../../../src/validations/access/on-chain/collection-asset'
@@ -54,6 +54,18 @@ export function createMockL1Checker(): L1Checker {
   }
 }
 
+export function createMockThirdPartyItemCheckerComponent(
+  mock?: (ethAddress: string, itemUrns: string[], block: number) => Promise<boolean[]>
+): ThirdPartyItemChecker {
+  return {
+    checkThirdPartyItems:
+      mock ??
+      (
+        jest.fn() as jest.MockedFunction<(ethAddress: string, itemUrns: string[], block: number) => Promise<boolean[]>>
+      ).mockResolvedValue([false])
+  }
+}
+
 export function createMockL2Checker(): L2Checker {
   return {
     validateWearables: jest.fn(),
@@ -90,6 +102,7 @@ export const buildOnChainAccessCheckerComponents = (
   const metrics = createTestMetricsComponent(metricsDefinitions)
   const L1 = provided?.L1 ?? {
     checker: createMockL1Checker(),
+    thirdParty: createMockThirdPartyItemCheckerComponent(),
     collections: createMockItemCheckerComponent(),
     blockSearch: createAvlBlockSearch({
       logs,
@@ -111,6 +124,7 @@ export const buildOnChainAccessCheckerComponents = (
   }
   const L2 = provided?.L2 ?? {
     checker: createMockL2Checker(),
+    thirdParty: createMockThirdPartyItemCheckerComponent(),
     collections: createMockItemCheckerComponent(),
     blockSearch: createAvlBlockSearch({
       logs,

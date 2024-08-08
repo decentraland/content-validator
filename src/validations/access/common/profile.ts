@@ -80,14 +80,14 @@ export function createItemOwnershipValidateFn(
 
   return async function validateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
     const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
-    const depoymentTimestamp = deployment.entity.timestamp
+    const deploymentTimestamp = deployment.entity.timestamp
     const itemUrns: string[] = []
-    if (depoymentTimestamp >= ADR_75_TIMESTAMP) {
+    if (deploymentTimestamp >= ADR_75_TIMESTAMP) {
       for (const urn of await allOnChainWearableUrns(deployment.entity)) {
         itemUrns.push(urn)
       }
     }
-    if (depoymentTimestamp >= ADR_74_TIMESTAMP) {
+    if (deploymentTimestamp >= ADR_74_TIMESTAMP) {
       for (const urn of await allEmoteUrns(deployment.entity)) {
         itemUrns.push(urn)
       }
