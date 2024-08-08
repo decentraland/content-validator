@@ -96,10 +96,7 @@ export function createOnChainClient(
       return permissionOk()
     }
 
-    console.log('urnsToCheck', urnsToCheck)
-
     const { ethereum, matic, ethereumThirdParty, maticThirdParty } = await splitItemsURNsByTypeAndNetwork(urnsToCheck)
-    console.log('ethereumThirdParty', ethereumThirdParty, 'maticThirdParty', maticThirdParty)
 
     const ignoredSet = new Set([
       ...ethereum.filter(({ type }) => type === 'blockchain-collection-v1-asset').map(({ urn }) => urn),
@@ -107,7 +104,6 @@ export function createOnChainClient(
       // ...ethereumThirdParty should never contain assets (only items), so no need to filter
       ...maticThirdParty.filter(({ type }) => type === 'blockchain-collection-third-party').map(({ urn }) => urn)
     ])
-    console.log('ignoredSet', ignoredSet)
     if (ignoredSet.size > 0) {
       logger.info(`Ignoring these assets, considering them as "owned" by the address: ${[...ignoredSet]}`)
     }
@@ -160,7 +156,6 @@ export function createOnChainClient(
     blockSearch: BlockSearch,
     thirdParty: ThirdPartyItemChecker
   ): Promise<PermissionResult> {
-    console.log('urnsToCheck', urnsToCheck, 'urnsToCheckThirdParty', urnsToCheckThirdParty)
     if (urnsToCheck.length + urnsToCheckThirdParty.length === 0) {
       return permissionOk()
     }
