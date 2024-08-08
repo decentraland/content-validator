@@ -104,7 +104,7 @@ export function createOnChainClient(
     const ignoredSet = new Set([
       ...ethereum.filter(({ type }) => type === 'blockchain-collection-v1-asset').map(({ urn }) => urn),
       ...matic.filter(({ type }) => type === 'blockchain-collection-v2-asset').map(({ urn }) => urn),
-      // ...ethereumThirdParty should never contain assets, so no need to filter
+      // ...ethereumThirdParty should never contain assets (only items), so no need to filter
       ...maticThirdParty.filter(({ type }) => type === 'blockchain-collection-third-party').map(({ urn }) => urn)
     ])
     console.log('ignoredSet', ignoredSet)
