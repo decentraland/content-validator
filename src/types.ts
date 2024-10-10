@@ -58,6 +58,15 @@ export type ExternalCalls = {
   ) => Promise<{ ok: boolean; message?: string }>
   ownerAddress: (auditInfo: LocalDeploymentAuditInfo) => string
   isAddressOwnedByDecentraland: (address: string) => boolean
+  calculateFilesHashes: (files: Map<string, Uint8Array>) => Promise<
+    Map<
+      string,
+      {
+        calculatedHash: string
+        buffer: Uint8Array
+      }
+    >
+  >
 }
 
 /**
