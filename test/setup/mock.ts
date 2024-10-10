@@ -1,7 +1,7 @@
 import { ILoggerComponent } from '@well-known-components/interfaces'
 import { ISubgraphComponent, Variables } from '@well-known-components/thegraph-component'
-import { ContentValidatorComponents, ExternalCalls, ItemChecker, ValidateFn } from '../../src'
 import sharp from 'sharp'
+import { ContentValidatorComponents, ExternalCalls, ItemChecker, ValidateFn } from '../../src'
 
 export type QueryGraph = <T = any>(query: string, variables?: Variables, remainingAttempts?: number) => Promise<T>
 
@@ -34,6 +34,13 @@ export function buildExternalCalls(externalCalls?: Partial<ExternalCalls>): Exte
     validateSignature: () => Promise.resolve({ ok: true }),
     ownerAddress: () => '',
     isAddressOwnedByDecentraland: () => false,
+    calculateFilesHashes: async (files: Map<string, Uint8Array>) => {
+      const resultMap = new Map()
+      for (const [key, value] of files.entries()) {
+        resultMap.set(key, { calculatedHash: 'hash', buffer: value })
+      }
+      return resultMap
+    },
     ...externalCalls
   }
 }

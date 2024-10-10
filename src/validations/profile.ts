@@ -9,6 +9,7 @@ import {
   validationFailed,
   ValidationResponse
 } from '../types'
+import { ADR_244_TIMESTAMP } from './timestamps'
 import {
   validateAfterADR232,
   validateAfterADR45,
@@ -17,7 +18,6 @@ import {
   validateAll,
   validateIfTypeMatches
 } from './validations'
-import { ADR_244_TIMESTAMP } from './timestamps'
 
 /** Validate that given profile deployment includes a face256 thumbnail with valid size */
 const defaultThumbnailSize = 256
@@ -159,6 +159,34 @@ export const profileWearablesNotRepeatedValidateFn = validateAfterADR232(async f
   return OK
 })
 
+export function createProfileImagesValidateFn(components: ContentValidatorComponents) {
+  async function validateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
+    const errors: string[] = []
+    const allAvatars: any[] = deployment.entity.metadata?.avatars ?? []
+
+    for (const avatar of allAvatars) {
+      const faceHash = avatar.avatar.snapshots.face256
+      const bodyHash = avatar.avatar.snapshots.body
+
+      if (!faceHash || !bodyHash)
+        return validationFailed(`Couldn't find hash for face or body thumbnails on profile metadata`)
+
+      const calculatedHashes = await components.externalCalls.calculateFilesHashes(deployment.files)
+
+      // validate all hashes
+      Array.from(calculatedHashes.entries()).forEach(([key, entry]) => {
+        if (!(key === entry.calculatedHash)) {
+          errors.push(`Missmatch of hash found for file expected: ${key} but got ${entry.calculatedHash}`)
+        }
+      })
+    }
+
+    return errors.length > 0 ? validationFailed(...errors) : OK
+  }
+
+  return validateFn
+}
+
 export function createProfileValidateFn(components: ContentValidatorComponents): ValidateFn {
   /**
    * Validate that given profile deployment includes the face256 file with the correct size
@@ -168,6 +196,7 @@ export function createProfileValidateFn(components: ContentValidatorComponents):
     EntityType.PROFILE,
     validateAll(
       createFaceThumbnailValidateFn(components),
+      createProfileImagesValidateFn(components),
       wearableUrnsValidateFn,
       emoteUrnsValidateFn,
       profileMustHaveEmotesValidateFn,
