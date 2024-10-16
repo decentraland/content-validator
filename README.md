@@ -2,7 +2,7 @@
 
 # @dcl/content-validator
 
-Contains all validations to run against entity deployments.
+Contains all validations to run against [entity](https://docs.decentraland.org/contributor/content/entities/) deployments.
 
 ## Getting Started
 
