@@ -2,6 +2,8 @@
 
 # @dcl/content-validator
 
+[![Coverage Status](https://coveralls.io/repos/github/decentraland/content-validator/badge.svg?branch=main)](https://coveralls.io/github/decentraland/content-validator?branch=main)
+
 Contains all validations to run against [entity](https://docs.decentraland.org/contributor/content/entities/) deployments.
 
 ## Getting Started
