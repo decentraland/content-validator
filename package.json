@@ -42,7 +42,7 @@
     "@dcl/block-indexer": "^1.1.2",
     "@dcl/content-hash-tree": "^1.1.4",
     "@dcl/hashing": "^3.0.4",
-    "@dcl/schemas": "^13.2.1",
+    "@dcl/schemas": "^15.0.0",
     "@dcl/urn-resolver": "^3.6.0",
     "@well-known-components/interfaces": "^1.4.3",
     "@well-known-components/thegraph-component": "^1.6.0",
