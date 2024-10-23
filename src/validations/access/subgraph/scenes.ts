@@ -67,7 +67,7 @@ export function createSceneValidateFn({
           query GetAuthorizations($owner: String!, $operator: String!, $timestamp: Int!, $tokenAddress: String!) {
               authorizations(
                       where: {
-                          owner: $owner,
+                          owner_: {address: $owner},
                           operator: $operator,
                           createdAt_lte: $timestamp,
                           tokenAddress: $tokenAddress
