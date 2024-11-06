@@ -263,10 +263,10 @@ query getBlockForTimestampRange($timestamp: Int!, $timestamp5Min: Int!) {
 }`
 
 const QUERY_NAMES_FOR_ADDRESS_AT_BLOCK = `
-query getNftNamesForBlock($block: Int!, $ethAddress: String!, $nameList: [String!]) {
+query getNftNamesForBlock($block: Int!, $ethAddress: Bytes!, $nameList: [String!]) {
   names: nfts(
     block: {number: $block}
-    where: {owner: $ethAddress, category: ens, name_in: $nameList}
+    where: {owner_: {address: $ethAddress},, category: ens, name_in: $nameList}
     first: 1000
   ) {
     name
@@ -274,10 +274,10 @@ query getNftNamesForBlock($block: Int!, $ethAddress: String!, $nameList: [String
 }`
 
 const QUERY_ITEMS_FOR_ADDRESS_AT_BLOCK = `
-query getNftItemsForBlock($block: Int!, $ethAddress: String!, $urnList: [String!]) {
+query getNftItemsForBlock($block: Int!, $ethAddress: Bytes!, $urnList: [String!]) {
   items: nfts(
     block: {number: $block}
-    where: {owner: $ethAddress, searchItemType_in: ["wearable_v1", "wearable_v2", "smart_wearable_v1", "emote_v1"] urn_in: $urnList}
+    where: {owner_: {address: $ethAddress}, searchItemType_in: ["wearable_v1", "wearable_v2", "smart_wearable_v1", "emote_v1"] urn_in: $urnList}
     first: 1000
   ) {
     urn
