@@ -11,7 +11,9 @@ export const noWorldsConfigurationValidateFn = validateAfterADR173(async functio
 ): Promise<ValidationResponse> {
   const sceneHasWorldConfiguration = deployment.entity.metadata?.worldConfiguration !== undefined
   if (sceneHasWorldConfiguration) {
-    return validationFailed('Scenes cannot have worldConfiguration section after ADR 173.')
+    return validationFailed(
+      'Scene upload failed: the scene.json contains a worldConfiguration section which is not allowed for  Genesis City scenes ([ADR-173]( http://adr.decentraland.org/adr/ADR-173)). Please remove it and try again.'
+    )
   }
   return OK
 })
@@ -27,7 +29,9 @@ export const embeddedThumbnail = validateAfterADR236(async function validateFn(
   if (sceneThumbnail) {
     const isFilePresent = deployment.entity.content.some((content: ContentMapping) => content.file === sceneThumbnail)
     if (!isFilePresent) {
-      return validationFailed(`Scene thumbnail '${sceneThumbnail}' must be a file included in the deployment.`)
+      return validationFailed(
+        `Scene upload failed: scene thumbnail '${sceneThumbnail}' must be a file included in the deployment.`
+      )
     }
   }
   return OK

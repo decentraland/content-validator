@@ -6,11 +6,11 @@ import { ipfsHashingValidateFn } from './ipfs-hashing'
 import { emoteValidateFn } from './items/emotes'
 import { wearableValidateFn } from './items/wearables'
 import { metadataValidateFn } from './metadata-schema'
+import { createOutfitsValidateFn } from './outfits'
 import { createProfileValidateFn } from './profile'
 import { sceneValidateFn } from './scene'
 import { createSignatureValidateFn } from './signature'
 import { createSizeValidateFn } from './size'
-import { createOutfitsValidateFn } from './outfits'
 
 /**
  * @public
