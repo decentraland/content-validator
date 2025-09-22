@@ -10,7 +10,7 @@ import {
   validationFailed,
   ValidationResponse
 } from '../../types'
-import { entityParameters, skinMaxSizeInMb } from '../ADR51'
+import { entityParameters, skinMaxSizeInMb, thumbnailMaxSizeInMb } from '../ADR51'
 import { validateAfterADR45, validateAll, validateIfConditionMet } from '../validations'
 
 /** Validate item files size, excluding thumbnail, is less than expected */
@@ -31,7 +31,7 @@ export function createDeploymentMaxSizeExcludingThumbnailIsNotExceededValidateFn
       }
     }
 
-    const modelSizeInMB = maxSizeInMB - maxThumbnailSizeInB / 1024
+    const modelSizeInMB = maxSizeInMB - thumbnailMaxSizeInMb
 
     const metadata = entity.metadata as BaseItem
     const thumbnailHash = entity.content?.find(({ file }) => file === metadata.thumbnail)?.hash
@@ -42,6 +42,16 @@ export function createDeploymentMaxSizeExcludingThumbnailIsNotExceededValidateFn
     const totalDeploymentSizeInB = await calculateDeploymentSize(deployment, components.externalCalls)
     if (typeof totalDeploymentSizeInB === 'string') return validationFailed(totalDeploymentSizeInB)
     const thumbnailSize = deployment.files.get(thumbnailHash)?.byteLength ?? 0
+
+    // Check if thumbnail size exceeds the allowed maximum
+    if (thumbnailSize > thumbnailMaxSizeInMb * 1024 * 1024) {
+      return validationFailed(
+        `The thumbnail is too big. The maximum allowed size for thumbnail model files is ${thumbnailMaxSizeInMb} MB. You can upload up to ${
+          thumbnailMaxSizeInMb * 1024 * 1024
+        } bytes but you tried to upload ${thumbnailSize}.`
+      )
+    }
+
     const modelSize = totalDeploymentSizeInB - thumbnailSize
     if (modelSize > modelSizeInMB * 1024 * 1024)
       return validationFailed(
@@ -58,7 +68,7 @@ export function createDeploymentMaxSizeExcludingThumbnailIsNotExceededValidateFn
 }
 
 /** Validate that given item deployment includes a thumbnail with valid format and size */
-const maxThumbnailSizeInB = 1024
+const maxThumbnailSizeInB = thumbnailMaxSizeInMb * 1024
 
 export function createThumbnailMaxSizeIsNotExceededValidateFn(
   components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs'>
