@@ -14,7 +14,8 @@ export async function wasCreatedAfterADR74ValidateFn(deployment: DeploymentToVal
 export async function emoteRepresentationContentValidateFn(deployment: DeploymentToValidate) {
   const { entity } = deployment
   const metadata = entity.metadata as Emote
-  const representations = metadata?.emoteDataADR74?.representations
+  const representations =
+    'emoteDataADR74' in metadata ? metadata.emoteDataADR74?.representations : metadata.emoteDataADR287?.representations
   if (!representations || representations.length === 0) return validationFailed('No emote representations found')
   if (!entity.content || entity.content.length === 0) return validationFailed('No content found')
 
