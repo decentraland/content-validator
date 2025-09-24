@@ -1,4 +1,4 @@
-import { EntityType } from '@dcl/schemas'
+import { EmoteADR287, EmoteADR74, EntityType } from '@dcl/schemas'
 import {
   emoteRepresentationContentValidateFn,
   wasCreatedAfterADR74ValidateFn
@@ -10,7 +10,7 @@ import {
 import { createSizeValidateFn } from '../../../../src/validations/size'
 import { ADR_74_TIMESTAMP } from '../../../../src/validations/timestamps'
 import { buildDeployment } from '../../../setup/deployments'
-import { VALID_STANDARD_EMOTE_METADATA } from '../../../setup/emotes'
+import { VALID_SOCIAL_EMOTE_METADATA, VALID_STANDARD_EMOTE_METADATA } from '../../../setup/emotes'
 import { buildEntity } from '../../../setup/entity'
 import { buildComponents, buildExternalCalls, createImage } from '../../../setup/mock'
 
@@ -275,14 +275,36 @@ describe('Emotes', () => {
       expect(result.errors).toContain(`Representation content: 'file1' is not one of the content files`)
     })
 
-    it('emote validation without representation fails', async () => {
-      const { emoteDataADR74, ...emoteWithoutData } = { ...VALID_STANDARD_EMOTE_METADATA }
+    it('emote validation without representation fails for ADR 74', async () => {
+      const { emoteDataADR74, ...emoteWithoutData } = { ...VALID_STANDARD_EMOTE_METADATA } as EmoteADR74
       const entity = buildEntity({
         type: EntityType.EMOTE,
         metadata: {
           ...emoteWithoutData,
           emoteDataADR74: {
             ...emoteDataADR74,
+            representations: []
+          }
+        },
+        content: [
+          { file: 'notFile1', hash: '1' },
+          { file: 'file2', hash: '2' }
+        ]
+      })
+      const deployment = buildDeployment({ entity })
+      const result = await emoteRepresentationContentValidateFn(deployment)
+      expect(result.ok).toBeFalsy()
+      expect(result.errors).toContain(`No emote representations found`)
+    })
+
+    it('emote validation without representation fails for ADR 287', async () => {
+      const { emoteDataADR287, ...emoteWithoutData } = { ...VALID_SOCIAL_EMOTE_METADATA } as EmoteADR287
+      const entity = buildEntity({
+        type: EntityType.EMOTE,
+        metadata: {
+          ...emoteWithoutData,
+          emoteDataADR287: {
+            ...emoteDataADR287,
             representations: []
           }
         },

@@ -1,7 +1,9 @@
 import { generateTree } from '@dcl/content-hash-tree'
 import { keccak256Hash } from '@dcl/hashing'
 import {
+  ArmatureId,
   BodyShape,
+  Emote,
   EmoteADR74,
   EmoteCategory,
   EmoteRepresentationADR74,
@@ -28,7 +30,7 @@ const representation: EmoteRepresentationADR74 = {
   contents: ['file1', 'file2']
 }
 
-export const VALID_STANDARD_EMOTE_METADATA: EmoteADR74 & StandardProps = {
+export const VALID_STANDARD_EMOTE_METADATA: Emote & StandardProps = {
   id: 'some id',
   name: 'name',
   description: 'some description',
@@ -45,6 +47,46 @@ export const VALID_STANDARD_EMOTE_METADATA: EmoteADR74 & StandardProps = {
     tags: ['tag1'],
     representations: [representation],
     loop: true
+  },
+  thumbnail: 'thumbnail.png',
+  image: 'image.png'
+}
+
+export const VALID_SOCIAL_EMOTE_METADATA: Emote & StandardProps = {
+  id: 'some id',
+  name: 'name',
+  description: 'some description',
+  collectionAddress: '0x0000000collection_address',
+  rarity: Rarity.LEGENDARY,
+  i18n: [
+    {
+      code: Locale.EN,
+      text: 'name'
+    }
+  ],
+  emoteDataADR287: {
+    category: EmoteCategory.FUN,
+    tags: ['tag1'],
+    representations: [representation],
+    loop: false,
+    startAnimation: {
+      [ArmatureId.Armature]: {
+        animation: 'HighFive_Start',
+        loop: true
+      }
+    },
+    randomizeOutcomes: false,
+    outcomes: [
+      {
+        title: 'High Five',
+        clips: {
+          [ArmatureId.Armature]: {
+            animation: 'HighFive_Avatar',
+            loop: true
+          }
+        }
+      }
+    ]
   },
   thumbnail: 'thumbnail.png',
   image: 'image.png'
