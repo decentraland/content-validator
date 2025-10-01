@@ -341,19 +341,10 @@
   resolved "https://registry.yarnpkg.com/@dcl/hashing/-/hashing-3.0.4.tgz#4df2a4cb3a8114765aed34cb57b91c93bf33bfb3"
   integrity sha512-Cg+MoIOn+BYmQV2q8zSFnNYY+GldlnUazwBnfgrq3i66ZxOaZ65h01btd8OUtSAlfWG4VTNIOHDjtKqmuwJNBg==
 
-"@dcl/schemas@19.0.0":
-  version "19.0.0"
-  resolved "https://registry.yarnpkg.com/@dcl/schemas/-/schemas-19.0.0.tgz#791d6af050664eba03321c522bc4d4babb7bfac8"
-  integrity sha512-v5uDNp0ghVg57bLNmJZpJJBp8nMIRyCWF/t7LU7EL1jCd6frMp3+3gshBAgaeqpV3Kpe3xKcs8Q7tSCLrJQBhw==
-  dependencies:
-    ajv "^8.11.0"
-    ajv-errors "^3.0.0"
-    ajv-keywords "^5.1.0"
-    mitt "^3.0.1"
-
-"@dcl/schemas@https://sdk-team-cdn.decentraland.org/@dcl/schemas/branch/fix/emote-data-schema/dcl-schemas-19.0.1-18051230151.commit-fbc3a2c.tgz":
-  version "19.0.1-18051230151.commit-fbc3a2c"
-  resolved "https://sdk-team-cdn.decentraland.org/@dcl/schemas/branch/fix/emote-data-schema/dcl-schemas-19.0.1-18051230151.commit-fbc3a2c.tgz#7027ec9462a5db146f3797682fb99f69cc9ea300"
+"@dcl/schemas@19.2.0":
+  version "19.2.0"
+  resolved "https://registry.yarnpkg.com/@dcl/schemas/-/schemas-19.2.0.tgz#bc5a16f88230417ad0ab5e11b9c07e4be7a19be1"
+  integrity sha512-4yIUV0b1IAUajBzaQFkpIMNS7QN8uguZhyfwM4xTMnSGRN6sB0iCT5lKlSJcnIuAb/H5whoSiJWCO3is3Ljf7A==
   dependencies:
     ajv "^8.11.0"
     ajv-errors "^3.0.0"
