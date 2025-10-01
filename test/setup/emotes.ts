@@ -70,9 +70,9 @@ export const VALID_SOCIAL_EMOTE_METADATA: Emote & StandardProps = {
     representations: [representation],
     loop: false,
     startAnimation: {
+      loop: true,
       [ArmatureId.Armature]: {
-        animation: 'HighFive_Start',
-        loop: true
+        animation: 'HighFive_Start'
       }
     },
     randomizeOutcomes: false,
@@ -81,10 +81,10 @@ export const VALID_SOCIAL_EMOTE_METADATA: Emote & StandardProps = {
         title: 'High Five',
         clips: {
           [ArmatureId.Armature]: {
-            animation: 'HighFive_Avatar',
-            loop: true
+            animation: 'HighFive_Avatar'
           }
-        }
+        },
+        loop: true
       }
     ]
   },
