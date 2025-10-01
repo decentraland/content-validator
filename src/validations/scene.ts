@@ -12,7 +12,7 @@ export const noWorldsConfigurationValidateFn = validateAfterADR173(async functio
   const sceneHasWorldConfiguration = deployment.entity.metadata?.worldConfiguration !== undefined
   if (sceneHasWorldConfiguration) {
     return validationFailed(
-      'Scene upload failed: the scene.json contains a worldConfiguration section which is not allowed for  Genesis City scenes ([ADR-173]( http://adr.decentraland.org/adr/ADR-173)). Please remove it and try again.'
+      'Scene upload failed: the scene.json contains a worldConfiguration section which is not allowed for Genesis City scenes ([ADR-173]( http://adr.decentraland.org/adr/ADR-173)). Please remove it and try again.'
     )
   }
   return OK
