@@ -15,7 +15,7 @@ export async function adr45ValidateFn(deployment: DeploymentToValidate): Promise
 
   if (entityIsNotVersion3(entity) && entityWasDeployedAfterADR45(entity))
     return validationFailed(
-      'Upload failed: only entities v3 are allowed after ([ADR-45](http://adr.decentraland.org/adr/ADR-45)).'
+      'Upload failed: only entities v3 are allowed after the ADR-45. Check http://adr.decentraland.org/adr/ADR-45 for more information'
     )
 
   return OK
