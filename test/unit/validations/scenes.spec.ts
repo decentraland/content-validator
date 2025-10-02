@@ -42,7 +42,7 @@ describe('Scenes', () => {
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
-        'Scene upload failed: the scene.json contains a worldConfiguration section which is not allowed for  Genesis City scenes ([ADR-173]( http://adr.decentraland.org/adr/ADR-173)). Please remove it and try again.'
+        'The scene.json contains a worldConfiguration section, which is not allowed for Genesis City scenes (see ADR-173: http://adr.decentraland.org/adr/ADR-173). Please remove it and try again.'
       )
     })
   })
@@ -98,7 +98,7 @@ describe('Scenes', () => {
 
       expect(result.ok).toBeFalsy()
       expect(result.errors).toContain(
-        "Scene upload failed: scene thumbnail 'https://example.com/image.png' must be a file included in the deployment."
+        "Scene thumbnail 'https://example.com/image.png' must be a file included in the deployment."
       )
     })
   })
