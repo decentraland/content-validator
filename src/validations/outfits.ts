@@ -1,4 +1,5 @@
 import { EntityType, EthAddress, Outfits } from '@dcl/schemas'
+import { parseUrn } from '@dcl/urn-resolver'
 import {
   ContentValidatorComponents,
   DeploymentToValidate,
@@ -8,7 +9,6 @@ import {
   validationFailed
 } from '../types'
 import { validateAfterADR244, validateAll, validateIfTypeMatches } from './validations'
-import { parseUrn } from '@dcl/urn-resolver'
 
 export function createOutfitsPointerValidateFn(
   components: Pick<ContentValidatorComponents, 'externalCalls'>

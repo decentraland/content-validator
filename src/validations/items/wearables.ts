@@ -1,8 +1,8 @@
+import { keccak256Hash } from '@dcl/hashing'
 import { EntityType, isThirdParty, ThirdPartyProps, Wearable } from '@dcl/schemas'
 import { DeploymentToValidate } from '../..'
 import { OK, validationFailed, ValidationResponse } from '../../types'
 import { validateAll, validateIfTypeMatches } from '../validations'
-import { keccak256Hash } from '@dcl/hashing'
 
 /** Validate wearable representations are referencing valid content */
 export async function wearableRepresentationContentValidateFn(
@@ -35,7 +35,7 @@ export async function thirdPartyWearableMerkleProofContentValidateFn(
   const wearableMetadata = entity.metadata as Wearable & ThirdPartyProps
 
   // Check the id in the metadata matches the pointer being deployed
-  if (wearableMetadata.id !== entity.pointers[0]) {
+  if (wearableMetadata.id.toLowerCase() !== entity.pointers[0].toLowerCase()) {
     return validationFailed(`The id '${wearableMetadata.id}' does not match the pointer '${entity.pointers[0]}'`)
   }
 

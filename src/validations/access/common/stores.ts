@@ -38,7 +38,7 @@ export function createStoreValidateFn({
         `Store pointers should be a urn, for example (urn:decentraland:off-chain:marketplace-stores:{address}). Invalid pointer: ${pointer}`
       )
 
-    if (offchainAsset.id !== ethAddress)
+    if (offchainAsset.id.toLowerCase() !== ethAddress.toLowerCase())
       return validationFailed(
         `You can only alter your own store. The pointer address and the signer address are different (address:${offchainAsset.id.toLowerCase()} signer: ${ethAddress.toLowerCase()}).`
       )
