@@ -6,6 +6,7 @@ type Params = {
 }
 
 export const skinMaxSizeInMb = 9
+export const thumbnailMaxSizeInMb = 1
 
 export const entityParameters: Record<EntityType, Params> = {
   scene: {
