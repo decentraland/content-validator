@@ -10,13 +10,13 @@ import {
 import { createSizeValidateFn } from '../../../../src/validations/size'
 import { ADR_45_TIMESTAMP } from '../../../../src/validations/timestamps'
 import { buildDeployment } from '../../../setup/deployments'
-import { buildEntity, buildWearableEntity } from '../../../setup/entity'
-import { buildComponents, buildExternalCalls, createImage } from '../../../setup/mock'
-import { VALID_THIRD_PARTY_WEARABLE, VALID_WEARABLE_METADATA } from '../../../setup/wearable'
 import {
   VALID_THIRD_PARTY_EMOTE_METADATA_WITH_MERKLE_ROOT,
   VALID_THIRD_PARTY_WEARABLE_BASE_METADATA
 } from '../../../setup/emotes'
+import { buildEntity, buildWearableEntity } from '../../../setup/entity'
+import { buildComponents, buildExternalCalls, createImage } from '../../../setup/mock'
+import { VALID_THIRD_PARTY_WEARABLE, VALID_WEARABLE_METADATA } from '../../../setup/wearable'
 
 describe('Wearables', () => {
   const timestamp = ADR_45_TIMESTAMP + 1
@@ -146,6 +146,28 @@ describe('Wearables', () => {
       const result = await validateFn(deployment)
 
       expect(result.ok).toBeTruthy()
+    })
+
+    it('When thumbnail exceeds 1MB, it should return an error', async () => {
+      // Create a large image that will exceed 1MB when encoded as PNG
+      const largeThumbnailBuffer = await createImage(8192) // 8192x8192 image will be > 1MB
+      const content = [{ file: fileName, hash }]
+      const files = new Map([[hash, largeThumbnailBuffer]])
+      const entity = buildEntity({
+        type: EntityType.WEARABLE,
+        metadata: VALID_WEARABLE_METADATA,
+        content,
+        timestamp
+      })
+      const deployment = buildDeployment({ entity, files })
+
+      // Use the deployment size validation function instead of thumbnail dimension validation
+      const validateFn = createDeploymentMaxSizeExcludingThumbnailIsNotExceededValidateFn(components)
+      const result = await validateFn(deployment)
+      expect(result.ok).toBeFalsy()
+      expect(result.errors).toContain(
+        `The thumbnail is too big. The maximum allowed size for thumbnail model files is 1 MB. You can upload up to 1048576 bytes but you tried to upload 1328277.`
+      )
     })
   })
 
@@ -283,6 +305,34 @@ describe('Wearables', () => {
       const result = await validateFn(deployment)
 
       expect(result.ok).toBeTruthy()
+    })
+
+    it(`When thumbnail size is OK but wearable model files exceed 2MB, then it fails`, async () => {
+      const withSize = (size: number) => Buffer.alloc(size * 1024 * 1024)
+      const content = [
+        { file: 'A', hash: 'A' },
+        { file: 'B', hash: 'B' },
+        { file: 'thumbnail.png', hash: 'thumbnail' }
+      ]
+      const files = new Map([
+        ['A', withSize(1.5)], // 1.5MB
+        ['B', withSize(1.5)], // 1.5MB (total model files = 3MB, exceeds 2MB limit)
+        ['thumbnail', withSize(0.5)] // 0.5MB thumbnail (within 1MB limit)
+      ])
+      const entity = buildEntity({
+        type: EntityType.WEARABLE,
+        metadata: { thumbnail: 'thumbnail.png' },
+        content,
+        timestamp
+      })
+      const deployment = buildDeployment({ entity, files })
+      const validateFn = createDeploymentMaxSizeExcludingThumbnailIsNotExceededValidateFn(components)
+      const result = await validateFn(deployment)
+
+      expect(result.ok).toBeFalsy()
+      expect(result.errors).toContain(
+        'The deployment is too big. The maximum allowed size for wearable model files is 2 MB. You can upload up to 2097152 bytes but you tried to upload 3145728.'
+      )
     })
   })
   describe('Content:', () => {
