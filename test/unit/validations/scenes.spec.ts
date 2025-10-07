@@ -4,8 +4,8 @@ import { embeddedThumbnail, noWorldsConfigurationValidateFn } from '../../../src
 import { ADR_173_TIMESTAMP, ADR_236_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
-import { VALID_SCENE_METADATA } from '../../setup/scenes'
 import { createImage } from '../../setup/mock'
+import { VALID_SCENE_METADATA } from '../../setup/scenes'
 
 describe('Scenes', () => {
   const timestamp = ADR_173_TIMESTAMP + 1
@@ -41,7 +41,9 @@ describe('Scenes', () => {
       const result: ValidationResponse = await noWorldsConfigurationValidateFn(deployment)
 
       expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain('Scenes cannot have worldConfiguration section after ADR 173.')
+      expect(result.errors).toContain(
+        'The scene.json contains a worldConfiguration section, which is not allowed for Genesis City scenes (see ADR-173: http://adr.decentraland.org/adr/ADR-173). Please remove it and try again.'
+      )
     })
   })
 
