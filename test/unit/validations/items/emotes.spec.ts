@@ -1,4 +1,5 @@
-import { ArmatureId, EmoteADR74, EntityType } from '@dcl/schemas'
+import { ArmatureId, EntityType } from '@dcl/schemas'
+import { DeploymentToValidate } from '../../../../src'
 import {
   emoteADR287ValidateFn,
   emoteRepresentationContentValidateFn,
@@ -276,8 +277,8 @@ describe('Emotes', () => {
       expect(result.errors).toContain(`Representation content: 'file1' is not one of the content files`)
     })
 
-    it('emote validation without representation fails for ADR 74', async () => {
-      const { emoteDataADR74, ...emoteWithoutData } = { ...VALID_STANDARD_EMOTE_METADATA } as EmoteADR74
+    it('emote validation without representation fails', async () => {
+      const { emoteDataADR74, ...emoteWithoutData } = { ...VALID_STANDARD_EMOTE_METADATA }
       const entity = buildEntity({
         type: EntityType.EMOTE,
         metadata: {
@@ -341,7 +342,7 @@ describe('Emotes', () => {
 
   describe('ADR 287', () => {
     describe('when emote is a standard emote without social emote properties', () => {
-      let deployment: any
+      let deployment: DeploymentToValidate
 
       beforeEach(() => {
         const entity = buildEntity({
@@ -360,7 +361,7 @@ describe('Emotes', () => {
     })
 
     describe('when emote has all social emote properties', () => {
-      let deployment: any
+      let deployment: DeploymentToValidate
 
       beforeEach(() => {
         const entity = buildEntity({
@@ -379,10 +380,10 @@ describe('Emotes', () => {
     })
 
     describe('when emote is missing startAnimation', () => {
-      let deployment: any
+      let deployment: DeploymentToValidate
 
       beforeEach(() => {
-        const { emoteDataADR74, ...emoteWithoutData } = { ...VALID_SOCIAL_EMOTE_METADATA } as EmoteADR74
+        const { emoteDataADR74, ...emoteWithoutData } = { ...VALID_SOCIAL_EMOTE_METADATA }
         const entity = buildEntity({
           type: EntityType.EMOTE,
           metadata: {
@@ -420,10 +421,10 @@ describe('Emotes', () => {
     })
 
     describe('when emote is missing randomizeOutcomes', () => {
-      let deployment: any
+      let deployment: DeploymentToValidate
 
       beforeEach(() => {
-        const { emoteDataADR74, ...emoteWithoutData } = { ...VALID_SOCIAL_EMOTE_METADATA } as EmoteADR74
+        const { emoteDataADR74, ...emoteWithoutData } = { ...VALID_SOCIAL_EMOTE_METADATA }
         const entity = buildEntity({
           type: EntityType.EMOTE,
           metadata: {
@@ -466,10 +467,10 @@ describe('Emotes', () => {
     })
 
     describe('when emote is missing outcomes', () => {
-      let deployment: any
+      let deployment: DeploymentToValidate
 
       beforeEach(() => {
-        const { emoteDataADR74, ...emoteWithoutData } = { ...VALID_SOCIAL_EMOTE_METADATA } as EmoteADR74
+        const { emoteDataADR74, ...emoteWithoutData } = { ...VALID_SOCIAL_EMOTE_METADATA }
         const entity = buildEntity({
           type: EntityType.EMOTE,
           metadata: {
@@ -502,10 +503,10 @@ describe('Emotes', () => {
     })
 
     describe('when emote is missing multiple social emote properties', () => {
-      let deployment: any
+      let deployment: DeploymentToValidate
 
       beforeEach(() => {
-        const { emoteDataADR74, ...emoteWithoutData } = { ...VALID_SOCIAL_EMOTE_METADATA } as EmoteADR74
+        const { emoteDataADR74, ...emoteWithoutData } = { ...VALID_SOCIAL_EMOTE_METADATA }
         const entity = buildEntity({
           type: EntityType.EMOTE,
           metadata: {
@@ -538,10 +539,10 @@ describe('Emotes', () => {
     })
 
     describe('when outcomes array is empty', () => {
-      let deployment: any
+      let deployment: DeploymentToValidate
 
       beforeEach(() => {
-        const { emoteDataADR74, ...emoteWithoutData } = { ...VALID_SOCIAL_EMOTE_METADATA } as EmoteADR74
+        const { emoteDataADR74, ...emoteWithoutData } = { ...VALID_SOCIAL_EMOTE_METADATA }
         const entity = buildEntity({
           type: EntityType.EMOTE,
           metadata: {
@@ -572,10 +573,10 @@ describe('Emotes', () => {
     })
 
     describe('when outcomes array has more than 3 items', () => {
-      let deployment: any
+      let deployment: DeploymentToValidate
 
       beforeEach(() => {
-        const { emoteDataADR74, ...emoteWithoutData } = { ...VALID_SOCIAL_EMOTE_METADATA } as EmoteADR74
+        const { emoteDataADR74, ...emoteWithoutData } = { ...VALID_SOCIAL_EMOTE_METADATA }
         const entity = buildEntity({
           type: EntityType.EMOTE,
           metadata: {
@@ -643,10 +644,10 @@ describe('Emotes', () => {
     })
 
     describe('when outcomes array has exactly 3 items', () => {
-      let deployment: any
+      let deployment: DeploymentToValidate
 
       beforeEach(() => {
-        const { emoteDataADR74, ...emoteWithoutData } = { ...VALID_SOCIAL_EMOTE_METADATA } as EmoteADR74
+        const { emoteDataADR74, ...emoteWithoutData } = { ...VALID_SOCIAL_EMOTE_METADATA }
         const entity = buildEntity({
           type: EntityType.EMOTE,
           metadata: {
@@ -704,7 +705,7 @@ describe('Emotes', () => {
     })
 
     describe('when outcomes array has 1 item', () => {
-      let deployment: any
+      let deployment: DeploymentToValidate
 
       beforeEach(() => {
         const entity = buildEntity({

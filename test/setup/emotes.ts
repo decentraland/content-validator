@@ -4,7 +4,6 @@ import {
   ArmatureId,
   BodyShape,
   Emote,
-  EmoteADR74,
   EmoteCategory,
   EmoteRepresentationADR74,
   Locale,
@@ -92,7 +91,7 @@ export const VALID_SOCIAL_EMOTE_METADATA: Emote & StandardProps = {
   image: 'image.png'
 }
 
-export const VALID_THIRD_PARTY_WEARABLE_BASE_METADATA: Omit<EmoteADR74 & ThirdPartyProps, 'merkleProof'> = {
+export const VALID_THIRD_PARTY_WEARABLE_BASE_METADATA: Omit<Emote & ThirdPartyProps, 'merkleProof'> = {
   id: 'urn:decentraland:amoy:collections-thirdparty:jean-pier:someCollection:someItemId',
   name: 'name',
   description: 'some description',
@@ -125,14 +124,14 @@ export const VALID_THIRD_PARTY_EMOTE_METADATA_WITH_MERKLE_ROOT = buildEntityMeta
 
 // Using the entity, the keys to be hashed and the other node hashes, build the merkle proof for the entity and return a new proofed entity.
 function buildEntityMetadataWithMerkleProof(
-  baseEntity: Omit<EmoteADR74 & ThirdPartyProps, 'merkleProof'>,
+  baseEntity: Omit<Emote & ThirdPartyProps, 'merkleProof'>,
   otherNodeHashes: string[]
-): { root: string; entity: EmoteADR74 & ThirdPartyProps } {
+): { root: string; entity: Emote & ThirdPartyProps } {
   const entityHash = keccak256Hash(baseEntity, EMOTE_MERKLE_PROOF_REQUIRED_KEYS)
   const sortedHashes = [...otherNodeHashes, entityHash].sort()
   const tree = generateTree(sortedHashes)
   const entityProof = tree.proofs[entityHash]
-  const thirdPartyEmote: EmoteADR74 & ThirdPartyProps = {
+  const thirdPartyEmote: Emote & ThirdPartyProps = {
     ...baseEntity,
     merkleProof: {
       index: entityProof.index,
