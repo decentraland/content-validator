@@ -17,6 +17,45 @@ export const createTheGraphClient = (
 ): TheGraphClient => {
   const logger = components.logs.getLogger('TheGraphClient')
 
+  const ownsAnyNameAtTimestamp = async (ethAddress: EthAddress, timestamp: number): Promise<PermissionResult> => {
+    const blocks = await findBlocksForTimestamp(components.subGraphs.L1.blocks, timestamp)
+
+    const hasPermissionOnBlock = async (blockNumber: number | undefined): Promise<PermissionResult> => {
+      if (!blockNumber) {
+        return permissionError()
+      }
+
+      const runOwnedNamesOnBlockQuery = async (blockNumber: number) => {
+        const query: Query<{ names: { name: string }[] }, Set<string>> = {
+          description: 'check for any name ownership',
+          subgraph: components.subGraphs.L1.ensOwner,
+          query: QUERY_ANY_NAME_FOR_ADDRESS_AT_BLOCK,
+          mapper: (response: { names: { name: string }[] }): Set<string> =>
+            new Set(response.names.map(({ name }) => name))
+        }
+        return runQuery(query, {
+          block: blockNumber,
+          ethAddress
+        })
+      }
+
+      try {
+        const ownedName = await runOwnedNamesOnBlockQuery(blockNumber)
+        return ownedName.size > 0 ? permissionOk() : permissionError()
+      } catch {
+        logger.error(`Error retrieving any name owned by address ${ethAddress} at block ${blockNumber}`)
+        return permissionError()
+      }
+    }
+
+    const permissionMostRecentBlock = await hasPermissionOnBlock(blocks.blockNumberAtDeployment)
+    if (permissionMostRecentBlock.result) {
+      return permissionMostRecentBlock
+    }
+
+    return await hasPermissionOnBlock(blocks.blockNumberFiveMinBeforeDeployment)
+  }
+
   const ownsNamesAtTimestamp = async (
     ethAddress: EthAddress,
     namesToCheck: string[],
@@ -242,6 +281,7 @@ export const createTheGraphClient = (
   }
 
   return {
+    ownsAnyNameAtTimestamp,
     ownsNamesAtTimestamp,
     ownsItemsAtTimestamp,
     findBlocksForTimestamp
@@ -274,6 +314,17 @@ query getNftNamesForBlock($block: Int!, $ethAddress: Bytes!, $nameList: [String!
     block: {number: $block}
     where: {owner_: {address: $ethAddress},, category: ens, name_in: $nameList}
     first: 1000
+  ) {
+    name
+  }
+}`
+
+const QUERY_ANY_NAME_FOR_ADDRESS_AT_BLOCK = `
+query getAnyNameForBlock($block: Int!, $ethAddress: Bytes!) {
+  name: nfts(
+    block: {number: $block}
+    where: {owner_: {address: $ethAddress}, category: ens}
+    first: 1
   ) {
     name
   }

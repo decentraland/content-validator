@@ -160,6 +160,7 @@ export type SubGraphs = {
 
 export type NamesOwnership = {
   ownsNamesAtTimestamp: (ethAddress: EthAddress, namesToCheck: string[], timestamp: number) => Promise<PermissionResult>
+  ownsAnyNameAtTimestamp: (ethAddress: EthAddress, timestamp: number) => Promise<PermissionResult>
 }
 
 export type ItemsOwnership = {

@@ -53,15 +53,13 @@ export function createOutfitsNamesOwnershipValidateFn(
 ): ValidateFn {
   return async function validateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
     const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
-    const namesForExtraSlots: string[] = deployment.entity.metadata.namesForExtraSlots
-    const names = namesForExtraSlots.filter((name: string) => name && name.trim().length > 0)
-    const namesCheckResult = await namesOwnership.ownsNamesAtTimestamp(ethAddress, names, deployment.entity.timestamp)
-    if (!namesCheckResult.result)
-      return validationFailed(
-        `The following names (${namesCheckResult.failing?.join(
-          ', '
-        )}) are not owned by the address ${ethAddress.toLowerCase()}).`
-      )
+    const outfits = deployment.entity.metadata as Outfits
+    const extraOutfits = outfits.outfits.filter((outfit) => outfit.slot > 4)
+    if (extraOutfits.length > 0) {
+      const namesCheckResult = await namesOwnership.ownsAnyNameAtTimestamp(ethAddress, deployment.entity.timestamp)
+      if (!namesCheckResult.result)
+        return validationFailed(`The address ${ethAddress.toLowerCase()} does not own any name.`)
+    }
     return OK
   }
 }

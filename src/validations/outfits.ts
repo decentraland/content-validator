@@ -65,21 +65,6 @@ export async function outfitSlotsAreBetween0and9inclusiveValidateFn(
   return OK
 }
 
-export async function outfitsNumberOfNamesForExtraSlotsIsCorrectValidateFn(
-  deployment: DeploymentToValidate
-): Promise<ValidationResponse> {
-  const outfits = deployment.entity.metadata as Outfits
-  const extraOutfits = outfits.outfits.filter((outfit) => outfit.slot > 4)
-  const expectedNumberOfNames = extraOutfits.length
-  const numberOfUniqueNames = new Set(outfits.namesForExtraSlots).size
-  if (numberOfUniqueNames !== expectedNumberOfNames) {
-    return validationFailed(
-      `There must be exactly one name for each extra slot. Provided ${numberOfUniqueNames} unique names but expected ${expectedNumberOfNames}`
-    )
-  }
-  return OK
-}
-
 export const outfitsWearableUrnsIncludeTokenIdFn = validateAfterADR244(async function (
   deployment: DeploymentToValidate
 ): Promise<ValidationResponse> {
@@ -115,7 +100,6 @@ export function createOutfitsValidateFn(components: ContentValidatorComponents):
     validateAll(
       createOutfitsPointerValidateFn(components),
       outfitSlotsAreNotRepeatedValidateFn,
-      outfitsNumberOfNamesForExtraSlotsIsCorrectValidateFn,
       outfitsWearableUrnsIncludeTokenIdFn
     )
   )
