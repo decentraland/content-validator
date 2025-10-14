@@ -197,7 +197,7 @@ describe('outfitSlotsAreBetween0and9inclusiveValidateFn', () => {
 })
 
 describe('outfitsNumberOfNamesForExtraSlotsIsCorrectValidateFn', () => {
-  it('does not fail when no names and no extra slots (from 5 to 9 inclusive)', async () => {
+  it('does not fail when no names and no extra slots (slots 0-4)', async () => {
     const pointer = `${ownerAddress}:outfits`
     const entity: TypedEntity<Outfits> = {
       version: '3',
@@ -217,7 +217,7 @@ describe('outfitsNumberOfNamesForExtraSlotsIsCorrectValidateFn', () => {
     expect(result.ok).toBeTruthy()
   })
 
-  it('does not fail when the provided names size is equal to the extra slots (from 5 to 9 inclusive) ', async () => {
+  it('does not fail when names are provided and extra slots are used (slots 5-9)', async () => {
     const pointer = `${ownerAddress}:outfits`
     const entity: TypedEntity<Outfits> = {
       version: '3',
@@ -227,16 +227,8 @@ describe('outfitsNumberOfNamesForExtraSlotsIsCorrectValidateFn', () => {
       content: [],
       id: 'bafybeihz4c4cf4icnlh6yjtt7fooaeih3dkv2mz6umod7dybenzmsxkzvq',
       metadata: {
-        outfits: [
-          outfitWithSlot(1),
-          outfitWithSlot(4),
-          outfitWithSlot(5),
-          outfitWithSlot(6),
-          outfitWithSlot(7),
-          outfitWithSlot(8),
-          outfitWithSlot(9)
-        ],
-        namesForExtraSlots: ['name1', 'name2', 'name3', 'name4', 'name5']
+        outfits: [outfitWithSlot(1), outfitWithSlot(4), outfitWithSlot(5), outfitWithSlot(6), outfitWithSlot(7)],
+        namesForExtraSlots: ['name1', 'name2', 'name3']
       }
     }
     const deployment = buildDeployment({ entity })
@@ -245,7 +237,7 @@ describe('outfitsNumberOfNamesForExtraSlotsIsCorrectValidateFn', () => {
     expect(result.ok).toBeTruthy()
   })
 
-  it('fails when the provided names size is not equal to the extra slots (from 5 to 9 inclusive)', async () => {
+  it('fails when extra slots are used but no names are provided', async () => {
     const pointer = `${ownerAddress}:outfits`
     const entity: TypedEntity<Outfits> = {
       version: '3',
@@ -255,16 +247,8 @@ describe('outfitsNumberOfNamesForExtraSlotsIsCorrectValidateFn', () => {
       content: [],
       id: 'bafybeihz4c4cf4icnlh6yjtt7fooaeih3dkv2mz6umod7dybenzmsxkzvq',
       metadata: {
-        outfits: [
-          outfitWithSlot(1),
-          outfitWithSlot(4),
-          outfitWithSlot(5),
-          outfitWithSlot(6),
-          outfitWithSlot(7),
-          outfitWithSlot(8),
-          outfitWithSlot(9)
-        ],
-        namesForExtraSlots: ['name1', 'name2', 'name3', 'name4']
+        outfits: [outfitWithSlot(1), outfitWithSlot(4), outfitWithSlot(5), outfitWithSlot(6)],
+        namesForExtraSlots: []
       }
     }
     const deployment = buildDeployment({ entity })
@@ -273,43 +257,7 @@ describe('outfitsNumberOfNamesForExtraSlotsIsCorrectValidateFn', () => {
     expect(result.ok).toBeFalsy()
     expect(result.errors).toBeDefined()
     if (result.errors) {
-      expect(result.errors[0]).toEqual(
-        'There must be exactly one name for each extra slot. Provided 4 unique names but expected 5'
-      )
-    }
-  })
-
-  it('fails when the provided names size is equal to the extra slots (from 5 to 9 inclusive) but there are repeated names', async () => {
-    const pointer = `${ownerAddress}:outfits`
-    const entity: TypedEntity<Outfits> = {
-      version: '3',
-      type: EntityType.OUTFITS,
-      pointers: [pointer],
-      timestamp: Date.now(),
-      content: [],
-      id: 'bafybeihz4c4cf4icnlh6yjtt7fooaeih3dkv2mz6umod7dybenzmsxkzvq',
-      metadata: {
-        outfits: [
-          outfitWithSlot(1),
-          outfitWithSlot(4),
-          outfitWithSlot(5),
-          outfitWithSlot(6),
-          outfitWithSlot(7),
-          outfitWithSlot(8),
-          outfitWithSlot(9)
-        ],
-        namesForExtraSlots: ['name1', 'name2', 'name3', 'name4', 'name4']
-      }
-    }
-    const deployment = buildDeployment({ entity })
-
-    const result = await outfitsNumberOfNamesForExtraSlotsIsCorrectValidateFn(deployment)
-    expect(result.ok).toBeFalsy()
-    expect(result.errors).toBeDefined()
-    if (result.errors) {
-      expect(result.errors[0]).toEqual(
-        'There must be exactly one name for each extra slot. Provided 4 unique names but expected 5'
-      )
+      expect(result.errors[0]).toEqual('A name must be provided if extra slots are used, but none were provided.')
     }
   })
 })
