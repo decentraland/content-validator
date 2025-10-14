@@ -64,7 +64,7 @@ export const VALID_SOCIAL_EMOTE_METADATA: Emote & StandardProps = {
       text: 'name'
     }
   ],
-  emoteDataADR287: {
+  emoteDataADR74: {
     category: EmoteCategory.FUN,
     tags: ['tag1'],
     representations: [representation],

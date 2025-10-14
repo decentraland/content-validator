@@ -3,6 +3,8 @@ import { DeploymentToValidate, OK, validationFailed, ValidationResponse } from '
 import { ADR_74_TIMESTAMP } from '../timestamps'
 import { validateAll, validateIfTypeMatches } from '../validations'
 
+const MAX_SOCIAL_EMOTE_OUTCOMES = 3
+
 export async function wasCreatedAfterADR74ValidateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
   return deployment.entity.timestamp < ADR_74_TIMESTAMP
     ? validationFailed(
@@ -14,8 +16,7 @@ export async function wasCreatedAfterADR74ValidateFn(deployment: DeploymentToVal
 export async function emoteRepresentationContentValidateFn(deployment: DeploymentToValidate) {
   const { entity } = deployment
   const metadata = entity.metadata as Emote
-  const representations =
-    'emoteDataADR74' in metadata ? metadata.emoteDataADR74?.representations : metadata.emoteDataADR287?.representations
+  const representations = metadata?.emoteDataADR74?.representations
   if (!representations || representations.length === 0) return validationFailed('No emote representations found')
   if (!entity.content || entity.content.length === 0) return validationFailed('No content found')
 
@@ -29,7 +30,45 @@ export async function emoteRepresentationContentValidateFn(deployment: Deploymen
   return OK
 }
 
+export async function emoteADR287ValidateFn(deployment: DeploymentToValidate) {
+  const { entity } = deployment
+  const metadata = entity.metadata as Emote
+  const data = metadata?.emoteDataADR74
+  if (!data) return validationFailed('No emote data found')
+
+  // Check for social emote flow properties
+  const hasStartAnimation = 'startAnimation' in data && data.startAnimation !== undefined
+  const hasRandomizeOutcomes = 'randomizeOutcomes' in data && data.randomizeOutcomes !== undefined
+  const hasOutcomes = 'outcomes' in data && data.outcomes !== undefined
+
+  const socialEmoteProps = [hasStartAnimation, hasRandomizeOutcomes, hasOutcomes]
+  const anyPresent = socialEmoteProps.some((prop) => prop)
+  const allPresent = socialEmoteProps.every((prop) => prop)
+
+  if (anyPresent && !allPresent) {
+    const missing = []
+    if (!hasStartAnimation) missing.push('startAnimation')
+    if (!hasRandomizeOutcomes) missing.push('randomizeOutcomes')
+    if (!hasOutcomes) missing.push('outcomes')
+    return validationFailed(
+      `For social emote definition, all properties must be present. Missing: ${missing.join(', ')}`
+    )
+  }
+
+  // Validate outcomes length
+  if (hasOutcomes && data.outcomes) {
+    if (data.outcomes.length === 0) {
+      return validationFailed('Outcomes array cannot be empty')
+    }
+    if (data.outcomes.length > MAX_SOCIAL_EMOTE_OUTCOMES) {
+      return validationFailed(`Outcomes array can contain up to ${MAX_SOCIAL_EMOTE_OUTCOMES} items`)
+    }
+  }
+
+  return OK
+}
+
 export const emoteValidateFn = validateIfTypeMatches(
   EntityType.EMOTE,
-  validateAll(wasCreatedAfterADR74ValidateFn, emoteRepresentationContentValidateFn)
+  validateAll(wasCreatedAfterADR74ValidateFn, emoteRepresentationContentValidateFn, emoteADR287ValidateFn)
 )
