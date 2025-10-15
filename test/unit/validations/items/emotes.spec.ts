@@ -420,6 +420,135 @@ describe('Emotes', () => {
       })
     })
 
+    describe('when startAnimation has an invalid property', () => {
+      let deployment: DeploymentToValidate
+
+      describe('and the required armature is not present', () => {
+        beforeEach(() => {
+          const { emoteDataADR74, ...emoteWithoutData } = { ...VALID_SOCIAL_EMOTE_METADATA }
+
+          const entity = buildEntity({
+            type: EntityType.EMOTE,
+            metadata: {
+              ...emoteWithoutData,
+              emoteDataADR74: {
+                ...emoteDataADR74,
+                startAnimation: {
+                  loop: true,
+                  [ArmatureId.Armature_Prop]: {
+                    animation: 'HighFive_Start'
+                  }
+                },
+                randomizeOutcomes: false,
+                outcomes: [
+                  {
+                    title: 'Outcome 1',
+                    clips: {
+                      [ArmatureId.Armature]: {
+                        animation: 'Animation_1'
+                      }
+                    },
+                    loop: true
+                  },
+                  {
+                    title: 'Outcome 2',
+                    clips: {
+                      [ArmatureId.Armature]: {
+                        animation: 'Animation_2'
+                      }
+                    },
+                    loop: true
+                  },
+                  {
+                    title: 'Outcome 3',
+                    clips: {
+                      [ArmatureId.Armature]: {
+                        animation: 'Animation_3'
+                      }
+                    },
+                    loop: true
+                  }
+                ]
+              }
+            },
+            content: [{ file: 'file1', hash: '1' }],
+            timestamp: timestampAfterADR74
+          })
+          deployment = buildDeployment({ entity })
+        })
+
+        it('should return validation error for invalid startAnimation', async () => {
+          const result = await emoteADR287ValidateFn(deployment)
+          expect(result.ok).toBeFalsy()
+          expect(result.errors).toContain('Some properties of StartAnimation are not valid')
+        })
+      })
+
+      describe('and we send an invalid armature', () => {
+        beforeEach(() => {
+          const { emoteDataADR74, ...emoteWithoutData } = { ...VALID_SOCIAL_EMOTE_METADATA }
+
+          const entity = buildEntity({
+            type: EntityType.EMOTE,
+            metadata: {
+              ...emoteWithoutData,
+              emoteDataADR74: {
+                ...emoteDataADR74,
+                startAnimation: {
+                  loop: true,
+                  [ArmatureId.Armature]: {
+                    animation: 'HighFive_Start'
+                  },
+                  SomeArmature: {
+                    animation: 'Animation'
+                  }
+                },
+                randomizeOutcomes: false,
+                outcomes: [
+                  {
+                    title: 'Outcome 1',
+                    clips: {
+                      [ArmatureId.Armature]: {
+                        animation: 'Animation_1'
+                      }
+                    },
+                    loop: true
+                  },
+                  {
+                    title: 'Outcome 2',
+                    clips: {
+                      [ArmatureId.Armature]: {
+                        animation: 'Animation_2'
+                      }
+                    },
+                    loop: true
+                  },
+                  {
+                    title: 'Outcome 3',
+                    clips: {
+                      [ArmatureId.Armature]: {
+                        animation: 'Animation_3'
+                      }
+                    },
+                    loop: true
+                  }
+                ]
+              }
+            },
+            content: [{ file: 'file1', hash: '1' }],
+            timestamp: timestampAfterADR74
+          })
+          deployment = buildDeployment({ entity })
+        })
+
+        it('should return validation error for invalid startAnimation', async () => {
+          const result = await emoteADR287ValidateFn(deployment)
+          expect(result.ok).toBeFalsy()
+          expect(result.errors).toContain('Some properties of StartAnimation are not valid')
+        })
+      })
+    })
+
     describe('when emote is missing randomizeOutcomes', () => {
       let deployment: DeploymentToValidate
 
@@ -720,6 +849,69 @@ describe('Emotes', () => {
       it('should pass validation', async () => {
         const result = await emoteADR287ValidateFn(deployment)
         expect(result.ok).toBeTruthy()
+      })
+    })
+
+    describe('when outcomes array has an invalid outcome', () => {
+      let deployment: DeploymentToValidate
+
+      beforeEach(() => {
+        const { emoteDataADR74, ...emoteWithoutData } = { ...VALID_SOCIAL_EMOTE_METADATA }
+
+        const entity = buildEntity({
+          type: EntityType.EMOTE,
+          metadata: {
+            ...emoteWithoutData,
+            emoteDataADR74: {
+              ...emoteDataADR74,
+              startAnimation: {
+                loop: true,
+                [ArmatureId.Armature]: {
+                  animation: 'HighFive_Start'
+                }
+              },
+              randomizeOutcomes: false,
+              outcomes: [
+                {
+                  title: 'Outcome 1',
+                  clips: {
+                    [ArmatureId.Armature]: {
+                      animation: 'Animation_1'
+                    }
+                  },
+                  loop: true
+                },
+                {
+                  title: 'Outcome 2',
+                  clips: {
+                    [ArmatureId.Armature]: {
+                      animation: 'Animation_2'
+                    }
+                  },
+                  loop: true
+                },
+                {
+                  title2: 'Outcome 3',
+                  clips: {
+                    [ArmatureId.Armature]: {
+                      animation: 'Animation_3'
+                    }
+                  },
+                  loop: true
+                }
+              ]
+            }
+          },
+          content: [{ file: 'file1', hash: '1' }],
+          timestamp: timestampAfterADR74
+        })
+        deployment = buildDeployment({ entity })
+      })
+
+      it('should return validation error for invalid outcome', async () => {
+        const result = await emoteADR287ValidateFn(deployment)
+        expect(result.ok).toBeFalsy()
+        expect(result.errors).toContain('Some properties of Outcome are not valid')
       })
     })
   })

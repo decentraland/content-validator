@@ -1,4 +1,4 @@
-import { Emote, EntityType } from '@dcl/schemas'
+import { Emote, EntityType, OutcomeGroup, StartAnimation } from '@dcl/schemas'
 import { DeploymentToValidate, OK, validationFailed, ValidationResponse } from '../../types'
 import { ADR_74_TIMESTAMP } from '../timestamps'
 import { validateAll, validateIfTypeMatches } from '../validations'
@@ -55,6 +55,14 @@ export async function emoteADR287ValidateFn(deployment: DeploymentToValidate) {
     )
   }
 
+  // Validate startAnimation
+  if (hasStartAnimation && data.startAnimation) {
+    const result = StartAnimation.validate(data.startAnimation)
+    if (!result) {
+      return validationFailed('Some properties of StartAnimation are not valid')
+    }
+  }
+
   // Validate outcomes length
   if (hasOutcomes && data.outcomes) {
     if (data.outcomes.length === 0) {
@@ -62,6 +70,12 @@ export async function emoteADR287ValidateFn(deployment: DeploymentToValidate) {
     }
     if (data.outcomes.length > MAX_SOCIAL_EMOTE_OUTCOMES) {
       return validationFailed(`Outcomes array can contain up to ${MAX_SOCIAL_EMOTE_OUTCOMES} items`)
+    }
+    for (const outcome of data.outcomes) {
+      const result = OutcomeGroup.validate(outcome)
+      if (!result) {
+        return validationFailed('Some properties of Outcome are not valid')
+      }
     }
   }
 
