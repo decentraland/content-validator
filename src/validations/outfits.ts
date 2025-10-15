@@ -70,12 +70,8 @@ export async function outfitsNumberOfNamesForExtraSlotsIsCorrectValidateFn(
 ): Promise<ValidationResponse> {
   const outfits = deployment.entity.metadata as Outfits
   const extraOutfits = outfits.outfits.filter((outfit) => outfit.slot > 4)
-  const expectedNumberOfNames = extraOutfits.length
-  const numberOfUniqueNames = new Set(outfits.namesForExtraSlots).size
-  if (numberOfUniqueNames !== expectedNumberOfNames) {
-    return validationFailed(
-      `There must be exactly one name for each extra slot. Provided ${numberOfUniqueNames} unique names but expected ${expectedNumberOfNames}`
-    )
+  if (extraOutfits.length > 0 && outfits.namesForExtraSlots.length === 0) {
+    return validationFailed(`A name must be provided if extra slots are used, but none were provided.`)
   }
   return OK
 }
