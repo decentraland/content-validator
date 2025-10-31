@@ -164,7 +164,13 @@ export const createTheGraphClient = (
         for (const urn of urnsToCheck) {
           if (urn.type === 'blockchain-collection-v1-item' || urn.type === 'blockchain-collection-v2-item') {
             const { assetUrn, tokenId } = getTokenIdAndAssetUrn(urn.urn)
-            if (!ownedItemsArray.some((item) => item.urn === assetUrn && item.tokenId === tokenId)) {
+            if (
+              !ownedItemsArray.some(
+                (item) =>
+                  item.urn.toLowerCase() === assetUrn.toLowerCase() &&
+                  item.tokenId.toLowerCase() === tokenId.toLowerCase()
+              )
+            ) {
               notOwned.push(urn.urn)
             }
           } else if (!ownedItemsArray.some((item) => item.urn === urn.urn)) {
