@@ -33,7 +33,7 @@ To make Catalysts accept deployments of new entity types, they must have defined
 3. Add entity type and access checker in [access.ts](./src/validations/access-checker/access.ts).
    a. Verify entity pointers can be resolved. If required add a new resolver in [@dcl/urn-resolver](https://github.com/decentraland/urn-resolver).
 
-## 🤖 AI Agent Context
+## AI Agent Context
 
 **Service Purpose:** Validates entity deployments to Decentraland Catalysts. Provides comprehensive validation functions for entity structure, metadata, access permissions, content integrity, and size constraints. Used by all Catalyst servers to ensure only valid and authorized content is deployed.
 
