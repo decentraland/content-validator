@@ -42,7 +42,7 @@
     "@dcl/block-indexer": "^1.1.2",
     "@dcl/content-hash-tree": "^1.1.4",
     "@dcl/hashing": "^3.0.4",
-    "@dcl/schemas": "https://sdk-team-cdn.decentraland.org/@dcl/schemas/branch/fix/add-validation-to-schema/dcl-schemas-19.4.1-18535538910.commit-7d5099f.tgz",
+    "@dcl/schemas": "^19.8.0",
     "@dcl/urn-resolver": "^3.6.0",
     "@well-known-components/interfaces": "^1.4.3",
     "@well-known-components/thegraph-component": "^1.6.0",
