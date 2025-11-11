@@ -1,6 +1,7 @@
 import { generateTree } from '@dcl/content-hash-tree'
 import { keccak256Hash } from '@dcl/hashing'
 import {
+  ArmatureId,
   BodyShape,
   Emote,
   EmoteCategory,
@@ -45,6 +46,46 @@ export const VALID_STANDARD_EMOTE_METADATA: Emote & StandardProps = {
     tags: ['tag1'],
     representations: [representation],
     loop: true
+  },
+  thumbnail: 'thumbnail.png',
+  image: 'image.png'
+}
+
+export const VALID_SOCIAL_EMOTE_METADATA: Emote & StandardProps = {
+  id: 'some id',
+  name: 'name',
+  description: 'some description',
+  collectionAddress: '0x0000000collection_address',
+  rarity: Rarity.LEGENDARY,
+  i18n: [
+    {
+      code: Locale.EN,
+      text: 'name'
+    }
+  ],
+  emoteDataADR74: {
+    category: EmoteCategory.FUN,
+    tags: ['tag1'],
+    representations: [representation],
+    loop: false,
+    startAnimation: {
+      loop: true,
+      [ArmatureId.Armature]: {
+        animation: 'HighFive_Start'
+      }
+    },
+    randomizeOutcomes: false,
+    outcomes: [
+      {
+        title: 'High Five',
+        clips: {
+          [ArmatureId.Armature]: {
+            animation: 'HighFive_Avatar'
+          }
+        },
+        loop: true
+      }
+    ]
   },
   thumbnail: 'thumbnail.png',
   image: 'image.png'
