@@ -45,6 +45,11 @@ export async function emoteADR287ValidateFn(deployment: DeploymentToValidate) {
   const anyPresent = socialEmoteProps.some((prop) => prop)
   const allPresent = socialEmoteProps.every((prop) => prop)
 
+  if (!anyPresent) {
+    // ADR 287 only validates social emotes, so if no social emote properties are present, return OK
+    return OK
+  }
+
   if (anyPresent && !allPresent) {
     const missing = []
     if (!hasStartAnimation) missing.push('startAnimation')
