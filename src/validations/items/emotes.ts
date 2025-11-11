@@ -34,53 +34,47 @@ export async function emoteADR287ValidateFn(deployment: DeploymentToValidate) {
   const { entity } = deployment
   const metadata = entity.metadata as Emote
   const data = metadata?.emoteDataADR74
-  if (!data) return validationFailed('No emote data found')
 
-  // Check for social emote flow properties
-  const hasStartAnimation = 'startAnimation' in data && data.startAnimation !== undefined
-  const hasRandomizeOutcomes = 'randomizeOutcomes' in data && data.randomizeOutcomes !== undefined
-  const hasOutcomes = 'outcomes' in data && data.outcomes !== undefined
+  if (!data) {
+    return validationFailed('No emote data found')
+  }
 
-  const socialEmoteProps = [hasStartAnimation, hasRandomizeOutcomes, hasOutcomes]
-  const anyPresent = socialEmoteProps.some((prop) => prop)
-  const allPresent = socialEmoteProps.every((prop) => prop)
+  // Check for social emote properties
+  const requiredProperties = ['startAnimation', 'randomizeOutcomes', 'outcomes'] as const
+  const presentProperties = requiredProperties.filter((prop) => data[prop] !== undefined)
 
-  if (!anyPresent) {
-    // ADR 287 only validates social emotes, so if no social emote properties are present, return OK
+  // Not a social emote if no properties are present
+  if (presentProperties.length === 0) {
     return OK
   }
 
-  if (anyPresent && !allPresent) {
-    const missing = []
-    if (!hasStartAnimation) missing.push('startAnimation')
-    if (!hasRandomizeOutcomes) missing.push('randomizeOutcomes')
-    if (!hasOutcomes) missing.push('outcomes')
+  if (presentProperties.length < requiredProperties.length) {
+    const missingProperties = requiredProperties.filter((prop) => data[prop] === undefined)
     return validationFailed(
-      `For social emote definition, all properties must be present. Missing: ${missing.join(', ')}`
+      `For social emote definition, all properties must be present. Missing: ${missingProperties.join(', ')}`
     )
   }
 
+  const { startAnimation, outcomes } = data
+
   // Validate startAnimation
-  if (hasStartAnimation && data.startAnimation) {
-    const result = StartAnimation.validate(data.startAnimation)
-    if (!result) {
-      return validationFailed('Some properties of StartAnimation are not valid')
-    }
+  if (!StartAnimation.validate(startAnimation)) {
+    return validationFailed('Some properties of StartAnimation are not valid')
   }
 
   // Validate outcomes length
-  if (hasOutcomes && data.outcomes) {
-    if (data.outcomes.length === 0) {
-      return validationFailed('Outcomes array cannot be empty')
-    }
-    if (data.outcomes.length > MAX_SOCIAL_EMOTE_OUTCOMES) {
-      return validationFailed(`Outcomes array can contain up to ${MAX_SOCIAL_EMOTE_OUTCOMES} items`)
-    }
-    for (const outcome of data.outcomes) {
-      const result = OutcomeGroup.validate(outcome)
-      if (!result) {
-        return validationFailed('Some properties of Outcome are not valid')
-      }
+  if (!outcomes || outcomes.length === 0) {
+    return validationFailed('Outcomes array cannot be empty')
+  }
+
+  if (outcomes.length > MAX_SOCIAL_EMOTE_OUTCOMES) {
+    return validationFailed(`Outcomes array can contain up to ${MAX_SOCIAL_EMOTE_OUTCOMES} items`)
+  }
+
+  // Validate each outcome
+  for (const outcome of outcomes) {
+    if (!OutcomeGroup.validate(outcome)) {
+      return validationFailed('Some properties of Outcome are not valid')
     }
   }
 
