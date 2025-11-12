@@ -32,7 +32,7 @@ type ADR = {
  * to the creation of that ADR. Each timeline is sorted by timestamp.
  * The idea behind this is the ability to version schemas over the time, but run validations
  * according with the deployment original time. (Imagining starting a Content Server from scratch,
- * it will have to sync deployments since the launcha date).
+ * it will have to sync deployments since the launch date).
  * See ADR 74 for more details of schema versioning.
  */
 const ADRMetadataVersionTimelines: Record<EntityType, ADR[]> = {
