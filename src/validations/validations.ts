@@ -1,11 +1,12 @@
 import { EntityType } from '@dcl/schemas'
 import { DeploymentToValidate, OK, ValidateFn } from '../types'
 import {
-  ADR_158_TIMESTAMP,
   ADR_173_TIMESTAMP,
   ADR_232_TIMESTAMP,
   ADR_236_TIMESTAMP,
   ADR_244_TIMESTAMP,
+  ADR_290_OPTIONAL_TIMESTAMP,
+  ADR_290_REJECTED_TIMESTAMP,
   ADR_45_TIMESTAMP,
   ADR_74_TIMESTAMP,
   ADR_75_TIMESTAMP
@@ -48,10 +49,6 @@ export function validateAfterADR74(validate: ValidateFn): ValidateFn {
   return validateIfConditionMet((deployment) => deployment.entity.timestamp >= ADR_74_TIMESTAMP, validate)
 }
 
-export function validateAfterADR158(validate: ValidateFn): ValidateFn {
-  return validateIfConditionMet((deployment) => deployment.entity.timestamp >= ADR_158_TIMESTAMP, validate)
-}
-
 export function validateAfterADR173(validate: ValidateFn): ValidateFn {
   return validateIfConditionMet((deployment) => deployment.entity.timestamp >= ADR_173_TIMESTAMP, validate)
 }
@@ -70,4 +67,30 @@ export function validateAfterADR244(validate: ValidateFn): ValidateFn {
 
 export function validateIfTypeMatches(entityType: EntityType, validate: ValidateFn) {
   return validateIfConditionMet((deployment) => deployment.entity.type === entityType, validate)
+}
+
+export function validateAfterADR290RejectedTimestamp(validate: ValidateFn): ValidateFn {
+  return validateIfConditionMet((deployment) => deployment.entity.timestamp >= ADR_290_REJECTED_TIMESTAMP, validate)
+}
+
+/**
+ * Validates only for profile entities after the provided timestamp and before the rejected timestamp.
+ * In the optionality period, validate only for profiles that have content files, files uploaded or snapshots present.
+ * @public
+ */
+export function validateUpToADR290OptionalityTimestamp(fromTimestamp: number, validate: ValidateFn): ValidateFn {
+  return validateIfConditionMet(
+    (deployment) =>
+      // Validate before the rejected timestamp
+      deployment.entity.timestamp < ADR_290_REJECTED_TIMESTAMP &&
+      // Validate after the optional timestamp
+      ((deployment.entity.timestamp >= ADR_290_OPTIONAL_TIMESTAMP &&
+        deployment.entity.type === EntityType.PROFILE &&
+        (deployment.entity.content.length > 0 ||
+          deployment.files.size > 0 ||
+          deployment.entity.metadata?.avatars?.[0]?.avatar?.snapshots)) ||
+        // Validate from the provided timestamp
+        (deployment.entity.timestamp >= fromTimestamp && deployment.entity.timestamp < ADR_290_REJECTED_TIMESTAMP)),
+    validate
+  )
 }
