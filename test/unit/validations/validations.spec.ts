@@ -516,83 +516,62 @@ describe('when testing validation wrapper functions', () => {
 
     describe('and the timestamp is in the optional period', () => {
       const optionalTimestamp = ADR_290_OPTIONAL_TIMESTAMP + 1000
-
-      describe('and the entity is a profile', () => {
-        let deployment: DeploymentToValidate
-        let content: ContentMapping[]
-        let files: Map<string, Uint8Array>
-
-        beforeEach(() => {
-          content = []
-          files = new Map()
-          deployment = buildDeployment({
-            entity: buildProfileEntity({ metadata: VALID_PROFILE_METADATA, timestamp: optionalTimestamp, content }),
-            files
-          })
-        })
-
-        describe('and the profile has content files', () => {
-          beforeEach(() => {
-            content.push({ file: 'body.png', hash: 'hash1' })
-          })
-
-          it('should call the validation function and return the result from the validation function', async () => {
-            const validateFn = validateUpToADR290OptionalityTimestamp(fromTimestamp, mockValidateFn)
-            const result = await validateFn(deployment)
-            expect(result).toEqual(resultFromMockValidateFn)
-            expect(mockValidateFn).toHaveBeenCalledWith(deployment)
-          })
-        })
-
-        describe('and the profile has uploaded files', () => {
-          beforeEach(() => {
-            files.set('hash1', new Uint8Array())
-          })
-
-          it('should call the validation function and return the result from the validation function', async () => {
-            const validateFn = validateUpToADR290OptionalityTimestamp(fromTimestamp, mockValidateFn)
-            const result = await validateFn(deployment)
-            expect(result).toEqual(resultFromMockValidateFn)
-            expect(mockValidateFn).toHaveBeenCalledWith(deployment)
-          })
-        })
-
-        describe('and the profile has snapshots in the avatar metadata', () => {
-          beforeEach(() => {
-            deployment.entity.metadata.avatars[0].avatar.snapshots = {
-              face256: 'hash1'
-            }
-          })
-
-          it('should call the validation function and return the result from the validation function', async () => {
-            const validateFn = validateUpToADR290OptionalityTimestamp(fromTimestamp, mockValidateFn)
-            const result = await validateFn(deployment)
-            expect(result).toEqual(resultFromMockValidateFn)
-            expect(mockValidateFn).toHaveBeenCalledWith(deployment)
-          })
-        })
-
-        describe('and the profile has no content, files, or snapshots in the avatar metadata', () => {
-          beforeEach(() => {
-            deployment.entity.metadata.avatars[0].avatar.snapshots = undefined
-          })
-
-          it('should call the validation function and return the result from the validation function', async () => {
-            const validateFn = validateUpToADR290OptionalityTimestamp(fromTimestamp, mockValidateFn)
-            const result = await validateFn(deployment)
-            expect(result).toEqual(resultFromMockValidateFn)
-            expect(mockValidateFn).toHaveBeenCalledWith(deployment)
-          })
+      let deployment: DeploymentToValidate
+      let content: ContentMapping[]
+      let files: Map<string, Uint8Array>
+      beforeEach(() => {
+        content = []
+        files = new Map()
+        deployment = buildDeployment({
+          entity: buildProfileEntity({ metadata: VALID_PROFILE_METADATA, timestamp: optionalTimestamp, content }),
+          files
         })
       })
 
-      describe('and the entity is not a profile', () => {
-        let deployment: DeploymentToValidate
-
+      describe('and the profile has content files', () => {
         beforeEach(() => {
-          deployment = buildDeployment({
-            entity: buildEntity({ type: EntityType.SCENE, timestamp: optionalTimestamp, content: [] })
-          })
+          content.push({ file: 'body.png', hash: 'hash1' })
+        })
+
+        it('should call the validation function and return the result from the validation function', async () => {
+          const validateFn = validateUpToADR290OptionalityTimestamp(fromTimestamp, mockValidateFn)
+          const result = await validateFn(deployment)
+          expect(result).toEqual(resultFromMockValidateFn)
+          expect(mockValidateFn).toHaveBeenCalledWith(deployment)
+        })
+      })
+
+      describe('and the profile has uploaded files', () => {
+        beforeEach(() => {
+          files.set('hash1', new Uint8Array())
+        })
+
+        it('should call the validation function and return the result from the validation function', async () => {
+          const validateFn = validateUpToADR290OptionalityTimestamp(fromTimestamp, mockValidateFn)
+          const result = await validateFn(deployment)
+          expect(result).toEqual(resultFromMockValidateFn)
+          expect(mockValidateFn).toHaveBeenCalledWith(deployment)
+        })
+      })
+
+      describe('and the profile has snapshots in the avatar metadata', () => {
+        beforeEach(() => {
+          deployment.entity.metadata.avatars[0].avatar.snapshots = {
+            face256: 'hash1'
+          }
+        })
+
+        it('should call the validation function and return the result from the validation function', async () => {
+          const validateFn = validateUpToADR290OptionalityTimestamp(fromTimestamp, mockValidateFn)
+          const result = await validateFn(deployment)
+          expect(result).toEqual(resultFromMockValidateFn)
+          expect(mockValidateFn).toHaveBeenCalledWith(deployment)
+        })
+      })
+
+      describe('and the profile has no content, files, or snapshots in the avatar metadata', () => {
+        beforeEach(() => {
+          deployment.entity.metadata.avatars[0].avatar.snapshots = undefined
         })
 
         it('should call the validation function and return the result from the validation function', async () => {
