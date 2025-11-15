@@ -4,3 +4,4 @@ temp
 tsdoc-metadata.json
 coverage
 yarn-error.log
+.cursor

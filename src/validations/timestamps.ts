@@ -46,6 +46,20 @@ export const ADR_236_TIMESTAMP = process.env.ADR_236_TIMESTAMP ? parseInt(proces
  */
 export const ADR_244_TIMESTAMP = process.env.ADR_244_TIMESTAMP ? parseInt(process.env.ADR_244_TIMESTAMP) : 1710428400000
 
+const THREE_MONTHS_IN_MS = 3 * 30 * 24 * 60 * 60 * 1000
+
+/**
+ * 1762743600000 = 2025-11-10T00:00:00Z
+ * @public
+ */
+export const ADR_290_OPTIONAL_TIMESTAMP = process.env.ADR_290_TIMESTAMP
+  ? parseInt(process.env.ADR_290_TIMESTAMP)
+  : 1762743600000
+
+export const ADR_290_REJECTED_TIMESTAMP = process.env.ADR_290_REJECTED_TIMESTAMP
+  ? parseInt(process.env.ADR_290_REJECTED_TIMESTAMP)
+  : ADR_290_OPTIONAL_TIMESTAMP + THREE_MONTHS_IN_MS
+
 /**
  * DCL Launch Day
  * @public
