@@ -1,220 +1,262 @@
+import { ContentMapping } from '@dcl/schemas'
+import { DeploymentToValidate, ValidationResponse } from '../../../src/types'
 import {
-  allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45ValidateFn,
   allHashesInUploadedFilesAreReportedInTheEntityValidateFn,
-  allMandatoryContentFilesArePresentValidateFn,
-  createAllHashesWereUploadedOrStoredValidateFn,
-  createContentValidateFn
+  createAllHashesWereUploadedOrStoredValidateFn
 } from '../../../src/validations/content'
-import { ADR_158_TIMESTAMP, ADR_45_TIMESTAMP } from '../../../src/validations/timestamps'
+import { ADR_45_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment } from '../../setup/deployments'
-import { buildEntity } from '../../setup/entity'
+import { buildEntity, buildProfileEntity } from '../../setup/entity'
 import { buildComponents, buildExternalCalls } from '../../setup/mock'
-import { VALID_PROFILE_METADATA } from '../../setup/profiles'
 
-const notAvailableHashMessage = (hash: string) => {
-  return `This hash is referenced in the entity but was not uploaded or previously available: ${hash}`
-}
-
-const notReferencedHashMessage = (hash: string) => {
-  return `This hash was uploaded but is not referenced in the entity: ${hash}`
-}
-
-describe('Content', () => {
-  const components = buildComponents()
-  it(`When a hash that was not uploaded and not present is referenced, it is reported`, async () => {
-    const entity = buildEntity({
-      content: [{ file: 'name', hash: 'hash' }]
-    })
-
-    const deployment = buildDeployment({ entity })
-
-    const result = await createAllHashesWereUploadedOrStoredValidateFn(components)(deployment)
-    expect(result.ok).toBeFalsy()
-    expect(result.errors).toContain(notAvailableHashMessage('hash'))
+describe('when validating content files', () => {
+  afterEach(() => {
+    jest.clearAllMocks()
   })
 
-  it(`When a hash content file was not uploaded but was already stored, then no error is returned`, async () => {
-    const entity = buildEntity({
-      content: [
-        { file: 'body.png', hash: 'hash' },
-        { file: 'face256.png', hash: 'hash' }
-      ],
-      metadata: {
-        avatars: [
-          {
-            avatar: {
-              snapshots: {
-                body: 'hash',
-                face256: 'hash'
-              }
-            }
-          }
-        ]
-      }
-    })
-    const deployment = buildDeployment({ entity })
-    const externalCalls = buildExternalCalls({
-      isContentStoredAlready: () => Promise.resolve(new Map([['hash', true]]))
+  describe('when validating all hashes were uploaded or stored', () => {
+    let validateFn: ReturnType<typeof createAllHashesWereUploadedOrStoredValidateFn>
+    let deployment: DeploymentToValidate
+    let content: ContentMapping[]
+    let files: Map<string, Uint8Array>
+    let isContentStoredAlreadyMock: Map<string, boolean>
+
+    beforeEach(() => {
+      content = []
+      files = new Map()
+      deployment = buildDeployment({
+        entity: buildEntity({
+          content
+        }),
+        files
+      })
+      isContentStoredAlreadyMock = new Map()
+
+      const components = buildComponents({
+        externalCalls: buildExternalCalls({
+          isContentStoredAlready: jest.fn().mockResolvedValue(isContentStoredAlreadyMock)
+        })
+      })
+      validateFn = createAllHashesWereUploadedOrStoredValidateFn(components)
     })
 
-    const validateFn = createContentValidateFn(buildComponents({ externalCalls }))
-    const result = await validateFn(deployment)
-    expect(result.ok).toBeTruthy()
+    describe('and none of the entity content hashes are already stored', () => {
+      beforeEach(() => {
+        isContentStoredAlreadyMock.clear()
+      })
+
+      describe('and the hashes are found in the uploaded files', () => {
+        beforeEach(() => {
+          files.set('hash1', new Uint8Array())
+          files.set('hash2', new Uint8Array())
+          content.push({ file: 'file1.png', hash: 'hash1' })
+          content.push({ file: 'file2.png', hash: 'hash2' })
+        })
+
+        it('should return ok', async () => {
+          const result: ValidationResponse = await validateFn(deployment)
+          expect(result.ok).toBe(true)
+        })
+      })
+
+      describe('and some of the hashes are not found in the uploaded files', () => {
+        const hash2 = 'hash2'
+
+        beforeEach(() => {
+          files.set('hash1', new Uint8Array())
+          content.push({ file: 'file1.png', hash: 'hash1' })
+          content.push({ file: 'file2.png', hash: 'hash2' })
+          deployment = buildDeployment({ entity: buildEntity({ content }), files })
+        })
+
+        it('should return an error with the missing hash', async () => {
+          const result: ValidationResponse = await validateFn(deployment)
+          expect(result.ok).toBe(false)
+          expect(result.errors).toContain(
+            `This hash is referenced in the entity but was not uploaded or previously available: ${hash2}`
+          )
+        })
+      })
+    })
+
+    describe('and all of the entity content hashes are already stored', () => {
+      const hash1 = 'hash1'
+      const hash2 = 'hash2'
+
+      beforeEach(() => {
+        content.push({ file: 'file1.png', hash: hash1 })
+        content.push({ file: 'file2.png', hash: hash2 })
+        const components = buildComponents({
+          externalCalls: buildExternalCalls({
+            isContentStoredAlready: jest.fn().mockResolvedValue(
+              new Map([
+                [hash1, true],
+                [hash2, true]
+              ])
+            )
+          })
+        })
+        validateFn = createAllHashesWereUploadedOrStoredValidateFn(components)
+      })
+
+      describe('and the hashes are found in the uploaded files', () => {
+        beforeEach(() => {
+          files.set(hash1, new Uint8Array())
+          files.set(hash2, new Uint8Array())
+        })
+
+        it('should return ok', async () => {
+          const result: ValidationResponse = await validateFn(deployment)
+          expect(result.ok).toBe(true)
+        })
+      })
+
+      describe('and the hashes are not found in the uploaded files but in the files', () => {
+        it('should return ok', async () => {
+          const result: ValidationResponse = await validateFn(deployment)
+          expect(result.ok).toBe(true)
+        })
+      })
+    })
+
+    describe('and some of the hashes are already stored and some others come from uploaded files', () => {
+      beforeEach(() => {
+        const hash1 = 'hash1'
+        const hash2 = 'hash2'
+        content.push({ file: 'file1.png', hash: hash1 })
+        content.push({ file: 'file2.png', hash: hash2 })
+        files.set(hash1, new Uint8Array())
+        files.set(hash2, new Uint8Array())
+        isContentStoredAlreadyMock.set(hash2, true)
+      })
+
+      it('should return ok', async () => {
+        const result: ValidationResponse = await validateFn(deployment)
+        expect(result.ok).toBe(true)
+      })
+    })
+
+    describe('and the entity has no content', () => {
+      beforeEach(() => {
+        isContentStoredAlreadyMock.clear()
+      })
+
+      it('should return ok', async () => {
+        const result: ValidationResponse = await validateFn(deployment)
+        expect(result.ok).toBe(true)
+      })
+    })
+
+    describe('and multiple hashes are missing', () => {
+      beforeEach(() => {
+        content.push({ file: 'file1.png', hash: 'hash1' })
+        content.push({ file: 'file2.png', hash: 'hash2' })
+        content.push({ file: 'file3.png', hash: 'hash3' })
+      })
+
+      it('should return an error for each of the missing hashes', async () => {
+        const result: ValidationResponse = await validateFn(deployment)
+        expect(result.ok).toBe(false)
+        expect(result.errors).toContain(
+          `This hash is referenced in the entity but was not uploaded or previously available: hash1`
+        )
+        expect(result.errors).toContain(
+          `This hash is referenced in the entity but was not uploaded or previously available: hash2`
+        )
+        expect(result.errors).toContain(
+          `This hash is referenced in the entity but was not uploaded or previously available: hash3`
+        )
+      })
+    })
   })
 
-  it(`When a hash that was uploaded wasn't already stored, then an error is returned`, async () => {
-    const entity = buildEntity({
-      content: [{ file: 'name', hash: 'hash' }]
-    })
-    const files = new Map([['hash', Buffer.from([])]])
-    const deployment = buildDeployment({ entity, files })
+  describe('when validating all hashes in uploaded files are reported in the entity', () => {
+    let deployment: DeploymentToValidate
+    let content: ContentMapping[]
+    let files: Map<string, Uint8Array>
+    let entityId: string
 
-    const result = await allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45ValidateFn(deployment)
-    expect(result.ok).toBeFalsy()
-    expect(result.errors).toContain(
-      "This file is not expected: 'name' or its hash is invalid: 'hash'. Please, include only valid snapshot files."
-    )
-  })
-
-  it('When a hash is uploaded but not referenced, it is reported', async () => {
-    const entity = buildEntity({
-      content: [{ file: 'name', hash: 'hash' }]
+    beforeEach(() => {
+      entityId = 'entityIdHash'
+      content = []
+      files = new Map()
+      deployment = buildDeployment({
+        entity: buildProfileEntity({ timestamp: ADR_45_TIMESTAMP + 1000, content, id: entityId }),
+        files
+      })
     })
 
-    const files = new Map([
-      ['hash-1', Buffer.from([])],
-      ['hash-2', Buffer.from([])]
-    ])
-    const deployment = buildDeployment({ entity, files })
-
-    const result = await allHashesInUploadedFilesAreReportedInTheEntityValidateFn(deployment)
-    expect(result.ok).toBeFalsy()
-    expect(result.errors).toContain(notReferencedHashMessage('hash-2'))
-  })
-
-  describe('ADR_45: ', () => {
-    it('When profile content files correspond to any snapshot, then no error is returned', async () => {
-      const expectedFile = 'face256.png'
-      const hash = 'bafybeiasb5vpmaounyilfuxbd3lryvosl4yefqrfahsb2esg46q6tu6y5s'
-
-      const contentItems = [{ file: expectedFile, hash }]
-      const files = new Map([[hash, Buffer.from([])]])
-      const entity = buildEntity({
-        metadata: VALID_PROFILE_METADATA,
-        content: contentItems,
-        timestamp: ADR_45_TIMESTAMP + 1
+    describe('and all hashes in uploaded files are reported in the entity', () => {
+      beforeEach(() => {
+        const hash1 = 'hash1'
+        const hash2 = 'hash2'
+        content.push({ file: 'file1.png', hash: hash1 })
+        content.push({ file: 'file2.png', hash: hash2 })
+        files.set(hash1, new Uint8Array())
+        files.set(hash2, new Uint8Array())
       })
 
-      const deployment = buildDeployment({ entity, files })
-      const validateFn = createContentValidateFn(components)
-      const result = await validateFn(deployment)
-      expect(result.ok).toBeTruthy()
+      it('should return ok', async () => {
+        const result: ValidationResponse = await allHashesInUploadedFilesAreReportedInTheEntityValidateFn(deployment)
+        expect(result.ok).toBe(true)
+      })
     })
 
-    it(`When a profile content file hash doesn't correspond to any snapshot, it is reported`, async () => {
-      const expectedFile = 'face256.png'
-
-      const invalidHash = 'invalid-hash'
-      const contentItems = [{ file: expectedFile, hash: invalidHash }]
-      const files = new Map([[invalidHash, Buffer.from([])]])
-      const entity = buildEntity({
-        metadata: VALID_PROFILE_METADATA,
-        content: contentItems,
-        timestamp: ADR_45_TIMESTAMP + 1
+    describe('when uploaded hash is the entity id', () => {
+      beforeEach(() => {
+        content.push({ file: 'file1.png', hash: entityId })
+        files.set(entityId, new Uint8Array())
       })
 
-      const deployment = buildDeployment({ entity, files })
-      const result = await allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45ValidateFn(deployment)
-      expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(
-        `This file is not expected: '${expectedFile}' or its hash is invalid: '${invalidHash}'. Please, include only valid snapshot files.`
-      )
+      it('should return ok', async () => {
+        const result: ValidationResponse = await allHashesInUploadedFilesAreReportedInTheEntityValidateFn(deployment)
+        expect(result.ok).toBe(true)
+        expect(result.errors).toBeUndefined()
+      })
     })
 
-    it(`When profile content files don't correspond to any shapshot, it is reported`, async () => {
-      const unexpectedFile = 'unexpected-file.png'
-      const hash = 'bafybeiasb5vpmaounyilfuxbd3lryvosl4yefqrfahsb2esg46q6tu6y5q'
+    describe('when an uploaded hash is not in the entity', () => {
+      let unreportedHash: string
 
-      const contentItems = [{ file: unexpectedFile, hash }]
-      const files = new Map([[hash, Buffer.from([])]])
-      const entity = buildEntity({
-        metadata: VALID_PROFILE_METADATA,
-        content: contentItems,
-        timestamp: ADR_45_TIMESTAMP + 1
+      beforeEach(() => {
+        const hash1 = 'hash1'
+        unreportedHash = 'unreportedHash'
+        content.push({ file: 'file1.png', hash: hash1 })
+        files.set(hash1, new Uint8Array())
+        files.set(unreportedHash, new Uint8Array())
       })
 
-      const deployment = buildDeployment({ entity, files })
-      const result = await allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45ValidateFn(deployment)
-      expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain(
-        `This file is not expected: '${unexpectedFile}' or its hash is invalid: '${hash}'. Please, include only valid snapshot files.`
-      )
+      it('should return an error with the unreported hash', async () => {
+        const result: ValidationResponse = await allHashesInUploadedFilesAreReportedInTheEntityValidateFn(deployment)
+        expect(result.ok).toBe(false)
+        expect(result.errors).toContain(`This hash was uploaded but is not referenced in the entity: ${unreportedHash}`)
+      })
     })
 
-    it(`When profile content files don't correspond to any shapshot before ADR 45, it is not reported`, async () => {
-      const unexpectedFile = 'unexpected-file.png'
-      const hash = 'bafybeiasb5vpmaounyilfuxbd3lryvosl4yefqrfahsb2esg46q6tu6y5q'
+    describe('and the entity has no content but there are uploaded files', () => {
+      let uploadedHash: string
 
-      const contentItems = [{ file: unexpectedFile, hash }]
-      const files = new Map([[hash, Buffer.from([])]])
-      const entity = buildEntity({
-        metadata: VALID_PROFILE_METADATA,
-        content: contentItems,
-        timestamp: ADR_45_TIMESTAMP - 1
+      beforeEach(() => {
+        uploadedHash = 'uploadedHash'
+        files.set(uploadedHash, new Uint8Array())
       })
 
-      const deployment = buildDeployment({ entity, files })
-      const result = await allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45ValidateFn(deployment)
-      expect(result.ok).toBeTruthy()
-    })
-  })
-
-  describe('ADR_100: ', () => {
-    it(`When profile content files are empty before ADR 100, it is not reported`, async () => {
-      const entity = buildEntity({
-        metadata: VALID_PROFILE_METADATA,
-        content: [],
-        timestamp: ADR_158_TIMESTAMP - 1
+      it('should return an error', async () => {
+        const result: ValidationResponse = await allHashesInUploadedFilesAreReportedInTheEntityValidateFn(deployment)
+        expect(result.ok).toBe(false)
+        expect(result.errors).toContain(`This hash was uploaded but is not referenced in the entity: ${uploadedHash}`)
       })
-
-      const deployment = buildDeployment({ entity })
-      const result = await allMandatoryContentFilesArePresentValidateFn(deployment)
-      expect(result.ok).toBeTruthy()
     })
 
-    it(`When profile content files are empty after ADR 100, it is reported`, async () => {
-      const entity = buildEntity({
-        metadata: VALID_PROFILE_METADATA,
-        content: [],
-        timestamp: ADR_158_TIMESTAMP + 1
+    describe('and no files are uploaded', () => {
+      beforeEach(() => {
+        content.push({ file: 'file1.png', hash: 'hash1' })
       })
 
-      const deployment = buildDeployment({ entity })
-      const result = await allMandatoryContentFilesArePresentValidateFn(deployment)
-      expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain("Profile entity is missing file 'body.png'")
-      expect(result.errors).toContain("Profile entity is missing file 'face256.png'")
-    })
-
-    it(`When profile content files are all present after ADR 100, it is not reported`, async () => {
-      const faceFile = 'face256.png'
-      const bodyFile = 'body.png'
-      const hash = 'bafybeiasb5vpmaounyilfuxbd3lryvosl4yefqrfahsb2esg46q6tu6y5q'
-
-      const contentItems = [
-        { file: faceFile, hash },
-        { file: bodyFile, hash }
-      ]
-      const files = new Map([[hash, Buffer.from([])]])
-      const entity = buildEntity({
-        metadata: VALID_PROFILE_METADATA,
-        content: contentItems,
-        timestamp: ADR_158_TIMESTAMP + 1
+      it('should return ok', async () => {
+        const result: ValidationResponse = await allHashesInUploadedFilesAreReportedInTheEntityValidateFn(deployment)
+        expect(result.ok).toBe(true)
       })
-
-      const deployment = buildDeployment({ entity, files })
-      const result = await allMandatoryContentFilesArePresentValidateFn(deployment)
-      expect(result.ok).toBeTruthy()
     })
   })
 })

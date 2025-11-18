@@ -1,16 +1,11 @@
-import { Avatar, EntityType, Profile } from '@dcl/schemas'
 import { ContentValidatorComponents, DeploymentToValidate, fromErrors, ValidateFn, ValidationResponse } from '../types'
-import { validateAfterADR158, validateAfterADR45, validateAll } from './validations'
+import { validateAll } from './validations'
 
-function correspondsToASnapshot(fileName: string, hash: string, metadata: Profile) {
-  const fileNameWithoutExtension = fileName.replace(/.[^/.]+$/, '')
-
-  if (!metadata || !metadata.avatars) return false
-  return metadata.avatars.some((avatar: Avatar) =>
-    Object.entries(avatar.avatar.snapshots).some((key) => key[0] === fileNameWithoutExtension && key[1] === hash)
-  )
-}
-
+/**
+ * Validates that all hashes that belong to the entity's content are actually uploaded or stored.
+ * If no content is present, this validation will not produce an error.
+ * @public
+ */
 export function createAllHashesWereUploadedOrStoredValidateFn({
   externalCalls
 }: Pick<ContentValidatorComponents, 'externalCalls'>): ValidateFn {
@@ -33,6 +28,11 @@ export function createAllHashesWereUploadedOrStoredValidateFn({
   }
 }
 
+/**
+ * Validates that all hashes that belong to uploaded files are actually reported on the entity
+ * by checking that the entity's content hashes are correspond to the uploaded files.
+ * @public
+ */
 export async function allHashesInUploadedFilesAreReportedInTheEntityValidateFn(deployment: DeploymentToValidate) {
   const { entity, files } = deployment
   const errors: string[] = []
@@ -46,50 +46,13 @@ export async function allHashesInUploadedFilesAreReportedInTheEntityValidateFn(d
   return fromErrors(...errors)
 }
 
-export const allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45ValidateFn = validateAfterADR45(
-  async function validateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
-    const { entity } = deployment
-    const errors: string[] = []
-    for (const { file, hash } of entity.content ?? []) {
-      // Validate all content files correspond to at least one avatar snapshot
-      if (entity.type === EntityType.PROFILE) {
-        if (!correspondsToASnapshot(file, hash, entity.metadata)) {
-          errors.push(
-            `This file is not expected: '${file}' or its hash is invalid: '${hash}'. Please, include only valid snapshot files.`
-          )
-        }
-      }
-    }
-    return fromErrors(...errors)
-  }
-)
-
-export const allMandatoryContentFilesArePresentValidateFn = validateAfterADR158(async function validateFn(
-  deployment: DeploymentToValidate
-): Promise<ValidationResponse> {
-  const { entity } = deployment
-  const errors: string[] = []
-  if (entity.type === EntityType.PROFILE) {
-    const fileNames = entity.content.map((a) => a.file.toLowerCase())
-    if (!fileNames.includes('body.png')) {
-      errors.push(`Profile entity is missing file 'body.png'`)
-    }
-    if (!fileNames.includes('face256.png')) {
-      errors.push(`Profile entity is missing file 'face256.png'`)
-    }
-  }
-  return fromErrors(...errors)
-})
-
+/**
+ * Validate that uploaded and reported hashes are corrects and files corresponds to snapshots
+ * @public
+ */
 export function createContentValidateFn(components: ContentValidatorComponents): ValidateFn {
-  /**
-   * Validate that uploaded and reported hashes are corrects and files corresponds to snapshots
-   * @public
-   */
   return validateAll(
     createAllHashesWereUploadedOrStoredValidateFn(components),
-    allHashesInUploadedFilesAreReportedInTheEntityValidateFn,
-    allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45ValidateFn,
-    allMandatoryContentFilesArePresentValidateFn
+    allHashesInUploadedFilesAreReportedInTheEntityValidateFn
   )
 }
