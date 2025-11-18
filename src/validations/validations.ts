@@ -81,15 +81,14 @@ export function validateAfterADR290RejectedTimestamp(validate: ValidateFn): Vali
 export function validateUpToADR290OptionalityTimestamp(fromTimestamp: number, validate: ValidateFn): ValidateFn {
   return validateIfConditionMet(
     (deployment) =>
-      // Validate before the rejected timestamp
-      deployment.entity.timestamp < ADR_290_REJECTED_TIMESTAMP &&
-      // Validate after the optional timestamp
-      ((deployment.entity.timestamp >= ADR_290_OPTIONAL_TIMESTAMP &&
+      // Validate from the provided timestamp until the optional timestamp
+      (deployment.entity.timestamp >= fromTimestamp && deployment.entity.timestamp < ADR_290_OPTIONAL_TIMESTAMP) ||
+      // Validate in the optional period only if content, files, or snapshots are present
+      (deployment.entity.timestamp >= ADR_290_OPTIONAL_TIMESTAMP &&
+        deployment.entity.timestamp < ADR_290_REJECTED_TIMESTAMP &&
         (deployment.entity.content.length > 0 ||
           deployment.files.size > 0 ||
-          deployment.entity.metadata?.avatars?.[0]?.avatar?.snapshots)) ||
-        // Validate from the provided timestamp
-        (deployment.entity.timestamp >= fromTimestamp && deployment.entity.timestamp < ADR_290_REJECTED_TIMESTAMP)),
+          deployment.entity.metadata?.avatars?.[0]?.avatar?.snapshots)),
     validate
   )
 }
