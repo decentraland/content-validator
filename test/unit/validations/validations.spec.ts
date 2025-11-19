@@ -574,11 +574,11 @@ describe('when testing validation wrapper functions', () => {
           deployment.entity.metadata.avatars[0].avatar.snapshots = undefined
         })
 
-        it('should call the validation function and return the result from the validation function', async () => {
+        it('should return ok without calling the validation function', async () => {
           const validateFn = validateUpToADR290OptionalityTimestamp(fromTimestamp, mockValidateFn)
           const result = await validateFn(deployment)
-          expect(result).toEqual(resultFromMockValidateFn)
-          expect(mockValidateFn).toHaveBeenCalledWith(deployment)
+          expect(result).toEqual(OK)
+          expect(mockValidateFn).not.toHaveBeenCalled()
         })
       })
     })
