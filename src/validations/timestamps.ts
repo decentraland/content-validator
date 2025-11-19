@@ -65,3 +65,9 @@ export const ADR_290_REJECTED_TIMESTAMP = process.env.ADR_290_REJECTED_TIMESTAMP
  * @public
  */
 export const LEGACY_CONTENT_MIGRATION_TIMESTAMP = 1582167600000
+
+/**
+ * 1765767600000 = 2025-12-15T00:00:00Z
+ * @public
+ */
+export const ADR_291_TIMESTAMP = process.env.ADR_291_TIMESTAMP ? parseInt(process.env.ADR_291_TIMESTAMP) : 1765767600000

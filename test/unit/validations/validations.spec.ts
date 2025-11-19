@@ -8,6 +8,7 @@ import {
   ADR_244_TIMESTAMP,
   ADR_290_OPTIONAL_TIMESTAMP,
   ADR_290_REJECTED_TIMESTAMP,
+  ADR_291_TIMESTAMP,
   ADR_45_TIMESTAMP,
   ADR_74_TIMESTAMP,
   ADR_75_TIMESTAMP
@@ -18,6 +19,7 @@ import {
   validateAfterADR236,
   validateAfterADR244,
   validateAfterADR290RejectedTimestamp,
+  validateAfterADR291,
   validateAfterADR45,
   validateAfterADR74,
   validateAfterADR75,
@@ -452,6 +454,38 @@ describe('when testing validation wrapper functions', () => {
 
       it('should call the validation function and return the result from the validation function', async () => {
         const validateFn = validateAfterADR290RejectedTimestamp(mockValidateFn)
+        const result = await validateFn(deployment)
+        expect(result).toEqual(resultFromMockValidateFn)
+        expect(mockValidateFn).toHaveBeenCalledWith(deployment)
+      })
+    })
+  })
+
+  describe('when validating after ADR 291', () => {
+    describe('and the timestamp is before ADR 291', () => {
+      let deployment: DeploymentToValidate
+
+      beforeEach(() => {
+        deployment = buildDeployment({ entity: buildEntity({ timestamp: ADR_291_TIMESTAMP - 1000 }) })
+      })
+
+      it('should return ok without calling the validation function', async () => {
+        const validateFn = validateAfterADR291(mockValidateFn)
+        const result = await validateFn(deployment)
+        expect(result).toEqual(OK)
+        expect(mockValidateFn).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('and the timestamp is at or after ADR 291', () => {
+      let deployment: DeploymentToValidate
+
+      beforeEach(() => {
+        deployment = buildDeployment({ entity: buildEntity({ timestamp: ADR_291_TIMESTAMP + 1000 }) })
+      })
+
+      it('should call the validation function and return the result from the validation function', async () => {
+        const validateFn = validateAfterADR291(mockValidateFn)
         const result = await validateFn(deployment)
         expect(result).toEqual(resultFromMockValidateFn)
         expect(mockValidateFn).toHaveBeenCalledWith(deployment)

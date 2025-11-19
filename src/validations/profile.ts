@@ -23,6 +23,8 @@ import {
 
 /** Validate that given profile deployment includes a face256 thumbnail with valid size */
 const defaultThumbnailSize = 256
+const MIN_PROFILE_NAME_LENGTH = 2
+const MAX_PROFILE_NAME_LENGTH = 15
 
 export const isOldEmote = (wearable: string): boolean => /^[a-z]+$/i.test(wearable)
 
@@ -291,6 +293,23 @@ export async function entityShouldNotHaveContentFilesValidateFn(
   }
 
   return validateAfterADR290RejectedTimestamp(validateFn)(deployment)
+}
+
+export function profileNameValidateFn(deployment: DeploymentToValidate): ValidationResponse {
+  const allAvatars: Avatar[] = deployment.entity.metadata?.avatars ?? []
+  const errors: string[] = []
+  for (const avatar of allAvatars) {
+    const name = avatar.name
+    if (name.length < MIN_PROFILE_NAME_LENGTH || name.length > MAX_PROFILE_NAME_LENGTH) {
+      errors.push(
+        `Profile names should be between ${MIN_PROFILE_NAME_LENGTH} and ${MAX_PROFILE_NAME_LENGTH} characters.`
+      )
+    }
+    if (!/^[a-zA-Z0-9]+$/.test(name)) {
+      errors.push('Profile name should only contain letters and numbers. No special characters allowed.')
+    }
+  }
+  return fromErrors(...errors)
 }
 
 export function createProfileValidateFn(components: ContentValidatorComponents): ValidateFn {

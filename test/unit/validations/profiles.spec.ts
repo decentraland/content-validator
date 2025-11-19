@@ -10,6 +10,7 @@ import {
   entityShouldNotHaveContentFilesValidateFn,
   profileMustHaveEmotesValidateFn,
   profileMustNotHaveSnapshotsValidateFn,
+  profileNameValidateFn,
   profileSlotsAreNotRepeatedValidateFn,
   profileWearablesNotRepeatedValidateFn,
   wearableUrnsValidateFn
@@ -1093,6 +1094,171 @@ describe('when validating that the entity should not have content files', () => 
         expect(result.ok).toBe(false)
         expect(result.errors).toContain(`Entity has uploaded files when it should not: hash1`)
       })
+    })
+  })
+})
+
+describe('when validating profile name', () => {
+  let deployment: DeploymentToValidate
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+
+    deployment = buildDeployment({
+      entity: buildProfileEntity({
+        timestamp: ADR_75_TIMESTAMP + 1000,
+        metadata: VALID_PROFILE_METADATA
+      })
+    })
+  })
+
+  describe('and the name is valid', () => {
+    beforeEach(() => {
+      deployment.entity.metadata.avatars[0].name = 'ValidName123'
+    })
+
+    it('should return ok', () => {
+      const result: ValidationResponse = profileNameValidateFn(deployment)
+      expect(result.ok).toBe(true)
+    })
+  })
+
+  describe('and the name has minimum valid length', () => {
+    beforeEach(() => {
+      deployment.entity.metadata.avatars[0].name = 'ab'
+    })
+
+    it('should return ok', () => {
+      const result: ValidationResponse = profileNameValidateFn(deployment)
+      expect(result.ok).toBe(true)
+    })
+  })
+
+  describe('and the name has maximum valid length', () => {
+    beforeEach(() => {
+      deployment.entity.metadata.avatars[0].name = 'a'.repeat(15)
+    })
+
+    it('should return ok', () => {
+      const result: ValidationResponse = profileNameValidateFn(deployment)
+      expect(result.ok).toBe(true)
+    })
+  })
+
+  describe('and the name is only numbers', () => {
+    beforeEach(() => {
+      deployment.entity.metadata.avatars[0].name = '123456'
+    })
+
+    it('should return ok', () => {
+      const result: ValidationResponse = profileNameValidateFn(deployment)
+      expect(result.ok).toBe(true)
+    })
+  })
+
+  describe('and the name is too short', () => {
+    beforeEach(() => {
+      deployment.entity.metadata.avatars[0].name = 'a'
+    })
+
+    it('should return an error about invalid length', () => {
+      const result: ValidationResponse = profileNameValidateFn(deployment)
+      expect(result.ok).toBe(false)
+      expect(result.errors).toContain('Profile names should be between 2 and 15 characters.')
+    })
+  })
+
+  describe('and the name is empty', () => {
+    beforeEach(() => {
+      deployment.entity.metadata.avatars[0].name = ''
+    })
+
+    it('should return an error about invalid length', () => {
+      const result: ValidationResponse = profileNameValidateFn(deployment)
+      expect(result.ok).toBe(false)
+      expect(result.errors).toContain('Profile names should be between 2 and 15 characters.')
+    })
+  })
+
+  describe('and the name is too long', () => {
+    beforeEach(() => {
+      deployment.entity.metadata.avatars[0].name = 'a'.repeat(16)
+    })
+
+    it('should return an error about invalid length', () => {
+      const result: ValidationResponse = profileNameValidateFn(deployment)
+      expect(result.ok).toBe(false)
+      expect(result.errors).toContain('Profile names should be between 2 and 15 characters.')
+    })
+  })
+
+  describe('and the name contains spaces', () => {
+    beforeEach(() => {
+      deployment.entity.metadata.avatars[0].name = 'Some Name'
+    })
+
+    it('should return an error about special characters', () => {
+      const result: ValidationResponse = profileNameValidateFn(deployment)
+      expect(result.ok).toBe(false)
+      expect(result.errors).toContain(
+        'Profile name should only contain letters and numbers. No special characters allowed.'
+      )
+    })
+  })
+
+  describe('and the name contains hyphens', () => {
+    beforeEach(() => {
+      deployment.entity.metadata.avatars[0].name = 'name-test'
+    })
+
+    it('should return an error about special characters', () => {
+      const result: ValidationResponse = profileNameValidateFn(deployment)
+      expect(result.ok).toBe(false)
+      expect(result.errors).toContain(
+        'Profile name should only contain letters and numbers. No special characters allowed.'
+      )
+    })
+  })
+
+  describe('and the name contains underscores', () => {
+    beforeEach(() => {
+      deployment.entity.metadata.avatars[0].name = 'name_test'
+    })
+
+    it('should return an error about special characters', () => {
+      const result: ValidationResponse = profileNameValidateFn(deployment)
+      expect(result.ok).toBe(false)
+      expect(result.errors).toContain(
+        'Profile name should only contain letters and numbers. No special characters allowed.'
+      )
+    })
+  })
+
+  describe('and the name contains special characters', () => {
+    beforeEach(() => {
+      deployment.entity.metadata.avatars[0].name = 'name@test'
+    })
+
+    it('should return an error about special characters', () => {
+      const result: ValidationResponse = profileNameValidateFn(deployment)
+      expect(result.ok).toBe(false)
+      expect(result.errors).toContain(
+        'Profile name should only contain letters and numbers. No special characters allowed.'
+      )
+    })
+  })
+
+  describe('and the name contains emoji', () => {
+    beforeEach(() => {
+      deployment.entity.metadata.avatars[0].name = 'name😊'
+    })
+
+    it('should return an error about special characters', () => {
+      const result: ValidationResponse = profileNameValidateFn(deployment)
+      expect(result.ok).toBe(false)
+      expect(result.errors).toContain(
+        'Profile name should only contain letters and numbers. No special characters allowed.'
+      )
     })
   })
 })

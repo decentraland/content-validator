@@ -7,6 +7,7 @@ import {
   ADR_244_TIMESTAMP,
   ADR_290_OPTIONAL_TIMESTAMP,
   ADR_290_REJECTED_TIMESTAMP,
+  ADR_291_TIMESTAMP,
   ADR_45_TIMESTAMP,
   ADR_74_TIMESTAMP,
   ADR_75_TIMESTAMP
@@ -91,4 +92,8 @@ export function validateUpToADR290OptionalityTimestamp(fromTimestamp: number, va
           deployment.entity.metadata?.avatars?.[0]?.avatar?.snapshots)),
     validate
   )
+}
+
+export function validateAfterADR291(validate: ValidateFn): ValidateFn {
+  return validateIfConditionMet((deployment) => deployment.entity.timestamp >= ADR_291_TIMESTAMP, validate)
 }
