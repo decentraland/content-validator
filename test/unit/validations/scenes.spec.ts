@@ -1,6 +1,10 @@
 import { EntityType } from '@dcl/schemas'
 import { ValidationResponse } from '../../../src'
-import { embeddedThumbnail, noWorldsConfigurationValidateFn } from '../../../src/validations/scene'
+import {
+  creatorIsValidEthAddressValidateFn,
+  embeddedThumbnail,
+  noWorldsConfigurationValidateFn
+} from '../../../src/validations/scene'
 import { ADR_173_TIMESTAMP, ADR_236_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment } from '../../setup/deployments'
 import { buildEntity } from '../../setup/entity'
@@ -100,6 +104,106 @@ describe('Scenes', () => {
       expect(result.errors).toContain(
         "Scene thumbnail 'https://example.com/image.png' must be a file included in the deployment."
       )
+    })
+  })
+
+  describe('creatorIsValidEthAddressValidateFn validation:', () => {
+    const timestamp = ADR_236_TIMESTAMP + 1
+    const files = new Map()
+
+    it('When there is no creator field in metadata, validation passes', async () => {
+      const entity = buildEntity({
+        type: EntityType.SCENE,
+        metadata: VALID_SCENE_METADATA,
+        timestamp
+      })
+      const deployment = buildDeployment({ entity, files })
+
+      const result: ValidationResponse = await creatorIsValidEthAddressValidateFn(deployment)
+
+      expect(result.ok).toBeTruthy()
+    })
+
+    it('When creator is null, validation passes', async () => {
+      const entity = buildEntity({
+        type: EntityType.SCENE,
+        metadata: {
+          ...VALID_SCENE_METADATA,
+          creator: null
+        },
+        timestamp
+      })
+      const deployment = buildDeployment({ entity, files })
+
+      const result: ValidationResponse = await creatorIsValidEthAddressValidateFn(deployment)
+
+      expect(result.ok).toBeTruthy()
+    })
+
+    it('When creator is empty string, validation passes', async () => {
+      const entity = buildEntity({
+        type: EntityType.SCENE,
+        metadata: {
+          ...VALID_SCENE_METADATA,
+          creator: ''
+        },
+        timestamp
+      })
+      const deployment = buildDeployment({ entity, files })
+
+      const result: ValidationResponse = await creatorIsValidEthAddressValidateFn(deployment)
+
+      expect(result.ok).toBeTruthy()
+    })
+
+    it('When creator is whitespace string, validation fails', async () => {
+      const entity = buildEntity({
+        type: EntityType.SCENE,
+        metadata: {
+          ...VALID_SCENE_METADATA,
+          creator: ' '
+        },
+        timestamp
+      })
+      const deployment = buildDeployment({ entity, files })
+
+      const result: ValidationResponse = await creatorIsValidEthAddressValidateFn(deployment)
+
+      expect(result.ok).toBeFalsy()
+      expect(result.errors).toContain("Scene creator wallet ' ' is not a valid Ethereum address.")
+    })
+
+    it('When creator is an invalid Ethereum address, validation fails', async () => {
+      const entity = buildEntity({
+        type: EntityType.SCENE,
+        metadata: {
+          ...VALID_SCENE_METADATA,
+          creator: 'invalid-address'
+        },
+        timestamp
+      })
+      const deployment = buildDeployment({ entity, files })
+
+      const result: ValidationResponse = await creatorIsValidEthAddressValidateFn(deployment)
+
+      expect(result.ok).toBeFalsy()
+      expect(result.errors).toContain("Scene creator wallet 'invalid-address' is not a valid Ethereum address.")
+    })
+
+    it('When creator is a valid Ethereum address, validation passes', async () => {
+      const entity = buildEntity({
+        type: EntityType.SCENE,
+        metadata: {
+          ...VALID_SCENE_METADATA,
+          creator: '0x71c7656ec7ab88b098defb751b7401b5f6d8976f'
+        },
+        timestamp
+      })
+      const deployment = buildDeployment({ entity, files })
+
+      const result: ValidationResponse = await creatorIsValidEthAddressValidateFn(deployment)
+
+      expect(result.ok).toBeTruthy()
     })
   })
 })
