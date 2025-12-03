@@ -1,4 +1,4 @@
-import { ContentMapping, EntityType } from '@dcl/schemas'
+import { ContentMapping, EntityType, EthAddress } from '@dcl/schemas'
 import { DeploymentToValidate, OK, validationFailed, ValidationResponse } from '../types'
 import { validateAfterADR173, validateAfterADR236, validateAll, validateIfTypeMatches } from './validations'
 
@@ -37,10 +37,30 @@ export const embeddedThumbnail = validateAfterADR236(async function validateFn(
 })
 
 /**
+ * Validate that scene creator field is a valid Ethereum address if present
+ * @public
+ */
+export const creatorIsValidEthAddressValidateFn = validateAfterADR236(async function validateFn(
+  deployment: DeploymentToValidate
+): Promise<ValidationResponse> {
+  const creator = deployment.entity.metadata?.creator
+
+  if (!creator) {
+    return OK
+  }
+
+  if (!EthAddress.validate(creator)) {
+    return validationFailed(`Scene creator wallet '${creator}' is not a valid Ethereum address.`)
+  }
+
+  return OK
+})
+
+/**
  * Validate that given scene deployment is valid
  * @public
  */
 export const sceneValidateFn = validateIfTypeMatches(
   EntityType.SCENE,
-  validateAll(noWorldsConfigurationValidateFn, embeddedThumbnail)
+  validateAll(noWorldsConfigurationValidateFn, embeddedThumbnail, creatorIsValidEthAddressValidateFn)
 )
