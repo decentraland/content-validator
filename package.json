@@ -10,7 +10,8 @@
     "lint:check": "eslint '**/*.{js,ts}'",
     "lint:fix": "eslint '**/*.{js,ts}' --fix",
     "test": "jest --runInBand --detectOpenHandles --colors --coverage --verbose",
-    "test:watch": "jest --runInBand --detectOpenHandles --colors --watch"
+    "test:watch": "jest --runInBand --detectOpenHandles --colors --watch",
+    "postinstall": "node -e \"try { require('sharp') } catch (e) { console.log('Sharp installation check:', e.message) }\""
   },
   "repository": {
     "type": "git",
