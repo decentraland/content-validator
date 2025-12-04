@@ -10,7 +10,8 @@
     "lint:check": "eslint '**/*.{js,ts}'",
     "lint:fix": "eslint '**/*.{js,ts}' --fix",
     "test": "jest --runInBand --detectOpenHandles --colors --coverage --verbose",
-    "test:watch": "jest --runInBand --detectOpenHandles --colors --watch"
+    "test:watch": "jest --runInBand --detectOpenHandles --colors --watch",
+    "postinstall": "yarn add sharp"
   },
   "repository": {
     "type": "git",
@@ -48,7 +49,7 @@
     "@well-known-components/thegraph-component": "^1.6.0",
     "ms": "^2.1.3",
     "p-queue": "^6.6.2",
-    "sharp": "0.32.6"
+    "sharp": "^0.34.5"
   },
   "files": [
     "dist"
