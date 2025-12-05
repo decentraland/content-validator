@@ -541,8 +541,9 @@ describe('when testing validation wrapper functions', () => {
         })
       })
 
-      describe('and the profile has uploaded files', () => {
+      describe('and the profile has uploaded files (besides the entity file)', () => {
         beforeEach(() => {
+          files.set(deployment.entity.id, new Uint8Array())
           files.set('hash1', new Uint8Array())
         })
 
@@ -569,9 +570,10 @@ describe('when testing validation wrapper functions', () => {
         })
       })
 
-      describe('and the profile has no content, files, or snapshots in the avatar metadata', () => {
+      describe('and the profile has no content, files (besides the entity file), or snapshots in the avatar metadata', () => {
         beforeEach(() => {
           deployment.entity.metadata.avatars[0].avatar.snapshots = undefined
+          files.set(deployment.entity.id, new Uint8Array())
         })
 
         it('should return ok without calling the validation function', async () => {

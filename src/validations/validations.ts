@@ -87,7 +87,7 @@ export function validateUpToADR290OptionalityTimestamp(fromTimestamp: number, va
       (deployment.entity.timestamp >= ADR_290_OPTIONAL_TIMESTAMP &&
         deployment.entity.timestamp < ADR_290_REJECTED_TIMESTAMP &&
         (deployment.entity.content?.length > 0 ||
-          deployment.files?.size > 0 ||
+          deployment.files?.size > 1 ||
           deployment.entity.metadata?.avatars?.[0]?.avatar?.snapshots)),
     validate
   )
