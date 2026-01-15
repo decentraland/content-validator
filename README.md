@@ -6,7 +6,43 @@
 
 Decentraland entity deployment validation library for Catalyst servers. Contains all validations to ensure only valid and authorized content is deployed to the [Decentraland content network](https://docs.decentraland.org/contributor/content/entities/).
 
-Install it with:
+## Table of Contents
+
+- [@dcl/content-validator](#dclcontent-validator)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+  - [Installation](#installation)
+  - [Design Guidelines](#design-guidelines)
+  - [Validation Types](#validation-types)
+    - [Size Limits (ADR-51)](#size-limits-adr-51)
+  - [Usage](#usage)
+    - [Basic Usage](#basic-usage)
+    - [Access Validation Strategies](#access-validation-strategies)
+      - [On-Chain Validation](#on-chain-validation)
+      - [Subgraph Validation](#subgraph-validation)
+  - [Getting Started](#getting-started)
+    - [Development](#development)
+    - [Debugging Tests](#debugging-tests)
+  - [Adding New Entity Types](#adding-new-entity-types)
+  - [Project Structure](#project-structure)
+  - [External Dependencies](#external-dependencies)
+  - [Versioning and Publishing](#versioning-and-publishing)
+  - [AI Agent Context](#ai-agent-context)
+
+## Features
+
+- **Entity Structure Validation** - Validates JSON structure, required fields, and content references for all Decentraland entity types
+- **Access Permission Checking** - Verifies deployer ownership via blockchain (on-chain) or The Graph (subgraph)
+- **IPFS Content Integrity** - Ensures content file hashes are valid IPFS CIDs and files exist
+- **Size Enforcement** - Enforces max size limits per entity type following ADR-51 specifications
+- **Metadata Schema Validation** - Validates metadata against `@dcl/schemas` definitions
+- **Signature Authentication** - Verifies AuthChain signatures for entity authenticity
+- **Multi-Entity Support** - Validates scenes, profiles, wearables, emotes, stores, and outfits
+- **Dual Access Strategies** - Supports both on-chain and subgraph-based ownership verification
+- **Legacy Compatibility** - Maintains backwards compatibility with legacy content migrations
+
+## Installation
+
 ```bash
 npm i @dcl/content-validator
 ```
@@ -197,4 +233,4 @@ Main branch is automatically published to the `@next` dist tag to test integrati
 
 ## AI Agent Context
 
-For detailed AI Agent context, see [docs/ai-agent-context.md](docs/ai-agent-context.md).
+For detailed AI Agent context including service purpose, key capabilities, technology stack, and validation details, see [docs/ai-agent-context.md](./docs/ai-agent-context.md).
