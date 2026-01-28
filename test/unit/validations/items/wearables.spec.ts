@@ -553,5 +553,21 @@ describe('Wearables', () => {
         "The entity hash provided '124ce3f2650617ee506608461299c1097161768b15de11dc3cb617a65bb82334' is different to the one calculated from the metadata 'd78f642b785a7a63dece99cd8c68479c8033f69178dc54e348f24e8ecfeb2a08'"
       )
     })
+
+    it(`When entity content is undefined, validation fails with content mismatch error`, async () => {
+      const entity = buildEntity({
+        type: EntityType.WEARABLE,
+        pointers: [metadata.id],
+        metadata: VALID_THIRD_PARTY_EMOTE_METADATA_WITH_MERKLE_ROOT.entity,
+        content: undefined
+      })
+      const deployment = buildDeployment({ entity })
+      const result = await thirdPartyWearableMerkleProofContentValidateFn(deployment)
+
+      expect(result.ok).toBeFalsy()
+      expect(result.errors).toContain(
+        'The content declared in the metadata does not match the files uploaded with the entity'
+      )
+    })
   })
 })
