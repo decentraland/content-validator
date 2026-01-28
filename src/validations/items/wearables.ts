@@ -41,14 +41,14 @@ export async function thirdPartyWearableMerkleProofContentValidateFn(
 
   // Check the content files declared inside the metadata is exactly the same as the files uploaded with the entity
   const allContentInFiles = Object.keys(wearableMetadata.content).every((content) => {
-    const contentFile = entity.content.find((file) => file.file === content)
+    const contentFile = entity.content?.find((file) => file.file === content)
     if (!contentFile) {
       return false
     }
     return contentFile.hash === wearableMetadata.content[content]
   })
 
-  const allFilesInContent = entity.content.every((content) => {
+  const allFilesInContent = entity.content?.every((content) => {
     return wearableMetadata.content[content.file] === content.hash
   })
   if (!allContentInFiles || !allFilesInContent) {

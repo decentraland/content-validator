@@ -258,7 +258,7 @@ export async function allMandatoryContentFilesArePresentValidateFn(
   async function validateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
     const { entity } = deployment
     const errors: string[] = []
-    const fileNames = entity.content.map((a) => a.file.toLowerCase())
+    const fileNames = entity.content?.map((a) => a.file.toLowerCase()) ?? []
     if (!fileNames.includes('body.png')) {
       errors.push(`Profile entity is missing file 'body.png'`)
     }
@@ -281,7 +281,7 @@ export async function entityShouldNotHaveContentFilesValidateFn(
   async function validateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
     const { entity } = deployment
     const errors: string[] = []
-    if (entity.content.length > 0) {
+    if (entity.content && entity.content.length > 0) {
       errors.push(`Entity has content files when it should not: ${entity.content.map((a) => a.file).join(', ')}`)
     }
     if (deployment.files.size > 0) {
