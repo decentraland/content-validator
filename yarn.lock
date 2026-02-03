@@ -309,9 +309,10 @@
   resolved "https://registry.yarnpkg.com/@dcl/hashing/-/hashing-3.0.4.tgz#4df2a4cb3a8114765aed34cb57b91c93bf33bfb3"
   integrity sha512-Cg+MoIOn+BYmQV2q8zSFnNYY+GldlnUazwBnfgrq3i66ZxOaZ65h01btd8OUtSAlfWG4VTNIOHDjtKqmuwJNBg==
 
-"@dcl/schemas@https://sdk-team-cdn.decentraland.org/@dcl/schemas/branch/feat/make-content-mandatory-again/dcl-schemas-22.5.1-21637687696.commit-b54b12b.tgz":
-  version "22.5.1-21637687696.commit-b54b12b"
-  resolved "https://sdk-team-cdn.decentraland.org/@dcl/schemas/branch/feat/make-content-mandatory-again/dcl-schemas-22.5.1-21637687696.commit-b54b12b.tgz#de45404f9fdc09e114a94648b6a01ac740e75700"
+"@dcl/schemas@^23.0.0":
+  version "23.0.0"
+  resolved "https://registry.yarnpkg.com/@dcl/schemas/-/schemas-23.0.0.tgz#e15486e64b2f19e30a1be7edb3f551ceaf0999b8"
+  integrity sha512-DChEhcQZA3Q5uKsa5Z+5aG+bpIiqTCf8dOdx6dta0XmtCrdqMJgGuzu2ZW//7EmzXH6zlgsI+pUv3JpTFlleOA==
   dependencies:
     ajv "^8.11.0"
     ajv-errors "^3.0.0"
