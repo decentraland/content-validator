@@ -28,8 +28,7 @@ export const embeddedThumbnail = validateAfterADR236(async function validateFn(
 ): Promise<ValidationResponse> {
   const sceneThumbnail = deployment.entity.metadata?.display.navmapThumbnail
   if (sceneThumbnail) {
-    const isFilePresent =
-      deployment.entity.content?.some((content: ContentMapping) => content.file === sceneThumbnail) ?? false
+    const isFilePresent = deployment.entity.content.some((content: ContentMapping) => content.file === sceneThumbnail)
     if (!isFilePresent) {
       return validationFailed(`Scene thumbnail '${sceneThumbnail}' must be a file included in the deployment.`)
     }

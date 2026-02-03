@@ -101,46 +101,5 @@ describe('Scenes', () => {
         "Scene thumbnail 'https://example.com/image.png' must be a file included in the deployment."
       )
     })
-
-    it('When entity content is undefined and a thumbnail is specified, validation fails with error', async () => {
-      const entity = buildEntity({
-        type: EntityType.SCENE,
-        metadata: {
-          ...VALID_SCENE_METADATA,
-          display: {
-            ...VALID_SCENE_METADATA.display,
-            navmapThumbnail: 'thumbnail.png'
-          }
-        },
-        content: undefined,
-        timestamp
-      })
-      const deployment = buildDeployment({ entity, files })
-
-      const result: ValidationResponse = await embeddedThumbnail(deployment)
-
-      expect(result.ok).toBeFalsy()
-      expect(result.errors).toContain("Scene thumbnail 'thumbnail.png' must be a file included in the deployment.")
-    })
-
-    it('When entity content is undefined and no thumbnail is specified, validation succeeds', async () => {
-      const entity = buildEntity({
-        type: EntityType.SCENE,
-        metadata: {
-          ...VALID_SCENE_METADATA,
-          display: {
-            ...VALID_SCENE_METADATA.display,
-            navmapThumbnail: undefined
-          }
-        },
-        content: undefined,
-        timestamp
-      })
-      const deployment = buildDeployment({ entity, files })
-
-      const result: ValidationResponse = await embeddedThumbnail(deployment)
-
-      expect(result.ok).toBeTruthy()
-    })
   })
 })

@@ -42,7 +42,7 @@
     "@dcl/block-indexer": "^1.1.2",
     "@dcl/content-hash-tree": "^1.1.4",
     "@dcl/hashing": "^3.0.4",
-    "@dcl/schemas": "22.5.0",
+    "@dcl/schemas": "https://sdk-team-cdn.decentraland.org/@dcl/schemas/branch/feat/make-content-mandatory-again/dcl-schemas-22.5.1-21637687696.commit-b54b12b.tgz",
     "@dcl/urn-resolver": "^3.6.0",
     "@well-known-components/interfaces": "^1.4.3",
     "@well-known-components/thegraph-component": "^1.6.0",

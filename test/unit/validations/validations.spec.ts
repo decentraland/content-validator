@@ -583,21 +583,6 @@ describe('when testing validation wrapper functions', () => {
           expect(mockValidateFn).not.toHaveBeenCalled()
         })
       })
-
-      describe('and the profile has undefined content (not just empty array)', () => {
-        beforeEach(() => {
-          deployment.entity.metadata.avatars[0].avatar.snapshots = undefined
-          deployment.entity.content = undefined
-          files.set(deployment.entity.id, new Uint8Array())
-        })
-
-        it('should return ok without calling the validation function', async () => {
-          const validateFn = validateUpToADR290OptionalityTimestamp(fromTimestamp, mockValidateFn)
-          const result = await validateFn(deployment)
-          expect(result).toEqual(OK)
-          expect(mockValidateFn).not.toHaveBeenCalled()
-        })
-      })
     })
   })
 })
