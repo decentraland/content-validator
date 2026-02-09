@@ -1071,6 +1071,17 @@ describe('when validating that the entity should not have content files', () => 
       })
     })
 
+    describe('and the profile only has the entity file', () => {
+      beforeEach(() => {
+        files.set('entityHash', new Uint8Array())
+      })
+
+      it('should return ok', async () => {
+        const result: ValidationResponse = await entityShouldNotHaveContentFilesValidateFn(deployment)
+        expect(result.ok).toBe(true)
+      })
+    })
+
     describe('and the entity has content', () => {
       beforeEach(() => {
         content.push({ file: 'body.png', hash: 'hash1' })
@@ -1083,15 +1094,16 @@ describe('when validating that the entity should not have content files', () => 
       })
     })
 
-    describe('and the entity has uploaded files', () => {
+    describe('and the entity has uploaded files beyond the entity file', () => {
       beforeEach(() => {
+        files.set('entityHash', new Uint8Array())
         files.set('hash1', new Uint8Array())
       })
 
-      it('should return an error with the uploaded file hash', async () => {
+      it('should return an error with the uploaded file hashes', async () => {
         const result: ValidationResponse = await entityShouldNotHaveContentFilesValidateFn(deployment)
         expect(result.ok).toBe(false)
-        expect(result.errors).toContain(`Entity has uploaded files when it should not: hash1`)
+        expect(result.errors).toContain(`Entity has uploaded files when it should not: entityHash, hash1`)
       })
     })
   })

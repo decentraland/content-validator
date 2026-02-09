@@ -284,7 +284,7 @@ export async function entityShouldNotHaveContentFilesValidateFn(
     if (entity.content.length > 0) {
       errors.push(`Entity has content files when it should not: ${entity.content.map((a) => a.file).join(', ')}`)
     }
-    if (deployment.files.size > 0) {
+    if (deployment.files.size > 1) {
       errors.push(`Entity has uploaded files when it should not: ${Array.from(deployment.files.keys()).join(', ')}`)
     }
     return fromErrors(...errors)
