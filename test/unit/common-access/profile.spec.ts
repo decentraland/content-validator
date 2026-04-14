@@ -143,6 +143,32 @@ describe('createNamesOwnershipValidateFn', () => {
     )
   })
 
+  it('When a profile has claimed names with mixed case, names are lowercased before ownership check', async () => {
+    const someAddress = '0x862f109696d7121438642a78b3caa38f476db08b'
+
+    // VALID_PROFILE_METADATA has a claimed name "Some Name" with mixed case.
+    // After lowercasing, the ownership checker receives "some name".
+    // If the checker owns "some name", validation should pass.
+    const entity = buildEntity({
+      type: EntityType.PROFILE,
+      metadata: VALID_PROFILE_METADATA,
+      timestamp: ADR_75_TIMESTAMP + 1,
+      pointers: [someAddress]
+    })
+    const deployment = buildDeployment({ entity })
+
+    const externalCalls = buildExternalCalls({
+      ownerAddress: () => someAddress
+    })
+
+    // The checker owns "some name" (lowercase) — should match the lowercased claim
+    const namesOwnership = createNamesOwnershipWith(someAddress, ['some name'])
+
+    const validateFn = createNamesOwnershipValidateFn({ externalCalls }, namesOwnership)
+    const response = await validateFn(deployment)
+    expect(response.ok).toBeTruthy()
+  })
+
   it('claimed names are checked against the graph client after ADR 75', async () => {
     const someValidAddress = '0x71c7656ec7ab88b098defb751b7401b5f6d8976f'
     const deployment = buildProfileDeployment(['Default10'])
