@@ -33,6 +33,22 @@ describe('Access: scenes', () => {
     expect(response.ok).toBeFalsy()
   })
 
+  it('When pointers contain non-numeric coordinates, then validation fails with a clear message', async () => {
+    const pointers = ['abc,def']
+    const deployment = buildSceneDeployment(pointers)
+    const externalCalls = buildExternalCalls({
+      isAddressOwnedByDecentraland: () => false,
+      ownerAddress: () => '0xAddress'
+    })
+
+    const validateFn = createSceneValidateFn(buildOnChainAccessCheckerComponents({ externalCalls }))
+    const response = await validateFn(deployment)
+    expect(response.ok).toBeFalsy()
+    expect(response.errors).toContain(
+      'Scene pointers should only contain two integers separated by a comma, for example (10,10) or (120,-45). Invalid pointer: abc,def'
+    )
+  })
+
   it('When non-urns are used as pointers, then validation fails', async () => {
     const pointers = ['invalid-pointer']
     const deployment = buildSceneDeployment(pointers)
