@@ -571,7 +571,9 @@ describe('when testing validation wrapper functions', () => {
       })
 
       describe('and only the second avatar has snapshots', () => {
-        beforeEach(() => {
+        let result: Awaited<ReturnType<ReturnType<typeof validateUpToADR290OptionalityTimestamp>>>
+
+        beforeEach(async () => {
           const avatarBase = VALID_PROFILE_METADATA.avatars[0]
           deployment.entity.metadata = {
             avatars: [
@@ -579,11 +581,11 @@ describe('when testing validation wrapper functions', () => {
               { ...avatarBase, avatar: { ...avatarBase.avatar, snapshots: { face256: 'hash1' } } }
             ]
           }
+          const validateFn = validateUpToADR290OptionalityTimestamp(fromTimestamp, mockValidateFn)
+          result = await validateFn(deployment)
         })
 
-        it('should call the validation function because the second avatar has snapshots', async () => {
-          const validateFn = validateUpToADR290OptionalityTimestamp(fromTimestamp, mockValidateFn)
-          const result = await validateFn(deployment)
+        it('should call the validation function', () => {
           expect(result).toEqual(resultFromMockValidateFn)
           expect(mockValidateFn).toHaveBeenCalledWith(deployment)
         })

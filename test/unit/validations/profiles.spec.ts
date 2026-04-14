@@ -206,69 +206,80 @@ describe('when validating face thumbnail', () => {
 })
 
 describe('when validating face thumbnail with multiple avatars', () => {
-  it('should validate the second avatar even when the first has a stored face256', async () => {
-    // This tests the fix: `return OK` was changed to `continue` so remaining
-    // avatars are validated even when the first avatar's hash is already stored.
+  describe('and the first avatar face256 is already stored but the second is not', () => {
+    let result: ValidationResponse
     const storedHash = 'bafybeiasb5vpmaounyilfuxbd3lryvosl4yefqrfahsb2esg46q6tu6y5s'
-    const unstored = 'bafybeiasb5vpmaounyilfuxbd3lryvosl4yefqrfahsb2esg46q6tu6y5x'
-    const files = new Map<string, Uint8Array>()
+    const unstoredHash = 'bafybeiasb5vpmaounyilfuxbd3lryvosl4yefqrfahsb2esg46q6tu6y5x'
 
-    const deployment = buildDeployment({
-      entity: buildProfileEntity({
-        timestamp: ADR_45_TIMESTAMP + 1000,
-        metadata: {
-          avatars: [
-            {
-              ...VALID_PROFILE_METADATA.avatars[0],
-              avatar: { ...VALID_PROFILE_METADATA.avatars[0].avatar, snapshots: { face256: storedHash } }
-            },
-            {
-              ...VALID_PROFILE_METADATA.avatars[0],
-              avatar: { ...VALID_PROFILE_METADATA.avatars[0].avatar, snapshots: { face256: unstored } }
-            }
-          ]
-        }
-      }),
-      files
-    })
-
-    const components = buildComponents({
-      externalCalls: buildExternalCalls({
-        isContentStoredAlready: jest.fn().mockResolvedValue(
-          new Map([
-            [storedHash, true],
-            [unstored, false]
-          ])
-        )
+    beforeEach(async () => {
+      const files = new Map<string, Uint8Array>()
+      const deployment = buildDeployment({
+        entity: buildProfileEntity({
+          timestamp: ADR_45_TIMESTAMP + 1000,
+          metadata: {
+            avatars: [
+              {
+                ...VALID_PROFILE_METADATA.avatars[0],
+                avatar: { ...VALID_PROFILE_METADATA.avatars[0].avatar, snapshots: { face256: storedHash } }
+              },
+              {
+                ...VALID_PROFILE_METADATA.avatars[0],
+                avatar: { ...VALID_PROFILE_METADATA.avatars[0].avatar, snapshots: { face256: unstoredHash } }
+              }
+            ]
+          }
+        }),
+        files
       })
+
+      const components = buildComponents({
+        externalCalls: buildExternalCalls({
+          isContentStoredAlready: jest.fn().mockResolvedValue(
+            new Map([
+              [storedHash, true],
+              [unstoredHash, false]
+            ])
+          )
+        })
+      })
+      const validateFn = createFaceThumbnailValidateFn(components)
+      result = await validateFn(deployment)
     })
-    const validateFn = createFaceThumbnailValidateFn(components)
-    const result = await validateFn(deployment)
-    // The second avatar's face256 is not stored and not in files, so it should fail
-    expect(result.ok).toBe(false)
-    expect(result.errors).toContain(`Couldn't find thumbnail file with hash: ${unstored}`)
+
+    it('should fail because the second avatar face256 is not stored and not in files', () => {
+      expect(result.ok).toBe(false)
+      expect(result.errors).toContain(`Couldn't find thumbnail file with hash: ${unstoredHash}`)
+    })
   })
 })
 
-describe('isOldEmote', () => {
-  it('should match short alpha-only emote names', () => {
-    expect(isOldEmote('dance')).toBe(true)
-    expect(isOldEmote('wave')).toBe(true)
-    expect(isOldEmote('raisehand')).toBe(true)
+describe('when checking if a string is an old emote', () => {
+  describe('and the input is a short lowercase alpha string', () => {
+    it('should return true', () => {
+      expect(isOldEmote('dance')).toBe(true)
+      expect(isOldEmote('wave')).toBe(true)
+      expect(isOldEmote('raisehand')).toBe(true)
+    })
   })
 
-  it('should match mixed-case emote names for backward compatibility', () => {
-    expect(isOldEmote('Dance')).toBe(true)
-    expect(isOldEmote('raiseHand')).toBe(true)
+  describe('and the input is a short mixed-case alpha string', () => {
+    it('should return true for backward compatibility', () => {
+      expect(isOldEmote('Dance')).toBe(true)
+      expect(isOldEmote('raiseHand')).toBe(true)
+    })
   })
 
-  it('should not match strings longer than 20 characters', () => {
-    expect(isOldEmote('aVeryLongEmoteNameThatExceedsTwenty')).toBe(false)
+  describe('and the input is longer than 20 characters', () => {
+    it('should return false', () => {
+      expect(isOldEmote('aVeryLongEmoteNameThatExceedsTwenty')).toBe(false)
+    })
   })
 
-  it('should not match strings with numbers or special characters', () => {
-    expect(isOldEmote('dance123')).toBe(false)
-    expect(isOldEmote('urn:decentraland:matic:collections-v2:0x123:0')).toBe(false)
+  describe('and the input contains numbers or special characters', () => {
+    it('should return false', () => {
+      expect(isOldEmote('dance123')).toBe(false)
+      expect(isOldEmote('urn:decentraland:matic:collections-v2:0x123:0')).toBe(false)
+    })
   })
 })
 
