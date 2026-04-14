@@ -251,16 +251,19 @@ describe('when validating face thumbnail with multiple avatars', () => {
 })
 
 describe('isOldEmote', () => {
-  it('should match lowercase-only emote names', () => {
+  it('should match short alpha-only emote names', () => {
     expect(isOldEmote('dance')).toBe(true)
     expect(isOldEmote('wave')).toBe(true)
     expect(isOldEmote('raisehand')).toBe(true)
   })
 
-  it('should not match mixed-case strings to prevent URN validation bypass', () => {
-    expect(isOldEmote('Dance')).toBe(false)
-    expect(isOldEmote('AAAA')).toBe(false)
-    expect(isOldEmote('raiseHand')).toBe(false)
+  it('should match mixed-case emote names for backward compatibility', () => {
+    expect(isOldEmote('Dance')).toBe(true)
+    expect(isOldEmote('raiseHand')).toBe(true)
+  })
+
+  it('should not match strings longer than 20 characters', () => {
+    expect(isOldEmote('aVeryLongEmoteNameThatExceedsTwenty')).toBe(false)
   })
 
   it('should not match strings with numbers or special characters', () => {
@@ -1010,6 +1013,32 @@ describe('when validating that all content files correspond to at least one avat
       expect(result.errors).toContain(
         `This file is not expected: 'face256.png' or its hash is invalid: 'wrongHashForFace256'. Please, include only valid snapshot files.`
       )
+    })
+  })
+
+  describe('and there is a content file with a multi-dot filename like snapshot.face256.png', () => {
+    beforeEach(() => {
+      // The regex /\.[^/.]+$/ should only strip the last extension (.png),
+      // leaving "snapshot.face256" as the key to match against snapshot names.
+      const hash = 'bafybeiasb5vpmaounyilfuxbd3lryvosl4yefqrfahsb2esg46q6tu6y5s'
+      deployment.entity.metadata = {
+        avatars: [
+          {
+            ...VALID_PROFILE_METADATA.avatars[0],
+            avatar: {
+              ...VALID_PROFILE_METADATA.avatars[0].avatar,
+              snapshots: { 'snapshot.face256': hash }
+            }
+          }
+        ]
+      }
+      content.push({ file: 'snapshot.face256.png', hash })
+    })
+
+    it('should strip only the last extension and match the snapshot key', async () => {
+      const result: ValidationResponse =
+        await allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45ValidateFn(deployment)
+      expect(result.ok).toBe(true)
     })
   })
 

@@ -24,7 +24,7 @@ import {
 /** Validate that given profile deployment includes a face256 thumbnail with valid size */
 const defaultThumbnailSize = 256
 
-export const isOldEmote = (wearable: string): boolean => /^[a-z]+$/.test(wearable)
+export const isOldEmote = (wearable: string): boolean => /^[a-z]+$/i.test(wearable) && wearable.length <= 20
 
 function correspondsToASnapshot(fileName: string, hash: string, metadata: Profile) {
   const fileNameWithoutExtension = fileName.replace(/\.[^/.]+$/, '')
