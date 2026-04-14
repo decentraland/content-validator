@@ -24,10 +24,10 @@ import {
 /** Validate that given profile deployment includes a face256 thumbnail with valid size */
 const defaultThumbnailSize = 256
 
-export const isOldEmote = (wearable: string): boolean => /^[a-z]+$/i.test(wearable)
+export const isOldEmote = (wearable: string): boolean => /^[a-z]+$/.test(wearable)
 
 function correspondsToASnapshot(fileName: string, hash: string, metadata: Profile) {
-  const fileNameWithoutExtension = fileName.replace(/.[^/.]+$/, '')
+  const fileNameWithoutExtension = fileName.replace(/\.[^/.]+$/, '')
 
   return metadata.avatars.some((avatar: Avatar) =>
     Object.entries(avatar.avatar?.snapshots ?? {}).some((key) => key[0] === fileNameWithoutExtension && key[1] === hash)
@@ -45,7 +45,7 @@ export function createFaceThumbnailValidateFn(components: ContentValidatorCompon
 
       const isAlreadyStored = (await components.externalCalls.isContentStoredAlready([hash])).get(hash) ?? false
       if (isAlreadyStored) {
-        return OK
+        continue
       }
       // check size
       const thumbnailBuffer = deployment.files.get(hash)
@@ -180,14 +180,13 @@ export function createProfileImagesValidateFn(components: ContentValidatorCompon
     const errors: string[] = []
     const allAvatars: any[] = deployment.entity.metadata?.avatars ?? []
 
+    const calculatedHashes = await components.externalCalls.calculateFilesHashes(deployment.files)
     for (const avatar of allAvatars) {
       const faceHash = avatar.avatar?.snapshots?.face256
       const bodyHash = avatar.avatar?.snapshots?.body
 
       if (!faceHash || !bodyHash)
         return validationFailed(`Couldn't find hash for face or body thumbnails on profile metadata`)
-
-      const calculatedHashes = await components.externalCalls.calculateFilesHashes(deployment.files)
 
       // validate all hashes
       Array.from(calculatedHashes.entries()).forEach(([key, entry]) => {
