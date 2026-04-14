@@ -68,7 +68,7 @@ export function createDeploymentMaxSizeExcludingThumbnailIsNotExceededValidateFn
 }
 
 /** Validate that given item deployment includes a thumbnail with valid format and size */
-const maxThumbnailSizeInB = thumbnailMaxSizeInMb * 1024
+const maxThumbnailDimensionInPx = 1024
 
 export function createThumbnailMaxSizeIsNotExceededValidateFn(
   components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs'>
@@ -105,7 +105,7 @@ export function createThumbnailMaxSizeIsNotExceededValidateFn(
       }
       if (!width || !height) {
         errors.push(`Couldn't validate thumbnail size for file ${metadata.thumbnail}`)
-      } else if (width > maxThumbnailSizeInB || height > maxThumbnailSizeInB) {
+      } else if (width > maxThumbnailDimensionInPx || height > maxThumbnailDimensionInPx) {
         errors.push(`Invalid thumbnail image size (width = ${width} / height = ${height})`)
       }
     } catch (e) {

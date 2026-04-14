@@ -52,9 +52,8 @@ export function createSceneValidateFn({
   const logger = logs.getLogger('scenes access validator')
 
   const SCENE_LOOKBACK_TIME = ms('5m')
-  const SCENE_VALIDATIONS_CONCURRENCY = process.env.SCENE_VALIDATIONS_CONCURRENCY
-    ? parseInt(process.env.SCENE_VALIDATIONS_CONCURRENCY)
-    : 10
+  const parsedConcurrency = parseInt(process.env.SCENE_VALIDATIONS_CONCURRENCY ?? '')
+  const SCENE_VALIDATIONS_CONCURRENCY = isNaN(parsedConcurrency) || parsedConcurrency <= 0 ? 10 : parsedConcurrency
 
   return async function validateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
     const getAuthorizations = async (
@@ -275,10 +274,16 @@ export function createSceneValidateFn({
       if (estate) {
         return (
           (await hasAccessThroughFirstLevelAuthorities(estate, ethAddress)) ||
-          (await hasAccessThroughAuthorizations(estate.owners[0].address, ethAddress, timestamp, tokenAddresses.estate))
+          (estate.owners.length > 0 &&
+            (await hasAccessThroughAuthorizations(
+              estate.owners[0].address,
+              ethAddress,
+              timestamp,
+              tokenAddresses.estate
+            )))
         )
       }
-      throw new Error(`Couldn\'t find the state ${estateId}`)
+      throw new Error(`Couldn\'t find the estate ${estateId}`)
     }
 
     const isParcelUpdateAuthorized = async (
@@ -301,12 +306,13 @@ export function createSceneValidateFn({
 
         return (
           (await hasAccessThroughFirstLevelAuthorities(parcel, ethAddress)) ||
-          (await hasAccessThroughAuthorizations(
-            parcel.owners[0].address,
-            ethAddress,
-            timestamp,
-            tokenAddresses.land
-          )) ||
+          (parcel.owners.length > 0 &&
+            (await hasAccessThroughAuthorizations(
+              parcel.owners[0].address,
+              ethAddress,
+              timestamp,
+              tokenAddresses.land
+            ))) ||
           (belongsToEstate && (await isEstateUpdateAuthorized(parcel.estates[0].estateId, timestamp, ethAddress)))
         )
       }
@@ -343,6 +349,15 @@ export function createSceneValidateFn({
       if (pointerParts.length === 2) {
         const x: number = parseInt(pointerParts[0], 10)
         const y: number = parseInt(pointerParts[1], 10)
+
+        if (isNaN(x) || isNaN(y)) {
+          errors.push(
+            `Scene pointers should only contain two integers separated by a comma, for example (10,10) or (120,-45). Invalid pointer: ${pointer}`
+          )
+          controller.abort()
+          queue.clear()
+          break
+        }
 
         // Check that the address has access (we check both the present and the 5 min into the past to avoid synchronization issues in the blockchain)
         queue

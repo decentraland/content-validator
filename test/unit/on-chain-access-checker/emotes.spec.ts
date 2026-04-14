@@ -134,5 +134,26 @@ describe('Access: emotes', () => {
       const response = await validateFn(deployment)
       expect(response.ok).toBeTruthy()
     })
+
+    it(`When metadata is modified but merkle proof is reused from a different entity, validation fails at the hash check`, async () => {
+      // This tests the entityHash verification: an attacker takes a valid merkle proof
+      // and uses it with different metadata. The entityHash in the proof won't match
+      // the keccak256 hash of the modified metadata, so the validator should reject
+      // before ever reaching the on-chain root check.
+      const components = buildOnChainAccessCheckerComponents()
+      components.L2.checker.validateThirdParty = jest.fn(() => Promise.resolve(true))
+
+      const modifiedMetadata = {
+        ...metadata,
+        name: 'tampered name that changes the entity hash'
+      }
+      const deployment = buildThirdPartyEmoteDeployment(modifiedMetadata.id, modifiedMetadata)
+      const validateFn = buildEmoteValidateFn(components)
+      const response = await validateFn(deployment)
+      expect(response.ok).toBeFalsy()
+      // Verify rejection happened at the hash check stage, not at the on-chain root check.
+      // If validateThirdParty was called, the hash check didn't stop the flow.
+      expect(components.L2.checker.validateThirdParty).not.toHaveBeenCalled()
+    })
   })
 })

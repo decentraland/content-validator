@@ -1,12 +1,14 @@
 import { Entity, EntityType, Outfit, Outfits } from '@dcl/schemas'
+import { ValidationResponse } from '../../../src/types'
 import {
   createOutfitsPointerValidateFn,
+  createOutfitsValidateFn,
   outfitSlotsAreBetween0and9inclusiveValidateFn,
   outfitSlotsAreNotRepeatedValidateFn,
   outfitsNumberOfNamesForExtraSlotsIsCorrectValidateFn
 } from '../../../src/validations/outfits'
 import { buildDeployment } from '../../setup/deployments'
-import { buildExternalCalls } from '../../setup/mock'
+import { buildComponents, buildExternalCalls } from '../../setup/mock'
 import { VALID_OUTFITS_METADATA } from '../../setup/outfits'
 
 type TypedEntity<T> = Entity & {
@@ -259,5 +261,73 @@ describe('outfitsNumberOfNamesForExtraSlotsIsCorrectValidateFn', () => {
     if (result.errors) {
       expect(result.errors[0]).toEqual('A name must be provided if extra slots are used, but none were provided.')
     }
+  })
+})
+
+describe('when validating outfits through the full chain', () => {
+  let validateFn: ReturnType<typeof createOutfitsValidateFn>
+
+  beforeEach(() => {
+    const components = buildComponents({
+      externalCalls: buildExternalCalls({
+        ownerAddress: () => ownerAddress
+      })
+    })
+    validateFn = createOutfitsValidateFn(components)
+  })
+
+  afterEach(() => {
+    jest.resetAllMocks()
+  })
+
+  describe('and an outfit has a slot number outside 0-9', () => {
+    let result: ValidationResponse
+
+    beforeEach(async () => {
+      const entity: TypedEntity<Outfits> = {
+        version: '3',
+        type: EntityType.OUTFITS,
+        pointers: [`${ownerAddress}:outfits`],
+        timestamp: Date.now(),
+        content: [],
+        id: 'bafybeihz4c4cf4icnlh6yjtt7fooaeih3dkv2mz6umod7dybenzmsxkzvq',
+        metadata: {
+          outfits: [outfitWithSlot(0), outfitWithSlot(10)],
+          namesForExtraSlots: []
+        }
+      }
+      const deployment = buildDeployment({ entity, auditInfo: { authChain: [] } })
+      result = await validateFn(deployment)
+    })
+
+    it('should reject the deployment', () => {
+      expect(result.ok).toBeFalsy()
+      expect(result.errors).toContain('Outfits slots are invalid, they must be between 0 and 9 inclusive')
+    })
+  })
+
+  describe('and all outfit slots are within 0-9', () => {
+    let result: ValidationResponse
+
+    beforeEach(async () => {
+      const entity: TypedEntity<Outfits> = {
+        version: '3',
+        type: EntityType.OUTFITS,
+        pointers: [`${ownerAddress}:outfits`],
+        timestamp: Date.now(),
+        content: [],
+        id: 'bafybeihz4c4cf4icnlh6yjtt7fooaeih3dkv2mz6umod7dybenzmsxkzvq',
+        metadata: {
+          outfits: [outfitWithSlot(0), outfitWithSlot(4)],
+          namesForExtraSlots: []
+        }
+      }
+      const deployment = buildDeployment({ entity, auditInfo: { authChain: [] } })
+      result = await validateFn(deployment)
+    })
+
+    it('should accept the deployment', () => {
+      expect(result.ok).toBeTruthy()
+    })
   })
 })
