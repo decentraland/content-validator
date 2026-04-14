@@ -111,6 +111,7 @@ export function createOutfitsValidateFn(components: ContentValidatorComponents):
     validateAll(
       createOutfitsPointerValidateFn(components),
       outfitSlotsAreNotRepeatedValidateFn,
+      outfitSlotsAreBetween0and9inclusiveValidateFn,
       outfitsNumberOfNamesForExtraSlotsIsCorrectValidateFn,
       outfitsWearableUrnsIncludeTokenIdFn
     )
