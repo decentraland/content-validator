@@ -1,5 +1,6 @@
 import { generateRoot } from '@dcl/content-hash-tree'
-import { isThirdParty, ThirdPartyProps } from '@dcl/schemas'
+import { keccak256Hash } from '@dcl/hashing'
+import { isThirdParty, MerkleProof, ThirdPartyProps } from '@dcl/schemas'
 import { BlockchainCollectionThirdParty } from '@dcl/urn-resolver'
 import {
   DeploymentToValidate,
@@ -23,6 +24,16 @@ async function verifyMerkleProofedEntity(
   if (isThirdParty(deployment.entity.metadata)) {
     const metadata = deployment.entity.metadata as ThirdPartyProps
     const merkleProof = metadata.merkleProof
+
+    if (!MerkleProof.validate(merkleProof)) {
+      logger.debug('Merkle proof is not valid')
+      return false
+    }
+    const generatedHash = keccak256Hash(metadata, merkleProof.hashingKeys)
+    if (merkleProof.entityHash !== generatedHash) {
+      logger.debug('entityHash does not match computed hash from metadata')
+      return false
+    }
 
     const thirdPartyId = getThirdPartyId(asset)
 
