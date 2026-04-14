@@ -1,6 +1,6 @@
 import { Avatar, EntityType, Profile } from '@dcl/schemas'
-import { parseUrn } from '@dcl/urn-resolver'
 import sharp from 'sharp'
+import { safeParseUrn } from '../utils'
 import {
   ContentValidatorComponents,
   DeploymentToValidate,
@@ -75,12 +75,7 @@ export async function wearableUrnsValidateFn(deployment: DeploymentToValidate): 
       for (const pointer of avatar.avatar.wearables) {
         if (isOldEmote(pointer)) continue
 
-        let parsed
-        try {
-          parsed = await parseUrn(pointer)
-        } catch {
-          // treat thrown exceptions the same as unresolvable URNs
-        }
+        const parsed = await safeParseUrn(pointer)
         if (!parsed) {
           return validationFailed(
             `Each profile wearable pointer should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (${pointer})`
@@ -107,12 +102,7 @@ export async function emoteUrnsValidateFn(deployment: DeploymentToValidate): Pro
       const allEmotes = avatar.avatar.emotes ?? []
       for (const { slot, urn } of allEmotes) {
         if (isOldEmote(urn)) continue
-        let parsed
-        try {
-          parsed = await parseUrn(urn)
-        } catch {
-          // treat thrown exceptions the same as unresolvable URNs
-        }
+        const parsed = await safeParseUrn(urn)
         if (!parsed)
           return validationFailed(
             `Each profile emote pointer should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (${urn})`

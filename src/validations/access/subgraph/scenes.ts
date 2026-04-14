@@ -52,9 +52,10 @@ export function createSceneValidateFn({
   const logger = logs.getLogger('scenes access validator')
 
   const SCENE_LOOKBACK_TIME = ms('5m')
-  const SCENE_VALIDATIONS_CONCURRENCY = process.env.SCENE_VALIDATIONS_CONCURRENCY
+  const parsedConcurrency = process.env.SCENE_VALIDATIONS_CONCURRENCY
     ? parseInt(process.env.SCENE_VALIDATIONS_CONCURRENCY)
     : 10
+  const SCENE_VALIDATIONS_CONCURRENCY = isNaN(parsedConcurrency) || parsedConcurrency <= 0 ? 10 : parsedConcurrency
 
   return async function validateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
     const getAuthorizations = async (
@@ -358,6 +359,7 @@ export function createSceneValidateFn({
             `Scene pointers should only contain two integers separated by a comma, for example (10,10) or (120,-45). Invalid pointer: ${pointer}`
           )
           controller.abort()
+          queue.clear()
           break
         }
 
