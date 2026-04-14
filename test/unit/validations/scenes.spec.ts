@@ -79,41 +79,45 @@ describe('Scenes', () => {
       expect(result.ok).toBeTruthy()
     })
 
-    it('When entity content is undefined, validation passes without throwing', async () => {
-      const entity = buildEntity({
-        type: EntityType.SCENE,
-        metadata: {
-          ...VALID_SCENE_METADATA,
-          display: {
-            ...VALID_SCENE_METADATA.display,
-            navmapThumbnail: 'thumbnail.png'
-          }
-        },
-        content: undefined as any,
-        timestamp
+    describe('and entity content is undefined', () => {
+      let result: ValidationResponse
+
+      beforeEach(async () => {
+        const entity = buildEntity({
+          type: EntityType.SCENE,
+          metadata: {
+            ...VALID_SCENE_METADATA,
+            display: { ...VALID_SCENE_METADATA.display, navmapThumbnail: 'thumbnail.png' }
+          },
+          content: undefined as any,
+          timestamp
+        })
+        const deployment = buildDeployment({ entity, files })
+        result = await embeddedThumbnail(deployment)
       })
-      const deployment = buildDeployment({ entity, files })
 
-      const result: ValidationResponse = await embeddedThumbnail(deployment)
-
-      expect(result.ok).toBeFalsy()
+      it('should fail validation instead of throwing', async () => {
+        expect(result.ok).toBeFalsy()
+      })
     })
 
-    it('When metadata display is undefined, validation passes without throwing', async () => {
-      const entity = buildEntity({
-        type: EntityType.SCENE,
-        metadata: {
-          ...VALID_SCENE_METADATA,
-          display: undefined
-        },
-        content,
-        timestamp
+    describe('and metadata display is undefined', () => {
+      let result: ValidationResponse
+
+      beforeEach(async () => {
+        const entity = buildEntity({
+          type: EntityType.SCENE,
+          metadata: { ...VALID_SCENE_METADATA, display: undefined },
+          content,
+          timestamp
+        })
+        const deployment = buildDeployment({ entity, files })
+        result = await embeddedThumbnail(deployment)
       })
-      const deployment = buildDeployment({ entity, files })
 
-      const result: ValidationResponse = await embeddedThumbnail(deployment)
-
-      expect(result.ok).toBeTruthy()
+      it('should pass validation without throwing', async () => {
+        expect(result.ok).toBeTruthy()
+      })
     })
 
     it('When there is a thumbnail that does not reference an embedded file, validation fails with error', async () => {

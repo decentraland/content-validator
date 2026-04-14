@@ -1041,15 +1041,17 @@ describe('when validating that all mandatory content files are present', () => {
   })
 
   describe('and entity.content is undefined', () => {
-    beforeEach(() => {
+    let result: ValidationResponse
+
+    beforeEach(async () => {
       deployment = buildDeployment({
         entity: buildProfileEntity({ timestamp: ADR_158_TIMESTAMP + 1000, content: undefined as any }),
         files
       })
+      result = await allMandatoryContentFilesArePresentValidateFn(deployment)
     })
 
-    it('should return an error about missing files instead of throwing', async () => {
-      const result: ValidationResponse = await allMandatoryContentFilesArePresentValidateFn(deployment)
+    it('should return an error about missing files instead of throwing', () => {
       expect(result.ok).toBe(false)
       expect(result.errors).toContain(`Profile entity is missing file 'body.png'`)
     })
