@@ -93,7 +93,7 @@ describe('createOutfitsWearablesOwnershipValidateFn', () => {
     expect(result.errors).toBeDefined()
     if (result.errors) {
       expect(result.errors[0]).toEqual(
-        'The following wearables (urn:decentraland:off-chain:base-avatars:wearable1) are not owned by the address 0x12e7f74e73e951c61edd80910e46c3fece512345).'
+        'The following wearables (urn:decentraland:off-chain:base-avatars:wearable1) are not owned by the address 0x12e7f74e73e951c61edd80910e46c3fece512345.'
       )
     }
   })
@@ -156,7 +156,7 @@ describe('createOutfitsNamesOwnershipValidateFn', () => {
     expect(result.errors).toBeDefined()
     if (result.errors) {
       expect(result.errors[0]).toEqual(
-        'The following names (name1) are not owned by the address 0x12e7f74e73e951c61edd80910e46c3fece512345).'
+        'The following names (name1) are not owned by the address 0x12e7f74e73e951c61edd80910e46c3fece512345.'
       )
     }
   })

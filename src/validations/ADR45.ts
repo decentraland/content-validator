@@ -4,6 +4,8 @@ import { ADR_45_TIMESTAMP } from './timestamps'
 
 const entityIsNotVersion3 = (entity: Entity) => entity.version !== 'v3'
 
+// Uses > (not >=) intentionally: the v3 requirement starts strictly after the ADR-45 timestamp,
+// while validateAfterADR45 uses >= to enable other ADR-45 validations at the exact timestamp.
 const entityWasDeployedAfterADR45 = (entity: Entity) => entity.timestamp > ADR_45_TIMESTAMP
 
 /**

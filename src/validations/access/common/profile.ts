@@ -29,7 +29,7 @@ export function createNamesOwnershipValidateFn(
       return validationFailed(
         `The following names (${namesCheckResult.failing?.join(
           ', '
-        )}) are not owned by the address ${ethAddress.toLowerCase()}).`
+        )}) are not owned by the address ${ethAddress.toLowerCase()}.`
       )
     return OK
   }
@@ -101,7 +101,7 @@ export function createItemOwnershipValidateFn(
       return validationFailed(
         `The following items (${itemsOwnershipResult.failing?.join(
           ', '
-        )}) are not owned by the address ${ethAddress.toLowerCase()}).`
+        )}) are not owned by the address ${ethAddress.toLowerCase()}.`
       )
     }
 

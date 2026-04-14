@@ -39,7 +39,7 @@ export function createOutfitsWearablesOwnershipValidateFn(
       return validationFailed(
         `The following wearables (${wearablesOwnershipResult.failing?.join(
           ', '
-        )}) are not owned by the address ${ethAddress.toLowerCase()}).`
+        )}) are not owned by the address ${ethAddress.toLowerCase()}.`
       )
     }
 
@@ -60,7 +60,7 @@ export function createOutfitsNamesOwnershipValidateFn(
       return validationFailed(
         `The following names (${namesCheckResult.failing?.join(
           ', '
-        )}) are not owned by the address ${ethAddress.toLowerCase()}).`
+        )}) are not owned by the address ${ethAddress.toLowerCase()}.`
       )
     return OK
   }

@@ -85,7 +85,7 @@ export type ValidateFn = (deployment: DeploymentToValidate) => Promise<Validatio
 /**
  * @public
  */
-export const OK: ValidationResponse = { ok: true }
+export const OK: ValidationResponse = Object.freeze({ ok: true })
 
 /**
  * @public
