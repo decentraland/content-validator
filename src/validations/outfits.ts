@@ -85,7 +85,12 @@ export const outfitsWearableUrnsIncludeTokenIdFn = validateAfterADR244(async fun
   const invalidUrns: string[] = []
   const nonItemUrns: string[] = []
   for (const wearableUrn of [...new Set(allWearables)]) {
-    const parsed = await parseUrn(wearableUrn)
+    let parsed
+    try {
+      parsed = await parseUrn(wearableUrn)
+    } catch {
+      // treat thrown exceptions the same as unresolvable URNs
+    }
     if (!parsed) {
       invalidUrns.push(wearableUrn)
     } else if (parsed.type === 'blockchain-collection-v1-asset' || parsed.type === 'blockchain-collection-v2-asset') {

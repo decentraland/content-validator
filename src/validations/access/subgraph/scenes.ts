@@ -273,12 +273,20 @@ export function createSceneValidateFn({
     ): Promise<boolean> => {
       const estate = await getEstate(estateId.toString(), timestamp)
       if (estate) {
-        return (
-          (await hasAccessThroughFirstLevelAuthorities(estate, ethAddress)) ||
-          (await hasAccessThroughAuthorizations(estate.owners[0].address, ethAddress, timestamp, tokenAddresses.estate))
+        if (await hasAccessThroughFirstLevelAuthorities(estate, ethAddress)) {
+          return true
+        }
+        if (estate.owners.length === 0) {
+          return false
+        }
+        return await hasAccessThroughAuthorizations(
+          estate.owners[0].address,
+          ethAddress,
+          timestamp,
+          tokenAddresses.estate
         )
       }
-      throw new Error(`Couldn\'t find the state ${estateId}`)
+      throw new Error(`Couldn\'t find the estate ${estateId}`)
     }
 
     const isParcelUpdateAuthorized = async (
@@ -299,16 +307,17 @@ export function createSceneValidateFn({
         const belongsToEstate: boolean =
           parcel.estates !== undefined && parcel.estates.length > 0 && parcel.estates[0].estateId !== undefined
 
-        return (
-          (await hasAccessThroughFirstLevelAuthorities(parcel, ethAddress)) ||
-          (await hasAccessThroughAuthorizations(
-            parcel.owners[0].address,
-            ethAddress,
-            timestamp,
-            tokenAddresses.land
-          )) ||
-          (belongsToEstate && (await isEstateUpdateAuthorized(parcel.estates[0].estateId, timestamp, ethAddress)))
-        )
+        if (await hasAccessThroughFirstLevelAuthorities(parcel, ethAddress)) {
+          return true
+        }
+        if (parcel.owners.length > 0) {
+          if (
+            await hasAccessThroughAuthorizations(parcel.owners[0].address, ethAddress, timestamp, tokenAddresses.land)
+          ) {
+            return true
+          }
+        }
+        return belongsToEstate && (await isEstateUpdateAuthorized(parcel.estates[0].estateId, timestamp, ethAddress))
       }
       throw new Error(`Parcel(${x},${y},${timestamp}) not found`)
     }
@@ -343,6 +352,14 @@ export function createSceneValidateFn({
       if (pointerParts.length === 2) {
         const x: number = parseInt(pointerParts[0], 10)
         const y: number = parseInt(pointerParts[1], 10)
+
+        if (isNaN(x) || isNaN(y)) {
+          errors.push(
+            `Scene pointers should only contain two integers separated by a comma, for example (10,10) or (120,-45). Invalid pointer: ${pointer}`
+          )
+          controller.abort()
+          break
+        }
 
         // Check that the address has access (we check both the present and the 5 min into the past to avoid synchronization issues in the blockchain)
         queue

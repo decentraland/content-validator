@@ -24,7 +24,12 @@ export async function splitItemsURNsByTypeAndNetwork(urnsToSplit: string[]): Pro
   const maticThirdParty: { urn: string; type: string }[] = []
 
   for (const urn of urnsToSplit) {
-    const asset = await parseUrn(urn)
+    let asset
+    try {
+      asset = await parseUrn(urn)
+    } catch {
+      continue
+    }
     if (!asset || !('network' in asset) || !ITEM_TYPES_TO_SPLIT.includes(asset.type)) {
       continue
     }
