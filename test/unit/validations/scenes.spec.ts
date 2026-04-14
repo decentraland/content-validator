@@ -79,6 +79,47 @@ describe('Scenes', () => {
       expect(result.ok).toBeTruthy()
     })
 
+    describe('and entity content is undefined', () => {
+      let result: ValidationResponse
+
+      beforeEach(async () => {
+        const entity = buildEntity({
+          type: EntityType.SCENE,
+          metadata: {
+            ...VALID_SCENE_METADATA,
+            display: { ...VALID_SCENE_METADATA.display, navmapThumbnail: 'thumbnail.png' }
+          },
+          content: undefined as any,
+          timestamp
+        })
+        const deployment = buildDeployment({ entity, files })
+        result = await embeddedThumbnail(deployment)
+      })
+
+      it('should fail validation instead of throwing', async () => {
+        expect(result.ok).toBeFalsy()
+      })
+    })
+
+    describe('and metadata display is undefined', () => {
+      let result: ValidationResponse
+
+      beforeEach(async () => {
+        const entity = buildEntity({
+          type: EntityType.SCENE,
+          metadata: { ...VALID_SCENE_METADATA, display: undefined },
+          content,
+          timestamp
+        })
+        const deployment = buildDeployment({ entity, files })
+        result = await embeddedThumbnail(deployment)
+      })
+
+      it('should pass validation without throwing', async () => {
+        expect(result.ok).toBeTruthy()
+      })
+    })
+
     it('When there is a thumbnail that does not reference an embedded file, validation fails with error', async () => {
       const entity = buildEntity({
         type: EntityType.SCENE,

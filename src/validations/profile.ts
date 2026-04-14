@@ -1,6 +1,6 @@
 import { Avatar, EntityType, Profile } from '@dcl/schemas'
-import { parseUrn } from '@dcl/urn-resolver'
 import sharp from 'sharp'
+import { safeParseUrn } from '../utils'
 import {
   ContentValidatorComponents,
   DeploymentToValidate,
@@ -75,7 +75,7 @@ export async function wearableUrnsValidateFn(deployment: DeploymentToValidate): 
       for (const pointer of avatar.avatar.wearables) {
         if (isOldEmote(pointer)) continue
 
-        const parsed = await parseUrn(pointer)
+        const parsed = await safeParseUrn(pointer)
         if (!parsed) {
           return validationFailed(
             `Each profile wearable pointer should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (${pointer})`
@@ -102,7 +102,7 @@ export async function emoteUrnsValidateFn(deployment: DeploymentToValidate): Pro
       const allEmotes = avatar.avatar.emotes ?? []
       for (const { slot, urn } of allEmotes) {
         if (isOldEmote(urn)) continue
-        const parsed = await parseUrn(urn)
+        const parsed = await safeParseUrn(urn)
         if (!parsed)
           return validationFailed(
             `Each profile emote pointer should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (${urn})`
@@ -258,7 +258,7 @@ export async function allMandatoryContentFilesArePresentValidateFn(
   async function validateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
     const { entity } = deployment
     const errors: string[] = []
-    const fileNames = entity.content.map((a) => a.file.toLowerCase())
+    const fileNames = (entity.content ?? []).map((a) => a.file.toLowerCase())
     if (!fileNames.includes('body.png')) {
       errors.push(`Profile entity is missing file 'body.png'`)
     }
@@ -281,8 +281,9 @@ export async function entityShouldNotHaveContentFilesValidateFn(
   async function validateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
     const { entity } = deployment
     const errors: string[] = []
-    if (entity.content.length > 0) {
-      errors.push(`Entity has content files when it should not: ${entity.content.map((a) => a.file).join(', ')}`)
+    const contentFiles = entity.content ?? []
+    if (contentFiles.length > 0) {
+      errors.push(`Entity has content files when it should not: ${contentFiles.map((a) => a.file).join(', ')}`)
     }
     if (deployment.files.size > 1) {
       errors.push(`Entity has uploaded files when it should not: ${Array.from(deployment.files.keys()).join(', ')}`)
