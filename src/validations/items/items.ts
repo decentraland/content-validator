@@ -68,7 +68,7 @@ export function createDeploymentMaxSizeExcludingThumbnailIsNotExceededValidateFn
 }
 
 /** Validate that given item deployment includes a thumbnail with valid format and size */
-const maxThumbnailDimensionInPx = thumbnailMaxSizeInMb * 1024
+const maxThumbnailDimensionInPx = 1024
 
 export function createThumbnailMaxSizeIsNotExceededValidateFn(
   components: Pick<ContentValidatorComponents, 'externalCalls' | 'logs'>
