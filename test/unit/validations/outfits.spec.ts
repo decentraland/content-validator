@@ -1,10 +1,12 @@
 import { Entity, EntityType, Outfit, Outfits } from '@dcl/schemas'
 import {
   createOutfitsPointerValidateFn,
+  createOutfitsValidateFn,
   outfitSlotsAreBetween0and9inclusiveValidateFn,
   outfitSlotsAreNotRepeatedValidateFn,
   outfitsNumberOfNamesForExtraSlotsIsCorrectValidateFn
 } from '../../../src/validations/outfits'
+import { buildComponents } from '../../setup/mock'
 import { buildDeployment } from '../../setup/deployments'
 import { buildExternalCalls } from '../../setup/mock'
 import { VALID_OUTFITS_METADATA } from '../../setup/outfits'
@@ -259,5 +261,66 @@ describe('outfitsNumberOfNamesForExtraSlotsIsCorrectValidateFn', () => {
     if (result.errors) {
       expect(result.errors[0]).toEqual('A name must be provided if extra slots are used, but none were provided.')
     }
+  })
+})
+
+describe('createOutfitsValidateFn (integration)', () => {
+  it('rejects outfits with slot numbers outside 0-9 through the full validation chain', async () => {
+    const pointer = `${ownerAddress}:outfits`
+    const entity: TypedEntity<Outfits> = {
+      version: '3',
+      type: EntityType.OUTFITS,
+      pointers: [pointer],
+      timestamp: Date.now(),
+      content: [],
+      id: 'bafybeihz4c4cf4icnlh6yjtt7fooaeih3dkv2mz6umod7dybenzmsxkzvq',
+      metadata: {
+        outfits: [outfitWithSlot(0), outfitWithSlot(10)],
+        namesForExtraSlots: []
+      }
+    }
+    const deployment = buildDeployment({
+      entity,
+      auditInfo: { authChain: [] }
+    })
+
+    const components = buildComponents({
+      externalCalls: buildExternalCalls({
+        ownerAddress: () => ownerAddress
+      })
+    })
+    const validateFn = createOutfitsValidateFn(components)
+    const result = await validateFn(deployment)
+    expect(result.ok).toBeFalsy()
+    expect(result.errors).toContain('Outfits slots are invalid, they must be between 0 and 9 inclusive')
+  })
+
+  it('accepts outfits with valid slot numbers through the full validation chain', async () => {
+    const pointer = `${ownerAddress}:outfits`
+    const entity: TypedEntity<Outfits> = {
+      version: '3',
+      type: EntityType.OUTFITS,
+      pointers: [pointer],
+      timestamp: Date.now(),
+      content: [],
+      id: 'bafybeihz4c4cf4icnlh6yjtt7fooaeih3dkv2mz6umod7dybenzmsxkzvq',
+      metadata: {
+        outfits: [outfitWithSlot(0), outfitWithSlot(4)],
+        namesForExtraSlots: []
+      }
+    }
+    const deployment = buildDeployment({
+      entity,
+      auditInfo: { authChain: [] }
+    })
+
+    const components = buildComponents({
+      externalCalls: buildExternalCalls({
+        ownerAddress: () => ownerAddress
+      })
+    })
+    const validateFn = createOutfitsValidateFn(components)
+    const result = await validateFn(deployment)
+    expect(result.ok).toBeTruthy()
   })
 })
