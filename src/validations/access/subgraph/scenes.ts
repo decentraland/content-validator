@@ -52,9 +52,7 @@ export function createSceneValidateFn({
   const logger = logs.getLogger('scenes access validator')
 
   const SCENE_LOOKBACK_TIME = ms('5m')
-  const parsedConcurrency = process.env.SCENE_VALIDATIONS_CONCURRENCY
-    ? parseInt(process.env.SCENE_VALIDATIONS_CONCURRENCY)
-    : 10
+  const parsedConcurrency = parseInt(process.env.SCENE_VALIDATIONS_CONCURRENCY ?? '')
   const SCENE_VALIDATIONS_CONCURRENCY = isNaN(parsedConcurrency) || parsedConcurrency <= 0 ? 10 : parsedConcurrency
 
   return async function validateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
@@ -274,17 +272,15 @@ export function createSceneValidateFn({
     ): Promise<boolean> => {
       const estate = await getEstate(estateId.toString(), timestamp)
       if (estate) {
-        if (await hasAccessThroughFirstLevelAuthorities(estate, ethAddress)) {
-          return true
-        }
-        if (estate.owners.length === 0) {
-          return false
-        }
-        return await hasAccessThroughAuthorizations(
-          estate.owners[0].address,
-          ethAddress,
-          timestamp,
-          tokenAddresses.estate
+        return (
+          (await hasAccessThroughFirstLevelAuthorities(estate, ethAddress)) ||
+          (estate.owners.length > 0 &&
+            (await hasAccessThroughAuthorizations(
+              estate.owners[0].address,
+              ethAddress,
+              timestamp,
+              tokenAddresses.estate
+            )))
         )
       }
       throw new Error(`Couldn\'t find the estate ${estateId}`)
@@ -308,17 +304,17 @@ export function createSceneValidateFn({
         const belongsToEstate: boolean =
           parcel.estates !== undefined && parcel.estates.length > 0 && parcel.estates[0].estateId !== undefined
 
-        if (await hasAccessThroughFirstLevelAuthorities(parcel, ethAddress)) {
-          return true
-        }
-        if (parcel.owners.length > 0) {
-          if (
-            await hasAccessThroughAuthorizations(parcel.owners[0].address, ethAddress, timestamp, tokenAddresses.land)
-          ) {
-            return true
-          }
-        }
-        return belongsToEstate && (await isEstateUpdateAuthorized(parcel.estates[0].estateId, timestamp, ethAddress))
+        return (
+          (await hasAccessThroughFirstLevelAuthorities(parcel, ethAddress)) ||
+          (parcel.owners.length > 0 &&
+            (await hasAccessThroughAuthorizations(
+              parcel.owners[0].address,
+              ethAddress,
+              timestamp,
+              tokenAddresses.land
+            ))) ||
+          (belongsToEstate && (await isEstateUpdateAuthorized(parcel.estates[0].estateId, timestamp, ethAddress)))
+        )
       }
       throw new Error(`Parcel(${x},${y},${timestamp}) not found`)
     }
