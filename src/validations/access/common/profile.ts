@@ -23,7 +23,7 @@ export function createNamesOwnershipValidateFn(
     const names = deployment.entity.metadata.avatars
       .filter((avatar: Avatar) => avatar.hasClaimedName)
       .map((avatar: Avatar) => avatar.name?.toLowerCase())
-      .filter((name: string) => name && name.trim().length > 0)
+      .filter((name: string | undefined): name is string => !!name && name.trim().length > 0)
     const namesCheckResult = await namesOwnership.ownsNamesAtTimestamp(ethAddress, names, deployment.entity.timestamp)
     if (!namesCheckResult.result)
       return validationFailed(

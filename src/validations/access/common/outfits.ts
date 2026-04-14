@@ -54,7 +54,9 @@ export function createOutfitsNamesOwnershipValidateFn(
   return async function validateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
     const ethAddress = externalCalls.ownerAddress(deployment.auditInfo)
     const namesForExtraSlots: string[] = deployment.entity.metadata.namesForExtraSlots
-    const names = namesForExtraSlots.filter((name: string) => name && name.trim().length > 0)
+    const names = namesForExtraSlots
+      .map((name: string) => name?.toLowerCase())
+      .filter((name): name is string => !!name && name.trim().length > 0)
     const namesCheckResult = await namesOwnership.ownsNamesAtTimestamp(ethAddress, names, deployment.entity.timestamp)
     if (!namesCheckResult.result)
       return validationFailed(

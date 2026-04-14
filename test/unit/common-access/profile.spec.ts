@@ -1,4 +1,5 @@
 import { EntityType } from '@dcl/schemas'
+import { ValidationResponse } from '../../../src/types'
 import {
   createItemOwnershipValidateFn,
   createNamesOwnershipValidateFn,
@@ -143,30 +144,63 @@ describe('createNamesOwnershipValidateFn', () => {
     )
   })
 
-  it('When a profile has claimed names with mixed case, names are lowercased before ownership check', async () => {
-    const someAddress = '0x862f109696d7121438642a78b3caa38f476db08b'
+  describe('and claimed names have mixed case', () => {
+    let response: ValidationResponse
 
-    // VALID_PROFILE_METADATA has a claimed name "Some Name" with mixed case.
-    // After lowercasing, the ownership checker receives "some name".
-    // If the checker owns "some name", validation should pass.
-    const entity = buildEntity({
-      type: EntityType.PROFILE,
-      metadata: VALID_PROFILE_METADATA,
-      timestamp: ADR_75_TIMESTAMP + 1,
-      pointers: [someAddress]
+    beforeEach(async () => {
+      const someAddress = '0x862f109696d7121438642a78b3caa38f476db08b'
+      // VALID_PROFILE_METADATA has a claimed name "Some Name" with mixed case.
+      // After lowercasing, the ownership checker receives "some name".
+      const entity = buildEntity({
+        type: EntityType.PROFILE,
+        metadata: VALID_PROFILE_METADATA,
+        timestamp: ADR_75_TIMESTAMP + 1,
+        pointers: [someAddress]
+      })
+      const deployment = buildDeployment({ entity })
+      const externalCalls = buildExternalCalls({ ownerAddress: () => someAddress })
+      const namesOwnership = createNamesOwnershipWith(someAddress, ['some name'])
+      const validateFn = createNamesOwnershipValidateFn({ externalCalls }, namesOwnership)
+      response = await validateFn(deployment)
     })
-    const deployment = buildDeployment({ entity })
 
-    const externalCalls = buildExternalCalls({
-      ownerAddress: () => someAddress
+    it('should pass when the checker owns the lowercased name', () => {
+      expect(response.ok).toBeTruthy()
+      expect(response.errors).toBeUndefined()
+    })
+  })
+
+  describe('and a claimed avatar has an undefined name', () => {
+    let response: ValidationResponse
+
+    beforeEach(async () => {
+      const someAddress = '0x862f109696d7121438642a78b3caa38f476db08b'
+      const metadata = {
+        avatars: [
+          {
+            ...VALID_PROFILE_METADATA.avatars[0],
+            hasClaimedName: true,
+            name: undefined
+          }
+        ]
+      }
+      const entity = buildEntity({
+        type: EntityType.PROFILE,
+        metadata,
+        timestamp: ADR_75_TIMESTAMP + 1,
+        pointers: [someAddress]
+      })
+      const deployment = buildDeployment({ entity })
+      const externalCalls = buildExternalCalls({ ownerAddress: () => someAddress })
+      const namesOwnership = createNamesOwnershipWith(someAddress, [])
+      const validateFn = createNamesOwnershipValidateFn({ externalCalls }, namesOwnership)
+      response = await validateFn(deployment)
     })
 
-    // The checker owns "some name" (lowercase) — should match the lowercased claim
-    const namesOwnership = createNamesOwnershipWith(someAddress, ['some name'])
-
-    const validateFn = createNamesOwnershipValidateFn({ externalCalls }, namesOwnership)
-    const response = await validateFn(deployment)
-    expect(response.ok).toBeTruthy()
+    it('should pass because the undefined name is filtered out', () => {
+      expect(response.ok).toBeTruthy()
+      expect(response.errors).toBeUndefined()
+    })
   })
 
   it('claimed names are checked against the graph client after ADR 75', async () => {
