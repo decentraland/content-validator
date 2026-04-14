@@ -43,6 +43,37 @@ describe('TheGraphClient', () => {
     )
   })
 
+  describe('when findBlocksForTimestamp returns both blocks', () => {
+    let result: { blockNumberAtDeployment: number | undefined; blockNumberFiveMinBeforeDeployment: number | undefined }
+
+    beforeEach(async () => {
+      const subGraphs = buildSubGraphs({
+        L1: {
+          collections: createMockSubgraphComponent(),
+          blocks: createMockSubgraphComponent(
+            jest.fn().mockResolvedValueOnce({
+              max: [{ number: '200' }],
+              min: [{ number: '100' }]
+            })
+          ),
+          landManager: createMockSubgraphComponent(),
+          ensOwner: createMockSubgraphComponent()
+        }
+      })
+
+      const { theGraphClient } = buildSubgraphAccessCheckerComponents({ subGraphs })
+      result = await theGraphClient.findBlocksForTimestamp(subGraphs.L1.blocks, 10)
+    })
+
+    it('should assign max (newest block) to blockNumberAtDeployment', () => {
+      expect(result.blockNumberAtDeployment).toBe(200)
+    })
+
+    it('should assign min (oldest block) to blockNumberFiveMinBeforeDeployment', () => {
+      expect(result.blockNumberFiveMinBeforeDeployment).toBe(100)
+    })
+  })
+
   describe('Checks for name ownership', function () {
     it('When no block for current timestamp, it should continue and check the block from 5 minute before', async () => {
       const subGraphs = buildSubGraphs({
