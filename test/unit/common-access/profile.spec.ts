@@ -139,7 +139,7 @@ describe('createNamesOwnershipValidateFn', () => {
     const response = await validateFn(deployment)
     expect(response.ok).toBeFalsy()
     expect(response.errors).toContain(
-      'The following names (Some Name) are not owned by the address 0x862f109696d7121438642a78b3caa38f476db08b).'
+      'The following names (some name) are not owned by the address 0x862f109696d7121438642a78b3caa38f476db08b).'
     )
   })
 

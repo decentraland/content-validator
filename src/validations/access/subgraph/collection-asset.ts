@@ -212,7 +212,9 @@ export function createV1andV2collectionAssetValidateFn(
           `The provided Eth Address '${ethAddress}' does not have access to the following item: (${asset.contractAddress}, ${asset.id})`
         )
 
-      // L1 collections are deployed by Decentraland Address
+      // L1 v1 collections can also be deployed by the Decentraland Address.
+      // This fallback is intentional: committee-based access (checked above) may not apply to L1 v1 collections,
+      // so Decentraland's address is allowed as an alternative deployment path.
       const isAllowlistedCollection = asset.uri.toString().startsWith('urn:decentraland:ethereum:collections-v1')
       if (!externalCalls.isAddressOwnedByDecentraland(ethAddress) || !isAllowlistedCollection) {
         return validationFailed(
