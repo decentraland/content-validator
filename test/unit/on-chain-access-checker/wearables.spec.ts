@@ -243,7 +243,8 @@ describe('Access: wearables', () => {
       const deployment = buildThirdPartyWearableDeployment(metadata.id, metadata)
 
       const validateFn = buildWearableValidateFn(components)
-      await validateFn(deployment)
+      const response = await validateFn(deployment)
+      expect(response.ok).toBeFalsy()
       expect(components.L2.checker.validateThirdParty).toHaveBeenNthCalledWith(
         1,
         expect.anything(),

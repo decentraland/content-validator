@@ -1,5 +1,4 @@
 import { EntityType, EthAddress, Outfits } from '@dcl/schemas'
-import { parseUrn } from '@dcl/urn-resolver'
 import {
   ContentValidatorComponents,
   DeploymentToValidate,
@@ -8,6 +7,7 @@ import {
   ValidationResponse,
   validationFailed
 } from '../types'
+import { safeParseUrn } from '../utils'
 import { validateAfterADR244, validateAll, validateIfTypeMatches } from './validations'
 
 export function createOutfitsPointerValidateFn(
@@ -85,7 +85,7 @@ export const outfitsWearableUrnsIncludeTokenIdFn = validateAfterADR244(async fun
   const invalidUrns: string[] = []
   const nonItemUrns: string[] = []
   for (const wearableUrn of [...new Set(allWearables)]) {
-    const parsed = await parseUrn(wearableUrn)
+    const parsed = await safeParseUrn(wearableUrn)
     if (!parsed) {
       invalidUrns.push(wearableUrn)
     } else if (parsed.type === 'blockchain-collection-v1-asset' || parsed.type === 'blockchain-collection-v2-asset') {
@@ -111,6 +111,7 @@ export function createOutfitsValidateFn(components: ContentValidatorComponents):
     validateAll(
       createOutfitsPointerValidateFn(components),
       outfitSlotsAreNotRepeatedValidateFn,
+      outfitSlotsAreBetween0and9inclusiveValidateFn,
       outfitsNumberOfNamesForExtraSlotsIsCorrectValidateFn,
       outfitsWearableUrnsIncludeTokenIdFn
     )

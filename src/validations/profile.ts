@@ -1,6 +1,6 @@
 import { Avatar, EntityType, Profile } from '@dcl/schemas'
-import { parseUrn } from '@dcl/urn-resolver'
 import sharp from 'sharp'
+import { safeParseUrn } from '../utils'
 import {
   ContentValidatorComponents,
   DeploymentToValidate,
@@ -24,10 +24,10 @@ import {
 /** Validate that given profile deployment includes a face256 thumbnail with valid size */
 const defaultThumbnailSize = 256
 
-export const isOldEmote = (wearable: string): boolean => /^[a-z]+$/i.test(wearable)
+export const isOldEmote = (wearable: string): boolean => /^[a-z]+$/i.test(wearable) && wearable.length <= 20
 
 function correspondsToASnapshot(fileName: string, hash: string, metadata: Profile) {
-  const fileNameWithoutExtension = fileName.replace(/.[^/.]+$/, '')
+  const fileNameWithoutExtension = fileName.replace(/\.[^/.]+$/, '')
 
   return metadata.avatars.some((avatar: Avatar) =>
     Object.entries(avatar.avatar?.snapshots ?? {}).some((key) => key[0] === fileNameWithoutExtension && key[1] === hash)
@@ -45,7 +45,7 @@ export function createFaceThumbnailValidateFn(components: ContentValidatorCompon
 
       const isAlreadyStored = (await components.externalCalls.isContentStoredAlready([hash])).get(hash) ?? false
       if (isAlreadyStored) {
-        return OK
+        continue
       }
       // check size
       const thumbnailBuffer = deployment.files.get(hash)
@@ -75,7 +75,7 @@ export async function wearableUrnsValidateFn(deployment: DeploymentToValidate): 
       for (const pointer of avatar.avatar.wearables) {
         if (isOldEmote(pointer)) continue
 
-        const parsed = await parseUrn(pointer)
+        const parsed = await safeParseUrn(pointer)
         if (!parsed) {
           return validationFailed(
             `Each profile wearable pointer should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (${pointer})`
@@ -102,7 +102,7 @@ export async function emoteUrnsValidateFn(deployment: DeploymentToValidate): Pro
       const allEmotes = avatar.avatar.emotes ?? []
       for (const { slot, urn } of allEmotes) {
         if (isOldEmote(urn)) continue
-        const parsed = await parseUrn(urn)
+        const parsed = await safeParseUrn(urn)
         if (!parsed)
           return validationFailed(
             `Each profile emote pointer should be a urn, for example (urn:decentraland:{protocol}:collections-v2:{contract(0x[a-fA-F0-9]+)}:{name}). Invalid pointer: (${urn})`
@@ -180,14 +180,13 @@ export function createProfileImagesValidateFn(components: ContentValidatorCompon
     const errors: string[] = []
     const allAvatars: any[] = deployment.entity.metadata?.avatars ?? []
 
+    const calculatedHashes = await components.externalCalls.calculateFilesHashes(deployment.files)
     for (const avatar of allAvatars) {
       const faceHash = avatar.avatar?.snapshots?.face256
       const bodyHash = avatar.avatar?.snapshots?.body
 
       if (!faceHash || !bodyHash)
         return validationFailed(`Couldn't find hash for face or body thumbnails on profile metadata`)
-
-      const calculatedHashes = await components.externalCalls.calculateFilesHashes(deployment.files)
 
       // validate all hashes
       Array.from(calculatedHashes.entries()).forEach(([key, entry]) => {
@@ -258,7 +257,7 @@ export async function allMandatoryContentFilesArePresentValidateFn(
   async function validateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
     const { entity } = deployment
     const errors: string[] = []
-    const fileNames = entity.content.map((a) => a.file.toLowerCase())
+    const fileNames = (entity.content ?? []).map((a) => a.file.toLowerCase())
     if (!fileNames.includes('body.png')) {
       errors.push(`Profile entity is missing file 'body.png'`)
     }
@@ -281,8 +280,9 @@ export async function entityShouldNotHaveContentFilesValidateFn(
   async function validateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
     const { entity } = deployment
     const errors: string[] = []
-    if (entity.content.length > 0) {
-      errors.push(`Entity has content files when it should not: ${entity.content.map((a) => a.file).join(', ')}`)
+    const contentFiles = entity.content ?? []
+    if (contentFiles.length > 0) {
+      errors.push(`Entity has content files when it should not: ${contentFiles.map((a) => a.file).join(', ')}`)
     }
     if (deployment.files.size > 1) {
       errors.push(`Entity has uploaded files when it should not: ${Array.from(deployment.files.keys()).join(', ')}`)

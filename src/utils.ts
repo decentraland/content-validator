@@ -17,6 +17,18 @@ const ITEM_TYPES_TO_SPLIT = [
   'blockchain-collection-third-party-item'
 ]
 
+/**
+ * Wraps parseUrn in a try-catch so callers don't need to handle thrown exceptions.
+ * Returns null if the URN cannot be parsed for any reason.
+ */
+export async function safeParseUrn(urn: string) {
+  try {
+    return await parseUrn(urn)
+  } catch {
+    return null
+  }
+}
+
 export async function splitItemsURNsByTypeAndNetwork(urnsToSplit: string[]): Promise<URNsByNetwork> {
   const ethereum: { urn: string; type: string }[] = []
   const matic: { urn: string; type: string }[] = []
@@ -24,7 +36,7 @@ export async function splitItemsURNsByTypeAndNetwork(urnsToSplit: string[]): Pro
   const maticThirdParty: { urn: string; type: string }[] = []
 
   for (const urn of urnsToSplit) {
-    const asset = await parseUrn(urn)
+    const asset = await safeParseUrn(urn)
     if (!asset || !('network' in asset) || !ITEM_TYPES_TO_SPLIT.includes(asset.type)) {
       continue
     }

@@ -8,6 +8,7 @@ import {
   createProfileValidateFn,
   emoteUrnsValidateFn,
   entityShouldNotHaveContentFilesValidateFn,
+  isOldEmote,
   profileMustHaveEmotesValidateFn,
   profileMustNotHaveSnapshotsValidateFn,
   profileSlotsAreNotRepeatedValidateFn,
@@ -200,6 +201,84 @@ describe('when validating face thumbnail', () => {
           expect(result.errors).toContain(`Couldn't parse face256 thumbnail, please check image format.`)
         })
       })
+    })
+  })
+})
+
+describe('when validating face thumbnail with multiple avatars', () => {
+  describe('and the first avatar face256 is already stored but the second is not', () => {
+    let result: ValidationResponse
+    const storedHash = 'bafybeiasb5vpmaounyilfuxbd3lryvosl4yefqrfahsb2esg46q6tu6y5s'
+    const unstoredHash = 'bafybeiasb5vpmaounyilfuxbd3lryvosl4yefqrfahsb2esg46q6tu6y5x'
+
+    beforeEach(async () => {
+      const files = new Map<string, Uint8Array>()
+      const deployment = buildDeployment({
+        entity: buildProfileEntity({
+          timestamp: ADR_45_TIMESTAMP + 1000,
+          metadata: {
+            avatars: [
+              {
+                ...VALID_PROFILE_METADATA.avatars[0],
+                avatar: { ...VALID_PROFILE_METADATA.avatars[0].avatar, snapshots: { face256: storedHash } }
+              },
+              {
+                ...VALID_PROFILE_METADATA.avatars[0],
+                avatar: { ...VALID_PROFILE_METADATA.avatars[0].avatar, snapshots: { face256: unstoredHash } }
+              }
+            ]
+          }
+        }),
+        files
+      })
+
+      const components = buildComponents({
+        externalCalls: buildExternalCalls({
+          isContentStoredAlready: jest.fn().mockResolvedValue(
+            new Map([
+              [storedHash, true],
+              [unstoredHash, false]
+            ])
+          )
+        })
+      })
+      const validateFn = createFaceThumbnailValidateFn(components)
+      result = await validateFn(deployment)
+    })
+
+    it('should fail because the second avatar face256 is not stored and not in files', () => {
+      expect(result.ok).toBe(false)
+      expect(result.errors).toContain(`Couldn't find thumbnail file with hash: ${unstoredHash}`)
+    })
+  })
+})
+
+describe('when checking if a string is an old emote', () => {
+  describe('and the input is a short lowercase alpha string', () => {
+    it('should return true', () => {
+      expect(isOldEmote('dance')).toBe(true)
+      expect(isOldEmote('wave')).toBe(true)
+      expect(isOldEmote('raisehand')).toBe(true)
+    })
+  })
+
+  describe('and the input is a short mixed-case alpha string', () => {
+    it('should return true for backward compatibility', () => {
+      expect(isOldEmote('Dance')).toBe(true)
+      expect(isOldEmote('raiseHand')).toBe(true)
+    })
+  })
+
+  describe('and the input is longer than 20 characters', () => {
+    it('should return false', () => {
+      expect(isOldEmote('aVeryLongEmoteNameThatExceedsTwenty')).toBe(false)
+    })
+  })
+
+  describe('and the input contains numbers or special characters', () => {
+    it('should return false', () => {
+      expect(isOldEmote('dance123')).toBe(false)
+      expect(isOldEmote('urn:decentraland:matic:collections-v2:0x123:0')).toBe(false)
     })
   })
 })
@@ -948,6 +1027,32 @@ describe('when validating that all content files correspond to at least one avat
     })
   })
 
+  describe('and there is a content file with a multi-dot filename like snapshot.face256.png', () => {
+    beforeEach(() => {
+      // The regex /\.[^/.]+$/ should only strip the last extension (.png),
+      // leaving "snapshot.face256" as the key to match against snapshot names.
+      const hash = 'bafybeiasb5vpmaounyilfuxbd3lryvosl4yefqrfahsb2esg46q6tu6y5s'
+      deployment.entity.metadata = {
+        avatars: [
+          {
+            ...VALID_PROFILE_METADATA.avatars[0],
+            avatar: {
+              ...VALID_PROFILE_METADATA.avatars[0].avatar,
+              snapshots: { 'snapshot.face256': hash }
+            }
+          }
+        ]
+      }
+      content.push({ file: 'snapshot.face256.png', hash })
+    })
+
+    it('should strip only the last extension and match the snapshot key', async () => {
+      const result: ValidationResponse =
+        await allContentFilesCorrespondToAtLeastOneAvatarSnapshotAfterADR45ValidateFn(deployment)
+      expect(result.ok).toBe(true)
+    })
+  })
+
   describe("and the entity's metadata has no avatars", () => {
     beforeEach(() => {
       deployment.entity.metadata.avatars = []
@@ -1037,6 +1142,23 @@ describe('when validating that all mandatory content files are present', () => {
       expect(result.ok).toBe(false)
       expect(result.errors).toContain(`Profile entity is missing file 'body.png'`)
       expect(result.errors).toContain(`Profile entity is missing file 'face256.png'`)
+    })
+  })
+
+  describe('and entity.content is undefined', () => {
+    let result: ValidationResponse
+
+    beforeEach(async () => {
+      deployment = buildDeployment({
+        entity: buildProfileEntity({ timestamp: ADR_158_TIMESTAMP + 1000, content: undefined as any }),
+        files
+      })
+      result = await allMandatoryContentFilesArePresentValidateFn(deployment)
+    })
+
+    it('should return an error about missing files instead of throwing', () => {
+      expect(result.ok).toBe(false)
+      expect(result.errors).toContain(`Profile entity is missing file 'body.png'`)
     })
   })
 })
