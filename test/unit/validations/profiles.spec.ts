@@ -8,6 +8,7 @@ import {
   createProfileValidateFn,
   emoteUrnsValidateFn,
   entityShouldNotHaveContentFilesValidateFn,
+  isOldEmote,
   profileMustHaveEmotesValidateFn,
   profileMustNotHaveSnapshotsValidateFn,
   profileSlotsAreNotRepeatedValidateFn,
@@ -201,6 +202,70 @@ describe('when validating face thumbnail', () => {
         })
       })
     })
+  })
+})
+
+describe('when validating face thumbnail with multiple avatars', () => {
+  it('should validate the second avatar even when the first has a stored face256', async () => {
+    // This tests the fix: `return OK` was changed to `continue` so remaining
+    // avatars are validated even when the first avatar's hash is already stored.
+    const storedHash = 'bafybeiasb5vpmaounyilfuxbd3lryvosl4yefqrfahsb2esg46q6tu6y5s'
+    const unstored = 'bafybeiasb5vpmaounyilfuxbd3lryvosl4yefqrfahsb2esg46q6tu6y5x'
+    const files = new Map<string, Uint8Array>()
+
+    const deployment = buildDeployment({
+      entity: buildProfileEntity({
+        timestamp: ADR_45_TIMESTAMP + 1000,
+        metadata: {
+          avatars: [
+            {
+              ...VALID_PROFILE_METADATA.avatars[0],
+              avatar: { ...VALID_PROFILE_METADATA.avatars[0].avatar, snapshots: { face256: storedHash } }
+            },
+            {
+              ...VALID_PROFILE_METADATA.avatars[0],
+              avatar: { ...VALID_PROFILE_METADATA.avatars[0].avatar, snapshots: { face256: unstored } }
+            }
+          ]
+        }
+      }),
+      files
+    })
+
+    const components = buildComponents({
+      externalCalls: buildExternalCalls({
+        isContentStoredAlready: jest.fn().mockResolvedValue(
+          new Map([
+            [storedHash, true],
+            [unstored, false]
+          ])
+        )
+      })
+    })
+    const validateFn = createFaceThumbnailValidateFn(components)
+    const result = await validateFn(deployment)
+    // The second avatar's face256 is not stored and not in files, so it should fail
+    expect(result.ok).toBe(false)
+    expect(result.errors).toContain(`Couldn't find thumbnail file with hash: ${unstored}`)
+  })
+})
+
+describe('isOldEmote', () => {
+  it('should match lowercase-only emote names', () => {
+    expect(isOldEmote('dance')).toBe(true)
+    expect(isOldEmote('wave')).toBe(true)
+    expect(isOldEmote('raisehand')).toBe(true)
+  })
+
+  it('should not match mixed-case strings to prevent URN validation bypass', () => {
+    expect(isOldEmote('Dance')).toBe(false)
+    expect(isOldEmote('AAAA')).toBe(false)
+    expect(isOldEmote('raiseHand')).toBe(false)
+  })
+
+  it('should not match strings with numbers or special characters', () => {
+    expect(isOldEmote('dance123')).toBe(false)
+    expect(isOldEmote('urn:decentraland:matic:collections-v2:0x123:0')).toBe(false)
   })
 })
 

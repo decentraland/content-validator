@@ -570,6 +570,25 @@ describe('when testing validation wrapper functions', () => {
         })
       })
 
+      describe('and only the second avatar has snapshots', () => {
+        beforeEach(() => {
+          const avatarBase = VALID_PROFILE_METADATA.avatars[0]
+          deployment.entity.metadata = {
+            avatars: [
+              { ...avatarBase, avatar: { ...avatarBase.avatar, snapshots: undefined } },
+              { ...avatarBase, avatar: { ...avatarBase.avatar, snapshots: { face256: 'hash1' } } }
+            ]
+          }
+        })
+
+        it('should call the validation function because the second avatar has snapshots', async () => {
+          const validateFn = validateUpToADR290OptionalityTimestamp(fromTimestamp, mockValidateFn)
+          const result = await validateFn(deployment)
+          expect(result).toEqual(resultFromMockValidateFn)
+          expect(mockValidateFn).toHaveBeenCalledWith(deployment)
+        })
+      })
+
       describe('and the profile has no content, files (besides the entity file), or snapshots in the avatar metadata', () => {
         beforeEach(() => {
           deployment.entity.metadata.avatars[0].avatar.snapshots = undefined
