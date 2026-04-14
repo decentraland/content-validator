@@ -29,6 +29,13 @@ export function createSceneValidateFn({
         const x: number = parseInt(pointerParts[0], 10)
         const y: number = parseInt(pointerParts[1], 10)
 
+        if (isNaN(x) || isNaN(y)) {
+          errors.push(
+            `Scene pointers should only contain two integers separated by a comma, for example (10,10) or (120,-45). Invalid pointer: ${pointer}`
+          )
+          continue
+        }
+
         batch.push([x, y])
       } else {
         errors.push(

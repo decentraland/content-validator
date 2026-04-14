@@ -1144,6 +1144,23 @@ describe('when validating that all mandatory content files are present', () => {
       expect(result.errors).toContain(`Profile entity is missing file 'face256.png'`)
     })
   })
+
+  describe('and entity.content is undefined', () => {
+    let result: ValidationResponse
+
+    beforeEach(async () => {
+      deployment = buildDeployment({
+        entity: buildProfileEntity({ timestamp: ADR_158_TIMESTAMP + 1000, content: undefined as any }),
+        files
+      })
+      result = await allMandatoryContentFilesArePresentValidateFn(deployment)
+    })
+
+    it('should return an error about missing files instead of throwing', () => {
+      expect(result.ok).toBe(false)
+      expect(result.errors).toContain(`Profile entity is missing file 'body.png'`)
+    })
+  })
 })
 
 describe('when validating that the entity should not have content files', () => {
