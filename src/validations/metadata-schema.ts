@@ -53,7 +53,8 @@ function validateIfEmote(validateFn: ValidateFn): ValidateFn {
 export const metadataVersionIsCorrectForTimestampValidateFn = validateIfEmote(
   validateAfterADR74(async function validateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
     const entity = deployment.entity
-    const adrNumber = ADRMetadataVersionTimelines[entity.type].find((v) => v.timestamp < entity.timestamp)?.number
+    const matchingAdrs = ADRMetadataVersionTimelines[entity.type].filter((v) => v.timestamp < entity.timestamp)
+    const adrNumber = matchingAdrs.length > 0 ? matchingAdrs[matchingAdrs.length - 1].number : undefined
     const expectedDataField = `${entity.type}DataADR${adrNumber}`
     return `${expectedDataField}` in deployment.entity.metadata
       ? OK
