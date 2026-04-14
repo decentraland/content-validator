@@ -1,5 +1,8 @@
 import { EntityType } from '@dcl/schemas'
-import { metadataValidateFn } from '../../../src/validations/metadata-schema'
+import {
+  metadataValidateFn,
+  metadataVersionIsCorrectForTimestampValidateFn
+} from '../../../src/validations/metadata-schema'
 import { ADR_45_TIMESTAMP, ADR_74_TIMESTAMP } from '../../../src/validations/timestamps'
 import { buildDeployment } from '../../setup/deployments'
 import { VALID_STANDARD_EMOTE_METADATA, VALID_THIRD_PARTY_EMOTE_METADATA_WITH_MERKLE_ROOT } from '../../setup/emotes'
@@ -73,6 +76,64 @@ describe('Metadata Schema', () => {
 
   describe('OUTFITS: ', () => {
     testType(EntityType.OUTFITS, VALID_OUTFITS_METADATA, invalidMetadata)
+  })
+
+  describe('when validating emote metadata version', () => {
+    describe('and the emote has valid emoteDataADR74 field', () => {
+      let result: Awaited<ReturnType<typeof metadataVersionIsCorrectForTimestampValidateFn>>
+
+      beforeEach(async () => {
+        const entity = buildEntity({
+          type: EntityType.EMOTE,
+          metadata: VALID_STANDARD_EMOTE_METADATA,
+          timestamp: ADR_74_TIMESTAMP + 1
+        })
+        const deployment = buildDeployment({ entity })
+        result = await metadataVersionIsCorrectForTimestampValidateFn(deployment)
+      })
+
+      it('should pass validation', () => {
+        expect(result.ok).toBeTruthy()
+      })
+    })
+
+    describe('and the emote is missing the emoteDataADR74 field', () => {
+      let result: Awaited<ReturnType<typeof metadataVersionIsCorrectForTimestampValidateFn>>
+
+      beforeEach(async () => {
+        const { emoteDataADR74: _, ...metadataWithoutEmoteData } = VALID_STANDARD_EMOTE_METADATA as any
+        const entity = buildEntity({
+          type: EntityType.EMOTE,
+          metadata: metadataWithoutEmoteData,
+          timestamp: ADR_74_TIMESTAMP + 1
+        })
+        const deployment = buildDeployment({ entity })
+        result = await metadataVersionIsCorrectForTimestampValidateFn(deployment)
+      })
+
+      it('should fail with a version error', () => {
+        expect(result.ok).toBeFalsy()
+        expect(result.errors).toBeDefined()
+      })
+    })
+
+    describe('and the entity timestamp is before ADR 74', () => {
+      let result: Awaited<ReturnType<typeof metadataVersionIsCorrectForTimestampValidateFn>>
+
+      beforeEach(async () => {
+        const entity = buildEntity({
+          type: EntityType.EMOTE,
+          metadata: {},
+          timestamp: ADR_74_TIMESTAMP - 1
+        })
+        const deployment = buildDeployment({ entity })
+        result = await metadataVersionIsCorrectForTimestampValidateFn(deployment)
+      })
+
+      it('should skip validation and return ok', () => {
+        expect(result.ok).toBeTruthy()
+      })
+    })
   })
 
   it('When entity timestamp is previous to ADR_45, then validation does not run', async () => {
