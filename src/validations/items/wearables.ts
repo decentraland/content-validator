@@ -77,6 +77,7 @@ type SpringBoneParams = {
   gravityPower: number
   gravityDir: number[]
   drag: number
+  isRoot: boolean
 }
 
 /**
@@ -169,6 +170,12 @@ export async function springBonesMetadataValidateFn(
       ) {
         errors.push(
           `springBones.models['${modelFilename}']['${boneName}'].gravityDir must be an array of exactly 3 numbers, got ${JSON.stringify(params.gravityDir)}`
+        )
+      }
+
+      if (typeof params.isRoot !== 'boolean') {
+        errors.push(
+          `springBones.models['${modelFilename}']['${boneName}'].isRoot must be a boolean, got ${params.isRoot}`
         )
       }
     }
