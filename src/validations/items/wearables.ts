@@ -1,5 +1,5 @@
 import { keccak256Hash } from '@dcl/hashing'
-import { EntityType, isThirdParty, ThirdPartyProps, Wearable } from '@dcl/schemas'
+import { EntityType, isThirdParty, SpringBonesData, ThirdPartyProps, Wearable } from '@dcl/schemas'
 import { DeploymentToValidate } from '../..'
 import { OK, validationFailed, ValidationResponse } from '../../types'
 import { validateAll, validateIfTypeMatches } from '../validations'
@@ -68,31 +68,19 @@ export async function thirdPartyWearableMerkleProofContentValidateFn(
   return OK
 }
 
-/**
- * Spring bone parameter definition used for inline validation.
- * Each bone has physics-like properties controlling spring simulation.
- */
-type SpringBoneParams = {
-  stiffness: number
-  gravityPower: number
-  gravityDir: number[]
-  drag: number
-  isRoot: boolean
+const SPRING_BONE_NAME_TOKEN = 'springbone'
+
+function isSpringBoneName(name: string): boolean {
+  return name.toLowerCase().includes(SPRING_BONE_NAME_TOKEN)
 }
 
 /**
- * Spring bones metadata structure attached to wearable metadata.
- * Maps model filenames to their bone configurations.
- */
-type SpringBonesData = {
-  version: number
-  models: Record<string, Record<string, SpringBoneParams>>
-}
-
-/** Validate spring bones metadata when present on a wearable */
-export async function springBonesMetadataValidateFn(
-  deployment: DeploymentToValidate
-): Promise<ValidationResponse> {
+ * Validate spring bones metadata when present on a wearable.
+ *
+ * Structural and per-parameter range checks are delegated to `SpringBonesData.validate`
+ * from `@dcl/schemas`. This function only enforces invariants that the schema cannot
+ * express on its own. */
+export async function springBonesMetadataValidateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
   const { entity } = deployment
   const wearableMetadata = entity.metadata as Wearable & { springBones?: SpringBonesData }
 
@@ -104,79 +92,34 @@ export async function springBonesMetadataValidateFn(
   const springBones = wearableMetadata.springBones
   const errors: string[] = []
 
-  // (d) Version must be 1
+  if (!SpringBonesData.validate(springBones)) {
+    const schemaErrors = (SpringBonesData.validate.errors ?? []).map(
+      (e) => `springBones${e.instancePath} ${e.message ?? 'is invalid'}`
+    )
+    return validationFailed(...schemaErrors)
+  }
+
   if (springBones.version !== 1) {
     errors.push(`springBones.version must be 1, got ${springBones.version}`)
   }
 
-  if (!springBones.models || typeof springBones.models !== 'object') {
-    errors.push('springBones.models must be an object')
-    return validationFailed(...errors)
-  }
-
-  // Collect all content filenames across all representations
-  const representations = wearableMetadata?.data?.representations ?? []
-  const allContentFiles = new Set<string>()
+  // Build the set of content hashes that current representations point to.
+  const representations = wearableMetadata.data?.representations ?? []
+  const activeHashes = new Set<string>()
   for (const representation of representations) {
-    for (const contentFile of representation.contents) {
-      allContentFiles.add(contentFile)
+    const contentEntry = entity.content?.find((c) => c.file === representation.mainFile)
+    if (contentEntry) {
+      activeHashes.add(contentEntry.hash)
     }
   }
 
-  for (const [modelFilename, bones] of Object.entries(springBones.models)) {
-    // (a) Model filenames must exist in representation contents
-    if (!allContentFiles.has(modelFilename)) {
-      errors.push(
-        `springBones model filename '${modelFilename}' does not match any file in representation contents`
-      )
+  for (const [modelHash, bones] of Object.entries(springBones.models)) {
+    if (!activeHashes.has(modelHash)) {
+      errors.push(`springBones.models key '${modelHash}' does not match any current representation hash`)
     }
-
-    if (!bones || typeof bones !== 'object') {
-      errors.push(`springBones.models['${modelFilename}'] must be an object mapping bone names to parameters`)
-      continue
-    }
-
-    for (const [boneName, params] of Object.entries(bones)) {
-      // (b) Bone names must follow SpringBone_ naming convention (case-insensitive)
-      if (!boneName.toLowerCase().includes('springbone')) {
-        errors.push(
-          `Bone name '${boneName}' in model '${modelFilename}' does not follow the SpringBone naming convention`
-        )
-      }
-
-      // (c) Parameter ranges validation
-      if (typeof params.stiffness !== 'number' || params.stiffness < 0) {
-        errors.push(
-          `springBones.models['${modelFilename}']['${boneName}'].stiffness must be a number >= 0, got ${params.stiffness}`
-        )
-      }
-
-      if (typeof params.gravityPower !== 'number' || params.gravityPower < 0) {
-        errors.push(
-          `springBones.models['${modelFilename}']['${boneName}'].gravityPower must be a number >= 0, got ${params.gravityPower}`
-        )
-      }
-
-      if (typeof params.drag !== 'number' || params.drag < 0) {
-        errors.push(
-          `springBones.models['${modelFilename}']['${boneName}'].drag must be a number >= 0, got ${params.drag}`
-        )
-      }
-
-      if (
-        !Array.isArray(params.gravityDir) ||
-        params.gravityDir.length !== 3 ||
-        !params.gravityDir.every((v: unknown) => typeof v === 'number')
-      ) {
-        errors.push(
-          `springBones.models['${modelFilename}']['${boneName}'].gravityDir must be an array of exactly 3 numbers, got ${JSON.stringify(params.gravityDir)}`
-        )
-      }
-
-      if (typeof params.isRoot !== 'boolean') {
-        errors.push(
-          `springBones.models['${modelFilename}']['${boneName}'].isRoot must be a boolean, got ${params.isRoot}`
-        )
+    for (const boneName of Object.keys(bones)) {
+      if (!isSpringBoneName(boneName)) {
+        errors.push(`Bone name '${boneName}' in model '${modelHash}' does not follow the spring bone naming convention`)
       }
     }
   }
