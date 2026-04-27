@@ -82,14 +82,14 @@ function isSpringBoneName(name: string): boolean {
  * express on its own. */
 export async function springBonesMetadataValidateFn(deployment: DeploymentToValidate): Promise<ValidationResponse> {
   const { entity } = deployment
-  const wearableMetadata = entity.metadata as Wearable & { springBones?: SpringBonesData }
+  const wearableMetadata = entity.metadata as Wearable
 
   // Spring bones are optional — skip validation if not present
-  if (!wearableMetadata?.springBones) {
+  const springBones = wearableMetadata?.data?.springBones
+  if (!springBones) {
     return OK
   }
 
-  const springBones = wearableMetadata.springBones
   const errors: string[] = []
 
   if (!SpringBonesData.validate(springBones)) {

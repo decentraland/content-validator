@@ -576,7 +576,10 @@ describe('Wearables', () => {
     function buildWearableWithSpringBones(springBones: unknown) {
       return buildEntity({
         type: EntityType.WEARABLE,
-        metadata: { ...VALID_WEARABLE_METADATA, springBones },
+        metadata: {
+          ...VALID_WEARABLE_METADATA,
+          data: { ...VALID_WEARABLE_METADATA.data, springBones }
+        },
         content: baseContent,
         timestamp
       })
@@ -650,11 +653,11 @@ describe('Wearables', () => {
                 overrideHides: [],
                 overrideReplaces: []
               }
-            ]
-          },
-          springBones: {
-            version: 1,
-            models: { [sharedHash]: { Hair_springBone: validBoneParams } }
+            ],
+            springBones: {
+              version: 1,
+              models: { [sharedHash]: { Hair_springBone: validBoneParams } }
+            }
           }
         },
         content: [
